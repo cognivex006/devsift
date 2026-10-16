@@ -3057,8 +3057,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac",
+          "test_result": "5actualprocess conformance tests pass plus9externalnegativewire cases; UTF8physicalLF/Unicodeportablepaths/timeoutactualstatus/partialdiags/no-writes validated",
+          "author": "controller"
+        }
+      ],
       "assignee": "controller",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3073,6 +3079,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T08:48:54.895343+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:56:10.122498+00:00"
         }
       ]
     },
@@ -3093,8 +3104,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80",
+          "test_result": "10actualRoslynWindows tests pass withnativeenabled; SDK9.0.205build0warnings/errors, framework-shadowingredthenfixed, spans/proof/tamper/no-targetwrites",
+          "author": "cli_writer"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3109,6 +3126,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T08:48:55.048992+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:56:10.256368+00:00"
         }
       ]
     },
@@ -3262,8 +3284,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877",
+          "test_result": "6actualScriptDomWindows tests pass withnativeenabled; pinnedSDK/NuGetlockedrestore/publishverified; TSQL150/160/metadata/syntax/untrustedSQLtextnoexecution/strictwire",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3278,6 +3306,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T08:48:55.316795+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:56:10.406019+00:00"
         }
       ]
     },
@@ -4949,7 +4982,7 @@
       },
       "T021": {
         "owner": "controller",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g006-g010-native-analysis",
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
@@ -4960,11 +4993,12 @@
         "locks": [
           "write:tests/adapters"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac"
       },
       "T022": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g008-roslyn",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-roslyn",
         "paths": [
@@ -4977,7 +5011,8 @@
         "locks": [
           "write:adapters/dotnet"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80"
       },
       "T025": {
         "owner": "controller",
@@ -4998,7 +5033,7 @@
       },
       "T028": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g010-sql-parser",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-sql-parser",
         "paths": [
@@ -5011,7 +5046,8 @@
         "locks": [
           "write:adapters/sql"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5065,8 +5101,8 @@
         "T025",
         "T028"
       ],
-      "latest_integrated_sha": "beedbdc4c0339330c46afb38adee837265613690",
-      "updated_utc": "2026-10-16T08:48:55.316795+00:00"
+      "latest_integrated_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac",
+      "updated_utc": "2026-10-16T08:56:10.406019+00:00"
     },
     "previous_checkpoints": [
       {
