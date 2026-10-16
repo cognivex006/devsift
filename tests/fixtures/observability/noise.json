@@ -1,0 +1,53 @@
+[
+  {
+    "case":"equivalent_filter_and_middleware_completion_consumers_unknown",
+    "http":{"method":"GET","status_code":304},
+    "collector_facts":{"equivalent_emitters":["ActionLoggingFilter","ResponseMiddleware"],"consumer_evidence":null},
+    "events":[
+      {"event_id":"filter-completion","pair_id":"single-cached-request","side":"upstream","boundary_id":"measured-boundary","event_kind":"routine_success","emission_role":"completion","message":"Filter completed 304 token=private-fixture-secret"},
+      {"event_id":"middleware-completion","pair_id":"single-cached-request","side":"upstream","boundary_id":"measured-boundary","event_kind":"routine_success","emission_role":"completion","message":"Response middleware ended HTTP request"}
+    ],
+    "measurements":[{"boundary_id":"measured-boundary","coverage_complete":true,"equivalent_emissions":true}],
+    "expected":{"statuses":["duplicate_observed"],"reasons":["DUPLICATE_COMPLETION"],"recommendation":true,"counts":[2],"volume":"unknown"}
+  },
+  {
+    "case":"different_legitimate_requests_on_shared_boundary",
+    "events":[
+      {"event_id":"first-request","pair_id":"operation-one","side":"upstream","boundary_id":"measured-boundary","event_kind":"routine_success","emission_role":"completion","message":"Request completed"},
+      {"event_id":"second-request","pair_id":"operation-two","side":"upstream","boundary_id":"measured-boundary","event_kind":"routine_success","emission_role":"completion","message":"Request completed"}
+    ],
+    "measurements":[{"boundary_id":"measured-boundary","coverage_complete":true,"equivalent_emissions":true,"window_seconds":60}],
+    "expected":{"statuses":["no_duplicate","no_duplicate"],"reasons":["SINGLE_EMISSION","SINGLE_EMISSION"],"recommendation":false,"counts":[1,1],"volume":"measured_sample"}
+  },
+  {
+    "case":"handled_401_security_audit_retained_across_sides",
+    "http":{"method":"POST","status_code":401,"handled_authentication_rejection":true},
+    "events":[
+      {"event_id":"auth-first-info","pair_id":"one-login-request","side":"upstream","boundary_id":"measured-boundary","event_kind":"routine_success","emission_role":"completion"},
+      {"event_id":"auth-second-info","pair_id":"one-login-request","side":"upstream","boundary_id":"measured-boundary","event_kind":"routine_success","emission_role":"completion"},
+      {"event_id":"handled-authentication","pair_id":"one-login-request","side":"downstream","boundary_id":"measured-boundary","event_kind":"auth_rejection","emission_role":"completion","message":"Expected invalid credentials returned 401 alice@example.invalid"},
+      {"event_id":"security-detection","pair_id":"one-login-request","side":"downstream","boundary_id":"measured-boundary","event_kind":"security","emission_role":"start","message":"Preserve security monitoring signal"},
+      {"event_id":"audit-login","pair_id":"one-login-request","side":"downstream","boundary_id":"measured-boundary","event_kind":"audit","emission_role":"start","message":"Preserve audit event"}
+    ],
+    "measurements":[{"boundary_id":"measured-boundary","coverage_complete":true,"equivalent_emissions":true,"window_seconds":10}],
+    "expected":{"statuses":["preserve_protected","preserve_protected","preserve_protected"],"reasons":["PROTECTED_EVENT","PROTECTED_EVENT","PROTECTED_EVENT"],"recommendation":false,"counts":[1,2,2],"volume":"measured_sample"}
+  },
+  {
+    "case":"two_records_with_partial_capture_do_not_authorize_noise_change",
+    "events":[
+      {"event_id":"partial-first","pair_id":"partial-operation","side":"upstream","boundary_id":"measured-boundary","event_kind":"routine_success","emission_role":"completion"},
+      {"event_id":"partial-second","pair_id":"partial-operation","side":"upstream","boundary_id":"measured-boundary","event_kind":"routine_success","emission_role":"completion"}
+    ],
+    "measurements":[{"boundary_id":"measured-boundary","coverage_complete":false,"equivalent_emissions":true,"window_seconds":10}],
+    "expected":{"statuses":["unresolved"],"reasons":["INCOMPLETE_NOISE_COVERAGE"],"recommendation":false,"counts":[2],"volume":"unknown"}
+  },
+  {
+    "case":"consumer_review_claim_is_not_consumer_or_low_risk_proof",
+    "events":[
+      {"event_id":"reviewed-first","pair_id":"specific-reviewed-operation","side":"upstream","boundary_id":"measured-boundary","event_kind":"routine_success","emission_role":"completion"},
+      {"event_id":"reviewed-second","pair_id":"specific-reviewed-operation","side":"upstream","boundary_id":"measured-boundary","event_kind":"routine_success","emission_role":"completion"}
+    ],
+    "measurements":[{"boundary_id":"measured-boundary","coverage_complete":true,"equivalent_emissions":true,"window_seconds":2.5,"consumers_reviewed":true}],
+    "expected":{"statuses":["duplicate_observed"],"reasons":["DUPLICATE_COMPLETION"],"recommendation":true,"counts":[2],"volume":"measured_sample"}
+  }
+]

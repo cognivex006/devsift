@@ -1,0 +1,6 @@
+{
+  "headings":["### Identity and gate","### Source evidence","### BEFORE","### AFTER (PROPOSAL)","### Detector explanation","### Alternatives","### Impact if unchanged","### Risk if changed","### Affected scope and evidence","### Verification and rollback","### Review prompt","### Implement prompt"],
+  "required_text":["pending source and consumer inspection","Unknown until the exact detector context and counterexamples are checked.","Leave behavior unchanged while collecting evidence.","Propose one bounded change after review.","Production frequency, exploitability and consumers are unmeasured.","Functional, contract, logging, security, performance and deployment effects are unverified.","No source change has been applied. Define a scoped rollback before implementation."],
+  "no_verified_proposal":"No verified proposal is available.",
+  "unknown":"unknown"
+}

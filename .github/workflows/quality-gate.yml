@@ -1,0 +1,104 @@
+name: DevSift quality gate
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  analysis:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - name: Preserve immutable Windows checkout bytes
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: git config --global core.autocrlf false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: '9.0.205'
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: '1.21.3'
+          cache: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - name: Restore only locked SQL NuGet packages
+        id: nuget-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ github.workspace }}/.devsift/local/nuget
+          key: devsift-nuget-v1-${{ runner.os }}-${{ runner.arch }}-sdk9.0.205-go1.21.3-node24-${{ hashFiles('native/**/*.csproj', 'native/**/packages.lock.json', 'native/**/global.json', 'native/**/NuGet.Config', 'native/**/Directory.Build.props', 'native/**/Directory.Build.targets', 'native/frontend/package-lock.json', 'native/go/go.mod', 'requirements-dev.txt') }}
+          enableCrossOsArchive: false
+          fail-on-cache-miss: false
+      - name: Explicit trusted analyzer setup
+        id: setup-native
+        run: python tools/build_native.py
+      - name: Analyze explicit production scope and produce complete reports
+        id: quality
+        shell: pwsh
+        env:
+          DEVSIFT_BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          python tools/run_quality_ci.py --output "$env:RUNNER_TEMP/devsift-quality"
+          exit $LASTEXITCODE
+      - name: Save locked SQL NuGet packages on successful trusted main push
+        id: save-nuget-cache
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.nuget-cache.outputs.cache-hit != 'true' && steps.nuget-cache.outputs.cache-primary-key != ''
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ github.workspace }}/.devsift/local/nuget
+          key: ${{ steps.nuget-cache.outputs.cache-primary-key }}
+      - name: Preserve all three report artifacts even when the gate fails
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: devsift-quality-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/devsift-quality/report.md
+            ${{ runner.temp }}/devsift-quality/findings.json
+            ${{ runner.temp }}/devsift-quality/results.sarif
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-sarif:
+    needs: analysis
+    if: >-
+      ${{ !cancelled() && vars.DEVSIFT_SARIF_UPLOAD == 'true' && (github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)) }}
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        source_os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Download this run's fixed report artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: devsift-quality-${{ matrix.source_os }}
+          path: ${{ runner.temp }}/devsift-publish
+      - name: Optional SARIF service upload
+        uses: github/codeql-action/upload-sarif@6f2ac81f5cd81fe351a197ba0b00d91d03cd2aee # v4
+        with:
+          sarif_file: ${{ runner.temp }}/devsift-publish/results.sarif
+          category: devsift-${{ matrix.source_os }}

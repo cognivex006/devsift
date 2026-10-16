@@ -21,7 +21,14 @@ A scan without configured native tools inventories source and returns incomplete
 python -m devsift scan --changed --native-manifest /absolute/trusted-tools.json --native-manifest-digest <sha256>
 ```
 
-See [native setup](docs/NATIVE-SETUP.md) and [CLI behavior](docs/CLI.md). Incomplete output and empty findings do not prove a clean scan. Lifecycle attribution may remain UNKNOWN despite verified source. Report, explain and case-prompt backends remain unavailable.
+Add `--security` for bounded credential and supported logging/TLS checks; see the
+[security coverage](docs/SECURITY-ANALYSIS.md). Scan and CI include full JSON,
+Markdown and SARIF under `data.reports`; `--report-format` selects individual formats.
+The [CI gate](docs/CI-GATE.md) runs fresh analysis with explicit native configuration
+and Git provenance. [Report context](docs/REPORT-CONTEXT.md) keeps candidate
+consumer/test relationships and production impact explicitly unknown.
+
+See [native setup](docs/NATIVE-SETUP.md) and [CLI behavior](docs/CLI.md). Incomplete output and empty findings do not prove a clean scan. Lifecycle attribution may remain UNKNOWN despite verified source. Stored-report, explain and case-prompt CLI backends remain unavailable. Use `python -B -m devsift` for strict no-bytecode execution from a cold checkout.
 
 ## Contents
 
