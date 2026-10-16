@@ -54,3 +54,6 @@ All notable user-facing changes to DevSift will be documented here. This follows
 - Credential findings withhold the entire verified source region through native output, scanner reproof, classifier and baseline capture; raw-content fingerprints remain distinct.
 - Windows process-assignment failures terminate the owned suspended child; baseline aliases share canonical CAS locks without allowing symlink/junction parents.
 - Initial remote bootstrap prohibits force push, secret publication, unreviewed license selection and writes to non-target repositories.
+
+- Add a read-only release-candidate readiness check that composes trusted-pin source-bundle verification with bounded archive inspection while retaining release blockers.
+- Add an unreleased release-notes draft and release preparation checklist covering four source components, candidate-derived SBOM/license evidence, and pending owner approval.
