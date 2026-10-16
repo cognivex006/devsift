@@ -7,6 +7,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import sysconfig
 import tempfile
 import unittest
@@ -87,6 +88,23 @@ class InstalledCliTests(unittest.TestCase):
                         self.assertNotIn('do-not-echo-private-value', stream)
                     self.assertEqual(snapshot(target), before_target)
                     self.assertEqual(snapshot(self.package), before_package)
+
+    def test_isolated_installed_module_ignores_consumer_shadow_and_writes_nothing(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target=Path(directory)
+            (target/'devsift.py').write_text("from pathlib import Path; Path('shadow-ran').write_text('bad'); raise SystemExit(73)",encoding='utf-8')
+            before_target,before_package=snapshot(target),snapshot(self.package)
+            env=dict(os.environ)
+            env.pop('PYTHONPATH',None);env.pop('PYTHONHOME',None)
+            completed=subprocess.run([sys.executable,'-I','-B','-m','devsift','doctor'],
+                                     cwd=target,env=env,text=True,capture_output=True,timeout=30)
+            self.assertEqual(completed.returncode,2,completed.stderr+completed.stdout)
+            record=json.loads(completed.stdout)
+            self.assertEqual(record['command'],'doctor')
+            self.assertFalse(record['complete'])
+            self.assertFalse((target/'shadow-ran').exists())
+            self.assertEqual(snapshot(target),before_target)
+            self.assertEqual(snapshot(self.package),before_package)
 
 
 if __name__ == '__main__':

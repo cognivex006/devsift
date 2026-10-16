@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import subprocess
 
+from .git_runtime import git_executable
 from .output import result
 from .scanner import scan
 
@@ -12,7 +13,7 @@ def _git(root, *arguments, config=()):
                        GIT_NO_LAZY_FETCH="1", GIT_LITERAL_PATHSPECS="1",
                        GIT_TERMINAL_PROMPT="0")
     process = subprocess.run(
-        ["git", "--no-optional-locks", "-c", "core.fsmonitor=false", "-C", str(root),
+        [git_executable(root), "--no-optional-locks", "-c", "core.fsmonitor=false", "-C", str(root),
          *config, *arguments], env=environment, capture_output=True, timeout=10,
     )
     if process.returncode or len(process.stdout) > 2_000_000:

@@ -4,24 +4,24 @@ A code-quality skill backed by a read-only Python CLI and optional native analyz
 
 ## Use
 
-Requires Python 3.12+. Install the package from a trusted checkout with `python -m pip install .`, and load [skills/devsift](skills/devsift/SKILL.md) in your agent host. Pip installs the CLI; the skill folder is installed separately in the host's skill directory.
+Requires Python 3.12+. Install the package into a trusted Python environment (preferably a virtual environment) from the trusted checkout with `python -m pip install .`, and load [skills/devsift](skills/devsift/SKILL.md) in your agent host. Pip installs the CLI; the skill folder is installed separately in the host's skill directory.
 
 From the target Git repository root:
 
 ```sh
-python -m devsift --help
-python -m devsift doctor
-python -m devsift scan --changed
-python -m devsift scan --all --legacy-mode recommend
+python -I -B -m devsift --help
+python -I -B -m devsift doctor
+python -I -B -m devsift scan --changed
+python -I -B -m devsift scan --all --legacy-mode recommend
 ```
 
 A scan without configured native tools inventories source and returns incomplete. Actual analysis requires an explicitly trusted absolute manifest and independently trusted SHA256:
 
 ```sh
-python -m devsift scan --changed --native-manifest /absolute/trusted-tools.json --native-manifest-digest <sha256>
+python -I -B -m devsift scan --changed --native-manifest /absolute/trusted-tools.json --native-manifest-digest <sha256>
 ```
 
-See [native setup](docs/NATIVE-SETUP.md) and [CLI behavior](docs/CLI.md). Incomplete output and empty findings do not prove a clean scan. Lifecycle attribution may remain UNKNOWN despite verified source. Report, explain and case-prompt backends remain unavailable.
+See [native setup](docs/NATIVE-SETUP.md) and [CLI behavior](docs/CLI.md). Incomplete output and empty findings do not prove a clean scan. Lifecycle attribution may remain UNKNOWN despite verified source. Scan and CI return full JSON, Markdown and SARIF in `data.reports`. Explicit `prompt --scan-input` composes one source-reproved case review or implementation proposal; operator approval never grants automatic source writes. `report --latest` and `explain` storage discovery remain unavailable.
 
 ## Contents
 
@@ -33,3 +33,5 @@ See [native setup](docs/NATIVE-SETUP.md) and [CLI behavior](docs/CLI.md). Incomp
 - `docs/`: runtime usage and implementation documentation.
 
 Specifications, historical references, task plans, the live ledger and development orchestration belong only to [devsift-specs](https://github.com/orchex006/devsift-specs). See [development](DEVELOPMENT.md). No package release is implied; the owner has not selected a license.
+
+See [Doctor diagnostics](docs/DOCTOR.md), [case prompts and approval](docs/CASE-PROMPTS.md), and [source-linked report context](docs/REPORT-CONTEXT.md) for the implemented workflows. Isolated `-I -B` invocations avoid consumer module shadowing and bytecode writes; use the interpreter containing the trusted installation.

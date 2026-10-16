@@ -183,3 +183,12 @@ staged and unstaged selected changes, unrelated versus selected untracked files,
 moving HEAD, unresolved source, actual file links when permitted, protected masks,
 immutable decisions and before/after source/.git identity. No automatic changes
 or approval discovery are tested as successful capabilities.
+
+
+## Installed command entry
+
+The installed skill calls `python -I -B -m devsift prompt CASE-ID --mode review --scan-input /absolute/scan.json` from the consumer Git root. Isolated Python prevents consumer module/environment shadowing; bytecode is disabled. Development tests use `-P` and an explicitly trusted checkout PYTHONPATH, never an automatically discovered consumer module.
+
+For proposals use `--mode implement --approved-case CASE-ID`; optionally provide the explicit nine-field operator record with `--approval-file`. Matching only the target ID is not approval. The command backend uses the bounded explicit JSON loader, discards imported rendered reports, reassembles/reproves scan findings and invokes the immutable composer/approval guard. No input is auto-discovered. The CLI returns `scope: case_prompt_generation_only` and `analysis_performed: false`; review exit 0 is generation success only, not evidence of a clean scan. Unknown source returns 2; implementation returns 2/review_required and never grants automatic edits, even for a matching record. Missing legacy storage inputs remain incomplete rather than inferred.
+
+Git proofs select an absolute host Git executable from absolute operator PATH entries outside the consumer repository. Empty/relative entries and links resolving into the consumer repository are excluded, so a project `git.exe`/`git` cannot provide source proof. This trusts the host installation; it is not executable hash pinning or a sandbox against concurrent host changes.

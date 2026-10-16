@@ -9,6 +9,7 @@ import re
 import stat
 import subprocess
 
+from .git_runtime import git_executable
 from .case_prompts import CasePrompt, compose_case_prompt
 from .evidence import SourceEvidence
 from .redaction import Redactor
@@ -96,7 +97,7 @@ def _git(root, *args):
         environment.pop(name, None)
     environment.update(GIT_NO_REPLACE_OBJECTS='1', GIT_LITERAL_PATHSPECS='1', GIT_OPTIONAL_LOCKS='0',
                        GIT_TERMINAL_PROMPT='0', GIT_NO_LAZY_FETCH='1')
-    process = subprocess.run(['git', '--no-optional-locks', '-c', 'core.fsmonitor=false', '-C', str(root), *args],
+    process = subprocess.run([git_executable(root), '--no-optional-locks', '-c', 'core.fsmonitor=false', '-C', str(root), *args],
                              env=environment, capture_output=True, timeout=10)
     if process.returncode or len(process.stdout) > 2_000_000:
         raise ValueError('Git check unavailable')

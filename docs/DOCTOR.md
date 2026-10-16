@@ -214,3 +214,7 @@ Before/after hashes ensure the fixture contents, untrusted configs and manifests
 are preserved; temporary process scratch cleanup is owned by the accepted runner.
 This matrix does not replace real native/parser/installed-CLI or cross-platform
 acceptance runs, and does not itself mark a goal accepted or released.
+
+## Installed CLI flags
+
+Use `python -I -B -m devsift doctor --policy /absolute/policy.json --cache-path /absolute/cache` for explicit config/cache diagnostics. Native probe flags remain paired and independently trusted. The installed CLI additionally advertises the integrated report-generation and case-prompt capabilities; these are not native-provider readiness or source-analysis results.

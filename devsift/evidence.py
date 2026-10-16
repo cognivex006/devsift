@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import subprocess
 
+from .git_runtime import git_executable
 from .redaction import Redactor
 
 
@@ -142,7 +143,7 @@ def _git(root, *args):
     environment = os.environ.copy()
     environment.update(GIT_NO_REPLACE_OBJECTS="1", GIT_LITERAL_PATHSPECS="1",
                        GIT_OPTIONAL_LOCKS="0", GIT_TERMINAL_PROMPT="0", GIT_NO_LAZY_FETCH="1")
-    process = subprocess.run(["git", "-C", str(root), *args], capture_output=True,
+    process = subprocess.run([git_executable(root), "-C", str(root), *args], capture_output=True,
                              timeout=10, env=environment)
     if process.returncode:
         raise EvidenceError("source lookup unavailable")

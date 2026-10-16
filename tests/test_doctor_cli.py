@@ -52,5 +52,29 @@ class DoctorCliTests(unittest.TestCase):
             self.assertFalse(json.loads(process.stdout)['complete'])
             self.assertNotIn('privateMissingManifest',process.stdout+process.stderr)
 
+    def test_explicit_valid_policy_and_missing_cache_are_read_only(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory); policy=root/'policy.json'
+            policy.write_text('{"schema_version":"1","legacy_mode":"recommend"}')
+            process=self.invoke('--policy',str(policy),'--cache-path',str(root/'absent-cache'),cwd=root)
+            self.assertEqual(process.returncode,2,process.stderr)
+            record=json.loads(process.stdout)
+            self.assertEqual(record['data']['config_checks']['status'],'valid')
+            self.assertEqual(record['data']['cache_checks']['status'],'missing')
+            self.assertFalse((root/'absent-cache').exists())
+            self.assertEqual(policy.read_text(),'{"schema_version":"1","legacy_mode":"recommend"}')
+
+    def test_invalid_explicit_policy_never_echoes_values_or_creates_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory); policy=root/'policy.json'
+            policy.write_text('{"private":"privatePolicyValue"}')
+            before=policy.read_bytes()
+            process=self.invoke('--policy',str(policy),cwd=root)
+            self.assertEqual(process.returncode,2,process.stderr)
+            record=json.loads(process.stdout)
+            self.assertEqual(record['data']['config_checks']['status'],'incomplete')
+            self.assertNotIn('privatePolicyValue',process.stdout+process.stderr)
+            self.assertEqual(policy.read_bytes(),before)
+
 
 if __name__=='__main__': unittest.main()

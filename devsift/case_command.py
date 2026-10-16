@@ -25,6 +25,9 @@ def run_case_command(case_id, *, mode, scan_input, repo_root, approved_case=None
     try:
         root=Path(repo_root)
         scan_record=load_json_input(scan_input)
+        if type(scan_record) is dict and type(scan_record.get('data')) is dict:
+            # Ignore imported rendered reports; only scanner fields can enter assembly.
+            scan_record={**scan_record, 'data':{key:value for key,value in scan_record['data'].items() if key!='reports'}}
         report=assemble_report(scan_record,repo_root=root)
         prompt=compose_case_prompt(report,case_id,mode=mode,repo_root=root)
         payload=prompt.to_dict()
