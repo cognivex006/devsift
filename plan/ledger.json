@@ -2236,8 +2236,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+          "test_result": "53 discovery tests OK with 1 installed-only skip; 16 producer tests pass; plan/kit/syntax/diff/credential checks pass",
+          "author": "cli_writer"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2252,6 +2258,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:31:59.005869+00:00"
         }
       ]
     },
@@ -2272,8 +2283,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+          "test_result": "53 discovery tests OK with 1 installed-only skip; 16 producer tests pass; plan/kit/syntax/diff/credential checks pass",
+          "author": "cli_writer"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2288,6 +2305,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:31:59.005869+00:00"
         }
       ]
     },
@@ -4057,7 +4079,7 @@
       },
       "T010": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g004-inventory",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-inventory",
         "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
@@ -4071,11 +4093,12 @@
         "locks": [
           "write:engine/scan"
         ],
-        "lease": "selected session; until accepted/reassigned"
+        "lease": "selected session; until accepted/reassigned",
+        "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28"
       },
       "T011": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g004-inventory",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-inventory",
         "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
@@ -4089,7 +4112,8 @@
         "locks": [
           "write:engine/adapters"
         ],
-        "lease": "selected session; until accepted/reassigned"
+        "lease": "selected session; until accepted/reassigned",
+        "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4112,7 +4136,9 @@
         "T008",
         "T010",
         "T011"
-      ]
+      ],
+      "latest_integrated_sha": "c362e802e3f18d28ec224cb9d5971fe2005ad690",
+      "updated_utc": "2026-10-16T07:31:59.005869+00:00"
     },
     "previous_checkpoints": [
       {
