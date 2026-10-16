@@ -17,8 +17,7 @@ git worktree add worktrees/example -b feature/example HEAD
 Keep each writer on owned paths and obtain independent review before integration.
 After a job is accepted, verify its worktree is clean and its commit is an
 ancestor of the integration branch (or record an independently reviewed
-replacement). Remove the finished folder with `git worktree remove
-worktrees/example`; preserve its branch/commit references and cleanup evidence in
+replacement). Remove the finished folder with `git worktree remove worktrees/example`; preserve its branch/commit references and cleanup evidence in
 the canonical specs ledger. Preserve active, dirty and unique worktrees. Do not
 create sibling checkout folders or restore snapshots as task checkpoints.
 

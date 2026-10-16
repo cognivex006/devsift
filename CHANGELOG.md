@@ -21,6 +21,8 @@ All notable user-facing changes to DevSift will be documented here. This follows
 - Brand-independent adapters: integration with AgriMap, Drevqon, Axiom is optional, not mandatory.
 
 ### Added
+- Deterministic commit-bound source ZIP bundles with independently trusted integrity checks; actual offline wheel/sdist fresh-install and explicit rollback proof runs on Windows and Linux.
+- Bounded read-only ZIP/wheel secret-shape inspection with full stored/deflate payload integrity checks; incomplete and review results never grant publication authority.
 - Explicit component allowlists and audited wheel/sdist inputs, excluding unlisted source and maintainer assets.
 - Bounded repository-local policy discovery with protected reads and Git metadata alias rejection.
 - Fresh source-bound security escalation independent of quality thresholds, preserving incomplete configured-provider failures and unknown impact.
