@@ -13,6 +13,7 @@ import unittest
 from unittest.mock import patch
 import warnings
 import zipfile
+import zlib
 
 from tools import check_artifact_security as checker
 
@@ -165,6 +166,71 @@ class ArtifactSecurityTests(unittest.TestCase):
         with patch.object(checker, '_capture', side_effect=swap_after_capture):
             result = checker.inspect_archive(self.archive, expected_sha256=hashlib.sha256(data).hexdigest())
         self.assertTrue(result['complete'])  # Hash and parser consumed the same snapshot.
+
+    def test_forged_stored_and_deflate_sizes_crc_and_trailing_streams_fail_closed(self):
+        prefix = b'safe'
+        canary = ('gh' + 'p_' + 'A' * 36).encode('ascii')
+        for method in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED):
+            data = bytearray(zipped([('source.txt', prefix + canary)], compression=method))
+            central = data.find(b'PK\x01\x02')
+            crc = zlib.crc32(prefix)
+            struct.pack_into('<L', data, 14, crc)
+            struct.pack_into('<L', data, 22, len(prefix))
+            struct.pack_into('<L', data, central + 16, crc)
+            struct.pack_into('<L', data, central + 24, len(prefix))
+            forged = bytes(data)
+            # Reproduce the reviewer: stdlib member reading trusts forged size.
+            with zipfile.ZipFile(io.BytesIO(forged)) as archive:
+                self.assertEqual(archive.read('source.txt'), prefix)
+            with self.subTest(method=method):
+                record = self.inspect(forged)
+                self.assertFalse(record['complete'])
+                self.assertEqual(record['status'], 'incomplete')
+                self.assertNotIn(canary.decode(), json.dumps(record))
+        for method in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED):
+            data = bytearray(zipped([('source.txt', prefix)], compression=method))
+            central = data.find(b'PK\x01\x02')
+            struct.pack_into('<L', data, 14, 0)
+            struct.pack_into('<L', data, central + 16, 0)
+            with self.subTest(actual_crc=method):
+                self.assertFalse(self.inspect(bytes(data))['complete'])
+        class NonSeekable(io.BytesIO):
+            def seek(self, *args):
+                raise OSError('nonseekable fixture')
+        stream = NonSeekable()
+        with zipfile.ZipFile(stream, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr('source.txt', prefix)
+        self.assertTrue(self.inspect(stream.getvalue())['complete'])
+        compressor = zlib.compressobj(wbits=-15)
+        second = compressor.compress(canary) + compressor.flush()
+        for suffix in (b'raw trailing private canary', second, None):
+            data = bytearray(zipped([('source.txt', prefix)], compression=zipfile.ZIP_DEFLATED))
+            length = struct.unpack_from('<L', data, 18)[0]
+            start = 30 + struct.unpack_from('<H', data, 26)[0] + struct.unpack_from('<H', data, 28)[0]
+            end = start + length
+            if suffix is None:
+                del data[end-1:end]  # Remove the deflate end marker byte.
+                delta = -1
+            else:
+                data[end:end] = suffix
+                delta = len(suffix)
+            struct.pack_into('<L', data, 18, length + delta)
+            central = data.find(b'PK\x01\x02')
+            struct.pack_into('<L', data, central + 20, length + delta)
+            eocd = data.rfind(b'PK\x05\x06')
+            struct.pack_into('<L', data, eocd + 16, central)
+            with self.subTest(suffix_kind='truncated' if suffix is None else 'concatenated' if suffix == second else 'trailing'):
+                self.assertFalse(self.inspect(bytes(data))['complete'])
+
+    def test_windows_superscript_device_aliases_rejected_as_actual_zip_names(self):
+        for prefix in ('COM', 'LPT'):
+            for digit in ('\u00b9', '\u00b2', '\u00b3'):
+                for extension in ('', '.txt', '.tar.gz'):
+                    with self.subTest(prefix=prefix, digit=digit, extension=extension):
+                        self.assertFalse(self.inspect(zipped([(prefix + digit + extension, 'ordinary')]))['complete'])
+
+        # Do not broaden this documented six-name exception to other superscripts.
+        self.assertTrue(self.inspect(zipped([('COM\u2074.txt', 'ordinary')]))['complete'])
 
     def test_actual_size_member_count_total_ratio_and_malformed_limits(self):
         fixtures = [b'not a zip', b'x' * (checker.MAX_ARCHIVE + 1),

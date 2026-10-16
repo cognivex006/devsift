@@ -99,7 +99,8 @@ def _safe_name(name):
     parts = normalized_name.split('/')
     _require(all(p not in {'', '.', '..'} and not p.endswith((' ', '.')) for p in parts))
     # Ignore no Windows stream/device/path aliases, even though nothing extracts.
-    devices = {'con', 'prn', 'aux', 'nul'} | {p + str(n) for p in ('com', 'lpt') for n in range(1, 10)}
+    devices = {'con', 'prn', 'aux', 'nul'} | {p + digit for p in ('com', 'lpt')
+              for digit in [*(str(n) for n in range(1, 10)), '\u00b9', '\u00b2', '\u00b3']}
     _require(all(p.split('.')[0].casefold() not in devices for p in parts))
     return unicodedata.normalize('NFC', normalized_name).casefold(), parts
 
@@ -117,6 +118,26 @@ def _pairs(pairs):
         _require(key not in result)
         result[key] = value
     return result
+
+
+def _payload(encoded, entry):
+    """Validate the full captured span, not ZipFile's declared-size prefix.
+
+    Never flush an unbounded inflater: at most declared_size+1 bytes may be
+    produced. EOF plus empty unused/unconsumed tails proves one exact stream.
+    """
+    _require(0 <= entry.file_size <= MAX_MEMBER and len(encoded) == entry.compress_size)
+    if entry.compress_type == zipfile.ZIP_STORED:
+        _require(entry.compress_size == entry.file_size)
+        data = encoded
+    else:
+        _require(entry.compress_type == zipfile.ZIP_DEFLATED)
+        inflater = zlib.decompressobj(wbits=-15)
+        data = inflater.decompress(encoded, entry.file_size + 1)
+        _require(inflater.eof and not inflater.unused_data and not inflater.unconsumed_tail)
+    _require(len(data) == entry.file_size and len(data) <= MAX_MEMBER
+             and zlib.crc32(data) == entry.CRC)
+    return data
 
 
 def inspect_archive(path, *, expected_sha256):
@@ -168,7 +189,7 @@ def inspect_archive(path, *, expected_sha256):
                 _require(declared_total <= MAX_TOTAL)
                 if entry.extra or entry.comment:
                     issues.add('UNINSPECTED_ZIP_METADATA')
-            cursor = 0
+            cursor, spans = 0, {}
             for entry in sorted(entries, key=lambda item: item.header_offset):
                 # Local-only extras/gaps are not silently classified as inspected.
                 _require(entry.header_offset == cursor and cursor + 30 <= central_offset)
@@ -182,6 +203,7 @@ def inspect_archive(path, *, expected_sha256):
                 if extra_len:
                     issues.add('UNINSPECTED_ZIP_METADATA')
                 cursor = end_header + entry.compress_size
+                spans[entry.filename] = (end_header, cursor)
                 _require(cursor <= central_offset)
                 if flags & 8:
                     if raw[cursor:cursor+4] == b'PK\x07\x08':
@@ -202,9 +224,8 @@ def inspect_archive(path, *, expected_sha256):
                 if lower.endswith(_BINARY):
                     issues.add('BINARY_OR_UNSUPPORTED_TEXT')
                     continue
-                with archive.open(entry) as member:
-                    data = member.read(MAX_MEMBER + 1)
-                _require(len(data) == entry.file_size and len(data) <= MAX_MEMBER)
+                left, right = spans[entry.filename]
+                data = _payload(raw[left:right], entry)
                 if data.startswith((b'PK\x03\x04', b'PK\x05\x06', b'\x1f\x8b', b'7z\xbc\xaf\x27\x1c', b'Rar!', b'BZh', b'\xfd7zXZ\x00')) or data[257:262] == b'ustar':
                     issues.add('NESTED_ARCHIVE_UNINSPECTED')
                     continue

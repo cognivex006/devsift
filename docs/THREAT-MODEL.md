@@ -47,8 +47,15 @@ will contain them forever after inspection.
 ZIP structure is bounded before constructing a member list: at most 256 actual
 central records, no ZIP64/multidisk/self-extracting/trailing structures, at most
 1,000,000 uncompressed bytes per member, 4,000,000 total and a maximum expansion
-ratio of 100. Only stored and deflated UTF-8 text members are inspected. CRC and
-bounded decompression failures are incomplete. Empty archives can complete
+ratio of 100. Only stored and deflated UTF-8 text members are inspected. Every
+supported payload is validated directly from its complete captured raw
+compressed span. Stored data must have identical compressed/actual/declared
+lengths and matching CRC. Raw deflate produces at most declared_size+1 bytes
+within existing resource limits, must reach EOF with no unused_data or
+unconsumed_tail, and must match the exact declared length and CRC. Truncated,
+over-expanding, trailing-junk or concatenated streams remain incomplete; the
+checker does not trust ZipFile's potentially truncated declared-size prefix.
+Empty archives can complete
 this narrow zero-member inspection; they prove no source coverage or release
 readiness. A .whl filename is inspected as ZIP content, not certified as an
 installable or policy-compliant Python distribution.
@@ -59,7 +66,11 @@ linked/special or inconsistent entries fail closed. Original stored filenames
 are checked before ZipInfo's platform normalization can hide an unsafe name.
 Local header names/flags/sizes must match central entries. Local/central extra
 fields, comments and unaccounted bytes are uninspected metadata and cannot yield
-complete. No name is used as an output/extraction path.
+complete. Windows COM/LPT aliases include the six superscript-digit forms
+COMยน/COMยฒ/COMยณ and LPTยน/LPTยฒ/LPTยณ, with optional extensions, as documented by
+[Microsoft's naming rules](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file).
+This is a bounded reserved-name rule, not general Unicode homoglyph detection.
+No name is used as an output/extraction path.
 
 Private filename families include .env variants, common package/auth dotfiles,
 SSH key names, credentials/secrets filenames, private-key container suffixes,
@@ -106,8 +117,9 @@ actual ZIP/wheel-shaped bytes for clean text, marker-creating Python/report
 snippets retained as inert data, known credential/key canaries and private names.
 It covers original stored-name aliases, traversal/collision/type/encryption,
 unsupported nested/binary/metadata/JSON, digest tampering, actual size/count/
-ratio limits, malformed ZIP, safe isolated script JSON, source/file/directory
-symlinks and an actual Windows junction when the host permits creation.
+ratio limits, forged local+central sizes/CRC, exact deflate EOF and trailing/
+concatenated streams, superscript aliases, malformed ZIP, safe isolated script
+JSON, source/file/directory symlinks and an actual Windows junction when the host permits creation.
 
 The captured-snapshot fixture swaps the on-disk archive after capture to prove
 hashing/parsing use the same bytes. Other fixtures compare archive/consumer/.git
