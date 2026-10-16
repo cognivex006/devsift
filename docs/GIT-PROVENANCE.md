@@ -67,6 +67,8 @@ drivers, external diff, textconv, network, index/source writes or ref updates.
 Replacement objects, optional locks, fsmonitor and terminal prompting are disabled.
 Lazy fetching is disabled for Git commands, and partial/promisor repositories are
 rejected before source verification to prevent missing-object network retrieval.
+The guard inspects effective Git configuration with includes, covering system,
+global, local, worktree and environment scopes; local-only inspection is insufficient.
 The actual repository root must be supplied. Only regular immutable blobs are
 read; symlink/submodule source is unsupported. Limits: 1,000 tree entries, 2 MB
 per blob, 5 MB total comparison bytes for new-path origin, 5,000 physical lines per

@@ -46,7 +46,9 @@ VERIFIED records asserting a symbol until a symbol-aware proof contract exists.
 
 `verify_source` requires the actual repository root and a commit object. It uses
 read-only Git object commands, disables replacement objects and optional locks,
-and never reads source through the working tree. Only regular Git blobs are
+and sets `GIT_NO_LAZY_FETCH=1` on every Git read to prevent partial-clone object
+lookups from silently fetching over the network. It never reads source through
+the working tree. Only regular Git blobs are
 accepted; symlink/submodule/tree modes are unresolved, so neither working-tree
 symlinks nor Git symlink contents can escape into host filesystem reads. UTF-8,
 NUL-free source up to 2 MB is supported; commands have a 10-second timeout each.

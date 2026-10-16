@@ -151,7 +151,7 @@ def classify(repo_root, base_ref, head_ref, rule_id, evidence, *, baseline=None,
         root = Path(repo_root).resolve(strict=True)
         if Path(_git(root, "rev-parse", "--show-toplevel").decode("utf-8").strip()).resolve() != root:
             return result("UNKNOWN", "REPOSITORY_UNAVAILABLE")
-        configuration = _git(root, "config", "--local", "--null", "--list").lower().split(b"\0")
+        configuration = _git(root, "config", "--includes", "--null", "--list").lower().split(b"\0")
         if any(item.startswith(b"extensions.partialclone\n") or
                item.split(b"\n", 1)[0].endswith(b".promisor") for item in configuration):
             # The evidence verifier also reads objects. Reject promisor repos

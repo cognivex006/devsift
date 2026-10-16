@@ -1,9 +1,11 @@
 """T013 producer fixtures: source origin, not semantic rule re-analysis."""
 from dataclasses import FrozenInstanceError
+import os
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from devsift.evidence import Region, SourceEvidence, verify_source
 from devsift.git_changes import BaselineObservation, classify
@@ -132,6 +134,33 @@ class GitChangeTests(unittest.TestCase):
         result = self.classify(self.base, source)
         self.assertEqual(result.lifecycle_class, "UNKNOWN")
         self.assertEqual(result.reason, "PARTIAL_CLONE_UNSUPPORTED")
+
+    def test_effective_worktree_environment_global_and_included_promisor_config_is_rejected(self):
+        source = self.source(self.base)
+        self.git("config", "extensions.worktreeConfig", "true")
+        self.git("config", "--worktree", "remote.origin.promisor", "true")
+        with patch("devsift.git_changes.verify_source") as verifier:
+            result = self.classify(self.base, source)
+            self.assertEqual(result.reason, "PARTIAL_CLONE_UNSUPPORTED")
+            verifier.assert_not_called()
+        self.git("config", "--worktree", "--unset", "remote.origin.promisor")
+        environment = {"GIT_CONFIG_COUNT": "1", "GIT_CONFIG_KEY_0": "remote.origin.promisor",
+                       "GIT_CONFIG_VALUE_0": "true"}
+        with patch.dict(os.environ, environment), patch("devsift.git_changes.verify_source") as verifier:
+            self.assertEqual(self.classify(self.base, source).reason, "PARTIAL_CLONE_UNSUPPORTED")
+            verifier.assert_not_called()
+        global_config = self.root / "isolated-global-config"
+        global_config.write_text("[remote \"origin\"]\n\tpromisor = true\n", encoding="utf-8")
+        with patch.dict(os.environ, {"GIT_CONFIG_GLOBAL": str(global_config), "GIT_CONFIG_NOSYSTEM": "1"}), \
+                patch("devsift.git_changes.verify_source") as verifier:
+            self.assertEqual(self.classify(self.base, source).reason, "PARTIAL_CLONE_UNSUPPORTED")
+            verifier.assert_not_called()
+        included = self.root / "isolated-include-config"
+        included.write_text("[remote \"origin\"]\n\tpromisor = true\n", encoding="utf-8")
+        self.git("config", "include.path", included.as_posix())
+        with patch("devsift.git_changes.verify_source") as verifier:
+            self.assertEqual(self.classify(self.base, source).reason, "PARTIAL_CLONE_UNSUPPORTED")
+            verifier.assert_not_called()
 
 
 if __name__ == "__main__":
