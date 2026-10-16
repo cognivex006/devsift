@@ -3995,7 +3995,34 @@
       "savepoint": "docs/evidence/SESSION-2026-10-16.md",
       "retained_superseded_worktree": "D:/SP-Billy/devsift-dev/devsift-cli",
       "retained_superseded_branch": "feature/g002-cli",
-      "next_action": "No further goal dispatched; select the next ready goal in a new authorized session"
+      "next_action": "No further goal dispatched; select the next ready goal in a new authorized session",
+      "main_integrated_sha": "a9612ff44932bb296a29f2b4fcf39f774c449712",
+      "worktree_cleanup": [
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-policy",
+          "branch": "feature/g001-policy",
+          "clean_and_integrated": true,
+          "removed": true
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-policy-tests",
+          "branch": "feature/g001-t003-invariants",
+          "clean_and_integrated": true,
+          "removed": true
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli-rework",
+          "branch": "feature/g002-producer-rework",
+          "clean_and_integrated": true,
+          "removed": true
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli-tests",
+          "branch": "feature/g002-t006-platform",
+          "clean_and_integrated": true,
+          "removed": true
+        }
+      ]
     }
   }
 }
