@@ -3359,11 +3359,16 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
+      "status": "in_review",
       "evidence": [
         {
           "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b",
           "test_result": "Five actual native frontend context suites pass Windows; endpoint aliases/shadows/config/fixtures, credentials and placeholders, Unicode regions",
+          "author": "controller"
+        },
+        {
+          "source_sha": "887875644aa7e7f41a155e1976646136b2847b00",
+          "test_result": "Six actual frontend tests pass84.048s; final actual Git source mask/from_dict/classifier/baseline reproof regression passes54.518s; all credential forms including escaped identifier",
           "author": "controller"
         }
       ],
@@ -3391,6 +3396,11 @@
           "status": "rework",
           "actor": "controller",
           "reason": "review actual native Git scan leaked unrecognized credential names"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:33:22.323377+00:00"
         }
       ]
     },
@@ -5391,7 +5401,7 @@
       },
       "T026": {
         "owner": "controller",
-        "status": "running",
+        "status": "in_review",
         "branch": "fix/g009-credential-evidence",
         "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-credential-evidence",
         "paths": [
@@ -5399,14 +5409,15 @@
           "devsift/native_host.py",
           "devsift/scanner.py",
           "tests/test_frontend_rules.py",
-          "docs/TYPESCRIPT-ADAPTER.md"
+          "docs/TYPESCRIPT-ADAPTER.md",
+          "devsift/git_changes.py"
         ],
         "base_sha": "8243543e4de005cd8ad5eb47b8dc63b7ac478472",
         "locks": [
           "write:rules/frontend"
         ],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b",
+        "source_sha": "887875644aa7e7f41a155e1976646136b2847b00",
         "prior_jobs": [
           {
             "owner": "controller",
@@ -5490,8 +5501,8 @@
       "active_jobs": [
         "T026"
       ],
-      "latest_integrated_sha": "19967521978b61b86d443f37c3574046b589dd3b",
-      "updated_utc": "2026-10-16T09:32:54.288370+00:00",
+      "latest_integrated_sha": "97d1fb02ce25244312ecb608f6d714f4617060dc",
+      "updated_utc": "2026-10-16T09:33:22.323377+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
