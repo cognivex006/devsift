@@ -215,3 +215,48 @@ native safe/unsafe SQL controls, Git-verified masked SEC001, same-line emoji/LS
 ranges, TLS literal types, shadow/rebinding counterexamples and no-source-write
 checks. No C#/Go security-context capability is inferred from these tests.
 Rollback is the scoped adapter/tests/docs commit revert.
+
+## End-to-end security verification (T033)
+
+`tests/test_security_end_to_end.py` invokes the actual CLI entrypoint in temporary
+Git repositories, with isolated trusted Python import roots and bytecode writes
+disabled. It does not replace the scanner, reporter, source verifier or native
+provider with fabricated success. Source and all Git file bytes are hashed before
+and after every CLI operation; scans/rendering/prompts never authorize edits.
+
+The default group verifies PAT/AWS/PEM findings and a sensitive logging overlap
+through the JSON envelope and its complete Findings JSON, Markdown and SARIF
+documents. JSON source BEFORE and every SARIF physical snippet stay fully masked;
+raw credential values/body fragments must be absent from stdout and stderr.
+Canonical report-case review/implement prompts retain read-only/per-case approval
+boundaries, pending approval and no automatic fix. These are the existing report
+model fields, not a dependency on later case-prompt/approval modules.
+
+Adversarial manifest schema keys/values and mismatched prompt approval arguments
+exercise real CLI error streams without echoing sensitive input. Actual Git
+classification proves unchanged legacy and novel new source origin while plain
+`scan --security` deliberately retains UNKNOWN lifecycle. A malformed 20 KB PEM
+candidate must complete a real CLI invocation within a bounded 15-second timeout
+without inventing a credential finding or creating report files.
+
+With `DEVSIFT_TEST_NATIVE=1`, an additional test requires a real installed pinned
+frontend helper selected by `DEVSIFT_FRONTEND_PACKAGE` (and optional
+`DEVSIFT_NODE_EXECUTABLE`). Missing requested dependencies fail, never silently
+skip or substitute a simulated provider. The test serializes an explicit trusted
+manifest from that actual factory and invokes real `ci --security --base` runs.
+An actual SEC001 console finding and executed-target counts prove native AST work
+occurred; builtin signature checks alone cannot satisfy the assertion.
+
+The native fixture verifies legacy critical cases request independent review
+without quality blocking (exit 2), and genuinely novel introduced cases block
+(exit 1). Credential literals equal to schema words such as Critical/source/status
+must have masked source snippets while legitimate schema keys and severity enums
+remain intact. Both runs retain all three report formats and unchanged source/Git
+state. Explicit setup/manifest files are outside the target repository and are
+test preparation, not implicit scan writes or authorization to execute target code.
+
+Run `python -m unittest discover -s tests -p test_security_end_to_end.py` for the
+default group; set native opt-in and its real package path for the additional
+native assertions. These checks prove the described bounded cases, not complete
+secret detection, live credentials, arbitrary taint or runtime exploitability.
+No HTTP/database connections, target imports/builds or remediation execute.
