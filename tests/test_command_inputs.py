@@ -22,7 +22,7 @@ class CommandInputTests(unittest.TestCase):
         self.assertEqual(list(self.root.iterdir()),[path])
 
     def test_invalid_duplicate_nonfinite_deep_and_unicode_are_constant_safe(self):
-        for raw in [b'{"one":1,"one":2}',b'{"x":NaN}',b'{"x":Infinity}',b'privateInputValue',b'\xff',b'['*2000+b']'*2000]:
+        for raw in [b'{"one":1,"one":2}',b'{"x":NaN}',b'{"x":Infinity}',b'{"x":1e999}',b'privateInputValue',b'\xff',b'['*2000+b']'*2000]:
             with self.subTest(raw=raw[:20]):
                 path=self.write(raw)
                 with self.assertRaisesRegex(CommandInputError,'^Invalid or unavailable command input$') as error:
@@ -37,6 +37,11 @@ class CommandInputTests(unittest.TestCase):
         with self.assertRaises(CommandInputError):load_json_input(path,maximum_bytes=4096)
         self.assertEqual(path.stat().st_size,4097)
         self.assertFalse((self.root/'privateMissing.json').exists())
+
+    def test_structure_limits_reject_without_recursing(self):
+        with self.assertRaises(CommandInputError):load_json_input(self.write(b'['*65+b'0'+b']'*65))
+        with self.assertRaises(CommandInputError):load_json_input(self.write(b'['+b'0,'*100_000+b'0]'))
+        self.assertEqual(load_json_input(self.write(b'['*4+b'0'+b']'*4)),[[[[0]]]])
 
     def test_symlink_input_and_parent_are_refused(self):
         target=self.write(b'{"private":"untrustedValue"}')

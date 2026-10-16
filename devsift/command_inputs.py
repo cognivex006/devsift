@@ -1,5 +1,6 @@
 """Bounded explicit JSON input for commands; file contents are not authority."""
 import json
+import math
 import os
 from pathlib import Path
 import stat
@@ -43,6 +44,7 @@ def _bounded_tree(value):
         item,depth=pending.pop()
         nodes+=1
         _require(nodes<=100_000 and depth<=64)
+        _require(type(item) is not float or math.isfinite(item))
         children=item.values() if type(item) is dict else item if type(item) is list else ()
         _require(len(children)+nodes+len(pending)<=100_000)
         pending.extend((child,depth+1) for child in children)
