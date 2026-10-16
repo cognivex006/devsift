@@ -3461,11 +3461,16 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
+      "status": "in_review",
       "evidence": [
         {
           "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091",
           "test_result": "Writer: ScriptDom publish, seven SQL rules and six parser tests passed with actual native process",
+          "author": "policy_writer"
+        },
+        {
+          "source_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
+          "test_result": "Writer reproduced eight regressions then nine rule and six parser tests pass actual ScriptDom",
           "author": "policy_writer"
         }
       ],
@@ -3493,6 +3498,11 @@
           "status": "rework",
           "actor": "controller",
           "reason": "quoted identifier truncation and EXECUTE AS context"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:22:13.582342+00:00"
         }
       ]
     },
@@ -5243,7 +5253,7 @@
       },
       "T029": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "fix/g010-sql-flow-rework",
         "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g010-sql-flow-rework",
         "paths": [
@@ -5258,7 +5268,7 @@
           "write:rules/sql"
         ],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091",
+        "source_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
         "prior_jobs": [
           {
             "owner": "policy_writer",
@@ -5364,8 +5374,8 @@
         "T024",
         "T026"
       ],
-      "latest_integrated_sha": "8243543e4de005cd8ad5eb47b8dc63b7ac478472",
-      "updated_utc": "2026-10-16T09:21:22.812551+00:00",
+      "latest_integrated_sha": "929173d518e7817e241c6f21123e6fb359bbdd91",
+      "updated_utc": "2026-10-16T09:22:13.582342+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
