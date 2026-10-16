@@ -1,0 +1,8 @@
+{
+  "fixture_id": "report-invalid-severity",
+  "target": "scan_record",
+  "path": ["findings", 0, "severity"],
+  "value": "MALFORMED_SEVERITY_CANARY",
+  "expected_exception": "ReportError",
+  "expected_message": "Invalid or unavailable report input"
+}

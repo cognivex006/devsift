@@ -1,0 +1,144 @@
+{
+  "schema_version": "1",
+  "source_file": "client.ts",
+  "cases": [
+    {
+      "fixture_id": "unverified",
+      "case_id": "CASE-UNVERIFIED",
+      "rule_id": "HC001",
+      "line": 3,
+      "proof": "unverified",
+      "attribution": "unknown",
+      "approval": "absent",
+      "expected": {
+        "scan_exit": 2,
+        "report_exit": 2,
+        "source_status": "SOURCE_UNRESOLVED",
+        "source_path": null,
+        "source_before": null,
+        "lifecycle": "UNKNOWN",
+        "enforcement": "incomplete",
+        "security_escalation": false,
+        "decision_status": "denied",
+        "decision_reason": "SOURCE_UNRESOLVED",
+        "approval_matched": false,
+        "manual_planning_allowed": false
+      }
+    },
+    {
+      "fixture_id": "legacy-advisory",
+      "case_id": "CASE-LEGACY",
+      "rule_id": "HC001",
+      "line": 3,
+      "proof": "verified",
+      "attribution": "git-same-commit",
+      "approval": "matching",
+      "expected": {
+        "scan_exit": 0,
+        "report_exit": 0,
+        "source_status": "VERIFIED",
+        "source_path": "client.ts",
+        "source_before": "$fixture_line",
+        "lifecycle": "LEGACY_UNCHANGED",
+        "enforcement": "advisory",
+        "security_escalation": false,
+        "decision_status": "review_required",
+        "decision_reason": "UNKNOWN_EFFECTS_REVIEW_REQUIRED",
+        "approval_matched": true,
+        "manual_planning_allowed": true
+      }
+    },
+    {
+      "fixture_id": "masked-secret",
+      "case_id": "CASE-MASKED",
+      "rule_id": "HC002",
+      "line": 1,
+      "proof": "verified",
+      "attribution": "git-same-commit",
+      "approval": "matching",
+      "expected": {
+        "scan_exit": 0,
+        "report_exit": 0,
+        "source_status": "VERIFIED",
+        "source_path": "client.ts",
+        "source_before": "[REDACTED]",
+        "lifecycle": "LEGACY_UNCHANGED",
+        "enforcement": "security_review",
+        "security_escalation": true,
+        "decision_status": "review_required",
+        "decision_reason": "UNKNOWN_EFFECTS_REVIEW_REQUIRED",
+        "approval_matched": true,
+        "manual_planning_allowed": true
+      }
+    },
+    {
+      "fixture_id": "wrong-case",
+      "case_id": "CASE-WRONG-CASE",
+      "rule_id": "HC001",
+      "line": 3,
+      "proof": "verified",
+      "attribution": "git-same-commit",
+      "approval": "wrong-case",
+      "expected": {
+        "scan_exit": 0,
+        "report_exit": 0,
+        "source_status": "VERIFIED",
+        "source_path": "client.ts",
+        "source_before": "$fixture_line",
+        "lifecycle": "LEGACY_UNCHANGED",
+        "enforcement": "advisory",
+        "security_escalation": false,
+        "decision_status": "denied",
+        "decision_reason": "APPROVAL_BINDING_MISMATCH",
+        "approval_matched": false,
+        "manual_planning_allowed": false
+      }
+    },
+    {
+      "fixture_id": "wrong-prompt-binding",
+      "case_id": "CASE-WRONG-PROMPT",
+      "rule_id": "HC001",
+      "line": 3,
+      "proof": "verified",
+      "attribution": "git-same-commit",
+      "approval": "review-prompt-digest",
+      "expected": {
+        "scan_exit": 0,
+        "report_exit": 0,
+        "source_status": "VERIFIED",
+        "source_path": "client.ts",
+        "source_before": "$fixture_line",
+        "lifecycle": "LEGACY_UNCHANGED",
+        "enforcement": "advisory",
+        "security_escalation": false,
+        "decision_status": "denied",
+        "decision_reason": "APPROVAL_BINDING_MISMATCH",
+        "approval_matched": false,
+        "manual_planning_allowed": false
+      }
+    },
+    {
+      "fixture_id": "source-as-data",
+      "case_id": "CASE-SOURCE-DATA",
+      "rule_id": "HC001",
+      "line": 3,
+      "proof": "verified",
+      "attribution": "unknown",
+      "approval": "absent",
+      "expected": {
+        "scan_exit": 2,
+        "report_exit": 2,
+        "source_status": "VERIFIED",
+        "source_path": "client.ts",
+        "source_before": "$fixture_line",
+        "lifecycle": "UNKNOWN",
+        "enforcement": "incomplete",
+        "security_escalation": false,
+        "decision_status": "review_required",
+        "decision_reason": "EXPLICIT_APPROVAL_REQUIRED",
+        "approval_matched": false,
+        "manual_planning_allowed": false
+      }
+    }
+  ]
+}
