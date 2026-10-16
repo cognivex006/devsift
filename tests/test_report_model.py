@@ -127,3 +127,27 @@ class ReportModelTests(unittest.TestCase):
         self.assertNotIn('fixturePrivateErrorValue', json.dumps(report.to_dict()))
         self.assertEqual(report.exit_code, 2)
         self.assertEqual(report.cases, ())
+
+    def test_error_code_secret_and_explicit_reserved_words_preserve_schema(self):
+        secret = 'AK' + 'IA' + 'A' * 16
+        raw = result('scan', complete=False, errors=[{'code': secret, 'message': 'private'}])
+        wire = assemble_report(raw, repo_root=self.root, redactor=Redactor((secret,))).to_dict()
+        self.assertNotIn(secret, json.dumps(wire))
+        for word in ['confidence', 'unknown', 'pending', 'Error', 'cases', 'source']:
+            report = assemble_report(self.record(), repo_root=self.root, redactor=Redactor((word,)))
+            case = report.cases[0].to_dict()
+            self.assertIn('confidence', case)
+            self.assertEqual(case['confidence'], 'unknown')
+            self.assertEqual(case['approval_status'], 'pending')
+            self.assertEqual(case['severity'], 'Error')
+            self.assertEqual(case['impact_if_unchanged']['level'], 'unknown')
+
+    def test_repository_mapping_rejects_controls_and_withholds_sensitive_links(self):
+        for suffix in ['\n', '\t', ' ', '\r', '\x00']:
+            with self.assertRaises(ReportError):
+                assemble_report(self.record(), repo_root=self.root,
+                                repository_urls=(('local', 'https://github.com/owner/repo' + suffix),))
+        report = assemble_report(self.record(), repo_root=self.root,
+                                 redactor=Redactor(('owner/repo',)),
+                                 repository_urls=(('local', 'https://github.com/owner/repo'),))
+        self.assertIsNone(report.cases[0].to_dict()['navigation'])
