@@ -238,9 +238,11 @@
         "T012"
       ],
       "repo": "orchex006/devsift",
-      "status": "running",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G004.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -2452,7 +2454,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
@@ -2470,11 +2472,19 @@
           "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
           "test_result": "6CLI+16scanner tests pass; actualhostilecleanfilter red then green; local/env/global/nestedinclude process/required callbacks disabled; exactbytespreserved",
           "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
+          "integrated_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52",
+          "test_result": "CompleteindependentexactSHAreview accepted; fullintegration tests passed with1installedskip; actualhostilefiltersneverexecute/stagedcancelcurrentbytesverified; sourceandGitmetadatareadonly",
+          "evidence_uri": "docs/evidence/G004.md"
         }
       ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA004",
       "history": [
         {
@@ -2512,6 +2522,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T08:00:06.828726+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:02:57.269070+00:00"
         }
       ]
     },
@@ -4485,7 +4500,7 @@
       },
       "T012": {
         "owner": "cli_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "fix/g004-filter-safe-scope",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-scope-rework",
         "paths": [
@@ -4495,10 +4510,7 @@
           "docs/SCAN-RESULTS.md"
         ],
         "base_sha": "191026883e4b6dbf0209388e9bf98e94325f5d23",
-        "locks": [
-          "write:engine/results",
-          "write:devsift/cli_scan.py"
-        ],
+        "locks": [],
         "lease": "selected G003-G005 session until accepted/reassigned",
         "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
         "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
@@ -4527,7 +4539,8 @@
             "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
             "integration_owner": "controller"
           }
-        ]
+        ],
+        "integrated_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52"
       },
       "T013": {
         "owner": "policy_writer",
@@ -4607,15 +4620,10 @@
       ],
       "status": "running",
       "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
-      "held_locks": [
-        "write:engine/results",
-        "write:devsift/cli_scan.py"
-      ],
-      "active_jobs": [
-        "T012"
-      ],
-      "latest_integrated_sha": "3cef9332322eff33ef53034680d4d5a653bf020d",
-      "updated_utc": "2026-10-16T08:00:06.828726+00:00"
+      "held_locks": [],
+      "active_jobs": [],
+      "latest_integrated_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52",
+      "updated_utc": "2026-10-16T08:02:57.269070+00:00"
     },
     "previous_checkpoints": [
       {
