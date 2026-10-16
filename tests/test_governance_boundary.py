@@ -52,7 +52,13 @@ class ConsumerAssetTests(unittest.TestCase):
 
     def test_package_configuration_does_not_install_maintainer_workflows(self):
         config = tomllib.loads((ROOT / 'pyproject.toml').read_text(encoding='utf-8'))
-        self.assertEqual(config['tool']['setuptools']['packages']['find']['include'], ['devsift*'])
+        settings = config['tool']['setuptools']
+        self.assertEqual(settings['packages'], [])
+        self.assertIs(settings['include-package-data'], False)
+        modules = settings['py-modules']
+        self.assertTrue(modules)
+        self.assertIn('devsift.cli', modules)
+        self.assertTrue(all(re.fullmatch(r'devsift\.[a-z_]+', name) for name in modules))
         self.assertEqual(config['project']['dependencies'], [])
         self.assertEqual(config['project']['scripts'], {'devsift': 'devsift.cli:main'})
         self.assertNotIn('data-files', config['tool']['setuptools'])

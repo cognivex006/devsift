@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=77,<83"]
+requires = ["setuptools==83.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,9 +8,54 @@ version = "0.0.0.dev0"
 description = "Read-only quality analysis CLI with explicitly trusted native analyzers"
 requires-python = ">=3.12"
 dependencies = []
+license-files = []
 
 [project.scripts]
 devsift = "devsift.cli:main"
 
-[tool.setuptools.packages.find]
-include = ["devsift*"]
+[tool.setuptools]
+packages = []
+include-package-data = false
+py-modules = [
+    "devsift.__main__",
+    "devsift.adapters",
+    "devsift.baseline",
+    "devsift.case_approval",
+    "devsift.case_command",
+    "devsift.case_prompts",
+    "devsift.change_budget",
+    "devsift.ci_artifacts",
+    "devsift.ci_gate",
+    "devsift.cli",
+    "devsift.cli_scan",
+    "devsift.command_inputs",
+    "devsift.doctor",
+    "devsift.dotnet_adapter",
+    "devsift.evidence",
+    "devsift.git_changes",
+    "devsift.git_runtime",
+    "devsift.go_adapter",
+    "devsift.inventory",
+    "devsift.markdown_report",
+    "devsift.native_host",
+    "devsift.native_manifest",
+    "devsift.observability",
+    "devsift.output",
+    "devsift.policy",
+    "devsift.project_policy",
+    "devsift.process_runner",
+    "devsift.redaction",
+    "devsift.registry",
+    "devsift.report_context",
+    "devsift.report_decisions",
+    "devsift.report_export",
+    "devsift.report_model",
+    "devsift.scanner",
+    "devsift.security_adapter",
+    "devsift.security_context",
+    "devsift.security_gate",
+    "devsift.sql_adapter",
+    "devsift.suppressions",
+    "devsift.typescript_adapter",
+    "devsift.verification_plan",
+]
