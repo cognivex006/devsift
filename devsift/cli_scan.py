@@ -43,6 +43,21 @@ def _filter_config(root):
                  for argument in ('-c', f'filter.{driver}.{option}={value}'))
 
 
+def changed_candidates(root):
+    """Read changed Git paths with every conversion/external callback disabled."""
+    origin = Path(root).resolve(strict=True)
+    top = Path(_git(origin, "rev-parse", "--show-toplevel").decode("utf-8").strip())
+    if top.resolve() != origin:
+        raise ValueError("Git root required")
+    filter_config = _filter_config(origin)
+    diff_options = ("--no-ext-diff", "--no-textconv", "--no-renames", "--name-only", "-z")
+    staged = _git(origin, "diff", "--cached", *diff_options, "HEAD", "--", config=filter_config)
+    unstaged = _git(origin, "diff", *diff_options, "--", config=filter_config)
+    untracked = _git(origin, "ls-files", "--others", "--exclude-standard", "-z")
+    return sorted({path.decode("utf-8") for path in
+                   staged.split(b"\0") + unstaged.split(b"\0") + untracked.split(b"\0") if path})
+
+
 def run_scan(root, *, all_scope=False, legacy_mode="recommend", native_manifest=None, native_manifest_digest=None):
     """Changed scope unions staged, unstaged and untracked file paths.
 
@@ -52,18 +67,7 @@ def run_scan(root, *, all_scope=False, legacy_mode="recommend", native_manifest=
     candidates = None
     if not all_scope:
         try:
-            origin = Path(root).resolve(strict=True)
-            top = Path(_git(origin, "rev-parse", "--show-toplevel").decode("utf-8").strip())
-            if top.resolve() != origin:
-                raise ValueError("Git root required")
-            filter_config = _filter_config(origin)
-            diff_options = ("--no-ext-diff", "--no-textconv", "--no-renames", "--name-only", "-z")
-            staged = _git(origin, "diff", "--cached", *diff_options, "HEAD", "--", config=filter_config)
-            unstaged = _git(origin, "diff", *diff_options, "--", config=filter_config)
-            untracked = _git(origin, "ls-files", "--others", "--exclude-standard", "-z")
-            candidates = sorted({path.decode("utf-8") for path in
-                                 staged.split(b"\0") + unstaged.split(b"\0")
-                                 + untracked.split(b"\0") if path})
+            candidates = changed_candidates(root)
         except (OSError, ValueError, UnicodeError, subprocess.SubprocessError):
             return result("scan", complete=False,
                           errors=[{"code": "GIT_SCOPE_UNAVAILABLE",
