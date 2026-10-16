@@ -80,6 +80,31 @@ class ReleaseReadinessTests(unittest.TestCase):
         self.assertFalse(result["release_ready"])
         self.assertFalse(result["publication_authorized"])
 
+    def test_untrusted_source_pin_is_never_echoed(self):
+        secret = "private-source-pin-must-not-appear"
+        result = check_release_readiness(self.bundle, source_sha=secret, integrity_sha256=self.digest)
+        self.assertIsNone(result["source_sha"])
+        command = [sys.executable, "-I", "-B", str(ROOT / "tools/check_release_readiness.py"),
+                   "--bundle", str(self.bundle), "--source-sha", secret,
+                   "--integrity-sha256", self.digest]
+        run = subprocess.run(command, capture_output=True, text=True, check=False)
+        self.assertEqual(run.returncode, 2)
+        self.assertNotIn(secret, run.stdout + run.stderr)
+
+    def test_missing_bundle_and_archive_inspection_failure_keep_no_authority(self):
+        missing = check_release_readiness(self.parent / "missing", source_sha=self.sha,
+                                          integrity_sha256=self.digest)
+        self.assertIsNone(missing["source_sha"])
+        self.assertFalse(missing["checks_complete"])
+        self.assertFalse(missing["publication_authorized"])
+        archive = next(self.bundle.glob("*.zip"))
+        archive.unlink()
+        before = snapshot(self.bundle)
+        result = check_release_readiness(self.bundle, source_sha=self.sha, integrity_sha256=self.digest)
+        self.assertFalse(result["checks_complete"])
+        self.assertFalse(result["publication_authorized"])
+        self.assertEqual(snapshot(self.bundle), before)
+
 
 if __name__ == "__main__":
     unittest.main()

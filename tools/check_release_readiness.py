@@ -16,15 +16,15 @@ _BLOCKERS = ["OWNER_LICENSE_APPROVAL_PENDING", "SIGNING_EVIDENCE_NOT_CHECKED",
 
 def check_release_readiness(bundle, *, source_sha, integrity_sha256):
     """Verify explicit bundle pins and inspect every declared ZIP without writes."""
-    result = {"schema_version": "1", "source_sha": source_sha if isinstance(source_sha, str) else None,
+    result = {"schema_version": "1", "source_sha": None,
               "checks": [], "missing_inputs": list(_BLOCKERS), "blockers": list(_BLOCKERS), "checks_complete": False,
               "release_ready": False, "publication_authorized": False,
               "checksums_authenticate": False}
     try:
         artifacts = verify_bundle(bundle, expected_source_sha=source_sha,
                                   expected_integrity_sha256=integrity_sha256)
+        result["source_sha"] = source_sha
         result["checks"].append({"name": "bundle_integrity_and_source_pin", "passed": True})
-        integrity = json.loads((Path(bundle) / "integrity.json").read_bytes())
         archives = [a for a in artifacts if a.name.endswith(".zip")]
         security = []
         for artifact in archives:
@@ -37,9 +37,8 @@ def check_release_readiness(bundle, *, source_sha, integrity_sha256):
                 result["blockers"].append("ARCHIVE_REVIEW_REQUIRED")
         result["checks"].append({"name": "bounded_archive_security_inspection", "passed": bool(security) and all(x["complete"] for x in security),
                                  "archives": security})
-        result["checks"].append({"name": "declared_component_count", "passed": len(security) == len(integrity["components"])})
-        if len(security) != len(integrity["components"]):
-            result["blockers"].append("DECLARED_COMPONENT_CHECK_FAILED")
+        result["verified_archives"] = sorted(a.name for a in archives)
+        result["checks"].append({"name": "verified_declared_archives_inspected", "passed": bool(security) and len(security) == len(archives)})
         result["checks_complete"] = all(c["passed"] for c in result["checks"])
     except (PackageBuildError, OSError, ValueError, TypeError):
         result["checks"].append({"name": "bundle_integrity_and_source_pin", "passed": False,
