@@ -1,0 +1,8 @@
+{
+  "fixture_id": "approval-nonboolean",
+  "target": "approval",
+  "path": ["approved"],
+  "value": "true",
+  "expected_exception": "CaseApprovalError",
+  "expected_message": "Invalid or unavailable case approval input"
+}

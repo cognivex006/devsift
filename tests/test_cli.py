@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class CliTests(unittest.TestCase):
     def invoke(self, *args, cwd=None):
         env = dict(os.environ, PYTHONPATH=str(ROOT))
-        return subprocess.run([sys.executable, '-m', 'devsift', *args],
+        return subprocess.run([sys.executable, '-P', '-m', 'devsift', *args],
                               cwd=cwd or ROOT, env=env, text=True, capture_output=True)
 
     def test_help_for_commands(self):
@@ -59,7 +59,8 @@ class CliTests(unittest.TestCase):
         record = json.loads(result.stdout)
         self.assertEqual(record['data']['runtime']['version'], sys.version.split()[0])
         self.assertFalse(record['data']['capabilities']['analyzers'])
-        self.assertFalse(record['data']['capabilities']['reports'])
+        self.assertTrue(record['data']['capabilities']['reports'])
+        self.assertTrue(record['data']['capabilities']['case_prompts'])
 
     def test_commands_do_not_write_working_directory(self):
         with tempfile.TemporaryDirectory() as directory:

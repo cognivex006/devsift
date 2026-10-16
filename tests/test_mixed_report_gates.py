@@ -3,6 +3,7 @@
 Finding identities/regions are explicit contract fixtures, not a native-analysis
 or rule-coverage claim. No fabricated BaselineObservation absence is supplied.
 """
+from datetime import datetime, timedelta, timezone
 import hashlib
 import json
 import os
@@ -12,6 +13,8 @@ import tempfile
 import unittest
 
 from devsift.baseline import BaselineSnapshot, UpdateApproval, capture_entry, load_snapshot, save_snapshot
+from devsift.case_approval import ImplementationApproval, evaluate_case_approval
+from devsift.case_prompts import compose_case_prompt
 from devsift.evidence import Region, SourceEvidence, verify_source
 from devsift.markdown_report import render_markdown
 from devsift.output import result
@@ -185,24 +188,25 @@ class MixedReportGates(unittest.TestCase):
                 self.assertEqual(enriched.find_case('SECURITY').to_dict()['enforcement'], 'security_review')
         self.assertEqual(self.tree(), before)
 
-    def test_enriched_masked_case_preserves_pending_report_prompts(self):
+    def test_enriched_masked_case_and_explicit_approval_still_allow_no_execution(self):
         before = self.tree()
         original, _ = self.assemble({'LEGACY'}, masked=True)
         enriched = self.enrich(original, (self.candidate('LEGACY', 'consumer'), self.candidate('LEGACY', 'test', missing=True)))
         self.exports(enriched)
-        case = enriched.find_case('LEGACY').to_dict()
-        prior = original.find_case('LEGACY').to_dict()
-        self.assertEqual(case['source']['before'], '[REDACTED]')
-        self.assertEqual(case['approval_status'], 'pending')
-        self.assertFalse(case['automatic_fix'])
-        self.assertIsNone(case['after_proposal']['code'])
-        self.assertEqual(case['impact_if_unchanged']['level'], 'unknown')
-        self.assertEqual(case['risk_if_changed']['level'], 'unknown')
-        self.assertEqual(case['affected_scope']['status'], 'unknown')
-        self.assertIn('Read only; do not edit source.', case['review_prompt'])
-        self.assertIn('requires explicit per-case approval', case['implement_prompt'])
-        for key in ('review_prompt', 'implement_prompt'):
-            self.assertEqual(case[key], prior[key])
+        prompt = compose_case_prompt(enriched, 'LEGACY', mode='implement', repo_root=self.root)
+        self.assertEqual(prompt.to_dict()['source']['before'], '[REDACTED]')
+        now = datetime(2026, 10, 16, 12, 0, tzinfo=timezone.utc)
+        approval = ImplementationApproval(case_id='LEGACY', source_sha=self.head,
+                                          fingerprint=prompt.to_dict()['fingerprint'], prompt_digest=prompt.digest,
+                                          mode='implement', approved=True, actor='fixture-operator',
+                                          issued_at=(now - timedelta(minutes=1)).isoformat(), expires_at=(now + timedelta(minutes=1)).isoformat())
+        decision = evaluate_case_approval(enriched, 'LEGACY', prompt=prompt, repo_root=self.root, approval=approval, now=now).to_dict()
+        self.assertTrue(decision['approval_matched'])
+        self.assertEqual(decision['status'], 'review_required')
+        self.assertEqual(decision['reason'], 'UNKNOWN_EFFECTS_REVIEW_REQUIRED')
+        self.assertTrue(decision['manual_planning_allowed'])
+        for key in ('execution_authorized', 'writes_authorized', 'automatic_fix'):
+            self.assertFalse(decision[key])
         self.assertEqual(self.tree(), before)
 
 

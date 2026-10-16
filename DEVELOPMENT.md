@@ -6,4 +6,4 @@ Use Python 3.12+. Install with `python -m pip install .`. Run `python -m unittes
 
 Use Conventional Commits, scoped branches and independently reviewed PRs. Update runtime docs and CHANGELOG.md for behavior changes. Releases require separate authorization. Do not copy specification plans, bootstrap tooling or maintainer skills here.
 
-The consumer entrypoint is skills/devsift/SKILL.md. It invokes installed `python -m devsift` from the target Git root. Keep commands consistent with CLI help, incomplete results and unavailable backends.
+The consumer entrypoint is skills/devsift/SKILL.md. It invokes installed `python -I -B -m devsift` from the target Git root. Keep commands consistent with CLI help, incomplete results and unavailable backends.
