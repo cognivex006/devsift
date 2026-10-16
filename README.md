@@ -1,11 +1,12 @@
 # DevSift
 
-**Language-agnostic developer quality intelligence — planned, not yet implemented.**
+**Language-agnostic developer quality intelligence — early implementation.**
 
 DevSift aims to detect code-quality and security issues as changes are developed, link findings to verified source locations, explain human-readable risk and provide narrowly scoped agent remediation prompts. New code can be gated; existing legacy code is recommendation-first. Code scanning never silently refactors production services.
 
 **Repository:** https://github.com/orchex006/devsift  
-**Stage:** v6 development specification and repository bootstrap kit (no working lint engine, CLI or published package yet).  
+**Stage:** bootstrap accepted; policy and CLI foundation in development. No analyzer engine or published package yet.
+**Specifications:** https://github.com/orchex006/devsift-specs  
 **Independence:** usable in arbitrary projects; AgriMap, Axiom and Drevqon are optional integrations, not architectural dependencies.
 
 ## Planned interface (not yet executable)
@@ -19,9 +20,13 @@ devsift prompt OBS-001 --mode review
 devsift doctor
 ```
 
-## First implementation task
+## Development progress
 
-The repository was verified empty on **2026-10-16**. `G000/T000` is the sole initially ready task: autopilot publish **all** approved v6 scaffold files, configure the repository Description, and verify remote SHA. Read [`docs/BOOTSTRAP-AUTOPILOT.md`](docs/BOOTSTRAP-AUTOPILOT.md) or the complete [v6 product specification](docs/SPEC-V6.md). All other task work must wait for T000 to be independently accepted — not necessarily all of G000. `T076` independently verifies bootstrap completion.
+G000 bootstrap is independently accepted: the approved 160-file scaffold is published,
+repository description verified, and Windows/Linux CI passes. Evidence is in
+[`docs/evidence/G000.md`](docs/evidence/G000.md). Current execution state is maintained
+in [`plan/ledger.json`](plan/ledger.json); the specifications repository preserves the
+original design snapshot. All further code changes use reviewed pull requests.
 
 ```bash
 python tools/planctl.py validate
