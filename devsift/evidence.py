@@ -149,6 +149,17 @@ def _git(root, *args):
     return process.stdout
 
 
+def requires_source_mask(rule_id, source=None):
+    """Preserve an already fully masked region, including overlapping rules.
+
+    This only withholds display. It never grants source proof or changes raw
+    identity, location, lifecycle or enforcement. The subsequent Git check still
+    verifies the immutable region before returning VERIFIED.
+    """
+    _require(type(rule_id) is str and (source is None or type(source) is SourceEvidence))
+    return rule_id in {'HC002', 'CFG003', 'SEC001'} or (source is not None and source.before == '[REDACTED]')
+
+
 def verify_source(repo_root, repository, source_sha, path, region, *, expected_before=None, redactor=None,
                   sensitive=False):
     """Verify/extract an immutable UTF-8 Git blob region, never follow symlinks.

@@ -1,21 +1,23 @@
 """Bounded source-reproved report assembly; serialized findings are not authority."""
 from dataclasses import dataclass, field
-import hashlib
 import json
 from pathlib import Path
 import re
 from urllib.parse import quote, urlsplit
 
-from .evidence import SourceEvidence, verify_source
+from .evidence import SourceEvidence, requires_source_mask, verify_source
 from .git_changes import classify
 from .policy import decide
 from .redaction import Redactor
 from .registry import RULES
 
 _SEAL = object()
-_SENSITIVE = frozenset({'HC002', 'CFG003', 'SEC001'})
 _LIFECYCLES = frozenset({'NEW', 'MODIFIED_INTRODUCED', 'MODIFIED_PREEXISTING', 'LEGACY_UNCHANGED', 'UNKNOWN'})
 _ENFORCEMENTS = frozenset({'block', 'incomplete', 'advisory', 'security_review'})
+_SAFE_ERRORS = frozenset({'GIT_SCOPE_UNAVAILABLE', 'NATIVE_MANIFEST_UNAVAILABLE', 'NATIVE_TOOL_UNAVAILABLE',
+                         'INVALID_SCAN_INPUT', 'NO_AVAILABLE_ANALYZER', 'ANALYZER_UNAVAILABLE',
+                         'SOURCE_INCOMPLETE', 'ADAPTER_FAILED', 'ADAPTER_INCOMPLETE',
+                         'DUPLICATE_CASE_ID', 'FINDING_UNRESOLVED', 'REDACTION_FAILED'})
 
 
 class ReportError(ValueError):
@@ -85,6 +87,7 @@ def _repository_urls(mapping):
     for pair in mapping:
         _require(type(pair) is tuple and len(pair) == 2 and all(type(v) is str for v in pair))
         label, url = pair
+        _require(not any(ord(char) <= 32 or ord(char) == 127 for char in url))
         parsed = urlsplit(url)
         _require(label not in result and parsed.scheme == 'https' and parsed.netloc == 'github.com'
                  and not parsed.query and not parsed.fragment
@@ -102,7 +105,7 @@ def _source(item, root, redactor):
         if location.path != item['path']:
             return SourceEvidence(reason='SOURCE_MISMATCH')
         return verify_source(root, location.repository, location.source_sha, location.path, location.region,
-                             redactor=redactor, sensitive=item['rule_id'] in _SENSITIVE)
+                             redactor=redactor, sensitive=requires_source_mask(item['rule_id'], imported))
     except (OSError, ValueError, TypeError, KeyError):
         return SourceEvidence(reason='SOURCE_UNAVAILABLE')
 
@@ -138,7 +141,8 @@ def assemble_report(scan_record, *, repo_root, policy=None, redactor=None,
             _fields(error, ('code', 'message'))
             _require(type(error['code']) is str and re.fullmatch('[A-Z][A-Z0-9_]{0,127}', error['code']) is not None
                      and type(error['message']) is str)
-            errors.append({'code': error['code'], 'message': 'Scan work was incomplete; inspect declared capabilities and evidence.'})
+            code = error['code'] if error['code'] in _SAFE_ERRORS and redactor.text(error['code']) == error['code'] else 'SCAN_INCOMPLETE'
+            errors.append({'code': code, 'message': 'Scan work was incomplete; inspect declared capabilities and evidence.'})
         _require(not (scan_record['complete'] and errors))
         urls = _repository_urls(repository_urls)
         cases, seen = [], set()
@@ -177,6 +181,10 @@ def assemble_report(scan_record, *, repo_root, policy=None, redactor=None,
                     region = location.region
                     navigation = (urls[location.repository] + '/blob/' + location.source_sha + '/'
                                   + quote(location.path, safe='/') + f'#L{region.start_line}-L{region.end_line}')
+                if fingerprint is not None and redactor.text(fingerprint) != fingerprint:
+                    fingerprint = None
+                if navigation is not None and redactor.text(navigation) != navigation:
+                    navigation = None
             label = RULES[item['rule_id']].title
             payload = {
                 'case_id': identity, 'rule_id': item['rule_id'], 'title': label,
@@ -199,7 +207,9 @@ def assemble_report(scan_record, *, repo_root, policy=None, redactor=None,
                 'review_prompt': f'Review case {identity} ({item["rule_id"]}) and its immutable evidence and unknowns. Read only; do not edit source.',
                 'implement_prompt': f'Case {identity} ({item["rule_id"]}) requires explicit per-case approval. After approval, propose the smallest change, verify consumers/tests and rollback; never perform mass legacy remediation.',
             }
-            payload = redactor.redact(payload)
+            # Every nonconstant value above is source-reproved/redacted or
+            # identity-checked. Never feed protocol keys/enums to a value masker:
+            # caller-known values may coincide with reserved words like unknown.
             cases.append(ReportCase(identity, item['rule_id'], source, _encode(payload), _seal=_SEAL))
         _require(original_blocks == scan_record['enforced_count'])
         cases.sort(key=lambda case: (case.to_dict()['source']['location']['path'] if case.source.location else '', case.case_id))
