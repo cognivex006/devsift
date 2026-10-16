@@ -21,3 +21,8 @@ node_modules/
 .devsift/local/
 .DS_Store
 Thumbs.db
+
+# Native tool build/cache output
+**/bin/
+**/obj/
+*.egg-info/
