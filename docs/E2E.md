@@ -67,5 +67,85 @@ python -B -m unittest discover -s tests -p test_e2e_frontend_sql.py -v
 
 After both scoped commits, retain all four absolute artifact overrides above to
 run `python -B -m unittest discover -s tests -p test_e2e_*.py -v`. An opted-out
-skip is not native acceptance evidence. T051 release-wide composition remains a
-separate gated task; these suites do not implement it.
+skip is not native acceptance evidence. T051's separate release-wide composition
+is described below; the companion suites alone do not establish that gate.
+
+## Full mixed repository gate (T051)
+
+`test_e2e_full_gate.py` combines the accepted real providers in one committed
+consumer fixture: Roslyn/C#, Go, TypeScript (including a known synthetic secret)
+and ScriptDom/SQL. It reuses `e2e_support` repository/manifest/snapshot/setup
+helpers, without replacing analyzers or manually fabricating source proof.
+Opted-in unavailable providers fail instead of becoming skips. Frontend setup
+source/lock files must match the selected checkout; every actual configured
+provider must pass its exact pinned native protocol/version probe.
+
+The suite also requires `DEVSIFT_TEST_SCHEMA=1`, accepted validation dependencies
+and the exact pinned official offline SARIF schema. `DEVSIFT_SARIF_SCHEMA_PATH`
+may explicitly select an existing reviewed schema cache outside the worktree;
+bytes/length are checked against `tools.setup_validation` pins before validation.
+No schema download, pip/npm installation or helper build runs inside these tests.
+An empty or wrong schema cache and missing URI format validators fail setup.
+
+Example on this Windows setup, after separately approved helper/validation setup:
+
+```powershell
+$env:PYTHONPATH = 'D:/SP-Billy/devsift-dev/devsift/.devsift/local/g014-g020-validation-python'
+$env:DEVSIFT_TEST_NATIVE = '1'
+$env:DEVSIFT_TEST_SCHEMA = '1'
+$env:DEVSIFT_DOTNET_EXECUTABLE = 'C:/Program Files/dotnet/dotnet.exe'
+$env:DEVSIFT_NODE_EXECUTABLE = 'C:/Program Files/nodejs/node.exe'
+$env:DEVSIFT_ROSLYN_ARTIFACT_DIR = 'D:/SP-Billy/devsift-dev/devsift/.devsift/local/tools/dotnet'
+$env:DEVSIFT_GO_ARTIFACT = 'D:/SP-Billy/devsift-dev/devsift/.devsift/local/tools/go/devsift-go.exe'
+$env:DEVSIFT_SQL_ARTIFACT_DIR = 'D:/SP-Billy/devsift-dev/devsift/.devsift/local/tools/sql'
+$env:DEVSIFT_FRONTEND_PACKAGE = 'D:/SP-Billy/devsift-dev/devsift/native/frontend'
+$env:DEVSIFT_SARIF_SCHEMA_PATH = 'D:/SP-Billy/devsift-dev/devsift/.devsift/local/schemas/sarif-2.1.0.json'
+python -B -m unittest discover -s tests -p test_e2e_full_gate.py -v
+```
+
+The validation directory above is an existing pinned flat package target from
+`requirements-dev.txt`, not a virtualenv executable or a new dependency install.
+Choose absolute reviewed artifacts for the actual machine; do not copy these
+paths as proof that another host was tested. The source CLI subprocess harness
+uses `python -P -B -m devsift` with explicit trusted checkout PYTHONPATH from
+`e2e_support.environment`; installed consumer invocations use their separately
+documented `-I -B` entry. This test does not modify the shared helper or CLI.
+
+Three combined acceptance groups establish these distinct gates:
+
+1. Actual mixed native CI CLI scans five files, classifies same-commit findings
+   as legacy and keeps quality advisory/security-review semantics. Its protected
+   security-review hold remains exit 2. JSON/Markdown/SARIF are produced together
+   from source-reproved cases, JSON/SARIF validate against local schemas, SARIF
+   full properties equal JSON cases, and invocation completeness/exit matches CI.
+   Known secret bytes are masked in every format. The actual underlying scanner
+   envelope is deliberately written as external disposable prompt-input setup;
+   actual prompt CLI calls require a real operator binding, reject another case,
+   and keep even an exact match review-required/manual-planning-only. All writes,
+   execution and automatic fixes remain unauthorized; planning does not waive CI.
+2. A completed clean four-language repository returns 0. After deliberate fixture
+   setup adds and commits a new TypeScript path, its actual absent-at-base proof
+   produces NEW/HC001/block and exit 1. All exports preserve the same gate and
+   exact current source identity. No touched-file guess or fake baseline absence
+   is used to promote findings.
+3. An actual partial SQL parse keeps CI and every report incomplete/2 while other
+   native findings remain visible; no SQL finding/location is invented. A
+   deliberately wrong manifest trust pin also stays incomplete/2, emits no cases
+   in any format and exposes no manifest path. Neither failure becomes green
+   merely because an exporter can serialize its result.
+
+Snapshots cover consumer source, Git objects/index/config and all fixture-parent
+files before/after each read-only phase. Native manifest, actual scan-input and
+operator approval JSON are created only as separately labeled disposable fixture
+setup; tests never refresh them while scanning or mutate consumer source to pass.
+No target build, dependency installation, database execution, source import,
+report/cache write, remediation, remote upload or release runs. Native processes
+are explicitly trusted code under the accepted runner, not an OS sandbox.
+
+This is a local contract/release-gate acceptance test for configured rules and
+artifacts, not comprehensive language analysis, automatic approval, a completed
+GitHub Actions run or release authorization. A skipped opt-out, valid report
+schema or matching manual-planning input alone is insufficient evidence. Goal
+acceptance still requires independent review of the actual integrated source and
+recorded native/schema test results; other host/platform runs remain unverified
+until executed.
