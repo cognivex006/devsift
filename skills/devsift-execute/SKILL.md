@@ -11,3 +11,5 @@ description: Execute explicitly authorized DevSift goal/task with rolling five-s
 6. For failed gates/conflicts preserve worktrees and branches; rework in a new job and checkpoint. Never remove unintegrated or dirty worktrees.
 7. Update docs and CHANGELOG Unreleased in the same authorized behavioral edit, without bumping releases. Goal complete only after all required tasks accepted. Savepoint on milestone/pause and before moving location.
 8. Enforce scan/read-only boundaries; legacy findings are review recommendations, NEVER blanket fixes, and no missing upstream fields mandated across old logs. New blocking findings governed by rule policy.
+
+Worktree convention: create only `<repo>/worktrees/<job>` (ignored). At job completion remove clean integrated or documented superseded folders after preserving commit refs/replacement evidence. Keep historical branches without retaining finished folders. Never discard dirty or unique unrecorded work. Controller audits cleanup and leaves no finished job directories at session completion. This convention supersedes older wording that required retaining the folder for every unmerged superseded branch.

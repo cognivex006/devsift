@@ -4,7 +4,7 @@
 - Actor/model identity and Controller run ID:
 - Authorized objective, non-goals and exact ownership (repo/files/symbols/contracts):
 - Exact accepted prerequisite artifacts with SHA:
-- Branch/worktree from latest integrated base SHA (or sequential fallback):
+- Branch/worktree from latest integrated base SHA (`<repo>/worktrees/<job>` only; or sequential fallback):
 - Locks held and forbidden files/contracts:
 - Current AGENTS/DEVELOPMENT references and governing hashes:
 - Relevant task-specific input excerpts, test fixtures and acceptance criteria:

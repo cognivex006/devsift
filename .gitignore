@@ -1,6 +1,7 @@
 # Local Git worktrees and machine-state
 .git/
 .worktrees/
+worktrees/
 *.worktrees/
 .venv/
 __pycache__/

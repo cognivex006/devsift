@@ -7,7 +7,7 @@ from collections.abc import Iterable
 
 from .adapters import LANGUAGES, detect_language
 
-EXCLUDED = frozenset({'.git', '.hg', '.svn', '.venv', 'venv', 'node_modules',
+EXCLUDED = frozenset({'worktrees', '.git', '.hg', '.svn', '.venv', 'venv', 'node_modules',
                       '__pycache__', '.pytest_cache', '.mypy_cache', '.ruff_cache',
                       'build', 'dist', 'coverage', '.devsift', 'bin', 'obj',
                       'target', '.next', '.nuxt', '.angular', '.gradle', '.cache'})
