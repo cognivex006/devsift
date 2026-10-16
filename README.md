@@ -25,6 +25,14 @@ Add `--security` for bounded credential and supported logging/TLS checks; see [s
 
 See [native setup](docs/NATIVE-SETUP.md) and [CLI behavior](docs/CLI.md). Incomplete output and empty findings do not prove a clean scan. Lifecycle attribution may remain UNKNOWN despite verified source. Scan and CI return full JSON, Markdown and SARIF in `data.reports`. Explicit `prompt --scan-input` composes one source-reproved case review or implementation proposal; operator approval never grants automatic source writes. `report --latest` and `explain` storage discovery remain unavailable.
 
+## Start with the right scope
+
+For new changes, use `scan --changed` during development and the [CI gate](docs/CI-GATE.md) for an explicitly selected committed change. Changed-file selection does not prove that every finding is new. Verified locations and finding lifecycle are separate: unresolved origin stays UNKNOWN and incomplete.
+
+For an existing codebase, start with `scan --all --legacy-mode recommend`. Review the inventory and findings before proposing any edit. Unchanged legacy findings remain recommendations; Critical security findings still require independent review. There is no mass rewrite or automatic fix mode.
+
+Read the [getting-started guide](docs/USAGE.md) for installation, native trust, exit codes and case review. The [report walkthrough](docs/cases/REPORT-WALKTHROUGH.md) demonstrates source verification, redaction and unresolved cases with a disposable fixture.
+
 ## Contents
 
 - `skills/devsift/`: consumer skill instructions.
