@@ -3412,7 +3412,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "running",
       "evidence": [
         {
           "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091",
@@ -3439,6 +3439,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T09:15:48.872633+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "controller",
+          "reason": "quoted identifier truncation and EXECUTE AS context"
         }
       ]
     },
@@ -5190,9 +5195,9 @@
       },
       "T029": {
         "owner": "policy_writer",
-        "status": "in_review",
-        "branch": "feature/g010-sql-rules",
-        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-sql-rules",
+        "status": "running",
+        "branch": "fix/g010-sql-flow-rework",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g010-sql-flow-rework",
         "paths": [
           "devsift/sql_adapter.py",
           "native/sql/Program.cs",
@@ -5205,7 +5210,28 @@
           "write:rules/sql"
         ],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091"
+        "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091",
+        "prior_jobs": [
+          {
+            "owner": "policy_writer",
+            "status": "in_review",
+            "branch": "feature/g010-sql-rules",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-sql-rules",
+            "paths": [
+              "devsift/sql_adapter.py",
+              "native/sql/Program.cs",
+              "tests/test_sql_rules.py",
+              "tests/test_sql_adapter.py",
+              "docs/SQL-ADAPTER.md"
+            ],
+            "base_sha": "26b381bc8e74eebd241fa5f5ade43a4174651eec",
+            "locks": [
+              "write:rules/sql"
+            ],
+            "lease": "selected execution session until accepted/reassigned",
+            "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091"
+          }
+        ]
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
