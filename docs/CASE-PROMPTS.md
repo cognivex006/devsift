@@ -33,10 +33,10 @@ bounded regression verification and rollback planning before any separately
 authorized edit. This composer accepts no approval argument and cannot apply a
 patch. Both modes have `automatic_fix=false`, empty commands and no AFTER code.
 
-T047 owns the separate approval boundary; T048 owns subsequent prompt evaluation
-fixtures/checklist. This slice neither implements those tasks nor wires a CLI,
-installs a skill, executes a model/tool, builds target projects, connects to a
-database or edits consumer source. No mass legacy remediation is authorized.
+T047's separate manual-planning approval boundary is described below; T048 owns
+subsequent prompt evaluation fixtures/checklist. Neither library wires a CLI,
+installs a skill, executes a model, builds target projects, connects to a database
+or edits consumer source. No mass legacy remediation is authorized.
 
 ## Source, masks and unknowns
 
@@ -92,3 +92,94 @@ comments, serialized/duck-typed forgery rejection, safe constant errors,
 unresolved/wrong-repository evidence, overlapping full masks, custom partial
 masks, immutable/fresh output digests and complete source/.git no-write snapshots.
 No consumer project, native build, model session or external service is used.
+
+## Explicit per-case approval (T047)
+
+`devsift.case_approval.ImplementationApproval` is a frozen *explicit trusted
+operator input*, not an authenticated user identity or a signed capability.
+`from_dict()` accepts exactly these nine fields:
+
+| Field | Required meaning |
+| --- | --- |
+| case_id | Exact case ID from the selected sealed report |
+| source_sha | Exact lowercase immutable commit SHA |
+| fingerprint | Exact 64-character source/rule fingerprint |
+| prompt_digest | Exact 64-character digest of the selected implement CasePrompt |
+| mode | Explicit implement approval; review never permits implement planning |
+| approved | Boolean true; absent/false/matching case ID alone cannot approve |
+| actor | Explicit nonempty bounded operator label; redacted before display |
+| issued_at | Timezone-aware ISO timestamp, not later than the evaluation clock |
+| expires_at | Timezone-aware ISO timestamp strictly after issue/evaluation |
+
+Unknown keys, missing fields, malformed IDs/hashes/times, naive timestamps,
+nonboolean approval and control-bearing/oversized actors fail with a constant
+`CaseApprovalError("Invalid or unavailable case approval input")`. Read arbitrary
+JSON only through a deliberate bounded/duplicate-rejecting loader before this
+conversion; `from_dict()` does not authenticate serialization or discover/read
+any file. No project approval file, signature, comment or source directive is
+automatically loaded or trusted. Caller/operator trust is explicit.
+
+```python
+from devsift.case_approval import ImplementationApproval, evaluate_case_approval
+
+# operator_record is supplied by the explicitly trusted human/operator boundary.
+approval = ImplementationApproval.from_dict(operator_record)
+decision = evaluate_case_approval(
+    report, selected_case_id, prompt=implement_prompt,
+    repo_root=repo_root, approval=approval,
+)
+json_decision = decision.to_dict()
+```
+
+Evaluation requires actual in-process Report and CasePrompt objects, composes a
+fresh implement prompt and compares its full digest, then checks the binding's
+case ID/SHA/fingerprint/digest exactly. A review prompt or review/declined approval
+is denied. The current UTC clock is used by default; tests may supply an explicit
+aware datetime via `now`. Expired or not-yet-issued records are denied. No record
+can grant execution permission simply by matching a case ID.
+
+Current source is separately checked: the explicit root must be the actual Git
+root; HEAD must still equal the bound immutable source SHA; the selected stage-0
+index entry must match that commit; and the complete raw selected file bytes must
+hash to its immutable Git blob. Dirty selected bytes, dirty/conflicted/untracked
+selected index entries, changed HEAD, missing files, links/junctions/reparse paths
+or unresolved source are denied. HEAD/index are rechecked after the byte read.
+No Git conversion/filter, external diff or textconv driver is executed. This is
+deliberately byte-exact: transformed checkout bytes may require reconciliation,
+not normalization that invents a match. Unrelated untracked files are not a
+global gate; approval scope is the one selected path/case only.
+
+The immutable `ApprovalDecision` provides fresh `to_dict()` snapshots:
+
+- No explicit approval: `review_required / EXPLICIT_APPROVAL_REQUIRED`, no manual
+  planning handoff.
+- Invalid binding, stale/unsafe source, wrong mode or expired approval: `denied`
+  with a fixed reason and no handoff. Source failures withhold location/snippet.
+- Matching current explicit approval: `review_required /
+  UNKNOWN_EFFECTS_REVIEW_REQUIRED`, `approval_matched=true`,
+  `manual_planning_allowed=true`, and a handoff bound to the exact case/SHA/
+  fingerprint/prompt digest with scope `manual_case_planning_only`.
+
+Current reports disclose unknown impact, change risk and consumers, so a matching
+approval never becomes an execution-ready/automatic-fix decision. Every decision
+has `execution_authorized=false`, `writes_authorized=false` and
+`automatic_fix=false`; no source files, index, baseline or refs are modified.
+Existing source masks, including nonsecurity overlaps, remain intact. Operator
+labels are not echoed unredacted. There is no patch application engine here.
+
+This is a point-in-time read-only workflow boundary. Decisions are not reusable
+authority tokens: repeat all checks if source, HEAD, prompt, approval window or
+scope changes. Checks cannot stop a malicious same-user process racing the
+filesystem, nor enforce an outside agent's edits. A separate explicit human
+decision is still required for any actual consumer change; this API's handoff
+permits only case-scoped manual implementation planning while effects are unknown.
+
+```powershell
+python -B -m unittest discover -s tests -p test_case_approval.py -v
+```
+
+Actual temporary Git tests cover exact/false/missing/wrong/expired approvals,
+staged and unstaged selected changes, unrelated versus selected untracked files,
+moving HEAD, unresolved source, actual file links when permitted, protected masks,
+immutable decisions and before/after source/.git identity. No automatic changes
+or approval discovery are tested as successful capabilities.
