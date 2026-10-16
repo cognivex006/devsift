@@ -1,0 +1,11 @@
+[
+  {"field":"complete","value":"unknown"},
+  {"field":"complete","value":1},
+  {"field":"path","value":"C:\\outside\\source.ts"},
+  {"field":"source_sha","value":"invented"},
+  {"field":"tool_id","value":"other"},
+  {"field":"reason","value":"private source data"},
+  {"field":"metadata","value":{"connection_string":"must never be accepted"}},
+  {"field":"diagnostics","value":[{"rule_id":"LOG002","region":{"start_line":true,"start_column":1,"end_line":1,"end_column":2}}]},
+  {"field":"diagnostics","value":[{"rule_id":"LOG002","region":{"start_line":1,"start_column":3,"end_line":1,"end_column":4}}]}
+]
