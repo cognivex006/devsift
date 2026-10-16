@@ -2450,7 +2450,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "running",
       "evidence": [
         {
           "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
@@ -2484,6 +2484,22 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:46:58.747065+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "at": "2026-10-16T07:56:21.565095+00:00",
+          "reason": "working-tree Git diff executes configured clean/process filters; must suppress effective callbacks"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:56:21.565095+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:56:21.565095+00:00"
         }
       ]
     },
@@ -4433,26 +4449,49 @@
       },
       "T012": {
         "owner": "cli_writer",
-        "status": "in_review",
-        "branch": "feature/g004-aggregation",
-        "worktree": "D:/SP-Billy/devsift-dev/devsift-aggregation",
+        "status": "running",
+        "branch": "fix/g004-filter-safe-scope",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-scope-rework",
         "paths": [
-          "devsift/scanner.py",
-          "tests/test_scanner.py",
-          "docs/SCAN-RESULTS.md",
-          "devsift/cli.py",
           "devsift/cli_scan.py",
           "tests/test_cli_scan.py",
-          "docs/CLI.md"
+          "docs/CLI.md",
+          "docs/SCAN-RESULTS.md"
         ],
-        "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+        "base_sha": "191026883e4b6dbf0209388e9bf98e94325f5d23",
         "locks": [
-          "write:engine/results"
+          "write:engine/results",
+          "write:devsift/cli_scan.py"
         ],
         "lease": "selected G003-G005 session until accepted/reassigned",
-        "source_sha": "970c1860b172e253ffacfad6a3149efa437a56c4",
+        "source_sha": null,
         "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
-        "integration_owner": "controller"
+        "integration_owner": "controller",
+        "prior_jobs": [
+          {
+            "owner": "cli_writer",
+            "status": "in_review",
+            "branch": "feature/g004-aggregation",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift-aggregation",
+            "paths": [
+              "devsift/scanner.py",
+              "tests/test_scanner.py",
+              "docs/SCAN-RESULTS.md",
+              "devsift/cli.py",
+              "devsift/cli_scan.py",
+              "tests/test_cli_scan.py",
+              "docs/CLI.md"
+            ],
+            "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+            "locks": [
+              "write:engine/results"
+            ],
+            "lease": "selected G003-G005 session until accepted/reassigned",
+            "source_sha": "970c1860b172e253ffacfad6a3149efa437a56c4",
+            "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
+            "integration_owner": "controller"
+          }
+        ]
       },
       "T013": {
         "owner": "policy_writer",
