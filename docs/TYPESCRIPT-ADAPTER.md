@@ -39,7 +39,7 @@ The native request boundary rejects duplicate JSON keys (including escaped alias
 
 ## Runtime context rules (T026)
 
-Tool protocol version 1.1.0 adds actual ESTree-based HC001/HC002. HC001 covers
+Tool version 1.1.0 (wire protocol 1) adds actual ESTree-based HC001/HC002. HC001 covers
 literal HTTP(S) endpoints passed directly to unshadowed global fetch or default
 imports from axios (including aliases). Other imports, lexical shadows, arbitrary
 strings, indirect values, test/fixture paths and centralized environment/config

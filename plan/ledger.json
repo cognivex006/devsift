@@ -5478,15 +5478,12 @@
       },
       "native-cli-integration": {
         "owner": "cli_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feat/native-cli-manifest",
         "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\native-cli-manifest",
         "base_sha": "fe4c87fc4a35e448f93a07a4a41131780d42b643",
         "source_sha": "74698b1b54acc684aa2baa4f75c180cce4905429",
-        "locks": [
-          "write:cli/native-manifest",
-          "write:tools/native-setup"
-        ],
+        "locks": [],
         "paths": [
           "devsift/native_manifest.py",
           "devsift/cli.py",
@@ -5496,7 +5493,11 @@
           "docs/NATIVE-SETUP.md"
         ],
         "purpose": "Controller integration of accepted native providers into explicit opt-in CLI configuration; no separate roadmap goal claimed",
-        "recorded_at": "2026-10-16T09:36:06.569019+00:00"
+        "recorded_at": "2026-10-16T09:36:06.569019+00:00",
+        "reviewer": "reviewer",
+        "review_result": "accepted",
+        "integrated_sha": "087773e7725d3e1c3534956c9899bab20c59bba5",
+        "test_result": "Reviewer6manifest+14CLI pass inclactualGo/SQL; controller integrated6manifest pass9.267s"
       },
       "baseline-windows-correction": {
         "owner": "cli_writer",
@@ -5566,12 +5567,9 @@
         }
       ],
       "held_locks": [
-        "write:cli/native-manifest",
-        "write:tools/native-setup",
         "write:tests/frontend"
       ],
       "active_jobs": [
-        "native-cli-integration",
         "T027"
       ],
       "latest_integrated_sha": "8fd7ee32007300692a166e04023a9507adcc07bc",

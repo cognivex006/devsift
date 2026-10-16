@@ -1,4 +1,4 @@
-"""Strict, read-only CLI. Analyzer/report integration is deliberately incomplete."""
+"""Strict, read-only CLI with explicitly configured native analyzers."""
 import argparse
 import json
 import platform
@@ -21,9 +21,9 @@ class Parser(argparse.ArgumentParser):
 
 
 def parser() -> Parser:
-    root = Parser(prog='devsift', description='Read-only scan coordination (native analyzers pending).')
+    root = Parser(prog='devsift', description='Read-only scans with optional explicitly trusted native analyzers.')
     commands = root.add_subparsers(dest='command', required=True)
-    scan = commands.add_parser('scan', help='Inventory targets; native analyzers are not registered yet.')
+    scan = commands.add_parser('scan', help='Inventory targets and run explicitly configured native analyzers.')
     scope = scan.add_mutually_exclusive_group()
     scope.add_argument('--changed', action='store_true', help='Inventory staged, unstaged and untracked working-tree paths (default).')
     scope.add_argument('--all', action='store_true', help='Include legacy source as recommendations.')

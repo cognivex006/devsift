@@ -112,7 +112,7 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
     """Execute one selected trusted adapter per eligible target; return JSON data.
 
     Lifecycle values are trusted upstream attribution, never inferred from a
-    touched file. Findings default UNKNOWN. No default/native analyzer is shipped.
+    touched file. Findings default UNKNOWN. Native tools require explicit configuration.
     Invalid configuration, failed tools, unresolved evidence and partial work all
     keep the final result incomplete, even when other findings block.
     """

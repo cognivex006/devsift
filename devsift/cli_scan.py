@@ -47,7 +47,7 @@ def run_scan(root, *, all_scope=False, legacy_mode="recommend", native_manifest=
     """Changed scope unions staged, unstaged and untracked file paths.
 
     This selects candidates, not finding lifecycle attribution. Deleted files
-    stay explicit incomplete targets. The coordinator registers no native tools.
+    stay explicit incomplete targets. Only an explicit trusted manifest enables native tools.
     """
     candidates = None
     if not all_scope:
