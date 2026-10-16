@@ -2456,6 +2456,13 @@
           "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
           "test_result": "15 scanner tests pass;87worktree tests OK1installedskip; actualtrustedcallbacks/sourceproof/partialfailure/callbackstreammasking validated; syntax/plan/kit/diff passed",
           "author": "cli_writer"
+        },
+        {
+          "author": "controller",
+          "source_sha": "970c1860b172e253ffacfad6a3149efa437a56c4",
+          "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
+          "test_result": "3actualCLI tests initiallyfailed thenpassed;16scanner tests pass incl nonblocking legacycriticalsecurityreview flag; exact targetandGitbytesunchanged",
+          "review_result": "final integration review pending"
         }
       ],
       "assignee": "cli_writer",
@@ -4396,14 +4403,20 @@
         "paths": [
           "devsift/scanner.py",
           "tests/test_scanner.py",
-          "docs/SCAN-RESULTS.md"
+          "docs/SCAN-RESULTS.md",
+          "devsift/cli.py",
+          "devsift/cli_scan.py",
+          "tests/test_cli_scan.py",
+          "docs/CLI.md"
         ],
         "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
         "locks": [
           "write:engine/results"
         ],
         "lease": "selected G003-G005 session until accepted/reassigned",
-        "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77"
+        "source_sha": "970c1860b172e253ffacfad6a3149efa437a56c4",
+        "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
+        "integration_owner": "controller"
       },
       "T013": {
         "owner": "policy_writer",
