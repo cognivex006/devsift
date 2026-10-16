@@ -92,3 +92,31 @@ dirty source/Git bytes stay unchanged, and reject mismatched identities, hidden
 scope, foreign/stale root proof, binary/symlink paths and forged JSON proof flags.
 Legacy Critical security escalation is checked independently and remains urgent
 security review; planning advisory never changes enforcement or grants edits.
+
+## Unauthorized-remediation acceptance fixtures
+
+`tests/test_remediation_denial.py` uses the external records and planning cases in
+`tests/fixtures/remediation/` against real temporary Git histories. The source
+proposal deliberately changes a returned price from 10 to 999: measured counts,
+an external passing regression record and a declared removed diagnostic still
+cannot prove preserved consumer behavior or grant editing authority. Fingerprint
+deltas remain declared; no consumer code is executed to manufacture test proof.
+
+The acceptance matrix covers missing before/after/regression/rollback records,
+incomplete diagnostic analysis, substituted case/root/revision/scope identities,
+forged serialized proof, approval/command fields, unknown risk/consumers, batch
+and refactor plans, absent/zero operator budgets, and independent legacy Critical
+security review. Every returned verification comparison stays incomplete with
+write and execution authority false; invalid identities and hostile schemas reject.
+
+An actual isolated source CLI (`python -I -B` with the explicitly selected trusted
+package root) scans the temporary project read-only and exercises review/implement
+prompt parsing. Missing or mismatched `--approved-case` is misuse; a matching
+case still returns `CAPABILITY_UNAVAILABLE`. This tests the current pending-backend
+boundary, not an implemented approval workflow. There is no G016 dependency or
+claim that a matching string constitutes real case authorization. SHA256 snapshots
+cover every project/Git file and the selected tool's tracked files before and
+after invocation. A target package-name shadow and checkout-hook marker remain
+unexecuted. These checks establish observed read-only behavior for the tested
+commands, not a sandbox or comprehensive non-execution guarantee for arbitrary
+trusted adapters.

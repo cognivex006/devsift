@@ -1,0 +1,8 @@
+[
+  {"name":"one-case legacy recommendation","lifecycle":"LEGACY_UNCHANGED","risk":"low","consumers":"bounded","cases":["case-1"],"refactor":false,"expected":"bounded_plan_review","separate":false},
+  {"name":"unknown lifecycle","lifecycle":"UNKNOWN","risk":"low","consumers":"bounded","cases":["case-1"],"refactor":false,"expected":"incomplete","separate":false},
+  {"name":"unknown change risk","lifecycle":"NEW","risk":"unknown","consumers":"bounded","cases":["case-1"],"refactor":false,"expected":"incomplete","separate":false},
+  {"name":"unknown consumers","lifecycle":"NEW","risk":"low","consumers":"unknown","cases":["case-1"],"refactor":false,"expected":"incomplete","separate":false},
+  {"name":"batch request","lifecycle":"LEGACY_UNCHANGED","risk":"low","consumers":"bounded","cases":["case-1","case-2"],"refactor":false,"expected":"separate_approval_required","separate":true},
+  {"name":"refactor request","lifecycle":"MODIFIED_PREEXISTING","risk":"moderate","consumers":"bounded","cases":["case-1"],"refactor":true,"expected":"separate_approval_required","separate":true}
+]
