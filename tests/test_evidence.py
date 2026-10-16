@@ -4,6 +4,7 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from devsift.evidence import (AfterProposal, EvidenceError, Region, RuntimeEvidence,
                               SourceEvidence, SourceLocation, verify_source)
@@ -11,6 +12,20 @@ from devsift.redaction import Redactor
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_every_verifier_git_read_disables_lazy_fetch(self):
+        real_run = subprocess.run
+        observed = []
+
+        def record(*args, **kwargs):
+            observed.append(kwargs.get("env", {}).get("GIT_NO_LAZY_FETCH"))
+            return real_run(*args, **kwargs)
+
+        with patch("devsift.evidence.subprocess.run", side_effect=record):
+            result = self.evidence()
+        self.assertEqual(result.status, "VERIFIED")
+        self.assertTrue(observed)
+        self.assertEqual(set(observed), {"1"})
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

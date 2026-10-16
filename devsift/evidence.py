@@ -140,7 +140,7 @@ class SourceEvidence:
 def _git(root, *args):
     environment = os.environ.copy()
     environment.update(GIT_NO_REPLACE_OBJECTS="1", GIT_LITERAL_PATHSPECS="1",
-                       GIT_OPTIONAL_LOCKS="0", GIT_TERMINAL_PROMPT="0")
+                       GIT_OPTIONAL_LOCKS="0", GIT_TERMINAL_PROMPT="0", GIT_NO_LAZY_FETCH="1")
     process = subprocess.run(["git", "-C", str(root), *args], capture_output=True,
                              timeout=10, env=environment)
     if process.returncode:
