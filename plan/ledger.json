@@ -1979,13 +1979,19 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5",
           "author": "cli_writer",
           "test_command": "python -m unittest discover -s tests -v",
           "test_result": "28 passed; wheel install and installed command smoke verified; strict completion regression first failed then passed"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "7d7f3772f34918c7419d92a06f984f4552680c67",
+          "test_result": "28 integrated tests passed"
         }
       ],
       "assignee": "cli_writer",
@@ -2020,6 +2026,10 @@
         },
         {
           "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
           "actor": "controller"
         }
       ]
@@ -2041,13 +2051,19 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5",
           "author": "cli_writer",
           "test_command": "python -m unittest discover -s tests -v",
           "test_result": "28 passed; wheel install and installed command smoke verified; strict completion regression first failed then passed"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "7d7f3772f34918c7419d92a06f984f4552680c67",
+          "test_result": "28 integrated tests passed"
         }
       ],
       "assignee": "cli_writer",
@@ -2082,6 +2098,10 @@
         },
         {
           "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
           "actor": "controller"
         }
       ]
@@ -2104,12 +2124,22 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA002"
+      "execution_id": "GA002",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        }
+      ]
     },
     "T007": {
       "id": "T007",
@@ -3903,7 +3933,7 @@
       },
       "T004": {
         "owner": "cli_writer",
-        "status": "in_review",
+        "status": "accepted",
         "paths": [
           "devsift/cli.py",
           "devsift/__main__.py",
@@ -3912,9 +3942,7 @@
           "tests/test_cli.py",
           "docs/CLI.md"
         ],
-        "locks": [
-          "write:cli/commands"
-        ],
+        "locks": [],
         "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
         "branch": "feature/g002-producer-rework",
         "prior_job_sha": "dc62257f160374dce7be68ddeed56c92de3beea2",
@@ -3923,13 +3951,11 @@
       },
       "T005": {
         "owner": "cli_writer",
-        "status": "in_review",
+        "status": "accepted",
         "paths": [
           "devsift/output.py"
         ],
-        "locks": [
-          "write:cli/io"
-        ],
+        "locks": [],
         "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
         "branch": "feature/g002-producer-rework",
         "prior_job_sha": "dc62257f160374dce7be68ddeed56c92de3beea2",
@@ -3948,6 +3974,19 @@
         ],
         "branch": "feature/g001-t003-invariants",
         "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e"
+      },
+      "T006": {
+        "status": "running",
+        "owner": "cli_writer",
+        "paths": [
+          "tests/test_cli_platform.py",
+          ".github/workflows/cli-contract.yml"
+        ],
+        "locks": [
+          "write:tests/cli"
+        ],
+        "branch": "feature/g002-t006-platform",
+        "base_sha": "7d7f3772f34918c7419d92a06f984f4552680c67"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository"
