@@ -13,4 +13,6 @@ Native checks require both `--native-manifest <absolute-path>` and `--native-man
 
 Read the JSON result, exit code, completion status, errors, coverage and findings. Exit 2 means incomplete, never a clean pass. Preserve UNKNOWN lifecycle and unresolved source labels; findings in a changed file are not automatically new. Empty findings with incomplete analysis prove nothing. Explain verified path/region/SHA, actual rule evidence and practical effect. Redact credentials and state coverage limits.
 
-Report, explain and prompt backends are unavailable. Do not promise SARIF reports or automated remediation from these commands. Scanning authorizes no edits, dependency installs, target builds or bulk legacy fixes. Propose narrow repairs; implement only within user authorization and rerun relevant checks.
+Scan and CI provide full JSON, Markdown and SARIF under `data.reports`; select formats with `--report-format`. Add `--security` for documented bounded credential/security-context checks. CI requires explicit native configuration and actual Git provenance; independent security review can keep it incomplete even when legacy quality findings are advisory. Stored-report, explain and case-prompt CLI backends remain unavailable. For strict no-bytecode execution use `python -B -m devsift`.
+
+Scanning authorizes no edits, dependency installs, target builds or bulk legacy fixes. Report prompts are case-scoped guidance with pending approval, not execution authority. Propose narrow repairs; implement only within user authorization and rerun relevant checks.
