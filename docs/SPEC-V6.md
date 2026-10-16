@@ -1,6 +1,6 @@
 # DevSift — Product & Engineering Specification v6
 
-**Status:** approved specification baseline. G000–G010 are implemented and independently accepted; see the code execution ledger and acceptance evidence. Native analyzers cover the documented bounded rules; complete report/prompt backends remain pending.  
+**Status:** approved specification baseline. G000–G010 are implemented and independently accepted; see the code execution ledger and acceptance evidence. Native analyzers cover the documented bounded rules; complete report/prompt backends remain pending.
 **Canonical repository:** https://github.com/orchex006/devsift  
 **Owner:** `orchex006`  
 **Product:** `DevSift` · proposed CLI: `devsift` · proposed skill: `$devsift`  
