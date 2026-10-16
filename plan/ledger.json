@@ -3170,8 +3170,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766",
+          "test_result": "8actualGo1.21.3ASTtests PASS, offlineownbuild/no targetimports; aliases/shadow/errorbinding/coordinates/pinchecked; sourcefmt/syntax/diffpassed",
+          "author": "cli_writer"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3186,6 +3192,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T09:01:09.240115+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:08:18.118222+00:00"
         }
       ]
     },
@@ -3231,8 +3242,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04",
+          "test_result": "7actualESLint10.12.0/TSparser8.71.2/TS6.0.3 tests PASS, exactnativeprobe, Angular/Next/JSX AST/no-inline-disable/no-target-configexecution/Unicode/Gitproof/no-writes",
+          "author": "controller"
+        }
+      ],
       "assignee": "controller",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3247,6 +3264,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T08:48:55.186222+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:09:49.676750+00:00"
         }
       ]
     },
@@ -5070,7 +5092,7 @@
       },
       "T025": {
         "owner": "controller",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g006-g010-native-analysis",
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
@@ -5083,7 +5105,8 @@
         "locks": [
           "write:adapters/typescript"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04"
       },
       "T028": {
         "owner": "policy_writer",
@@ -5104,7 +5127,7 @@
       },
       "T023": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g008-go",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-go",
         "paths": [
@@ -5117,7 +5140,8 @@
         "locks": [
           "write:adapters/go"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766"
       },
       "T029": {
         "owner": "policy_writer",
@@ -5187,8 +5211,8 @@
         "T023",
         "T029"
       ],
-      "latest_integrated_sha": "26b381bc8e74eebd241fa5f5ade43a4174651eec",
-      "updated_utc": "2026-10-16T09:01:09.418905+00:00"
+      "latest_integrated_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04",
+      "updated_utc": "2026-10-16T09:09:49.676750+00:00"
     },
     "previous_checkpoints": [
       {
