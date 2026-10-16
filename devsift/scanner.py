@@ -100,7 +100,8 @@ def _source(root, target, finding, redactor):
         return SourceEvidence(reason='SOURCE_NOT_VERIFIED')
     location = claimed.location
     verified = verify_source(root, location.repository, location.source_sha,
-                             location.path, location.region, redactor=redactor)
+                             location.path, location.region, redactor=redactor,
+                             sensitive=finding.rule_id == 'HC002')
     if not _snapshot_matches_commit(root, verified, target.content):
         return SourceEvidence(reason='SOURCE_MISMATCH')
     return verified

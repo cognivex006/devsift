@@ -134,7 +134,8 @@ class SourceEvidence:
         # must supply a separate verified contract instead of trusting wire labels.
         _require(location.symbol is None)
         return verify_source(repo_root, location.repository, location.source_sha, location.path,
-                             location.region, expected_before=data["before"], redactor=redactor)
+                             location.region, expected_before=data["before"], redactor=redactor,
+                             sensitive=data["before"] == '[REDACTED]')
 
 
 def _git(root, *args):
@@ -148,7 +149,8 @@ def _git(root, *args):
     return process.stdout
 
 
-def verify_source(repo_root, repository, source_sha, path, region, *, expected_before=None, redactor=None):
+def verify_source(repo_root, repository, source_sha, path, region, *, expected_before=None, redactor=None,
+                  sensitive=False):
     """Verify/extract an immutable UTF-8 Git blob region, never follow symlinks.
 
     Invalid input raises a safe contract error. Missing objects, unsupported source
@@ -159,6 +161,7 @@ def verify_source(repo_root, repository, source_sha, path, region, *, expected_b
     _require(type(redactor) is Redactor)
     location = SourceLocation(repository, source_sha, path, region)
     _require(expected_before is None or type(expected_before) is str)
+    _require(type(sensitive) is bool)
     if redactor.text(path) != path:
         return SourceEvidence(reason="SENSITIVE_LOCATION")
     location = SourceLocation(redactor.text(repository), location.source_sha, path, region)
@@ -204,7 +207,7 @@ def verify_source(repo_root, repository, source_sha, path, region, *, expected_b
             return SourceEvidence(reason="REGION_UNAVAILABLE")
         start_offset = sum(len(line) for line in lines[:region.start_line - 1]) + region.start_column - 1
         end_offset = sum(len(line) for line in lines[:region.end_line - 1]) + region.end_column - 1
-        before = redactor.slice(content, start_offset, end_offset)
+        before = '[REDACTED]' if sensitive else redactor.slice(content, start_offset, end_offset)
         if expected_before is not None and redactor.text(expected_before) != before:
             return SourceEvidence(reason="SOURCE_MISMATCH")
         return SourceEvidence("VERIFIED", location, before, None, None, _seal=_SEAL)

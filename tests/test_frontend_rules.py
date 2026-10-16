@@ -1,11 +1,18 @@
 """Real ESTree context checks; unavailable setup is never silently accepted."""
 import os
+import json
 from pathlib import Path
 import shutil
+import subprocess
+import tempfile
 import unittest
 
 from devsift.inventory import SourceTarget
-from devsift.native_host import analyze_snapshot, probe_tool
+from devsift.native_host import NativeAdapter, analyze_snapshot, probe_tool
+from devsift.scanner import scan
+from devsift.evidence import Region, SourceEvidence, verify_source
+from devsift.baseline import capture_entry
+from devsift.git_changes import classify
 from devsift.typescript_adapter import make_tool
 
 
@@ -65,3 +72,50 @@ class FrontendRulesTests(unittest.TestCase):
         finding = self.report(source).diagnostics[0]
         self.assertEqual(finding.region.start_line, 2)
         self.assertEqual(source.split('\n')[1][finding.region.start_column-1:finding.region.end_column-1], "'https://api.example.test'")
+
+    def test_actual_git_adapter_and_scanner_never_publish_credential_spans(self):
+        cases = ["const options={access_token:'fixtureSensitiveValue'};",
+                 "const apiKey='fixtureSensitiveValue';",
+                 "client.authToken='fixtureSensitiveValue';",
+                 "class C { clientSecret='fixtureSensitiveValue'; }",
+                 "options['privateKey']='fixtureSensitiveValue';",
+                 "const api\\u004bey='fixtureSensitiveValue';"]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            def git(*args):
+                return subprocess.run(['git', '-C', str(root), *args], check=True,
+                                      capture_output=True, text=True).stdout.strip()
+            git('init', '-q')
+            for index, source in enumerate(cases):
+                (root / f'case{index}.ts').write_text(source, encoding='utf-8')
+            git('add', '*.ts')
+            git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'fixture')
+            sha = git('rev-parse', 'HEAD')
+            adapter = NativeAdapter(self.tool, repo_root=root, source_sha=sha)
+            for index, source in enumerate(cases):
+                path = f'case{index}.ts'
+                target = SourceTarget(path, 'ready', 'typescript', source.encode(), 'fixture')
+                outcome = adapter.analyze(target)
+                self.assertTrue(outcome.complete)
+                self.assertEqual(len(outcome.findings), 1)
+                self.assertEqual(outcome.findings[0].source.before, '[REDACTED]')
+                self.assertEqual(outcome.findings[0].source.location.source_sha, sha)
+                restored = SourceEvidence.from_dict(outcome.findings[0].source.to_dict(), repo_root=root)
+                self.assertEqual(restored.status, 'VERIFIED')
+                self.assertEqual(restored.before, '[REDACTED]')
+                provenance = classify(root, sha, sha, 'HC002', restored)
+                self.assertEqual(provenance.lifecycle_class, 'LEGACY_UNCHANGED')
+                entry = capture_entry(root, 'HC002', '1', restored)
+                self.assertEqual(len(entry.fingerprint), 64)
+            record = scan(root, adapters=(adapter,))
+            self.assertEqual(len(record['findings']), len(cases))
+            self.assertNotIn('fixtureSensitiveValue', json.dumps(record))
+            self.assertEqual(record['exit_code'], 2)
+            # Cropped evidence preserves immutable physical coordinates while
+            # withholding every part of the credential, even without its name.
+            source = cases[0]
+            offset = source.index('fixtureSensitiveValue') + 3
+            evidence = verify_source(root, 'local', sha, 'case0.ts',
+                                     Region(1, offset+1, 1, offset+5), sensitive=True)
+            self.assertEqual(evidence.status, 'VERIFIED')
+            self.assertEqual(evidence.before, '[REDACTED]')
