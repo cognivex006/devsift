@@ -5,8 +5,8 @@ cache/config diagnostics.
 The CLI calls it through `python -m devsift doctor`. Explicit trusted probes use
 `--native-manifest <absolute-path>` and `--native-manifest-digest <trusted-sha256>`.
 The added optional arguments below belong to the callable API until the separate
-CLI owner wires their flags. This change does not edit the CLI or complete the
-later degraded-environment acceptance matrix (T060).
+CLI owner wires their flags. The degraded-environment fixture matrix described
+below adds focused evidence; it does not enable optional CLI flags by itself.
 
 ```python
 from devsift.doctor import run_doctor
@@ -176,3 +176,41 @@ Use `python -B` or `PYTHONDONTWRITEBYTECODE=1` for strict cold source/package-tr
 no-bytecode execution, as explained in [CLI.md](CLI.md). Doctor itself writes no
 project files, installs nothing and has no target command runner. Test fixture
 creation and build/install operations are separate from read-only diagnostics.
+
+## Degraded/no-tool fixture matrix
+
+Run `python -B -m unittest discover -s tests -p test_doctor_degraded.py -v` for eight
+focused groups. The tests compose the existing doctor fixture owner and byte
+snapshot helper, rather than duplicate provider implementation or inherit and
+rerun another test class. All helper/manifest/project files are owned disposable
+fixtures; no dependencies are installed and no target builds or hooks are run.
+
+| Environment or failure | Evidence and required result |
+| --- | --- |
+| Empty, NUL-containing, overlong or excessive-entry PATH | Metadata-only checks remain explicit missing/unavailable; versions null, actions present; a process-launch tripwire must never fire |
+| Actual CLI with empty or executable-shadow PATH and untrusted project config | One incomplete machine JSON record, no manifest autodiscovery or fixture byte changes; PATH presence cannot create trusted providers |
+| Missing explicit manifest | Actual CLI native arguments return incomplete/2 without leaking the supplied private path |
+| Missing pinned executable/helper artifact | No native process is started; unavailable reason, null verified version and repair action; no rebuilding or pin replacement |
+| Wrong tool/engine version or malformed protocol JSON | Real explicitly trusted helper processes fail exact version/protocol validation; private output is not published |
+| Nonzero exit, oversized stdout or wall timeout | Real explicitly trusted helper processes remain incomplete with no partial private output; no automatic retry/install |
+| Ready Go fixture alongside a version-mismatched SQL fixture | Ready provider keeps its verified version, failed and omitted providers remain unavailable; explicit SQL dialect preserved; overall incomplete/2 |
+| Unsupported Python introspection with otherwise verified native probes | Runtime failure still wins over ready provider checks; incomplete/2 and actionable runtime guidance |
+| Invalid policy after a provider was actually proven ready | No further native execution; config error cannot be hidden by otherwise valid manifest/provider readiness |
+
+The timeout helper has a 50ms caller-configured process deadline and the output
+fixture exceeds the existing doctor stream cap; existing process-runner cleanup
+budgets still apply. These tests execute trusted Python fixtures that speak the
+native protocol, not real Go/.NET/TypeScript/SQL analyzers. A synthetic all-language
+ready result is only a precondition for the invalid-config test, never a claim of
+rule coverage or source quality. The unsupported-runtime case patches interpreter
+introspection; it does not claim an actual Python 3.11 installation was tested.
+
+CLI subprocesses use an explicitly isolated `-I -B` harness with the trusted code
+checkout added to sys.path. This prevents fixture-directory startup behavior from
+contaminating the test, not a claim that arbitrary normal Python startup hooks are
+sandboxed by DevSift. Only already accepted default/native CLI arguments are used;
+optional policy/cache flag integration belongs to the controller's CLI tests.
+Before/after hashes ensure the fixture contents, untrusted configs and manifests
+are preserved; temporary process scratch cleanup is owned by the accepted runner.
+This matrix does not replace real native/parser/installed-CLI or cross-platform
+acceptance runs, and does not itself mark a goal accepted or released.
