@@ -1834,8 +1834,15 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "512f41d810301b212ab93ff2c903207b2bfac6ab",
+          "test_command": "python -m unittest discover -s tests -p test_policy.py -v",
+          "test_result": "10 passed",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -1847,6 +1854,10 @@
         },
         {
           "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
           "actor": "controller"
         }
       ]
@@ -1868,8 +1879,15 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "512f41d810301b212ab93ff2c903207b2bfac6ab",
+          "test_command": "python -m unittest discover -s tests -p test_policy.py -v",
+          "test_result": "10 passed",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -1881,6 +1899,10 @@
         },
         {
           "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
           "actor": "controller"
         }
       ]
@@ -3767,7 +3789,7 @@
       },
       "T001": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "paths": [
           "devsift/policy.py",
           "policy/",
@@ -3777,11 +3799,14 @@
         "locks": [
           "write:policy/schema"
         ],
-        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+        "branch": "feature/g001-policy",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-policy",
+        "source_sha": "512f41d810301b212ab93ff2c903207b2bfac6ab"
       },
       "T002": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "paths": [
           "devsift/registry.py",
           "policy/registry.json"
@@ -3789,7 +3814,10 @@
         "locks": [
           "write:policy/rules"
         ],
-        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+        "branch": "feature/g001-policy",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-policy",
+        "source_sha": "512f41d810301b212ab93ff2c903207b2bfac6ab"
       },
       "T004": {
         "owner": "cli_writer",
