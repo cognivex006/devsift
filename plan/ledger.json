@@ -2493,8 +2493,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "6566171f9e97962adbc3eb7f595fe6970733bf1d",
+          "test_result": "9 actualGit tests pass including all5lifecycle states, scopedbaseline, crisscross, shallowhistory, promisor rejection, rawfingerprints; syntax/diff/credentialscan pass",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2509,6 +2515,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:39:08.721077+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:44:26.942989+00:00"
         }
       ]
     },
@@ -4340,7 +4351,7 @@
       },
       "T013": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g005-classifier",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-classifier",
         "paths": [
@@ -4352,7 +4363,8 @@
         "locks": [
           "write:engine/git"
         ],
-        "lease": "selected G003-G005 session until accepted/reassigned"
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "6566171f9e97962adbc3eb7f595fe6970733bf1d"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4372,8 +4384,8 @@
         "T012",
         "T013"
       ],
-      "latest_integrated_sha": "60238d9aa20e9aac1a2ba95481dbdaf0617430a0",
-      "updated_utc": "2026-10-16T07:43:12.047272+00:00"
+      "latest_integrated_sha": "61e3c43d3a3939e936f492cabd7ea3b78bf06148",
+      "updated_utc": "2026-10-16T07:44:26.942989+00:00"
     },
     "previous_checkpoints": [
       {
