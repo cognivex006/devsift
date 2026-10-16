@@ -54,10 +54,13 @@ class CliScanTests(unittest.TestCase):
         self.git("config", "user.name", "CLI Fixture")
         self.git("config", "user.email", "fixture@example.invalid")
         self.git("config", "core.autocrlf", "false")
-        for name in ("changed.py", "deleted.py", "untouched.py"):
+        for name in ("changed.py", "deleted.py", "untouched.py", "index_only.py"):
             (self.root / name).write_bytes(b"print(1)\n")
         self.git("add", ".")
         self.git("commit", "-qm", "fixture")
+        (self.root / "index_only.py").write_bytes(b"print(234)\n")
+        self.git("add", "index_only.py")
+        (self.root / "index_only.py").write_bytes(b"print(1)\n")
         (self.root / "changed.py").write_bytes(b"print(2)\n")
         (self.root / "deleted.py").unlink()
         (self.root / "new.ts").write_bytes(b"const value = 1;\n")
@@ -65,7 +68,8 @@ class CliScanTests(unittest.TestCase):
         record = self.invoke("--changed")
         targets = {row["path"]: row for row in record["data"]["targets"]}
         self.assertEqual(record["data"]["mode"], "incremental")
-        self.assertEqual(set(targets), {"changed.py", "deleted.py", "new.ts"})
+        self.assertEqual(set(targets), {"changed.py", "deleted.py", "new.ts", "index_only.py"})
+        self.assertEqual(targets["index_only.py"]["byte_count"], len(b"print(1)\n"))
         self.assertEqual(targets["deleted.py"]["status"], "missing")
         self.assertFalse(record["complete"])
         self.assertEqual(self.snapshot(), before)

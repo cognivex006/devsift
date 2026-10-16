@@ -22,8 +22,8 @@ exclusive; changed scope is the default. Untouched legacy has only the
 `recommend` mode. There is no bulk fix or enforcing legacy mode.
 
 The scan command now calls the read-only inventory and execution coordinator.
-`--changed` selects tracked index/working-tree differences from HEAD and untracked
-paths at the repository root; `--all` inventories the current directory. These are
+`--changed` unions staged, unstaged and untracked paths at the repository root
+while reading current working-tree bytes rather than staged blobs; `--all` inventories the current directory. These are
 target selections, not finding lifecycle classifications. Git/source evidence
 libraries are available to embedded adapters. Native analyzers are not registered,
 and report serialization/storage and case prompt backends remain pending.

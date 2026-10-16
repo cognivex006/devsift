@@ -25,7 +25,7 @@ def parser() -> Parser:
     commands = root.add_subparsers(dest='command', required=True)
     scan = commands.add_parser('scan', help='Inventory targets; native analyzers are not registered yet.')
     scope = scan.add_mutually_exclusive_group()
-    scope.add_argument('--changed', action='store_true', help='Inventory tracked changes from HEAD and untracked files (default).')
+    scope.add_argument('--changed', action='store_true', help='Inventory staged, unstaged and untracked working-tree paths (default).')
     scope.add_argument('--all', action='store_true', help='Include legacy source as recommendations.')
     scan.add_argument('--legacy-mode', choices=['recommend'], default='recommend',
                       help='Untouched legacy is advisory; no bulk remediation.')

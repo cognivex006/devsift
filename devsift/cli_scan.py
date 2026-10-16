@@ -21,7 +21,7 @@ def _git(root, *arguments):
 
 
 def run_scan(root, *, all_scope=False, legacy_mode="recommend"):
-    """Changed scope is tracked differences from HEAD plus untracked file paths.
+    """Changed scope unions staged, unstaged and untracked file paths.
 
     This selects candidates, not finding lifecycle attribution. Deleted files
     stay explicit incomplete targets. The coordinator registers no native tools.
@@ -33,11 +33,13 @@ def run_scan(root, *, all_scope=False, legacy_mode="recommend"):
             top = Path(_git(origin, "rev-parse", "--show-toplevel").decode("utf-8").strip())
             if top.resolve() != origin:
                 raise ValueError("Git root required")
-            tracked = _git(origin, "diff", "--no-ext-diff", "--no-textconv", "--no-renames",
-                           "--name-only", "-z", "HEAD", "--")
+            diff_options = ("--no-ext-diff", "--no-textconv", "--no-renames", "--name-only", "-z")
+            staged = _git(origin, "diff", "--cached", *diff_options, "HEAD", "--")
+            unstaged = _git(origin, "diff", *diff_options, "--")
             untracked = _git(origin, "ls-files", "--others", "--exclude-standard", "-z")
             candidates = sorted({path.decode("utf-8") for path in
-                                 tracked.split(b"\0") + untracked.split(b"\0") if path})
+                                 staged.split(b"\0") + unstaged.split(b"\0")
+                                 + untracked.split(b"\0") if path})
         except (OSError, ValueError, UnicodeError, subprocess.SubprocessError):
             return result("scan", complete=False,
                           errors=[{"code": "GIT_SCOPE_UNAVAILABLE",
