@@ -5,7 +5,7 @@ const { Linter } = require('eslint');
 const parser = require('@typescript-eslint/parser');
 const ts = require('typescript');
 const TOOL_ID = 'devsift-typescript';
-const TOOL_VERSION = '1.1.0';
+const TOOL_VERSION = '1.2.0';
 const versions = {
   eslint: require('eslint/package.json').version,
   parser: require('@typescript-eslint/parser/package.json').version,
@@ -77,6 +77,7 @@ if (process.argv[2] === '--probe') {
       output(false, [], 'UNSUPPORTED_SOURCE');
     } else {
       const diagnostics = [];
+      let securityIncomplete = false;
       const fixturePath = /(^|\/)(__tests__|tests?|fixtures?|__mocks__)(\/|$)|\.(test|spec)\.[cm]?[jt]sx?$/i.test(request.path);
       const configPath = /(^|\/)(config|configuration|environments?)(\/|$)|(^|\/)(environment(?:\.[^/]*)?|[^/]*\.config)\.[cm]?[jt]s$/i.test(request.path);
       const literal = node => node && node.type === 'Literal' && typeof node.value === 'string' ? node.value : null;
@@ -86,6 +87,7 @@ if (process.argv[2] === '--probe') {
       const contextRules = {
         meta: { type: 'problem', schema: [], messages: { issue: 'Literal runtime configuration.' } },
         create(context) {
+          const mutatedRoots = new Set();
           function emit(rule_id, node) {
             diagnostics.push({ rule_id, region: region(request.source, node) });
             context.report({ node, messageId: 'issue' });
@@ -103,6 +105,93 @@ if (process.argv[2] === '--probe') {
             }
             return null;
           }
+          function unshadowed(node, name) {
+            if (mutatedRoots.has(name)) return false;
+            const found = variable(node, name);
+            if (found && (found.defs.length || found.references.some(ref => ref.isWrite()))) return false;
+            let scope = context.sourceCode.getScope(node);
+            while (scope) {
+              if (scope.through.some(ref => ref.identifier.name === name && ref.isWrite())) return false;
+              scope = scope.upper;
+            }
+            return true;
+          }
+          function signature(value, name = '') {
+            if (typeof value !== 'string') return false;
+            if (/^(?:gh[pousr]_[A-Za-z0-9]{36,255}|github_pat_[A-Za-z0-9_]{50,255})$/.test(value)) return true;
+            if (['awssecretaccesskey', 'secretaccesskey'].includes(name.replace(/_/g, '').toLowerCase())
+              && /^[A-Za-z0-9/+=]{40}$/.test(value) && !/EXAMPLE|YOUR/i.test(value)) return true;
+            const text = value.trim();
+            for (const label of ['PRIVATE KEY', 'RSA PRIVATE KEY', 'EC PRIVATE KEY', 'OPENSSH PRIVATE KEY']) {
+              const header = `-----BEGIN ${label}-----`, footer = `-----END ${label}-----`;
+              if (!text.startsWith(header)) continue;
+              if (!text.endsWith(footer)) return false;
+              const body = text.slice(header.length, -footer.length);
+              if (body.length < 32 || body.length > 65536) return false;
+              let count = 0;
+              for (const char of body) {
+                if (/[A-Za-z0-9+/=]/.test(char)) count++;
+                else if (!/\s/.test(char)) return false;
+              }
+              return count >= 32;
+            }
+            return false;
+          }
+          function sensitiveValue(node) {
+            if (signature(literal(node))) return true;
+            if (!node || node.type !== 'Identifier') return false;
+            const found = variable(node, node.name);
+            if (!found || found.defs.length !== 1 || mutatedRoots.has(node.name)
+              || found.references.some(ref => ref.isWrite() && !ref.init)
+              || found.scope.variableScope !== context.sourceCode.getScope(node).variableScope) return false;
+            const definition = found.defs[0];
+            return definition.type === 'Variable' && definition.node.type === 'VariableDeclarator'
+              && definition.node.id.type === 'Identifier' && signature(literal(definition.node.init), definition.node.id.name);
+          }
+          function imported(node, identifier) {
+            const found = variable(node, identifier.name);
+            if (!found || mutatedRoots.has(identifier.name) || found.references.some(ref => ref.isWrite())) return null;
+            const definitions = found.defs.filter(def => def.type === 'ImportBinding');
+            if (definitions.length !== 1) return null;
+            const definition = definitions[0];
+            return { module: definition.parent.source.value.replace(/^node:/, ''),
+              name: definition.node.type === 'ImportSpecifier' ? keyName(definition.node.imported)
+                : ['ImportDefaultSpecifier', 'ImportNamespaceSpecifier'].includes(definition.node.type) ? '*' : null };
+          }
+          function tlsSink(node) {
+            const callee = node.callee;
+            let reference, method;
+            if (callee.type === 'Identifier') {
+              reference = imported(node, callee); method = reference?.name;
+            } else if (callee.type === 'MemberExpression' && !callee.computed && callee.object.type === 'Identifier') {
+              reference = imported(node, callee.object); method = callee.property.name;
+              if (reference?.name !== '*') return false;
+            } else return false;
+            const recognized = node.type === 'NewExpression'
+              ? reference?.module === 'https' && method === 'Agent'
+              : reference?.module === 'https' && ['get', 'request'].includes(method)
+                || reference?.module === 'tls' && method === 'connect';
+            if (!recognized) return false;
+            // Match API positions, not an arbitrary object elsewhere in argv.
+            // In particular Agent ignores a second options-looking argument.
+            let options = null;
+            const first = node.arguments[0], second = node.arguments[1], third = node.arguments[2];
+            if (first?.type === 'ObjectExpression') options = first;
+            else if (node.type !== 'NewExpression' && reference?.module === 'https'
+              && typeof literal(first) === 'string' && /^https:\/\//i.test(literal(first))) options = second;
+            else if (node.type !== 'NewExpression' && reference?.module === 'tls'
+              && first?.type === 'Literal' && Number.isInteger(first.value) && first.value >= 0 && first.value <= 65535) {
+              options = second?.type === 'ObjectExpression' ? second
+                : typeof literal(second) === 'string' ? third : null;
+            }
+            if (options?.type !== 'ObjectExpression') return false;
+            if (!options || options.properties.some(property => property.type !== 'Property'
+              || property.computed && literal(property.key) === null)) return false;
+            const matches = options.properties.filter(property => keyName(property.key) === 'rejectUnauthorized');
+            const effective = matches.at(-1);
+            return !!effective && !effective.method && effective.kind === 'init'
+              && effective.value.type === 'Literal' && effective.value.value === false;
+          }
           function networkCall(node) {
             const callee = node.callee;
             if (callee.type === 'Identifier' && callee.name === 'fetch') {
@@ -116,6 +205,46 @@ if (process.argv[2] === '--probe') {
               && def.node.type === 'ImportDefaultSpecifier' && def.parent.source.value === 'axios');
           }
           return {
+            Program(node) {
+              const stack = [node];
+              const aliases = new Map(), securityImports = new Set();
+              function identifier(value) {
+                let depth = 0;
+                while (value && ['TSAsExpression', 'TSTypeAssertion', 'TSNonNullExpression', 'ParenthesizedExpression'].includes(value.type)
+                  && depth++ < 16) value = value.expression;
+                return value?.type === 'Identifier' ? value.name : null;
+              }
+              function alias(left, right) {
+                if (!left || !right) return;
+                if (!aliases.has(left)) aliases.set(left, new Set());
+                if (!aliases.has(right)) aliases.set(right, new Set());
+                aliases.get(left).add(right); aliases.get(right).add(left);
+              }
+              while (stack.length) {
+                const current = stack.pop();
+                if (current.type === 'ImportDeclaration' && ['node:https', 'https', 'node:tls', 'tls'].includes(current.source.value))
+                  for (const specifier of current.specifiers) securityImports.add(specifier.local.name);
+                if (current.type === 'VariableDeclarator') alias(identifier(current.id), identifier(current.init));
+                if (current.type === 'AssignmentExpression' && current.operator === '=') alias(identifier(current.left), identifier(current.right));
+                if ((current.type === 'AssignmentExpression' || current.type === 'UpdateExpression')
+                  && (current.left || current.argument)?.type === 'MemberExpression') {
+                  const target = current.left || current.argument;
+                  if (target.object.type === 'Identifier') mutatedRoots.add(target.object.name);
+                }
+                for (const key of context.sourceCode.visitorKeys[current.type] || []) {
+                  const value = current[key];
+                  if (Array.isArray(value)) { for (const child of value) if (child?.type) stack.push(child); }
+                  else if (value?.type) stack.push(value);
+                }
+              }
+              const queue = [...mutatedRoots];
+              for (let index = 0; index < queue.length; index++) {
+                for (const linked of aliases.get(queue[index]) || []) {
+                  if (!mutatedRoots.has(linked)) { mutatedRoots.add(linked); queue.push(linked); }
+                }
+              }
+              if ([...securityImports].some(name => mutatedRoots.has(name))) securityIncomplete = true;
+            },
             VariableDeclarator(node) { if (node.id.type === 'Identifier') secret(node.id.name, node.init, node); },
             AssignmentExpression(node) {
               const name = node.left.type === 'Identifier' ? node.left.name
@@ -126,10 +255,17 @@ if (process.argv[2] === '--probe') {
             Property(node) { if (!node.method && node.kind === 'init' && (!node.computed || literal(node.key) !== null)) secret(keyName(node.key), node.value, node); },
             PropertyDefinition(node) { if (!node.computed || literal(node.key) !== null) secret(keyName(node.key), node.value, node); },
             CallExpression(node) {
+              const callee = node.callee;
+              if (callee.type === 'MemberExpression' && !callee.computed && callee.object.type === 'Identifier'
+                && callee.object.name === 'console' && unshadowed(node, 'console')
+                && ['log', 'info', 'warn', 'error', 'debug', 'trace'].includes(callee.property.name)
+                && node.arguments.some(argument => sensitiveValue(argument))) emit('SEC001', node);
+              if (tlsSink(node)) emit('SEC002', node);
               const endpoint = literal(node.arguments[0]);
               if (!fixturePath && !configPath && endpoint !== null && /^https?:\/\/[^\s/]+/i.test(endpoint)
                 && networkCall(node)) emit('HC001', node.arguments[0]);
             },
+            NewExpression(node) { if (tlsSink(node)) emit('SEC002', node); },
           };
         },
       };
@@ -156,6 +292,7 @@ if (process.argv[2] === '--probe') {
       const parseFailure = messages.some(message => message.fatal);
       if (parseFailure) output(false, [], 'PARSE_ERROR');
       else if (diagnostics.length > 1000) output(false, diagnostics.slice(0, 1000));
+      else if (securityIncomplete) output(false, diagnostics);
       else output(true, diagnostics, 'COMPLETED');
     }
   } catch (_error) {

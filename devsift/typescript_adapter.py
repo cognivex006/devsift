@@ -16,7 +16,7 @@ def make_tool(node_executable, package_dir=None):
         node, package = node.resolve(strict=True), package.resolve(strict=True)
         artifacts = tuple((str(package / name), file_digest(package / name))
                           for name in ('analyze.cjs', 'package.json', 'package-lock.json'))
-        return ToolDefinition('devsift-typescript', '1.1.0', ('typescript', 'javascript'),
+        return ToolDefinition('devsift-typescript', '1.2.0', ('typescript', 'javascript'),
                               ProcessSpec(str(node), (str(package / 'analyze.cjs'),), timeout_seconds=30,
                                           max_stdin_bytes=2_000_000),
                               file_digest(node), artifacts,
