@@ -344,9 +344,11 @@
         "T018"
       ],
       "repo": "orchex006/devsift",
-      "status": "running",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G006.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -791,10 +793,8 @@
               "T013"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T018"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T041",
@@ -1130,7 +1130,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T018",
             "T020",
             "T021",
             "T022",
@@ -1512,7 +1511,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T018",
             "T020",
             "T021",
             "T022",
@@ -2854,17 +2852,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
           "test_result": "8externalbaseline invariant tests pass+16invalidwaiver fixtures; trusteddigest/authlimits/CASversions/strictJSON/read-only/expiry/criticalfloor; syntax/diffpassed",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
+          "integrated_sha": "17a35d2a633711252e4906eb189f61eab8a7aa01",
+          "test_result": "Independentexactreviewaccepted;8baseline/waiver invariants pass incl16negativefixtures; sourceproducer6+3passed; G006complete",
+          "evidence_uri": "docs/evidence/G006.md"
         }
       ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA006",
       "history": [
         {
@@ -2881,6 +2887,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T08:40:33.848279+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:42:16.290113+00:00"
         }
       ]
     },
@@ -4825,7 +4836,7 @@
       },
       "T018": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g006-baseline-invariants",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-invariants",
         "paths": [
@@ -4833,11 +4844,10 @@
           "tests/fixtures/baseline/"
         ],
         "base_sha": "71c9699ad61223b017c3aaa496174ba9f07ba686",
-        "locks": [
-          "write:tests/baseline"
-        ],
+        "locks": [],
         "lease": "selected G006-G010 session until accepted/reassigned",
-        "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c"
+        "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
+        "integrated_sha": "17a35d2a633711252e4906eb189f61eab8a7aa01"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4879,14 +4889,10 @@
           "clean": true
         }
       ],
-      "held_locks": [
-        "write:tests/baseline"
-      ],
-      "active_jobs": [
-        "T018"
-      ],
-      "latest_integrated_sha": "490fca0fefce2a907856bf6dfe879eb29a3bb01b",
-      "updated_utc": "2026-10-16T08:42:15.571610+00:00"
+      "held_locks": [],
+      "active_jobs": [],
+      "latest_integrated_sha": "17a35d2a633711252e4906eb189f61eab8a7aa01",
+      "updated_utc": "2026-10-16T08:42:16.290113+00:00"
     },
     "previous_checkpoints": [
       {
