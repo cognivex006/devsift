@@ -184,9 +184,11 @@
         "T009"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G003.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -236,9 +238,11 @@
         "T012"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G004.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -296,9 +300,11 @@
         "T015"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G005.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -323,10 +329,8 @@
               "T007"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T007"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -371,11 +375,8 @@
               "T013"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T007",
-            "T013"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T017",
@@ -438,10 +439,8 @@
               "T010"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T010"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -492,7 +491,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019"
           ]
         }
@@ -545,7 +543,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019"
           ]
         }
@@ -598,7 +595,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019"
           ]
         }
@@ -651,7 +647,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019"
           ]
         }
@@ -708,8 +703,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T008",
-            "T010",
             "T019"
           ]
         }
@@ -753,12 +746,8 @@
               "T000"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T007",
-            "T008",
-            "T009"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -814,8 +803,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T013",
             "T016",
             "T017",
             "T018"
@@ -843,9 +830,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
-            "T009",
             "T037",
             "T038",
             "T039"
@@ -940,9 +924,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
-            "T009",
             "T037"
           ]
         }
@@ -1004,8 +985,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T010",
             "T019",
             "T020",
             "T021",
@@ -1048,7 +1027,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019",
             "T025",
             "T026",
@@ -1166,11 +1144,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
-            "T009",
-            "T010",
-            "T013",
             "T016",
             "T017",
             "T018",
@@ -1336,11 +1309,8 @@
               "T013"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T007",
-            "T013"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -1438,7 +1408,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019",
             "T031",
             "T032",
@@ -1561,11 +1530,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
-            "T009",
-            "T010",
-            "T013",
             "T016",
             "T017",
             "T018",
@@ -1674,9 +1638,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
-            "T009",
             "T037",
             "T038",
             "T039"
@@ -2139,12 +2100,74 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA003"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e",
+          "test_result": "15 producer tests pass; complete contract worktree52 tests OK1installed skip; syntax/diff passed; PEM literal is fixture-only placeholder",
+          "author": "policy_writer"
+        },
+        {
+          "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+          "test_result": "19 producer tests pass; integrated source worktree72tests OK1skip; reviewer3leaks regression red then fixed; empty selection boundary verified",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+          "integrated_sha": "ac797fd48a5d4e3a908d6c8087a1d4996b9f9a62",
+          "test_result": "Independent exactSHA review accepted;72 integratedtests OK1installed skip;3masking regressions fixed; region/context/strict-wire proof passed",
+          "evidence_uri": "docs/evidence/G003.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA003",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:33:59.424778+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "at": "2026-10-16T07:34:58.766797+00:00",
+          "reason": "partial-region masking lacks source context; explicit secret containing mask marker not removed"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:34:58.766797+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:34:58.766797+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:38:02.365525+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:38:57.960216+00:00"
+        }
+      ]
     },
     "T008": {
       "id": "T008",
@@ -2163,12 +2186,74 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA003"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e",
+          "test_result": "15 producer tests pass; complete contract worktree52 tests OK1installed skip; syntax/diff passed; PEM literal is fixture-only placeholder",
+          "author": "policy_writer"
+        },
+        {
+          "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+          "test_result": "19 producer tests pass; integrated source worktree72tests OK1skip; reviewer3leaks regression red then fixed; empty selection boundary verified",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+          "integrated_sha": "ac797fd48a5d4e3a908d6c8087a1d4996b9f9a62",
+          "test_result": "Independent exactSHA review accepted;72 integratedtests OK1installed skip;3masking regressions fixed; region/context/strict-wire proof passed",
+          "evidence_uri": "docs/evidence/G003.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA003",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:33:59.424778+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "at": "2026-10-16T07:34:58.766797+00:00",
+          "reason": "partial-region masking lacks source context; explicit secret containing mask marker not removed"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:34:58.766797+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:34:58.766797+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:38:02.365525+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:38:57.960216+00:00"
+        }
+      ]
     },
     "T009": {
       "id": "T009",
@@ -2188,12 +2273,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA003"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88",
+          "test_result": "7 external wire fixturetests pass; actualGit fixture immutableproof/roundtrip/no-metadata-writes/masking/source-vs-proposal separation validated",
+          "author": "controller"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88",
+          "integrated_sha": "60238d9aa20e9aac1a2ba95481dbdaf0617430a0",
+          "test_result": "Distinct reviewer accepted;79 integratedtests OK1installed-only skip; controller7targetedfixturetests passed; no source/Git bytes changed",
+          "evidence_uri": "docs/evidence/G003.md"
+        }
+      ],
+      "assignee": "controller",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA003",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.449478+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.449478+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:41:51.122437+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:43:12.047272+00:00"
+        }
+      ]
     },
     "T010": {
       "id": "T010",
@@ -2212,12 +2333,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA004"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+          "test_result": "53 discovery tests OK with 1 installed-only skip; 16 producer tests pass; plan/kit/syntax/diff/credential checks pass",
+          "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+          "integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a",
+          "test_result": "Independent reviewer accepted; 53 integrated tests OK1installed-only skip; DAG/kit/diff passed",
+          "evidence_uri": "docs/evidence/G004.md"
+        }
+      ],
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA004",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:31:59.005869+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:32:53.022619+00:00"
+        }
+      ]
     },
     "T011": {
       "id": "T011",
@@ -2236,12 +2393,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA004"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+          "test_result": "53 discovery tests OK with 1 installed-only skip; 16 producer tests pass; plan/kit/syntax/diff/credential checks pass",
+          "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+          "integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a",
+          "test_result": "Independent reviewer accepted; 53 integrated tests OK1installed-only skip; DAG/kit/diff passed",
+          "evidence_uri": "docs/evidence/G004.md"
+        }
+      ],
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA004",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:31:59.005869+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:32:53.022619+00:00"
+        }
+      ]
     },
     "T012": {
       "id": "T012",
@@ -2261,12 +2454,81 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA004"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
+          "test_result": "15 scanner tests pass;87worktree tests OK1installedskip; actualtrustedcallbacks/sourceproof/partialfailure/callbackstreammasking validated; syntax/plan/kit/diff passed",
+          "author": "cli_writer"
+        },
+        {
+          "author": "controller",
+          "source_sha": "970c1860b172e253ffacfad6a3149efa437a56c4",
+          "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
+          "test_result": "3actualCLI tests initiallyfailed thenpassed;16scanner tests pass incl nonblocking legacycriticalsecurityreview flag; exact targetandGitbytesunchanged",
+          "review_result": "final integration review pending"
+        },
+        {
+          "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
+          "test_result": "6CLI+16scanner tests pass; actualhostilecleanfilter red then green; local/env/global/nestedinclude process/required callbacks disabled; exactbytespreserved",
+          "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
+          "integrated_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52",
+          "test_result": "CompleteindependentexactSHAreview accepted; fullintegration tests passed with1installedskip; actualhostilefiltersneverexecute/stagedcancelcurrentbytesverified; sourceandGitmetadatareadonly",
+          "evidence_uri": "docs/evidence/G004.md"
+        }
+      ],
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA004",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.585547+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.585547+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:46:58.747065+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "at": "2026-10-16T07:56:21.565095+00:00",
+          "reason": "working-tree Git diff executes configured clean/process filters; must suppress effective callbacks"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:56:21.565095+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:56:21.565095+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:00:06.828726+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:02:57.269070+00:00"
+        }
+      ]
     },
     "T013": {
       "id": "T013",
@@ -2285,12 +2547,74 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA005"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "6566171f9e97962adbc3eb7f595fe6970733bf1d",
+          "test_result": "9 actualGit tests pass including all5lifecycle states, scopedbaseline, crisscross, shallowhistory, promisor rejection, rawfingerprints; syntax/diff/credentialscan pass",
+          "author": "policy_writer"
+        },
+        {
+          "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
+          "test_result": "10 actualGit classifier+13evidence tests pass; effectivepromisor config worktree/env/global/include regressions and evidence no-lazy-fetch subprocessguard fixed; syntax/diffpass",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
+          "integrated_sha": "f75b9a1f6704b74645766220167ce5f910c9cb3c",
+          "test_result": "Independent exactSHAreview accepted; effectiveconfig bypassfixed; integrated fullsuite passed with1installedskip",
+          "evidence_uri": "docs/evidence/G005.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA005",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.721077+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.721077+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:44:26.942989+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "at": "2026-10-16T07:45:28.746919+00:00",
+          "reason": "effective promisor config outside local scope not rejected before verifier; possible lazy fetch"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:45:28.746919+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:45:28.746919+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:47:49.111823+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:49:53.566525+00:00"
+        }
+      ]
     },
     "T014": {
       "id": "T014",
@@ -2309,12 +2633,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA005"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "b7be3890ffc98d88af4fc7ca4d23db6c2185d5df",
+          "test_result": "6rename+10classifier+13evidence tests pass; regressionrename statesUNKNOWN beforefeature; ambiguous copies/oldpaths/destinations remainUNKNOWN; syntax/diff/scanpass",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "b7be3890ffc98d88af4fc7ca4d23db6c2185d5df",
+          "integrated_sha": "22a31867205fdd958276255e3e36cebdc65c341b",
+          "test_result": "Distinctreviewer accepted;16integratedGit classifier/rename tests pass; ambiguouscopies/paths preservedUNKNOWN; immutablebasepath/region/fingerprintverified",
+          "evidence_uri": "docs/evidence/G005.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA005",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:50:01.311143+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:50:01.311143+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:53:27.084737+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:56:00.778208+00:00"
+        }
+      ]
     },
     "T015": {
       "id": "T015",
@@ -2334,12 +2694,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA005"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
+          "test_result": "5 realGit provenance invariant tests pass: crisscross+completebaseline unknown, baseline scope controls, Unicode/CRLF/dirtyindex immutability, ambiguousrename, hostile refs andstale/unresolvedsource",
+          "author": "controller"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
+          "integrated_sha": "3cef9332322eff33ef53034680d4d5a653bf020d",
+          "test_result": "Distinctreviewer accepted;5realGit hardening tests pass;prior16Git mapping tests passed; ambiguity never overridespolicyincomplete; source/.git bytespreserved",
+          "evidence_uri": "docs/evidence/G005.md"
+        }
+      ],
+      "assignee": "controller",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA005",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:56:01.327020+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:56:01.327020+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:59:11.268476+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:00:06.666522+00:00"
+        }
+      ]
     },
     "T016": {
       "id": "T016",
@@ -3869,13 +4265,13 @@
   },
   "execution": {
     "selected_goals": [
-      "G000",
-      "G001",
-      "G002"
+      "G003",
+      "G004",
+      "G005"
     ],
     "controller": "controller",
     "policy_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
-    "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+    "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
     "jobs": {
       "T000": {
         "owner": "controller",
@@ -3968,61 +4364,405 @@
         "base_sha": "7d7f3772f34918c7419d92a06f984f4552680c67",
         "source_sha": "a44d50f1f1335e67ad5b178008b75f798ae15354",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-cli-tests"
+      },
+      "T007": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "fix/g003-context-redaction",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts-rework",
+        "base_sha": "8c6a2ca",
+        "paths": [
+          "devsift/evidence.py",
+          "devsift/redaction.py",
+          "schemas/",
+          "tests/test_evidence.py",
+          "tests/test_redaction.py",
+          "docs/EVIDENCE.md"
+        ],
+        "locks": [],
+        "lease": "selected session; until accepted/reassigned",
+        "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+        "prior_jobs": [
+          {
+            "owner": "policy_writer",
+            "status": "in_review",
+            "branch": "feature/g003-contracts",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts",
+            "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+            "paths": [
+              "devsift/evidence.py",
+              "devsift/redaction.py",
+              "schemas/",
+              "tests/test_evidence.py",
+              "tests/test_redaction.py",
+              "docs/EVIDENCE.md"
+            ],
+            "locks": [
+              "write:contracts/source"
+            ],
+            "lease": "selected session; until accepted/reassigned",
+            "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e"
+          }
+        ],
+        "integrated_sha": "ac797fd48a5d4e3a908d6c8087a1d4996b9f9a62"
+      },
+      "T008": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "fix/g003-context-redaction",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts-rework",
+        "base_sha": "8c6a2ca",
+        "paths": [
+          "devsift/evidence.py",
+          "devsift/redaction.py",
+          "schemas/",
+          "tests/test_evidence.py",
+          "tests/test_redaction.py",
+          "docs/EVIDENCE.md"
+        ],
+        "locks": [],
+        "lease": "selected session; until accepted/reassigned",
+        "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+        "prior_jobs": [
+          {
+            "owner": "policy_writer",
+            "status": "in_review",
+            "branch": "feature/g003-contracts",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts",
+            "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+            "paths": [
+              "devsift/evidence.py",
+              "devsift/redaction.py",
+              "schemas/",
+              "tests/test_evidence.py",
+              "tests/test_redaction.py",
+              "docs/EVIDENCE.md"
+            ],
+            "locks": [
+              "write:contracts/runtime"
+            ],
+            "lease": "selected session; until accepted/reassigned",
+            "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e"
+          }
+        ],
+        "integrated_sha": "ac797fd48a5d4e3a908d6c8087a1d4996b9f9a62"
+      },
+      "T010": {
+        "owner": "cli_writer",
+        "status": "accepted",
+        "branch": "feature/g004-inventory",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-inventory",
+        "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+        "paths": [
+          "devsift/inventory.py",
+          "devsift/adapters.py",
+          "tests/test_inventory.py",
+          "tests/test_adapters.py",
+          "docs/SCAN-CORE.md"
+        ],
+        "locks": [],
+        "lease": "selected session; until accepted/reassigned",
+        "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+        "integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a"
+      },
+      "T011": {
+        "owner": "cli_writer",
+        "status": "accepted",
+        "branch": "feature/g004-inventory",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-inventory",
+        "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+        "paths": [
+          "devsift/inventory.py",
+          "devsift/adapters.py",
+          "tests/test_inventory.py",
+          "tests/test_adapters.py",
+          "docs/SCAN-CORE.md"
+        ],
+        "locks": [],
+        "lease": "selected session; until accepted/reassigned",
+        "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+        "integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a"
+      },
+      "T009": {
+        "owner": "controller",
+        "status": "accepted",
+        "branch": "feature/g003-g005-foundations",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "paths": [
+          "tests/test_evidence_fixtures.py",
+          "tests/fixtures/evidence/"
+        ],
+        "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+        "locks": [],
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88",
+        "integrated_sha": "60238d9aa20e9aac1a2ba95481dbdaf0617430a0"
+      },
+      "T012": {
+        "owner": "cli_writer",
+        "status": "accepted",
+        "branch": "fix/g004-filter-safe-scope",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-scope-rework",
+        "paths": [
+          "devsift/cli_scan.py",
+          "tests/test_cli_scan.py",
+          "docs/CLI.md",
+          "docs/SCAN-RESULTS.md"
+        ],
+        "base_sha": "191026883e4b6dbf0209388e9bf98e94325f5d23",
+        "locks": [],
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
+        "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
+        "integration_owner": "controller",
+        "prior_jobs": [
+          {
+            "owner": "cli_writer",
+            "status": "in_review",
+            "branch": "feature/g004-aggregation",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift-aggregation",
+            "paths": [
+              "devsift/scanner.py",
+              "tests/test_scanner.py",
+              "docs/SCAN-RESULTS.md",
+              "devsift/cli.py",
+              "devsift/cli_scan.py",
+              "tests/test_cli_scan.py",
+              "docs/CLI.md"
+            ],
+            "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+            "locks": [
+              "write:engine/results"
+            ],
+            "lease": "selected G003-G005 session until accepted/reassigned",
+            "source_sha": "970c1860b172e253ffacfad6a3149efa437a56c4",
+            "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
+            "integration_owner": "controller"
+          }
+        ],
+        "integrated_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52"
+      },
+      "T013": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "fix/g005-no-lazy-fetch",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-classifier-rework",
+        "paths": [
+          "devsift/git_changes.py",
+          "tests/test_git_changes.py",
+          "docs/GIT-PROVENANCE.md",
+          "devsift/evidence.py",
+          "tests/test_evidence.py",
+          "docs/EVIDENCE.md"
+        ],
+        "base_sha": "32e052827633cef20161389256b565385b8b3fa4",
+        "locks": [],
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
+        "prior_jobs": [
+          {
+            "owner": "policy_writer",
+            "status": "in_review",
+            "branch": "feature/g005-classifier",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift-classifier",
+            "paths": [
+              "devsift/git_changes.py",
+              "tests/test_git_changes.py",
+              "docs/GIT-PROVENANCE.md"
+            ],
+            "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+            "locks": [
+              "write:engine/git"
+            ],
+            "lease": "selected G003-G005 session until accepted/reassigned",
+            "source_sha": "6566171f9e97962adbc3eb7f595fe6970733bf1d"
+          }
+        ],
+        "integrated_sha": "f75b9a1f6704b74645766220167ce5f910c9cb3c"
+      },
+      "T014": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "feature/g005-rename-drift",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-rename",
+        "paths": [
+          "devsift/git_changes.py",
+          "tests/test_git_rename.py",
+          "docs/GIT-PROVENANCE.md"
+        ],
+        "base_sha": "214ab5ac40e6b029d5692e70e9d1b60d5a570271",
+        "locks": [],
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "b7be3890ffc98d88af4fc7ca4d23db6c2185d5df",
+        "integrated_sha": "22a31867205fdd958276255e3e36cebdc65c341b"
+      },
+      "T015": {
+        "owner": "controller",
+        "status": "accepted",
+        "branch": "feature/g003-g005-foundations",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "paths": [
+          "tests/test_git_provenance_invariants.py"
+        ],
+        "base_sha": "c37a3d57ef6c49904801b811439af4ddbc4cab0e",
+        "locks": [],
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
+        "integrated_sha": "3cef9332322eff33ef53034680d4d5a653bf020d"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
     "checkpoint": {
+      "selected_goals": [
+        "G003",
+        "G004",
+        "G005"
+      ],
+      "status": "complete",
+      "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+      "held_locks": [],
+      "active_jobs": [],
+      "latest_integrated_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52",
+      "updated_utc": "2026-10-16T08:02:57.269070+00:00",
       "completed_goals": [
-        "G000",
-        "G001",
-        "G002"
+        "G003",
+        "G004",
+        "G005"
       ],
       "accepted_tasks": [
-        "T000",
-        "T076",
-        "T001",
-        "T002",
-        "T003",
-        "T004",
-        "T005",
-        "T006"
+        "T007",
+        "T008",
+        "T009",
+        "T010",
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015"
       ],
+      "accepted_tasks_total": 17,
+      "code_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52",
       "effective_subagent_capacity": 3,
-      "active_jobs": [],
-      "held_locks": [],
-      "code_sha": "8f7706533d4db7d11af8766f17b0328bbff6a79c",
-      "pull_request": "https://github.com/orchex006/devsift/pull/2",
-      "savepoint": "docs/evidence/SESSION-2026-10-16.md",
-      "retained_superseded_worktree": "D:/SP-Billy/devsift-dev/devsift-cli",
-      "retained_superseded_branch": "feature/g002-cli",
-      "next_action": "No further goal dispatched; select the next ready goal in a new authorized session",
-      "main_integrated_sha": "a9612ff44932bb296a29f2b4fcf39f774c449712",
       "worktree_cleanup": [
         {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-policy",
-          "branch": "feature/g001-policy",
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-contracts-rework",
+          "branch": "fix/g003-context-redaction",
+          "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+          "integration_branch": "feature/g003-g005-foundations",
+          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
           "clean_and_integrated": true,
           "removed": true
         },
         {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-policy-tests",
-          "branch": "feature/g001-t003-invariants",
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-inventory",
+          "branch": "feature/g004-inventory",
+          "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+          "integration_branch": "feature/g003-g005-foundations",
+          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
           "clean_and_integrated": true,
           "removed": true
         },
         {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli-rework",
-          "branch": "feature/g002-producer-rework",
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-aggregation",
+          "branch": "feature/g004-aggregation",
+          "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
+          "integration_branch": "feature/g003-g005-foundations",
+          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
           "clean_and_integrated": true,
           "removed": true
         },
         {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli-tests",
-          "branch": "feature/g002-t006-platform",
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-classifier-rework",
+          "branch": "fix/g005-no-lazy-fetch",
+          "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
+          "integration_branch": "feature/g003-g005-foundations",
+          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
+          "clean_and_integrated": true,
+          "removed": true
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-rename",
+          "branch": "feature/g005-rename-drift",
+          "source_sha": "b7be3890ffc98d88af4fc7ca4d23db6c2185d5df",
+          "integration_branch": "feature/g003-g005-foundations",
+          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
+          "clean_and_integrated": true,
+          "removed": true
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-scope-rework",
+          "branch": "fix/g004-filter-safe-scope",
+          "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
+          "integration_branch": "feature/g003-g005-foundations",
+          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
           "clean_and_integrated": true,
           "removed": true
         }
-      ]
-    }
+      ],
+      "pull_request": "https://github.com/orchex006/devsift/pull/5",
+      "savepoint": "docs/evidence/SESSION-G003-G005-2026-10-16.md",
+      "retained_superseded_worktrees": [
+        "D:/SP-Billy/devsift-dev/devsift-cli",
+        "D:/SP-Billy/devsift-dev/devsift-contracts",
+        "D:/SP-Billy/devsift-dev/devsift-classifier"
+      ],
+      "next_action": "Selected goals complete; no next goal dispatched"
+    },
+    "previous_checkpoints": [
+      {
+        "completed_goals": [
+          "G000",
+          "G001",
+          "G002"
+        ],
+        "accepted_tasks": [
+          "T000",
+          "T076",
+          "T001",
+          "T002",
+          "T003",
+          "T004",
+          "T005",
+          "T006"
+        ],
+        "effective_subagent_capacity": 3,
+        "active_jobs": [],
+        "held_locks": [],
+        "code_sha": "8f7706533d4db7d11af8766f17b0328bbff6a79c",
+        "pull_request": "https://github.com/orchex006/devsift/pull/2",
+        "savepoint": "docs/evidence/SESSION-2026-10-16.md",
+        "retained_superseded_worktree": "D:/SP-Billy/devsift-dev/devsift-cli",
+        "retained_superseded_branch": "feature/g002-cli",
+        "next_action": "No further goal dispatched; select the next ready goal in a new authorized session",
+        "main_integrated_sha": "a9612ff44932bb296a29f2b4fcf39f774c449712",
+        "worktree_cleanup": [
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-policy",
+            "branch": "feature/g001-policy",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-policy-tests",
+            "branch": "feature/g001-t003-invariants",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli-rework",
+            "branch": "feature/g002-producer-rework",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli-tests",
+            "branch": "feature/g002-t006-platform",
+            "clean_and_integrated": true,
+            "removed": true
+          }
+        ]
+      }
+    ],
+    "session_id": "2026-10-16-G003-G005"
   }
 }

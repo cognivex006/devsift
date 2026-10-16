@@ -5,6 +5,10 @@ All notable user-facing changes to DevSift will be documented here. This follows
 ## [Unreleased]
 
 ### Added
+- Immutable Git merge-base/fingerprint/rename-region provenance with explicit UNKNOWN for ambiguous history or origin.
+- Trusted adapter execution and conservative aggregation connected to CLI inventory, including filter-free staged/unstaged/untracked scope selection.
+- Immutable Git-backed source evidence, distinct runtime/proposal contracts, strict wire schemas and full-context snippet redaction.
+- Deterministic read-only source inventory and explicit adapter capability negotiation; unavailable analyzers never imply clean analysis.
 - Installable Python CLI shell with strict commands, JSON error envelopes and exit codes 0/1/2/3; unavailable analyzer/report capabilities remain incomplete.
 - Strict policy v1 overlays and immutable 23-rule severity registry, with evidence-aware legacy/unknown enforcement and independent critical-security review.
 - DevSift brand, canonical repository URL, scoped maintainer and consumer skill identities.

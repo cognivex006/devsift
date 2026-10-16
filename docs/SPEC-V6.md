@@ -1,6 +1,6 @@
 # DevSift — Product & Engineering Specification v6
 
-**Status:** approved specification baseline. G000/G001/G002 foundations are implemented; current acceptance evidence is in `plan/ledger.json` and `docs/evidence/`. Analyzer/report engines remain pending.  
+**Status:** approved specification baseline. G000–G005 foundations are implemented; current acceptance evidence is in `plan/ledger.json` and `docs/evidence/`. Analyzer/report engines remain pending.  
 **Canonical repository:** https://github.com/orchex006/devsift  
 **Owner:** `orchex006`  
 **Product:** `DevSift` · proposed CLI: `devsift` · proposed skill: `$devsift`  
@@ -106,6 +106,6 @@ Public repository visibility is not the same as OSI-compliant licensing. A LICEN
 - [x] Additional bootstrap verification task and true partial goal gate modeled.
 - [x] Updated all current task cards and goal cards from the machine graph, not an assumed order.
 - [x] CLI starter plan validator and unit tests included.
-- [ ] Repository content actually pushed; not performed while generating this specification.
-- [ ] GitHub description actually changed; not performed while generating this specification.
-- [ ] Product engine built; future implementation tasks.
+- [x] Repository content pushed and independently verified after specification generation; see `docs/evidence/G000.md`.
+- [x] GitHub description changed and independently verified after specification generation; see `docs/evidence/G000.md`.
+- [ ] Complete product engine/native analyzers/report backends: future tasks. Read-only coordination and Git provenance foundations are accepted in G004/G005.

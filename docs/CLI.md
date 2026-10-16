@@ -21,13 +21,27 @@ Options are strict, with no abbreviations. `--changed` and `--all` are mutually
 exclusive; changed scope is the default. Untouched legacy has only the
 `recommend` mode. There is no bulk fix or enforcing legacy mode.
 
-Analyzer, source lookup, report serialization/storage and case prompt backends
-are not implemented. Requests return an explicit incomplete result with exit 2;
+The scan command now calls the read-only inventory and execution coordinator.
+`--changed` unions staged, unstaged and untracked paths at the repository root
+while reading current working-tree bytes rather than staged blobs; `--all` inventories the current directory. These are
+target selections, not finding lifecycle classifications. Git/source evidence
+libraries are available to embedded adapters. Native analyzers are not registered,
+and report serialization/storage and case prompt backends remain pending.
+Current requests return an explicit incomplete result with exit 2;
 an empty findings array does **not** mean a clean scan. `doctor` reports the actual
 Python runtime and missing capabilities; it installs nothing, invokes no analyzers,
 and returns 2 while required capabilities are missing. It does not yet discover
 native providers (later doctor tasks). `prompt` validates per-case approval for
 implement mode but cannot compose a verified prompt yet and never edits source.
+
+Changed-scope queries disable effective Git clean/process/smudge filters and their
+required flags as well as external diff/textconv/fsmonitor callbacks. Effective
+driver names are read from Git configuration including global, worktree, included
+and environment scopes, then overridden only for each query's subprocess. No
+configuration file is modified and no filter command/value is printed. Source
+Git configuration must remain stable while the query runs. Disabling conversions
+can conservatively select additional normalized/LFS-managed files; inventory still
+reads only current working-tree bytes and does not run conversion callbacks.
 
 Successful help is text on stdout with exit 0. Other valid commands emit exactly
 one JSON object on stdout. Misuse emits one JSON object on stderr, no stdout,
@@ -49,6 +63,8 @@ startup hooks and build/install tools are outside this command's control.
 | 3 | misuse | Invalid command, option or approval argument |
 
 Incomplete takes precedence over enforced violations; unknown never means pass.
+A complete result with legacy security-review findings can return 0 while preserving
+`security_escalation: true`; consumers must process that flag for independent review.
 Codes 0/1 for analysis are exported via `devsift.output.result` for future engine
 integration and contract tests. Current analysis commands cannot return them.
 The exported result builder requires an explicit boolean `complete`; ambiguous
