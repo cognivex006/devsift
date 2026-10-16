@@ -1,0 +1,32 @@
+{
+  "verified": {
+    "status": "VERIFIED",
+    "location": {
+      "repository": "fixture/repository",
+      "source_sha": "$COMMIT",
+      "path": "sample.py",
+      "region": {"start_line": 1, "start_column": 1, "end_line": 1, "end_column": 9},
+      "symbol": null
+    },
+    "before": "safe = 1",
+    "reason": null,
+    "lookup_plan": null
+  },
+  "unresolved": {
+    "status": "SOURCE_UNRESOLVED",
+    "location": null,
+    "before": null,
+    "reason": "SOURCE_NOT_VERIFIED",
+    "lookup_plan": "Inspect the immutable commit before assigning a source location."
+  },
+  "runtime": {
+    "origin": "fixture-service",
+    "message": "คำขอมี correlation แต่ยังไม่ยืนยันตำแหน่ง source",
+    "observed_at": "2026-10-16T14:00:00+07:00"
+  },
+  "proposal": {
+    "label": "AFTER (PROPOSAL)",
+    "code": "safe = configuration.value",
+    "confidence": "low"
+  }
+}

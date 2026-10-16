@@ -1,0 +1,10 @@
+[
+  {"kind": "runtime", "field": "path", "value": "invented.py"},
+  {"kind": "runtime", "field": "line", "value": 123},
+  {"kind": "runtime", "field": "source_sha", "value": "$COMMIT"},
+  {"kind": "proposal", "field": "label", "value": "BEFORE"},
+  {"kind": "proposal", "field": "confidence", "value": true},
+  {"kind": "unresolved", "field": "before", "value": "invented source"},
+  {"kind": "unresolved", "field": "line", "value": 123},
+  {"kind": "verified", "field": "label", "value": "AFTER (PROPOSAL)"}
+]
