@@ -169,7 +169,7 @@ class RemediationDenialTests(unittest.TestCase):
         return subprocess.run([sys.executable, "-I", "-B", "-c", launcher, *args],
                               cwd=self.root, capture_output=True, text=True, encoding="utf-8", timeout=30)
 
-    def test_actual_cli_read_only_and_pending_per_case_implement_guard(self):
+    def test_actual_cli_read_only_and_missing_input_per_case_implement_guard(self):
         # The fixture shadows the package name and contains an executable hook;
         # neither target code nor hooks may execute during read-only CLI work.
         (self.root / "devsift.py").write_text("raise RuntimeError('target imported')\n", encoding="utf-8")

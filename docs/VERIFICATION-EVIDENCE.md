@@ -112,9 +112,10 @@ write and execution authority false; invalid identities and hostile schemas reje
 An actual isolated source CLI (`python -I -B` with the explicitly selected trusted
 package root) scans the temporary project read-only and exercises review/implement
 prompt parsing. Missing or mismatched `--approved-case` is misuse; a matching
-case still returns `CAPABILITY_UNAVAILABLE`. This tests the current pending-backend
-boundary, not an implemented approval workflow. There is no G016 dependency or
-claim that a matching string constitutes real case authorization. SHA256 snapshots
+case without explicit `--scan-input` still returns `CAPABILITY_UNAVAILABLE`. This
+fixture tests the no-input boundary. The separately implemented case workflow
+requires explicit scan evidence and reproof; see [case prompts](CASE-PROMPTS.md).
+A matching selector alone never constitutes case authorization. SHA256 snapshots
 cover every project/Git file and the selected tool's tracked files before and
 after invocation. A target package-name shadow and checkout-hook marker remain
 unexecuted. These checks establish observed read-only behavior for the tested

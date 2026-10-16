@@ -33,8 +33,15 @@ class ConsumerAssetTests(unittest.TestCase):
         text = skill.read_text(encoding='utf-8')
         self.assertIn('[consumer scope](CONSUMER-SCOPE.md)', text)
         for reference in re.findall(r'\]\(([^)]+)\)', text):
-            self.assertEqual(reference, 'CONSUMER-SCOPE.md')
-            self.assertTrue((skill.parent / reference).is_file())
+            if reference == 'CONSUMER-SCOPE.md':
+                self.assertTrue((skill.parent / reference).is_file())
+            else:
+                allowed_docs = ('CLI.md', 'CASE-PROMPTS.md', 'REPORT-CONTEXT.md')
+                prefix = 'https://github.com/orchex006/devsift/blob/main/docs/'
+                self.assertTrue(reference.startswith(prefix))
+                leaf = reference[len(prefix):]
+                self.assertIn(leaf, allowed_docs)
+                self.assertTrue((ROOT / 'docs' / leaf).is_file())
         commands = re.findall(r'`(python[^`]+)`', text)
         self.assertTrue(commands)
         for command in commands:
