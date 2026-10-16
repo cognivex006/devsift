@@ -323,10 +323,8 @@
               "T007"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T007"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -373,7 +371,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
             "T013"
           ]
         },
@@ -702,7 +699,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T008",
             "T019"
           ]
         }
@@ -748,8 +744,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
             "T009"
           ]
         }
@@ -807,7 +801,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
             "T013",
             "T016",
             "T017",
@@ -836,8 +829,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
             "T009",
             "T037",
             "T038",
@@ -933,8 +924,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
             "T009",
             "T037"
           ]
@@ -997,7 +986,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
             "T019",
             "T020",
             "T021",
@@ -1157,8 +1145,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
             "T009",
             "T013",
             "T016",
@@ -1328,7 +1314,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
             "T013"
           ]
         }
@@ -1550,8 +1535,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
             "T009",
             "T013",
             "T016",
@@ -1662,8 +1645,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T007",
-            "T008",
             "T009",
             "T037",
             "T038",
@@ -2127,7 +2108,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e",
@@ -2138,11 +2119,19 @@
           "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
           "test_result": "19 producer tests pass; integrated source worktree72tests OK1skip; reviewer3leaks regression red then fixed; empty selection boundary verified",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+          "integrated_sha": "ac797fd48a5d4e3a908d6c8087a1d4996b9f9a62",
+          "test_result": "Independent exactSHA review accepted;72 integratedtests OK1installed skip;3masking regressions fixed; region/context/strict-wire proof passed",
+          "evidence_uri": "docs/evidence/G003.md"
         }
       ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA003",
       "history": [
         {
@@ -2180,6 +2169,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:38:02.365525+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:38:57.960216+00:00"
         }
       ]
     },
@@ -2200,7 +2194,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e",
@@ -2211,11 +2205,19 @@
           "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
           "test_result": "19 producer tests pass; integrated source worktree72tests OK1skip; reviewer3leaks regression red then fixed; empty selection boundary verified",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+          "integrated_sha": "ac797fd48a5d4e3a908d6c8087a1d4996b9f9a62",
+          "test_result": "Independent exactSHA review accepted;72 integratedtests OK1installed skip;3masking regressions fixed; region/context/strict-wire proof passed",
+          "evidence_uri": "docs/evidence/G003.md"
         }
       ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA003",
       "history": [
         {
@@ -2253,6 +2255,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:38:02.365525+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:38:57.960216+00:00"
         }
       ]
     },
@@ -4129,7 +4136,7 @@
       },
       "T007": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "fix/g003-context-redaction",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts-rework",
         "base_sha": "8c6a2ca",
@@ -4141,9 +4148,7 @@
           "tests/test_redaction.py",
           "docs/EVIDENCE.md"
         ],
-        "locks": [
-          "write:contracts/source"
-        ],
+        "locks": [],
         "lease": "selected session; until accepted/reassigned",
         "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
         "prior_jobs": [
@@ -4167,11 +4172,12 @@
             "lease": "selected session; until accepted/reassigned",
             "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e"
           }
-        ]
+        ],
+        "integrated_sha": "ac797fd48a5d4e3a908d6c8087a1d4996b9f9a62"
       },
       "T008": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "fix/g003-context-redaction",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts-rework",
         "base_sha": "8c6a2ca",
@@ -4183,9 +4189,7 @@
           "tests/test_redaction.py",
           "docs/EVIDENCE.md"
         ],
-        "locks": [
-          "write:contracts/runtime"
-        ],
+        "locks": [],
         "lease": "selected session; until accepted/reassigned",
         "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
         "prior_jobs": [
@@ -4209,7 +4213,8 @@
             "lease": "selected session; until accepted/reassigned",
             "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e"
           }
-        ]
+        ],
+        "integrated_sha": "ac797fd48a5d4e3a908d6c8087a1d4996b9f9a62"
       },
       "T010": {
         "owner": "cli_writer",
@@ -4257,16 +4262,10 @@
       ],
       "status": "running",
       "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
-      "held_locks": [
-        "write:contracts/source",
-        "write:contracts/runtime"
-      ],
-      "active_jobs": [
-        "T007",
-        "T008"
-      ],
-      "latest_integrated_sha": "9e7a2a98713facfcbffdae0448a0782794e6ea82",
-      "updated_utc": "2026-10-16T07:38:02.365525+00:00"
+      "held_locks": [],
+      "active_jobs": [],
+      "latest_integrated_sha": "ac797fd48a5d4e3a908d6c8087a1d4996b9f9a62",
+      "updated_utc": "2026-10-16T07:38:57.960216+00:00"
     },
     "previous_checkpoints": [
       {
