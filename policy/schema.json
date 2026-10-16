@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:devsift:policy:1",
+  "title": "DevSift policy v1 partial layer",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": "1"},
+    "legacy_mode": {"const": "recommend"},
+    "quality_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "block_on": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {"enum": ["Critical", "Error"]}
+        }
+      }
+    },
+    "rules": {
+      "type": "object",
+      "propertyNames": {
+        "enum": ["HC001", "HC002", "HC003", "HC004", "HC005", "CFG001", "CFG002", "CFG003", "COM001", "COM002", "COM003", "SEC001", "SEC002", "SEC003", "ARC001", "ARC002", "ARC003", "API001", "API002", "LOG001", "LOG002", "TST001", "TST002"]
+      },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "severity": {"enum": ["Critical", "Error", "Warning", "Suggestion"]}
+        }
+      }
+    }
+  }
+}
