@@ -25,9 +25,13 @@ The scan command now calls the read-only inventory and execution coordinator.
 `--changed` unions staged, unstaged and untracked paths at the repository root
 while reading current working-tree bytes rather than staged blobs; `--all` inventories the current directory. These are
 target selections, not finding lifecycle classifications. Git/source evidence
-libraries are available to embedded adapters. Native analyzers are not registered,
-and report serialization/storage and case prompt backends remain pending.
-Current requests return an explicit incomplete result with exit 2;
+libraries are available to embedded adapters. Native analyzers require an explicit
+trusted manifest and its independently obtained SHA256 digest. `scan --security`
+adds the bounded built-in security detector, optionally composed with those tools.
+Scan and CI emit full source-reproved JSON, Markdown and SARIF under `data.reports`.
+Repeat `--report-format json|markdown|sarif` to select formats; the default includes
+all three. These are in-memory documents; CLI scans write no report files.
+Unconfigured language capabilities return an explicit incomplete result with exit 2;
 an empty findings array does **not** mean a clean scan. `doctor` reports the actual
 Python runtime and missing capabilities; it installs nothing, invokes no analyzers,
 and returns 2 while required capabilities are missing. It does not yet discover
@@ -65,8 +69,11 @@ startup hooks and build/install tools are outside this command's control.
 Incomplete takes precedence over enforced violations; unknown never means pass.
 A complete result with legacy security-review findings can return 0 while preserving
 `security_escalation: true`; consumers must process that flag for independent review.
-Codes 0/1 for analysis are exported via `devsift.output.result` for future engine
-integration and contract tests. Current analysis commands cannot return them.
+Configured analysis can return 0/1 when every selected target is complete and its
+source and policy requirements are satisfied. CI separately requires review of
+critical security findings, including legacy cases, and returns 2 while that review
+is outstanding. Full report assembly rechecks source without promoting wire lifecycle
+claims; CLI scan findings remain conservatively UNKNOWN where origin is unproved.
 The exported result builder requires an explicit boolean `complete`; ambiguous
 values such as `None`, strings or integers raise `ValueError` rather than pass.
 
@@ -75,4 +82,6 @@ JSON envelope version `1.0` always contains `schema_version`, `command`, `status
 Errors contain `code` and `message`; command-specific capability data lives in
 `data`. Misuse has `command: null` because parsing may not establish a command.
 This envelope is a command result, not the full source-aware finding/report schema;
-it must not be represented as SARIF or an authoritative scan report.
+the full report formats live under `data.reports`, each generated from the same
+source-reproved model. `report --latest`, `explain`, and `prompt` storage backends
+remain pending in this CLI integration.
