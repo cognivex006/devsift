@@ -5,14 +5,13 @@ from pathlib import Path
 import re
 from urllib.parse import quote, urlsplit
 
-from .evidence import SourceEvidence, verify_source
+from .evidence import SourceEvidence, requires_source_mask, verify_source
 from .git_changes import classify
 from .policy import decide
 from .redaction import Redactor
 from .registry import RULES
 
 _SEAL = object()
-_SENSITIVE = frozenset({'HC002', 'CFG003', 'SEC001'})
 _LIFECYCLES = frozenset({'NEW', 'MODIFIED_INTRODUCED', 'MODIFIED_PREEXISTING', 'LEGACY_UNCHANGED', 'UNKNOWN'})
 _ENFORCEMENTS = frozenset({'block', 'incomplete', 'advisory', 'security_review'})
 _SAFE_ERRORS = frozenset({'GIT_SCOPE_UNAVAILABLE', 'NATIVE_MANIFEST_UNAVAILABLE', 'NATIVE_TOOL_UNAVAILABLE',
@@ -106,7 +105,7 @@ def _source(item, root, redactor):
         if location.path != item['path']:
             return SourceEvidence(reason='SOURCE_MISMATCH')
         return verify_source(root, location.repository, location.source_sha, location.path, location.region,
-                             redactor=redactor, sensitive=item['rule_id'] in _SENSITIVE)
+                             redactor=redactor, sensitive=requires_source_mask(item['rule_id'], imported))
     except (OSError, ValueError, TypeError, KeyError):
         return SourceEvidence(reason='SOURCE_UNAVAILABLE')
 

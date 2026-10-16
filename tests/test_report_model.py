@@ -151,3 +151,11 @@ class ReportModelTests(unittest.TestCase):
                                  redactor=Redactor(('owner/repo',)),
                                  repository_urls=(('local', 'https://github.com/owner/repo'),))
         self.assertIsNone(report.cases[0].to_dict()['navigation'])
+
+    def test_existing_full_mask_on_overlapping_nonsecurity_rule_survives_report(self):
+        line = (self.root / 'client.ts').read_text().splitlines()[0]
+        self.source = verify_source(self.root, 'local', self.sha, 'client.ts',
+                                    Region(1, 1, 1, len(line)+1), sensitive=True)
+        report = assemble_report(self.record('LOG001'), repo_root=self.root)
+        self.assertEqual(report.cases[0].to_dict()['source']['before'], '[REDACTED]')
+        self.assertNotIn('fixtureUnrecognizedValue', json.dumps(report.to_dict()))
