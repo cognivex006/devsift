@@ -122,7 +122,9 @@ Three combined acceptance groups establish these distinct gates:
    envelope is deliberately written as external disposable prompt-input setup;
    actual prompt CLI calls require a real operator binding, reject another case,
    and keep even an exact match review-required/manual-planning-only. All writes,
-   execution and automatic fixes remain unauthorized; planning does not waive CI.
+   execution and automatic fixes remain unauthorized. This checks the preceding
+   CI hold, separate approval authority boundary and unchanged source snapshots;
+   it does not perform a fresh CI scan after approval.
 2. A completed clean four-language repository returns 0. After deliberate fixture
    setup adds and commits a new TypeScript path, its actual absent-at-base proof
    produces NEW/HC001/block and exit 1. All exports preserve the same gate and

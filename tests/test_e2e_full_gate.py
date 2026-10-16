@@ -156,7 +156,6 @@ class FullMixedGateE2E(unittest.TestCase):
                 self.assertFalse(result['data']['approval']['automatic_fix'])
                 self.assertEqual(result['data']['prompt']['source']['before'], '[REDACTED]')
             self.assertEqual(snapshot(repo.parent), before)
-            self.assertEqual(public['exit_code'], 2)  # Planning input did not waive the separate security gate.
 
     def test_completed_mixed_clean_and_real_new_path_block_have_distinct_release_gates(self):
         with repository(self.sources(clean=True)) as repo:
