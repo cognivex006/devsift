@@ -975,7 +975,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T023",
             "T024"
           ]
         },
@@ -1128,7 +1127,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T023",
             "T024",
             "T025",
             "T026",
@@ -1505,7 +1503,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T023",
             "T024",
             "T025",
             "T026",
@@ -3170,17 +3167,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766",
           "test_result": "8actualGo1.21.3ASTtests PASS, offlineownbuild/no targetimports; aliases/shadow/errorbinding/coordinates/pinchecked; sourcefmt/syntax/diffpassed",
           "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766",
+          "integrated_sha": "a03c53227b7db51410251405c596e97eaac20970",
+          "test_result": "Distinct reviewer accepted exact SHA; controller integration eight actual Go tests pass Windows",
+          "evidence_uri": "docs/evidence/G008.md"
         }
       ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA008",
       "history": [
         {
@@ -3197,6 +3202,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T09:08:18.118222+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:16:06.304799+00:00"
         }
       ]
     },
@@ -3397,8 +3407,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091",
+          "test_result": "Writer: ScriptDom publish, seven SQL rules and six parser tests passed with actual native process",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3413,6 +3429,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T09:01:09.418905+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:15:48.872633+00:00"
         }
       ]
     },
@@ -5127,7 +5148,7 @@
       },
       "T023": {
         "owner": "cli_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g008-go",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-go",
         "paths": [
@@ -5137,15 +5158,14 @@
           "docs/GO-ADAPTER.md"
         ],
         "base_sha": "26b381bc8e74eebd241fa5f5ade43a4174651eec",
-        "locks": [
-          "write:adapters/go"
-        ],
+        "locks": [],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766"
+        "source_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766",
+        "integrated_sha": "a03c53227b7db51410251405c596e97eaac20970"
       },
       "T029": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g010-sql-rules",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-sql-rules",
         "paths": [
@@ -5159,7 +5179,8 @@
         "locks": [
           "write:rules/sql"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5203,16 +5224,14 @@
       ],
       "held_locks": [
         "write:adapters/typescript",
-        "write:adapters/go",
         "write:rules/sql"
       ],
       "active_jobs": [
         "T025",
-        "T023",
         "T029"
       ],
-      "latest_integrated_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04",
-      "updated_utc": "2026-10-16T09:09:49.676750+00:00",
+      "latest_integrated_sha": "a03c53227b7db51410251405c596e97eaac20970",
+      "updated_utc": "2026-10-16T09:16:06.304799+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
