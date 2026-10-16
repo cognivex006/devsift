@@ -2905,11 +2905,16 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
+      "status": "in_review",
       "evidence": [
         {
           "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340",
           "test_result": "10actualWindowschild tests pass incl JobObject suspended startup/tree cleanup/timeout/flood/deadlock/env/argv/redaction; POSIX branch awaiting actualCI; syntax/diff/plan passed",
+          "author": "cli_writer"
+        },
+        {
+          "source_sha": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+          "test_result": "12actualWindows runner tests pass; real suspended-child assignment andJobterminationfailure regressions redthenfixed; boundedkill/reap andpipesclosed; syntax/diffpassed",
           "author": "cli_writer"
         }
       ],
@@ -2948,6 +2953,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T08:38:12.476794+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:40:24.762092+00:00"
         }
       ]
     },
@@ -4771,7 +4781,7 @@
       },
       "T019": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "fix/g007-runner-cleanup",
         "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g007-runner-cleanup",
         "paths": [
@@ -4784,7 +4794,7 @@
           "write:adapters/host"
         ],
         "lease": "selected G006-G010 session until accepted/reassigned",
-        "source_sha": null,
+        "source_sha": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
         "prior_jobs": [
           {
             "owner": "cli_writer",
@@ -4868,8 +4878,8 @@
         "T019",
         "T018"
       ],
-      "latest_integrated_sha": "71c9699ad61223b017c3aaa496174ba9f07ba686",
-      "updated_utc": "2026-10-16T08:36:20.762077+00:00"
+      "latest_integrated_sha": "7db8b9ac54a0360fe71a5e5041c6ae62a0ee8b20",
+      "updated_utc": "2026-10-16T08:40:24.762092+00:00"
     },
     "previous_checkpoints": [
       {
