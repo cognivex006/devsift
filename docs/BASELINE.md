@@ -65,6 +65,10 @@ Failures before replacement preserve the old file. This CAS serializes cooperati
 writers; it is not a sandbox against hostile processes ignoring locks or swapping
 filesystem directories. Directory fsync/power-loss durability is platform-specific
 and not guaranteed. Recovery never silently removes another writer's lock.
+Original path components are checked for symlinks/junctions and parent traversal
+before canonicalization. Legitimate Windows 8.3 short-path aliases are accepted;
+they are not redirects. Existing file aliases canonicalize to the same destination
+and sibling lock, so an alias cannot bypass another cooperating writer's lock.
 
 `load_snapshot(path, *, expected_digest)` requires an independently trusted exact
 file digest, bounds reads to 5 MB, rejects symlink files, verifies bytes before
