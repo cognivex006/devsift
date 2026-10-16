@@ -489,10 +489,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -541,10 +539,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -593,10 +589,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -645,10 +639,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -701,10 +693,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -983,7 +973,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T019",
             "T020",
             "T021",
             "T022",
@@ -1025,7 +1014,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T019",
             "T025",
             "T026",
             "T027",
@@ -1143,7 +1131,6 @@
           "ready": false,
           "blocking_tasks": [
             "T018",
-            "T019",
             "T020",
             "T021",
             "T022",
@@ -1404,7 +1391,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T019",
             "T031",
             "T032",
             "T033"
@@ -1527,7 +1513,6 @@
           "ready": false,
           "blocking_tasks": [
             "T018",
-            "T019",
             "T020",
             "T021",
             "T022",
@@ -2916,7 +2901,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340",
@@ -2927,11 +2912,19 @@
           "source_sha": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
           "test_result": "12actualWindows runner tests pass; real suspended-child assignment andJobterminationfailure regressions redthenfixed; boundedkill/reap andpipesclosed; syntax/diffpassed",
           "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+          "integrated_sha": "490fca0fefce2a907856bf6dfe879eb29a3bb01b",
+          "test_result": "Independentexactreviewaccepted;12actualWindowsprocess integrationtests pass; POSIXawaitingCI; shell/env/stream/time/tree/cleanupguardsverified",
+          "evidence_uri": "docs/evidence/G007.md"
         }
       ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA007",
       "history": [
         {
@@ -2969,6 +2962,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T08:40:24.762092+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:42:15.571610+00:00"
         }
       ]
     },
@@ -4792,7 +4790,7 @@
       },
       "T019": {
         "owner": "cli_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "fix/g007-runner-cleanup",
         "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g007-runner-cleanup",
         "paths": [
@@ -4801,9 +4799,7 @@
           "docs/PROCESS-RUNNER.md"
         ],
         "base_sha": "a9b1a27f9ee90e6d52a29b2bec5050d5607f1dbd",
-        "locks": [
-          "write:adapters/host"
-        ],
+        "locks": [],
         "lease": "selected G006-G010 session until accepted/reassigned",
         "source_sha": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
         "prior_jobs": [
@@ -4824,7 +4820,8 @@
             "lease": "selected G006-G010 session until accepted/reassigned",
             "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340"
           }
-        ]
+        ],
+        "integrated_sha": "490fca0fefce2a907856bf6dfe879eb29a3bb01b"
       },
       "T018": {
         "owner": "policy_writer",
@@ -4883,15 +4880,13 @@
         }
       ],
       "held_locks": [
-        "write:adapters/host",
         "write:tests/baseline"
       ],
       "active_jobs": [
-        "T019",
         "T018"
       ],
-      "latest_integrated_sha": "8a9e1e89d54b4c148758a348b888e40d20e137ba",
-      "updated_utc": "2026-10-16T08:40:33.848279+00:00"
+      "latest_integrated_sha": "490fca0fefce2a907856bf6dfe879eb29a3bb01b",
+      "updated_utc": "2026-10-16T08:42:15.571610+00:00"
     },
     "previous_checkpoints": [
       {
