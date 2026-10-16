@@ -1,6 +1,7 @@
 from dataclasses import FrozenInstanceError
 import hashlib
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
@@ -125,6 +126,81 @@ class BaselineTests(unittest.TestCase):
         frozen = BaselineSnapshot("fixture/repo", self.sha, "devsift@fixture", "catalog@1", entries)
         entries.clear()
         self.assertEqual(frozen.entries, (self.entry,))
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows short-path alias')
+    def test_short_directory_alias_supports_reviewed_create_and_cas(self):
+        import ctypes
+        parent = self.root / 'baseline storage with a long directory name'
+        parent.mkdir()
+        buffer = ctypes.create_unicode_buffer(32768)
+        size = ctypes.windll.kernel32.GetShortPathNameW(str(parent), buffer, len(buffer))
+        self.assertTrue(size, 'Actual Windows short-path lookup failed')
+        alias = Path(buffer.value)
+        if alias.absolute() == parent.resolve():
+            self.skipTest('Filesystem has no distinct 8.3 alias')
+        self.assertEqual(alias.resolve(), parent.resolve())
+        target = alias / 'baseline.json'
+        digest = save_snapshot(target, self.snapshot, self.approval())
+        self.assertEqual(load_snapshot(parent / 'baseline.json', expected_digest=digest), self.snapshot)
+        replacement = BaselineSnapshot('fixture/repo', self.sha, 'devsift@fixture', 'catalog@1', ())
+        next_digest = save_snapshot(target, replacement, self.approval(replacement, digest), expected_digest=digest)
+        self.assertEqual(load_snapshot(parent / 'baseline.json', expected_digest=next_digest), replacement)
+        with self.assertRaises(BaselineError):
+            save_snapshot(target, self.snapshot, self.approval(self.snapshot, digest), expected_digest=digest)
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows short-file alias lock identity')
+    def test_existing_short_file_alias_uses_same_cooperating_writer_lock(self):
+        import ctypes
+        target = self.root / 'reviewed baseline snapshot with long filename.json'
+        digest = save_snapshot(target, self.snapshot, self.approval())
+        buffer = ctypes.create_unicode_buffer(32768)
+        self.assertTrue(ctypes.windll.kernel32.GetShortPathNameW(str(target), buffer, len(buffer)))
+        alias = Path(buffer.value)
+        if alias.name == target.name:
+            self.skipTest('Filesystem has no distinct file 8.3 alias')
+        lock = target.with_name(target.name + '.lock')
+        lock.write_bytes(b'other writer')
+        before = target.read_bytes()
+        with self.assertRaises(BaselineError):
+            save_snapshot(alias, self.snapshot, self.approval(self.snapshot, digest), expected_digest=digest)
+        self.assertEqual(target.read_bytes(), before)
+        self.assertEqual(lock.read_bytes(), b'other writer')
+        lock.unlink()
+        # An alias update is allowed once the shared canonical lock is free.
+        next_digest = save_snapshot(alias, self.snapshot, self.approval(self.snapshot, digest), expected_digest=digest)
+        self.assertEqual(load_snapshot(target, expected_digest=next_digest), self.snapshot)
+
+    def test_symlink_parent_and_parent_traversal_cannot_redirect_save(self):
+        with tempfile.TemporaryDirectory() as directory:
+            outside = Path(directory)
+            link = self.root / 'redirect'
+            try:
+                link.symlink_to(outside, target_is_directory=True)
+            except OSError as error:
+                self.skipTest('Host symlink creation unavailable: ' + type(error).__name__)
+            with self.assertRaises(BaselineError):
+                save_snapshot(link / 'baseline.json', self.snapshot, self.approval())
+            self.assertEqual(list(outside.iterdir()), [])
+        nested = self.root / 'nested'
+        nested.mkdir()
+        with self.assertRaises(BaselineError):
+            save_snapshot(nested / '..' / 'baseline.json', self.snapshot, self.approval())
+        self.assertFalse((self.root / 'baseline.json').exists())
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows junction safety')
+    def test_junction_parent_cannot_redirect_save(self):
+        import _winapi
+        with tempfile.TemporaryDirectory() as directory:
+            outside = Path(directory)
+            junction = self.root / 'junction'
+            _winapi.CreateJunction(str(outside), str(junction))
+            try:
+                self.assertTrue(junction.is_junction())
+                with self.assertRaises(BaselineError):
+                    save_snapshot(junction / 'baseline.json', self.snapshot, self.approval())
+                self.assertEqual(list(outside.iterdir()), [])
+            finally:
+                junction.rmdir()
 
 
 if __name__ == "__main__":

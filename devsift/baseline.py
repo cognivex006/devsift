@@ -209,6 +209,28 @@ def load_snapshot(path, *, expected_digest):
         raise BaselineError("invalid or unavailable baseline") from None
 
 
+def _write_target(path):
+    """Canonicalize legitimate filesystem aliases without following links.
+
+    Windows 8.3 aliases can expand under resolve() despite referring to a regular
+    directory. Inspect the original components before canonicalizing; inspect the
+    destination too, then share one canonical sibling lock across file aliases.
+    """
+    original = Path(path)
+    _require('..' not in original.parts)
+    absolute = original.absolute()
+    parent = Path(absolute.anchor)
+    for component in absolute.parts[1:-1]:
+        parent = parent / component
+        _require(not parent.is_symlink() and not parent.is_junction())
+    _require(not absolute.is_symlink() and not absolute.is_junction())
+    canonical_parent = parent.resolve(strict=True)
+    _require(canonical_parent.is_dir())
+    target = absolute.resolve(strict=False)
+    _require(target.parent == canonical_parent)
+    return target
+
+
 def save_snapshot(path, snapshot, approval, *, expected_digest=None):
     """Explicit cooperating-writer CAS with reviewed payload and atomic replace.
 
@@ -222,8 +244,7 @@ def save_snapshot(path, snapshot, approval, *, expected_digest=None):
     lock_owned = False
     temporary = None
     try:
-        target = Path(path).absolute()
-        _require(target.parent.resolve(strict=True) == target.parent and not target.is_symlink())
+        target = _write_target(path)
         lock = target.with_name(target.name + ".lock")
         with lock.open("xb"):
             lock_owned = True
