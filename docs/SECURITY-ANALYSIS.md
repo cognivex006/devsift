@@ -36,7 +36,10 @@ have outer whitespace). Implemented shapes are:
   or equivalent case/underscore spelling. Example/YOUR-like values are excluded.
   An AWS access-key ID alone does not establish a secret and is not reported.
 - Matching PRIVATE KEY / RSA PRIVATE KEY / EC PRIVATE KEY / OPENSSH PRIVATE KEY
-  PEM delimiters enclosing a bounded 32–65,536-character base64-like body. This is
+  PEM delimiters enclosing a bounded 32–65,536-character base64-like body, with at
+  least 32 actual non-whitespace base64 characters. Deterministic header/footer
+  extraction and a single body pass reject mismatches and whitespace-only bodies
+  without overlapping-whitespace regex backtracking. This is
   structural candidate detection, not ASN.1/cryptographic validity checking.
 
 Python uses real `ast.parse` string nodes in direct assignment, named argument,
@@ -50,6 +53,9 @@ literals, and only accepts assignment/property-like string contexts. It supports
 ordinary quoted strings with bounded common escapes, Go raw strings, C# verbatim/
 raw quoted text, and SQL single-quoted strings. Ambiguous interpolation, unsupported
 escapes and unterminated literals/comments retain incomplete status. It does not
+interpret JS/TS regex bodies as assignment/string code: proved expression-start
+regex contexts are skipped with escape/character-class handling, while ambiguous
+slash/division syntax stays incomplete. It does not
 resolve variables, concatenate strings, perform arbitrary language/type parsing,
 or establish runtime use/reachability. Ordinary password strings, embedded token
 mentions in documentation text, placeholder strings and comments do not become
@@ -107,4 +113,7 @@ Producer checks: `python -m unittest discover -s tests -p test_security_adapter.
 Tests create real Git histories, verify fully masked proof and source round trips,
 scan/no-write behavior, six-language literal contexts, config scopes, stale and
 cropped evidence, strict limits/negative cases, and safe failing/duplicate delegate
-composition. Rollback is the scoped adapter/tests/docs commit revert.
+composition. A timed isolated child checks malformed 2 KB/20 KB/65 KB PEM bodies;
+the composed-provider regression checks that coordinator re-verification retains
+whole-region masking for a non-security LOG001 finding overlapping an AWS secret.
+Rollback is the scoped adapter/tests/docs commit revert.

@@ -3,12 +3,15 @@ import io
 import json
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 
 from devsift.adapters import AdapterCapability
+from devsift.baseline import capture_entry
 from devsift.evidence import Region, SourceEvidence, verify_source
 from devsift.inventory import SourceTarget
+from devsift.git_changes import classify
 from devsift.scanner import AdapterOutcome, ScanFinding, scan
 from devsift.security_adapter import SecurityAdapter
 
@@ -55,6 +58,11 @@ class SecurityTests(unittest.TestCase):
             self.assertEqual(finding.source.location.source_sha, sha)
             restored = SourceEvidence.from_dict(finding.source.to_dict(), repo_root=self.root)
             self.assertEqual(restored.before, "[REDACTED]")
+            provenance = classify(self.root, sha, sha, "HC002", restored)
+            self.assertEqual(provenance.lifecycle_class, "LEGACY_UNCHANGED")
+            entry = capture_entry(self.root, "HC002", "1", restored)
+            self.assertEqual(entry.fingerprint, provenance.fingerprint)
+            self.assertEqual(len(entry.fingerprint), 64)
         record = scan(self.root, (target.path,), adapters=(adapter,))
         self.assertEqual(record["exit_code"], 2)
         self.assertEqual(record["enforced_count"], 0)
@@ -179,6 +187,55 @@ class SecurityTests(unittest.TestCase):
         first = SecurityAdapter().analyze(SourceTarget("x.py", "ready", "python", ("token='" + PAT + "'").encode(), ""))
         second = SecurityAdapter().analyze(SourceTarget("x.py", "ready", "python", ("token='" + PAT[:-1] + "Z'").encode(), ""))
         self.assertNotEqual(first.findings[0].case_id, second.findings[0].case_id)
+
+    def test_javascript_regex_data_is_not_an_assignment_and_ambiguous_slashes_are_incomplete(self):
+        for language, path in (("javascript", "x.js"), ("typescript", "x.ts")):
+            for text in ("const pattern=/token = '" + PAT + "'/;",
+                         "const pattern=/[/'\"]token = '" + PAT + "'/gi;"):
+                with self.subTest(language=language, text=text):
+                    report = SecurityAdapter().analyze(SourceTarget(path, "ready", language, text.encode(), ""))
+                    self.assertEqual(report.findings, ())
+                    self.assertTrue(report.complete)
+            positive = "const pattern=/token = '" + PAT + "'/; const token='" + PAT + "';"
+            report = SecurityAdapter().analyze(SourceTarget(path, "ready", language, positive.encode(), ""))
+            self.assertEqual(len(report.findings), 1)
+            ambiguous = "const ratio=left/right;"
+            self.assertFalse(SecurityAdapter().analyze(SourceTarget(path, "ready", language, ambiguous.encode(), "")).complete)
+
+    def test_malformed_pem_is_linear_bounded_and_requires_nonwhitespace_body(self):
+        # Isolated child provides a real wall-clock bound without leaving a
+        # catastrophic regex running in the main test process on failure.
+        child = """from devsift.security_adapter import SecurityAdapter
+from devsift.inventory import SourceTarget
+for width in (2000, 20000, 65000):
+    for footer in ('-----END PRIVATE XEY-----', '-----END PRIVATE KEY-----'):
+        value='-----BEGIN PRIVATE KEY-----' + ' '*width + footer
+        source='key = '+repr(value)
+        result=SecurityAdapter().analyze(SourceTarget('x.py','ready','python',source.encode(),''))
+        assert result.complete and not result.findings
+"""
+        result = subprocess.run([sys.executable, "-c", child], capture_output=True, text=True,
+                                timeout=5, cwd=Path(__file__).resolve().parents[1])
+        self.assertEqual(result.returncode, 0)
+
+    def test_composed_scan_keeps_full_mask_for_nonsecurity_delegate_region(self):
+        text = "aws_secret_access_key='" + AWS + "'\n"
+        adapter, target, sha = self.committed(text)
+        whole = verify_source(self.root, "local", sha, target.path, Region(1, 1, 1, len(text.rstrip()) + 1))
+
+        class LogDelegate:
+            capability = AdapterCapability("fixture-logging", "1", ("python",), True)
+
+            def analyze(self, target):
+                return AdapterOutcome(True, (ScanFinding("logging-case", "LOG001", whole, "ignored"),))
+
+        composed = SecurityAdapter(LogDelegate(), repo_root=self.root, source_sha=sha)
+        direct = composed.analyze(target)
+        self.assertEqual([finding.source.before for finding in direct.findings], ["[REDACTED]", "[REDACTED]"])
+        record = scan(self.root, (target.path,), adapters=(composed,))
+        self.assertNotIn(AWS, json.dumps(record))
+        for finding in record["findings"]:
+            self.assertEqual(finding["source"]["before"], "[REDACTED]")
 
 
 if __name__ == "__main__":

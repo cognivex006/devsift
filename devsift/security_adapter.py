@@ -17,7 +17,8 @@ from .scanner import AdapterOutcome, ScanFinding, _snapshot_matches_commit
 
 _PAT = re.compile(r"(?:gh[pousr]_[A-Za-z0-9]{36,255}|github_pat_[A-Za-z0-9_]{50,255})\Z")
 _AWS = re.compile(r"[A-Za-z0-9/+=]{40}\Z")
-_PEM = re.compile(r"-----BEGIN ((?:RSA |EC |OPENSSH )?PRIVATE KEY)-----\s*([A-Za-z0-9+/=\s]{32,65536})\s*-----END \1-----\Z")
+_PEM_LABELS = ("PRIVATE KEY", "RSA PRIVATE KEY", "EC PRIVATE KEY", "OPENSSH PRIVATE KEY")
+_BASE64 = frozenset("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=")
 _KEY = re.compile(r'''(?:["']([A-Za-z_][A-Za-z0-9_]*)["']|([A-Za-z_][A-Za-z0-9_]*))\s*(?::=|:|=)\s*$''')
 
 
@@ -113,6 +114,27 @@ def _quoted_literals(text, language):
                 else: index += 1
             if depth: complete = False
             continue
+        if language in {"javascript", "typescript"} and text[index] == "/":
+            # Regex bodies are data, even if they contain quotes and assignment
+            # text. Prove only a narrow expression-start context; division and
+            # syntactically ambiguous slashes remain incomplete.
+            before = text[max(0, index - 1024):index].rstrip()
+            proven = not before or before[-1] in "=(:,[!&|?{};" or re.search(r"\b(?:return|throw|case|yield)\s*$", before) is not None
+            if not proven: complete = False
+            index += 1
+            in_class, closed = False, False
+            while index < len(text):
+                char = text[index]
+                if char in "\r\n": break
+                if char == "\\": index += 2; continue
+                if char == "[": in_class = True
+                elif char == "]": in_class = False
+                elif char == "/" and not in_class:
+                    index += 1; closed = True; break
+                index += 1
+            if not closed: complete = False
+            while index < len(text) and text[index].isascii() and text[index].isalpha(): index += 1
+            continue
         if (language in {"csharp", "go"} and text[index] == "'"
                 or language == "sql" and text[index] in '["'):
             opener = text[index]
@@ -187,7 +209,21 @@ def _candidate(literal):
     key = literal.key.replace("_", "").lower()
     if key in {"awssecretaccesskey", "secretaccesskey"} and _AWS.fullmatch(value):
         return "EXAMPLE" not in value.upper() and "YOUR" not in value.upper()
-    return _PEM.fullmatch(value.strip()) is not None
+    # Header/footer extraction and one body pass avoid overlapping whitespace
+    # quantifiers/backtracking on malformed or whitespace-only key text.
+    value = value.strip()
+    for label in _PEM_LABELS:
+        header, footer = "-----BEGIN " + label + "-----", "-----END " + label + "-----"
+        if not value.startswith(header): continue
+        if not value.endswith(footer): return False
+        body = value[len(header):-len(footer)]
+        if not 32 <= len(body) <= 65536: return False
+        characters = 0
+        for char in body:
+            if char in _BASE64: characters += 1
+            elif not char.isspace(): return False
+        return characters >= 32
+    return False
 
 
 def _region(text, start, end):
