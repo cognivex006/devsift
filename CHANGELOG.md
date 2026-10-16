@@ -21,6 +21,8 @@ All notable user-facing changes to DevSift will be documented here. This follows
 - Brand-independent adapters: integration with AgriMap, Drevqon, Axiom is optional, not mandatory.
 
 ### Added
+- Explicit maintainer/consumer boundaries, compact specifications-owned task templates and isolated installed-CLI governance fixtures.
+- Planning-only change budgets and immutable Git diff measurements with bound declared diagnostic/regression/rollback evidence; these never authorize remediation.
 - Source-reproved full JSON, Markdown and SARIF in scan/CI output, with explicit format selection, safe CI annotations and an outside-source artifact writer.
 - Source-linked candidate consumer/test context and mixed baseline gates, preserving unknown effects and pending case approval.
 - Windows/Linux report workflow with exact-key NuGet-only cache restoration, protected main-branch cache saving and deterministic report artifacts.

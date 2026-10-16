@@ -25,3 +25,8 @@ jobs:
           DEVSIFT_TEST_INSTALLED: '1'
           PYTHONDONTWRITEBYTECODE: '1'
         run: python -m unittest discover -s tests -p test_cli_platform.py -v
+      - name: Verify installed consumer governance and shadow isolation
+        env:
+          DEVSIFT_TEST_INSTALLED: '1'
+          PYTHONDONTWRITEBYTECODE: '1'
+        run: python -B -m unittest discover -s tests -p test_governance_boundary.py -v

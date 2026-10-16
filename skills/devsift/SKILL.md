@@ -5,7 +5,9 @@ description: Run read-only code-quality and security checks through the DevSift 
 
 # DevSift
 
-Use the interpreter from a trusted environment with DevSift installed. From the target Git root run `python -I -B -m devsift --help` and `python -I -B -m devsift doctor`. Isolated mode avoids importing a consumer project's `devsift.py` or Python environment overrides; `-B` avoids bytecode writes. If isolated import fails, report the missing trusted installation and follow setup in the DevSift checkout. Do not remove isolation to load code from the consumer project. Installation and native setup are separate trusted operations.
+Follow [consumer scope](CONSUMER-SCOPE.md) and the target project's applicable instructions. Ordinary questions and scans do not create maintainer tasks, branches or releases.
+
+Use installed `python -I -B -m devsift` from the target Git repository root. Inspect `python -I -B -m devsift --help` and `python -I -B -m devsift doctor`. The flags exclude current-directory/PYTHONPATH module shadowing and disable bytecode writes. An installed console script resolved from the trusted Python environment is an alternative; do not resolve a project-local launcher. If the module is unavailable, report the missing installation; never invent scan results. Installation and native setup are separate actions in a trusted DevSift checkout. Isolated mode requires installation in the selected Python environment; do not fall back to running target source or adding its paths. Any source-checkout launcher needs an explicitly trusted path and separate authorization.
 
 ## Run checks
 
