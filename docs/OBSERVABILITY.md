@@ -4,7 +4,8 @@
 It reads no logs/files, contacts no service, invents no source locations and writes
 nothing. This is contextual runtime advice, separate from catalog ScanFinding
 rules. Historical OBS identifiers are not new policy rules or quality gates.
-Duplicate/noise and authentication/CORS guidance are separate later tasks.
+Measured duplicate/noise advice is described below. Authentication/CORS guidance
+is a separate later task.
 
 ```python
 observations = analyze_correlation(events, coverage)
@@ -91,3 +92,62 @@ source correctness, production incident frequency or permission to change global
 logging filters. Review instrumentation and consumers, then seek explicit bounded
 case approval before any implementation. Existing trace/audit behavior and HTTP
 semantics must be verified; blanket legacy remediation remains unauthorized.
+
+## Measured duplicate routine emissions
+
+`RuntimeEvent` additionally accepts `boundary_id` (private optional opaque ID),
+`event_kind` (unknown/routine_success/audit/security/auth_rejection), and
+`emission_role` (unknown/start/completion). Defaults are unknown/unspecified and
+preserve the existing correlation behavior. Classification must come from actual
+structured event facts, not guesses from free-text severity or message wording.
+
+For this analysis `pair_id` must identify one particular request/hop operation,
+not a route, service, a trace spanning several operations, or a shared correlation
+ID. Equal route/boundary names across legitimate requests do not prove duplicate
+logging. Events are grouped by the exact explicit operation, boundary, side and
+role. Text equality is never an equivalence signal. Distinct observation IDs are
+required; repeated IDs may be ingestion duplication rather than separate runtime
+emissions and therefore remain unresolved.
+
+`NoiseMeasurement(boundary_id, coverage_complete, equivalent_emissions=False,
+window_seconds=None, consumers_reviewed=False)` is frozen. All flags require real
+booleans. A supplied window must be finite, positive and at most one year. These
+are trusted collector/reviewer declarations, not facts inferred from missing
+records. Coverage applies to the supplied boundary sample. Semantic equivalence
+means the same completion signal for the same operation/boundary/side/role; it
+must not be asserted merely because two messages look alike.
+
+`analyze_noise(events: tuple, measurements: tuple, *, redactor=None)` returns frozen
+`NoiseObservation` records. It permits the same 1000-event/1,000,000-character
+limits as correlation (including private boundary IDs), plus at most 1000 unique
+boundary measurement declarations. Results are deterministic batch-local
+`CONTEXT-NOISE-0001` labels, not catalog rules or stable source fingerprints.
+
+Only at least two distinct actual routine-success completion observations, with
+complete coverage and explicit semantic equivalence, yield `duplicate_observed`
+and a bounded review recommendation. Different requests, sides or roles are not
+merged. Unknown classifications on the same operation/boundary prevent a
+recommendation. Any audit, security or auth-rejection record on that operation
+protects it (`preserve_protected`) across its roles/sides. An expected 401/auth
+rejection does not become a critical issue or a sampling candidate. Start/end
+pairs and repeated free text alone do not establish redundancy. No upstream
+duration or new instrumentation is required.
+
+The fresh fixed-schema `to_dict` records observed event-record count and the
+explicit optional sample window only. It computes no production rate, cost,
+volume extrapolation, retention threshold or incident frequency. Repeated-ID
+counts are supplied records, not proof of distinct emissions. Without a window
+or complete coverage, `volume_status` is unknown; otherwise it is measured_sample,
+limited to this supplied operation sample. A consumer-review boolean is reported
+as `consumer_review_declared`; it does not prove a consumer list or low impact.
+`consumer_status`, source regions, production impact and change risk stay unknown.
+
+Noise observations share the contextual advisory envelope: SOURCE_UNRESOLVED and
+an emitter/consumer lookup plan, lifecycle UNKNOWN, enforcement advisory,
+automatic_fix false, no approval requested, bounded review and approval-gated
+implementation prompts. The recommendation permits retaining the events and
+requires checking actual consumers/audit obligations before any wording/level
+change. It never rewrites a shared logging filter or authorizes mass legacy
+cleanup. Raw boundary/operation/event/correlation IDs and messages are omitted
+from output and repr; RuntimeEvidence summarizes actual counts and declared facts
+using static roles. The accepted optional Redactor can further mask summaries.
