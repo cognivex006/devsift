@@ -59,7 +59,9 @@ class ArtifactTests(unittest.TestCase):
         (self.output / 'unrelated.txt').write_text('keep')
         original = Path.open
         def open_path(path, *args, **kwargs):
-            if path == self.output / 'results.sarif' and args and args[0] == 'xb':
+            # Windows hosted temp paths may use an 8.3 alias; the sink resolves it.
+            if (path.name == 'results.sarif' and path.parent.resolve() == self.output.resolve()
+                    and args and args[0] == 'xb'):
                 raise PermissionError('private OS message')
             return original(path, *args, **kwargs)
         with patch.object(Path, 'open', open_path):
