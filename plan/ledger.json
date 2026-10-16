@@ -456,7 +456,7 @@
         "T024"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
+      "status": "running",
       "evidence": [],
       "next_step": "Select a ready entry task",
       "review_budget_minutes": 25,
@@ -506,7 +506,7 @@
         "T027"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
+      "status": "running",
       "evidence": [],
       "next_step": "Select a ready entry task",
       "review_budget_minutes": 25,
@@ -556,7 +556,7 @@
         "T030"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
+      "status": "running",
       "evidence": [],
       "next_step": "Select a ready entry task",
       "review_budget_minutes": 25,
@@ -3057,12 +3057,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "controller",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA007"
+      "execution_id": "GA007",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:54.895343+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:54.895343+00:00"
+        }
+      ]
     },
     "T022": {
       "id": "T022",
@@ -3081,12 +3093,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA008"
+      "execution_id": "GA008",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.048992+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.048992+00:00"
+        }
+      ]
     },
     "T023": {
       "id": "T023",
@@ -3154,12 +3178,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "controller",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA009"
+      "execution_id": "GA009",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.186222+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.186222+00:00"
+        }
+      ]
     },
     "T026": {
       "id": "T026",
@@ -3226,12 +3262,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA010"
+      "execution_id": "GA010",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.316795+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.316795+00:00"
+        }
+      ]
     },
     "T029": {
       "id": "T029",
@@ -4898,6 +4946,72 @@
         "lease": "selected execution session until accepted/reassigned",
         "source_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66",
         "integrated_sha": "af8bf8d1d885a9fb16e8a2b4ce3e1744bbed7d37"
+      },
+      "T021": {
+        "owner": "controller",
+        "status": "running",
+        "branch": "feature/g006-g010-native-analysis",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "paths": [
+          "tests/test_native_conformance.py",
+          "tests/fixtures/native-protocol/"
+        ],
+        "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
+        "locks": [
+          "write:tests/adapters"
+        ],
+        "lease": "selected execution session until accepted/reassigned"
+      },
+      "T022": {
+        "owner": "cli_writer",
+        "status": "running",
+        "branch": "feature/g008-roslyn",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-roslyn",
+        "paths": [
+          "devsift/dotnet_adapter.py",
+          "devsift/native/dotnet/",
+          "tests/test_dotnet_adapter.py",
+          "docs/DOTNET-ADAPTER.md"
+        ],
+        "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
+        "locks": [
+          "write:adapters/dotnet"
+        ],
+        "lease": "selected execution session until accepted/reassigned"
+      },
+      "T025": {
+        "owner": "controller",
+        "status": "running",
+        "branch": "feature/g006-g010-native-analysis",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "paths": [
+          "devsift/typescript_adapter.py",
+          "devsift/native/frontend/",
+          "tests/test_typescript_adapter.py",
+          "docs/TYPESCRIPT-ADAPTER.md"
+        ],
+        "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
+        "locks": [
+          "write:adapters/typescript"
+        ],
+        "lease": "selected execution session until accepted/reassigned"
+      },
+      "T028": {
+        "owner": "policy_writer",
+        "status": "running",
+        "branch": "feature/g010-sql-parser",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-sql-parser",
+        "paths": [
+          "devsift/sql_adapter.py",
+          "devsift/native/sql/",
+          "tests/test_sql_adapter.py",
+          "docs/SQL-ADAPTER.md"
+        ],
+        "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
+        "locks": [
+          "write:adapters/sql"
+        ],
+        "lease": "selected execution session until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4939,10 +5053,20 @@
           "clean": true
         }
       ],
-      "held_locks": [],
-      "active_jobs": [],
-      "latest_integrated_sha": "af8bf8d1d885a9fb16e8a2b4ce3e1744bbed7d37",
-      "updated_utc": "2026-10-16T08:48:54.595636+00:00"
+      "held_locks": [
+        "write:tests/adapters",
+        "write:adapters/dotnet",
+        "write:adapters/typescript",
+        "write:adapters/sql"
+      ],
+      "active_jobs": [
+        "T021",
+        "T022",
+        "T025",
+        "T028"
+      ],
+      "latest_integrated_sha": "beedbdc4c0339330c46afb38adee837265613690",
+      "updated_utc": "2026-10-16T08:48:55.316795+00:00"
     },
     "previous_checkpoints": [
       {
