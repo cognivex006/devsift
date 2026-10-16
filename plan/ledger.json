@@ -2457,8 +2457,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
+          "test_result": "15 scanner tests pass;87worktree tests OK1installedskip; actualtrustedcallbacks/sourceproof/partialfailure/callbackstreammasking validated; syntax/plan/kit/diff passed",
+          "author": "cli_writer"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2473,6 +2479,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:39:08.585547+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:46:58.747065+00:00"
         }
       ]
     },
@@ -4351,7 +4362,7 @@
       },
       "T012": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g004-aggregation",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-aggregation",
         "paths": [
@@ -4363,7 +4374,8 @@
         "locks": [
           "write:engine/results"
         ],
-        "lease": "selected G003-G005 session until accepted/reassigned"
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77"
       },
       "T013": {
         "owner": "policy_writer",
@@ -4418,14 +4430,16 @@
       "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
       "held_locks": [
         "write:engine/results",
-        "write:engine/git"
+        "write:engine/git",
+        "write:devsift/evidence.py",
+        "contract:git-read-no-network"
       ],
       "active_jobs": [
         "T012",
         "T013"
       ],
-      "latest_integrated_sha": "61e3c43d3a3939e936f492cabd7ea3b78bf06148",
-      "updated_utc": "2026-10-16T07:44:26.942989+00:00"
+      "latest_integrated_sha": "b9d52204227517fb2393811b39a26e3b04570488",
+      "updated_utc": "2026-10-16T07:46:58.747065+00:00"
     },
     "previous_checkpoints": [
       {
