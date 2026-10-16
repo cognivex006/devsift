@@ -2667,8 +2667,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
+          "test_result": "5 realGit provenance invariant tests pass: crisscross+completebaseline unknown, baseline scope controls, Unicode/CRLF/dirtyindex immutability, ambiguousrename, hostile refs andstale/unresolvedsource",
+          "author": "controller"
+        }
+      ],
       "assignee": "controller",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2683,6 +2689,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:56:01.327020+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:59:11.268476+00:00"
         }
       ]
     },
@@ -4549,7 +4560,7 @@
       },
       "T015": {
         "owner": "controller",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g003-g005-foundations",
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
@@ -4559,7 +4570,8 @@
         "locks": [
           "write:tests/git"
         ],
-        "lease": "selected G003-G005 session until accepted/reassigned"
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4573,14 +4585,15 @@
       "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
       "held_locks": [
         "write:engine/results",
+        "write:devsift/cli_scan.py",
         "write:tests/git"
       ],
       "active_jobs": [
         "T012",
         "T015"
       ],
-      "latest_integrated_sha": "c37a3d57ef6c49904801b811439af4ddbc4cab0e",
-      "updated_utc": "2026-10-16T07:56:01.327020+00:00"
+      "latest_integrated_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
+      "updated_utc": "2026-10-16T07:59:11.268476+00:00"
     },
     "previous_checkpoints": [
       {
