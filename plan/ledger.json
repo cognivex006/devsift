@@ -803,8 +803,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T016",
-            "T017",
             "T018"
           ]
         },
@@ -1144,8 +1142,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T016",
-            "T017",
             "T018",
             "T019",
             "T020",
@@ -1530,8 +1526,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T016",
-            "T017",
             "T018",
             "T019",
             "T020",
@@ -2754,17 +2748,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
           "test_result": "6actualGit/file baseline+3suppression tests pass; stricttrustedhash/CAS/approval/atomicfailure/criticalexpiry guards; syntax/schema/diff passed",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b",
+          "test_result": "DistinctexactSHAreviewaccepted;6baseline+3suppressionintegrationtests pass; tamper/CAS/approval/expiry/criticalfloorverified",
+          "evidence_uri": "docs/evidence/G006.md"
         }
       ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA006",
       "history": [
         {
@@ -2781,6 +2783,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T08:34:43.334824+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:36:20.330984+00:00"
         }
       ]
     },
@@ -2801,17 +2808,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
           "test_result": "6actualGit/file baseline+3suppression tests pass; stricttrustedhash/CAS/approval/atomicfailure/criticalexpiry guards; syntax/schema/diff passed",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b",
+          "test_result": "DistinctexactSHAreviewaccepted;6baseline+3suppressionintegrationtests pass; tamper/CAS/approval/expiry/criticalfloorverified",
+          "evidence_uri": "docs/evidence/G006.md"
         }
       ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA006",
       "history": [
         {
@@ -2828,6 +2843,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T08:34:43.334824+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:36:20.330984+00:00"
         }
       ]
     },
@@ -4683,7 +4703,7 @@
       },
       "T016": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g006-baseline",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-baseline",
         "paths": [
@@ -4696,15 +4716,14 @@
           "docs/BASELINE.md"
         ],
         "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
-        "locks": [
-          "write:baseline/core"
-        ],
+        "locks": [],
         "lease": "selected G003-G005 session until accepted/reassigned",
-        "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c"
+        "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+        "integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b"
       },
       "T017": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g006-baseline",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-baseline",
         "paths": [
@@ -4717,11 +4736,10 @@
           "docs/BASELINE.md"
         ],
         "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
-        "locks": [
-          "write:baseline/suppressions"
-        ],
+        "locks": [],
         "lease": "selected G003-G005 session until accepted/reassigned",
-        "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c"
+        "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+        "integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b"
       },
       "T019": {
         "owner": "cli_writer",
@@ -4781,17 +4799,13 @@
         }
       ],
       "held_locks": [
-        "write:baseline/core",
-        "write:baseline/suppressions",
         "write:adapters/host"
       ],
       "active_jobs": [
-        "T016",
-        "T017",
         "T019"
       ],
-      "latest_integrated_sha": "473dd88a07ef501cccebfdc2bb4f42ec13d8fe53",
-      "updated_utc": "2026-10-16T08:35:00.882055+00:00"
+      "latest_integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b",
+      "updated_utc": "2026-10-16T08:36:20.330984+00:00"
     },
     "previous_checkpoints": [
       {
