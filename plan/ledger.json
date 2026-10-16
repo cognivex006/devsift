@@ -2905,7 +2905,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "running",
       "evidence": [
         {
           "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340",
@@ -2932,6 +2932,22 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T08:35:00.882055+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "at": "2026-10-16T08:38:12.476794+00:00",
+          "reason": "Windows job attachment failure leaves unassigned suspended child alive"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:38:12.476794+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:38:12.476794+00:00"
         }
       ]
     },
@@ -4755,20 +4771,39 @@
       },
       "T019": {
         "owner": "cli_writer",
-        "status": "in_review",
-        "branch": "feature/g007-runner",
-        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g007-runner",
+        "status": "running",
+        "branch": "fix/g007-runner-cleanup",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g007-runner-cleanup",
         "paths": [
           "devsift/process_runner.py",
           "tests/test_process_runner.py",
           "docs/PROCESS-RUNNER.md"
         ],
-        "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
+        "base_sha": "a9b1a27f9ee90e6d52a29b2bec5050d5607f1dbd",
         "locks": [
           "write:adapters/host"
         ],
         "lease": "selected G006-G010 session until accepted/reassigned",
-        "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340"
+        "source_sha": null,
+        "prior_jobs": [
+          {
+            "owner": "cli_writer",
+            "status": "in_review",
+            "branch": "feature/g007-runner",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g007-runner",
+            "paths": [
+              "devsift/process_runner.py",
+              "tests/test_process_runner.py",
+              "docs/PROCESS-RUNNER.md"
+            ],
+            "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
+            "locks": [
+              "write:adapters/host"
+            ],
+            "lease": "selected G006-G010 session until accepted/reassigned",
+            "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340"
+          }
+        ]
       },
       "T018": {
         "owner": "policy_writer",
