@@ -35,12 +35,19 @@ class RuntimeEvent:
     message: str = field(default='', repr=False)
     observed_at: str | None = None
     context_observed: bool = False
+    boundary_id: str | None = field(default=None, repr=False)
+    event_kind: str = 'unknown'
+    emission_role: str = 'unknown'
 
     def __post_init__(self):
         _opaque(self.event_id)
         _opaque(self.pair_id)
         _opaque(self.correlation_id, maximum=512, optional=True)
+        _opaque(self.boundary_id, optional=True)
         _require(type(self.side) is str and self.side in {'upstream', 'downstream'})
+        _require(type(self.event_kind) is str and self.event_kind in {
+            'unknown', 'routine_success', 'audit', 'security', 'auth_rejection'})
+        _require(type(self.emission_role) is str and self.emission_role in {'unknown', 'start', 'completion'})
         _require(type(self.context_observed) is bool)
         for value, length in ((self.trace_id, 32), (self.span_id, 16), (self.parent_span_id, 16)):
             _require(value is None or (type(value) is str and len(value) == length
@@ -217,4 +224,157 @@ def analyze_correlation(events: tuple[RuntimeEvent, ...], coverage: tuple[Correl
                                             event.observed_at, redactor=redactor))
         observations.append(ContextualObservation(f'CONTEXT-CORRELATION-{ordinal:04}', reason,
                                                   complete, tuple(evidence)))
+    return tuple(observations)
+
+
+@dataclass(frozen=True)
+class NoiseMeasurement:
+    boundary_id: str = field(repr=False)
+    coverage_complete: bool
+    equivalent_emissions: bool = False
+    window_seconds: int | float | None = None
+    consumers_reviewed: bool = False
+
+    def __post_init__(self):
+        _opaque(self.boundary_id)
+        _require(all(type(value) is bool for value in (
+            self.coverage_complete, self.equivalent_emissions, self.consumers_reviewed)))
+        _require(self.window_seconds is None or (type(self.window_seconds) in (int, float)
+                 and 0 < self.window_seconds <= 31_536_000))
+
+
+_NOISE_REASONS = {
+    'BOUNDARY_UNSPECIFIED': 'No actual emitter boundary identity was supplied.',
+    'NO_NOISE_COVERAGE': 'No measurement coverage was declared for this boundary.',
+    'INCOMPLETE_NOISE_COVERAGE': 'The supplied operation sample is incomplete; no redundancy recommendation is established.',
+    'EVENT_ID_CONFLICT': 'Repeated observation identity may represent ingestion duplication, not separate emissions.',
+    'PROTECTED_EVENT': 'The same operation/boundary contains audit, security or authentication-rejection records; preserve them.',
+    'UNKNOWN_EVENT_KIND': 'The operation/boundary has unclassified records; their audit/security role is unknown.',
+    'UNSUPPORTED_ROLE': 'Equivalent routine completion emissions are not established for this role.',
+    'EQUIVALENCE_UNDECLARED': 'The caller has not established semantic equivalence of these completion emissions.',
+    'SINGLE_EMISSION': 'Only one routine completion emission was observed in this operation/boundary/side/role group.',
+    'DUPLICATE_COMPLETION': 'Multiple distinct, explicitly equivalent routine completion emissions were observed for one operation/boundary/side/role.',
+}
+_NOISE_LOOKUP = ('Locate the exact emitters and retention configuration at an immutable source commit; '
+                 'verify log consumers, audit/security obligations and bounded regression/rollback before proposing a change.')
+_NOISE_RECOMMENDATION = ('Review only the equivalent routine completions for this measured operation and boundary. '
+                         'Assess retention and consumers before proposing one bounded wording/level change, or retain them. '
+                         'Preserve audit/security events; do not rewrite a shared filter automatically.')
+
+
+@dataclass(frozen=True)
+class NoiseObservation:
+    context_id: str
+    reason: str
+    observed_event_count: int
+    coverage_complete: bool
+    equivalence_declared: bool
+    window_seconds: int | float | None
+    consumer_review_declared: bool
+    runtime_evidence: tuple[RuntimeEvidence, ...]
+    source: SourceEvidence = field(default_factory=lambda: SourceEvidence(lookup_plan=_NOISE_LOOKUP))
+    category: str = field(default='runtime_noise', init=False)
+    enforcement: str = field(default='advisory', init=False)
+    lifecycle_class: str = field(default='UNKNOWN', init=False)
+    automatic_fix: bool = field(default=False, init=False)
+
+    def __post_init__(self):
+        _require(type(self.context_id) is str and re.fullmatch(r'CONTEXT-NOISE-[0-9]{4}', self.context_id) is not None)
+        _require(type(self.reason) is str and self.reason in _NOISE_REASONS)
+        _require(type(self.observed_event_count) is int and 1 <= self.observed_event_count <= 1000)
+        _require(all(type(value) is bool for value in (
+            self.coverage_complete, self.equivalence_declared, self.consumer_review_declared)))
+        _require(self.window_seconds is None or (type(self.window_seconds) in (int, float)
+                 and 0 < self.window_seconds <= 31_536_000))
+        _require(self.reason != 'DUPLICATE_COMPLETION' or
+                 (self.observed_event_count >= 2 and self.coverage_complete and self.equivalence_declared))
+        _require(type(self.runtime_evidence) is tuple and 0 < len(self.runtime_evidence) <= 4
+                 and all(type(item) is RuntimeEvidence for item in self.runtime_evidence))
+        _require(type(self.source) is SourceEvidence and self.source.status == 'SOURCE_UNRESOLVED'
+                 and self.source.location is None and self.source.before is None and bool(self.source.lookup_plan))
+
+    @property
+    def status(self):
+        return ('duplicate_observed' if self.reason == 'DUPLICATE_COMPLETION' else
+                'preserve_protected' if self.reason == 'PROTECTED_EVENT' else
+                'no_duplicate' if self.reason == 'SINGLE_EMISSION' else 'unresolved')
+
+    @property
+    def recommendation(self):
+        return _NOISE_RECOMMENDATION if self.reason == 'DUPLICATE_COMPLETION' else None
+
+    def to_dict(self):
+        return {'context_id': self.context_id, 'category': self.category, 'status': self.status,
+                'reason': self.reason, 'human_explanation': _NOISE_REASONS[self.reason],
+                'coverage_complete': self.coverage_complete, 'equivalence_declared': self.equivalence_declared,
+                'runtime_evidence': [item.to_dict() for item in self.runtime_evidence],
+                'source': self.source.to_dict(), 'enforcement': self.enforcement,
+                'lifecycle_class': self.lifecycle_class, 'automatic_fix': self.automatic_fix,
+                'recommendation': self.recommendation, 'approval_status': 'not_requested',
+                'measurement': {'observed_event_count': self.observed_event_count,
+                                'window_seconds': self.window_seconds, 'scope': 'supplied_operation_sample'},
+                'volume_status': 'measured_sample' if self.window_seconds is not None and self.coverage_complete else 'unknown',
+                'consumer_status': 'unknown', 'consumer_review_declared': self.consumer_review_declared,
+                'impact_if_unchanged': {'level': 'unknown', 'reason': 'Production volume, incident impact and actual log consumption have not been established.'},
+                'risk_if_changed': {'level': 'unknown', 'reason': 'Source, shared-filter scope, consumers and audit/security obligations require verification.'},
+                'review_prompt': _NOISE_LOOKUP + ' Review only; do not edit.',
+                'implement_prompt': 'Only after verified source and explicit per-case approval, implement the bounded approved change; preserve audit/security, verify consumers and provide rollback.'}
+
+
+def analyze_noise(events: tuple[RuntimeEvent, ...], measurements: tuple[NoiseMeasurement, ...],
+                  *, redactor: Redactor | None = None) -> tuple[NoiseObservation, ...]:
+    """Count distinct actual emissions; never guess equivalence from free text.
+
+    pair_id must identify one particular request/hop operation, not a route,
+    service, shared trace or correlation identifier reused across requests.
+    """
+    _require(type(events) is tuple and len(events) <= 1000 and all(type(item) is RuntimeEvent for item in events))
+    _require(type(measurements) is tuple and len(measurements) <= 1000
+             and all(type(item) is NoiseMeasurement for item in measurements))
+    _require(redactor is None or type(redactor) is Redactor)
+    _require(sum(len(item.event_id) + len(item.pair_id) + len(item.boundary_id or '')
+                 + len(item.correlation_id or '') + len(item.message) for item in events) <= 1_000_000)
+    declarations = {item.boundary_id: item for item in measurements}
+    _require(len(declarations) == len(measurements))
+    identities = Counter(item.event_id for item in events)
+    groups, operations = defaultdict(list), defaultdict(list)
+    for item in events:
+        boundary = item.boundary_id or ''
+        groups[(boundary, item.pair_id, item.side, item.emission_role)].append(item)
+        operations[(boundary, item.pair_id)].append(item)
+    observations = []
+    for ordinal, (key, group) in enumerate(sorted(groups.items()), 1):
+        boundary, pair, side, role = key
+        declaration = declarations.get(boundary)
+        complete = declaration is not None and declaration.coverage_complete
+        equivalent = declaration is not None and declaration.equivalent_emissions
+        reviewed = declaration is not None and declaration.consumers_reviewed
+        window = None if declaration is None else declaration.window_seconds
+        operation = operations[(boundary, pair)]
+        if any(item.event_kind in {'audit', 'security', 'auth_rejection'} for item in operation):
+            reason = 'PROTECTED_EVENT'
+        elif any(item.event_kind == 'unknown' for item in operation):
+            reason = 'UNKNOWN_EVENT_KIND'
+        elif not boundary:
+            reason = 'BOUNDARY_UNSPECIFIED'
+        elif declaration is None:
+            reason = 'NO_NOISE_COVERAGE'
+        elif not complete:
+            reason = 'INCOMPLETE_NOISE_COVERAGE'
+        elif any(identities[item.event_id] != 1 for item in group):
+            reason = 'EVENT_ID_CONFLICT'
+        elif role != 'completion':
+            reason = 'UNSUPPORTED_ROLE'
+        elif not equivalent:
+            reason = 'EQUIVALENCE_UNDECLARED'
+        elif len(group) < 2:
+            reason = 'SINGLE_EMISSION'
+        else:
+            reason = 'DUPLICATE_COMPLETION'
+        summary = (f'Observed {len(group)} structured event records for one operation/boundary/side/role group; '
+                   f'coverage_complete={str(complete).lower()}; equivalence_declared={str(equivalent).lower()}; '
+                   f'consumer_review_declared={str(reviewed).lower()}. No production volume or consumer list inferred.')
+        evidence = (RuntimeEvidence('measured-operation-emissions', summary, redactor=redactor),)
+        observations.append(NoiseObservation(f'CONTEXT-NOISE-{ordinal:04}', reason, len(group), complete,
+                                             equivalent, window, reviewed, evidence))
     return tuple(observations)
