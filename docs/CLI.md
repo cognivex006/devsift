@@ -76,3 +76,7 @@ Errors contain `code` and `message`; command-specific capability data lives in
 `data`. Misuse has `command: null` because parsing may not establish a command.
 This envelope is a command result, not the full source-aware finding/report schema;
 it must not be represented as SARIF or an authoritative scan report.
+
+## Doctor provider diagnostics
+
+`python -m devsift doctor` inventories runtime and host-tool metadata without executing PATH programs or project hooks. It does not auto-load a target manifest. To authorize bounded, hash-pinned provider probes, pass `--native-manifest <absolute-path>` and `--native-manifest-digest <independently-trusted-sha256>`. Missing, mismatched or partial provider coverage stays incomplete (exit 2). Discovery is not a code scan. See [doctor behavior](DOCTOR.md).

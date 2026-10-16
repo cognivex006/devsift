@@ -1,7 +1,6 @@
 """Strict, read-only CLI with explicitly configured native analyzers."""
 import argparse
 import json
-import platform
 import sys
 
 from .output import misuse, result
@@ -35,7 +34,9 @@ def parser() -> Parser:
     explain.add_argument('case_id', help='Exact case ID in a verified report.')
     report = commands.add_parser('report', help='Read a report (backend pending); writes no files.')
     report.add_argument('--latest', action='store_true', help='Request the latest verified report.')
-    commands.add_parser('doctor', help='Report runtime and capability availability without changes.')
+    doctor = commands.add_parser('doctor', help='Diagnose providers without changes; native probes require explicit trust.')
+    doctor.add_argument('--native-manifest', help='Absolute explicitly trusted native tool manifest; authorizes bounded probes.')
+    doctor.add_argument('--native-manifest-digest', help='Independently trusted SHA256 of the exact manifest bytes.')
     prompt = commands.add_parser('prompt', help='Request a case prompt; never executes remediation.')
     prompt.add_argument('case_id')
     prompt.add_argument('--mode', choices=['review', 'implement'], required=True)
@@ -51,12 +52,16 @@ def run(args: argparse.Namespace) -> dict:
             raise ArgumentError('--approved-case is valid only for implement mode.')
     data = {}
     if args.command == 'doctor':
-        data = {'runtime': {'name': 'python', 'version': platform.python_version(),
-                            'supported': sys.version_info >= (3, 12)},
-                'capabilities': {'command_parser': True, 'read_only': True,
-                                 'inventory': True, 'git_provenance': True,
-                                 'analyzers': False, 'reports': False,
-                                 'case_prompts': False}}
+        from pathlib import Path
+        import re
+        from .doctor import run_doctor
+        if (args.native_manifest is None) != (args.native_manifest_digest is None):
+            raise ArgumentError('Native manifest and digest must be supplied together.')
+        if args.native_manifest is not None and (not Path(args.native_manifest).is_absolute()
+                or re.fullmatch('[0-9a-f]{64}', args.native_manifest_digest) is None):
+            raise ArgumentError('Native manifest requires an absolute path and lowercase SHA256 digest.')
+        return run_doctor(native_manifest=args.native_manifest,
+                          native_manifest_digest=args.native_manifest_digest)
     elif args.command == 'scan':
         from pathlib import Path
         import re

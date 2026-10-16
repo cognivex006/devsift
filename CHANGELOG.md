@@ -5,6 +5,7 @@ All notable user-facing changes to DevSift will be documented here. This follows
 ## [Unreleased]
 
 ### Changed
+- Add read-only Doctor provider discovery with explicit native-manifest trust, bounded probes, actionable missing-tool diagnostics and matching CLI flags.
 - Assess finding origin with verified Git provenance, reviewed baselines and expiring waivers while preserving unknown business impact and independent security review.
 
 ### Changed
