@@ -5525,6 +5525,21 @@
           "write:tests/frontend"
         ],
         "lease": "selected execution session until accepted/reassigned"
+      },
+      "evidence-sensitive-display-compat": {
+        "owner": "controller",
+        "status": "accepted",
+        "source_sha": "4f65ad5e468b28b1065210385b28144d13ee5a9c",
+        "integrated_sha": "4f65ad5e468b28b1065210385b28144d13ee5a9c",
+        "reviewer": "reviewer",
+        "review_result": "accepted",
+        "locks": [],
+        "paths": [
+          "devsift/evidence.py",
+          "tests/test_evidence.py",
+          "docs/EVIDENCE.md"
+        ],
+        "test_result": "Regression failed old guard; controller14evidence tests20.572s pass, distinct reviewer actualGit compatibility regression1.91s pass; correct priorassertion upgrades tofullmask, wrongdisplayunresolved"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
