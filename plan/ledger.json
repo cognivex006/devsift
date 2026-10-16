@@ -1834,13 +1834,19 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "512f41d810301b212ab93ff2c903207b2bfac6ab",
           "test_command": "python -m unittest discover -s tests -p test_policy.py -v",
           "test_result": "10 passed",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
+          "test_result": "20 integrated tests passed; reviewer 230 decision matrix checks passed"
         }
       ],
       "assignee": "policy_writer",
@@ -1858,6 +1864,10 @@
         },
         {
           "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
           "actor": "controller"
         }
       ]
@@ -1879,13 +1889,19 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "512f41d810301b212ab93ff2c903207b2bfac6ab",
           "test_command": "python -m unittest discover -s tests -p test_policy.py -v",
           "test_result": "10 passed",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
+          "test_result": "20 integrated tests passed; reviewer 230 decision matrix checks passed"
         }
       ],
       "assignee": "policy_writer",
@@ -1903,6 +1919,10 @@
         },
         {
           "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
           "actor": "controller"
         }
       ]
@@ -1925,12 +1945,22 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA001"
+      "execution_id": "GA001",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        }
+      ]
     },
     "T004": {
       "id": "T004",
@@ -1956,6 +1986,23 @@
       "next_step": "claim when prerequisites accepted",
       "execution_id": "GA002",
       "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "reason": "complete must be a strict boolean to avoid unknown becoming clean"
+        },
         {
           "status": "claimed",
           "actor": "controller"
@@ -1990,6 +2037,23 @@
       "next_step": "claim when prerequisites accepted",
       "execution_id": "GA002",
       "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "reason": "complete must be a strict boolean to avoid unknown becoming clean"
+        },
         {
           "status": "claimed",
           "actor": "controller"
@@ -3789,16 +3853,14 @@
       },
       "T001": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "paths": [
           "devsift/policy.py",
           "policy/",
           "tests/test_policy.py",
           "docs/POLICY.md"
         ],
-        "locks": [
-          "write:policy/schema"
-        ],
+        "locks": [],
         "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
         "branch": "feature/g001-policy",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-policy",
@@ -3806,14 +3868,12 @@
       },
       "T002": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "paths": [
           "devsift/registry.py",
           "policy/registry.json"
         ],
-        "locks": [
-          "write:policy/rules"
-        ],
+        "locks": [],
         "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
         "branch": "feature/g001-policy",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-policy",
@@ -3833,7 +3893,9 @@
         "locks": [
           "write:cli/commands"
         ],
-        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+        "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
+        "branch": "feature/g002-producer-rework",
+        "prior_job_sha": "dc62257f160374dce7be68ddeed56c92de3beea2"
       },
       "T005": {
         "owner": "cli_writer",
@@ -3844,7 +3906,22 @@
         "locks": [
           "write:cli/io"
         ],
-        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+        "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
+        "branch": "feature/g002-producer-rework",
+        "prior_job_sha": "dc62257f160374dce7be68ddeed56c92de3beea2"
+      },
+      "T003": {
+        "status": "running",
+        "owner": "policy_writer",
+        "paths": [
+          "tests/test_policy_invariants.py",
+          "tests/fixtures/policy/"
+        ],
+        "locks": [
+          "write:tests/policy"
+        ],
+        "branch": "feature/g001-t003-invariants",
+        "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository"
