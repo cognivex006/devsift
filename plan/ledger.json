@@ -1979,8 +1979,15 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5",
+          "author": "cli_writer",
+          "test_command": "python -m unittest discover -s tests -v",
+          "test_result": "28 passed; wheel install and installed command smoke verified; strict completion regression first failed then passed"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2009,6 +2016,10 @@
         },
         {
           "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
           "actor": "controller"
         }
       ]
@@ -2030,8 +2041,15 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5",
+          "author": "cli_writer",
+          "test_command": "python -m unittest discover -s tests -v",
+          "test_result": "28 passed; wheel install and installed command smoke verified; strict completion regression first failed then passed"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2060,6 +2078,10 @@
         },
         {
           "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
           "actor": "controller"
         }
       ]
@@ -3881,7 +3903,7 @@
       },
       "T004": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "in_review",
         "paths": [
           "devsift/cli.py",
           "devsift/__main__.py",
@@ -3895,11 +3917,13 @@
         ],
         "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
         "branch": "feature/g002-producer-rework",
-        "prior_job_sha": "dc62257f160374dce7be68ddeed56c92de3beea2"
+        "prior_job_sha": "dc62257f160374dce7be68ddeed56c92de3beea2",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-cli-rework",
+        "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5"
       },
       "T005": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "in_review",
         "paths": [
           "devsift/output.py"
         ],
@@ -3908,7 +3932,9 @@
         ],
         "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
         "branch": "feature/g002-producer-rework",
-        "prior_job_sha": "dc62257f160374dce7be68ddeed56c92de3beea2"
+        "prior_job_sha": "dc62257f160374dce7be68ddeed56c92de3beea2",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-cli-rework",
+        "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5"
       },
       "T003": {
         "status": "running",
