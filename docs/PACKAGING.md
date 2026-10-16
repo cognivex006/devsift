@@ -88,8 +88,8 @@ publish artifacts, certify a license, establish reproducible wheel bytes or
 complete install/rollback validation. The default suite runs stdlib inventory
 guards and visibly skips the explicit build group; opting in without the exact
 backend fails rather than silently skipping. Deterministic source-component
-archives are described below; fresh installation/rollback remains a separately
-gated follow-up.
+archives are described below; the separately gated installation/rollback group
+is documented after the source-bundle contract.
 
 Build pin reference: [official setuptools 83.0.0 release](https://pypi.org/project/setuptools/83.0.0/).
 
@@ -174,10 +174,78 @@ tampering, selected dirty/staged/missing inputs, wrong commit IDs, no-overwrite,
 source/Git output boundaries and actual source/output symlink cases. Source
 file/directory hashes and Git state remain unchanged by build/verify. These
 are local source-bundle results, not hosted cross-platform release or signing
-proof. Publication and complete fresh install/rollback remain separate work.
+proof. Publication remains separate; the actual fresh install/rollback checks
+below provide a different artifact-installation proof.
 
 Archive source proof rejects effective partial/promisor configuration and shallow
 history before object lookup. Git calls explicitly disable lazy fetching and use
 accepted host Git selection outside the selected source root. The builder reads
 physical manifest inputs, then independently proves exact stage-0 index/commit
 membership; the inventory extraction opt-out alone is never provenance.
+
+## Actual offline installation and explicit rollback
+
+Provision `setuptools==83.0.0` in the selected trusted test interpreter during an
+explicit setup step. Then set `DEVSIFT_TEST_PACKAGE_INSTALL=1` using your shell's
+syntax and run:
+
+```text
+python -B -m unittest discover -s tests -p test_package_install.py -v
+```
+
+Opting in without the exact backend fails; it never skips for missing tools or
+downloads setup dependencies during the test. The existing installed-CLI workflow
+sets this opt-in mandatorily on both Windows and Linux after explicit backend
+setup and a full-history checkout. That workflow configuration is not itself
+evidence of a hosted result. The default local suite visibly skips this group.
+
+The test reads the selected HEAD's raw regular-file commit blobs, after rejecting
+effective partial/promisor and shallow history. It uses hardened host Git with
+lazy-fetch/replacement/fsmonitor/optional-lock guards, bounds object sizes before
+reading and prepares only the manifest's explicit inputs in a temporary stage.
+It never normalizes the primary checkout, clones a workspace or rewrites source
+to overcome Windows CRLF differences. The accepted original source commit and
+the temporary stage's new fixture commit are distinct identities: the latter
+proves selected physical stage bytes for the source-bundle builder, while module
+content is compared against the original commit's extracted bytes.
+
+The provisioned backend builds an actual wheel and Python sdist in that trusted
+stage. Wheel metadata/entrypoint and RECORD hashes are inspected; all 42 runtime
+module files must match expected commit bytes. Every sdist member is checked for
+bounded regular-file/directory type, root prefix and traversal/link exclusions
+before its contents are copied individually into a new temporary directory.
+There is no unrestricted `extractall`. The sdist's 42 module payloads must match,
+then the verified trusted sdist is rebuilt offline into another actual wheel.
+Installing that wheel proves the supported sdist-to-wheel-to-install path, not a
+claim that a ZIP source bundle is directly installable.
+
+Disposable virtual environments use their bundled pip and local wheel files with
+`--no-index --no-deps --no-compile --force-reinstall`. No global environment is
+installed into. Each install checks the installed distribution's module inventory,
+raw module hashes and RECORD entries, imports the modules (the executable
+`__main__` is exercised through `-m`), and runs actual isolated
+`python -I -B -m devsift scan --all --security` plus the console entrypoint. The
+consumer fixture contains target-package/build-hook traps; those files are
+inspected only as source data, never imported, built or executed. Consumer/Git
+file bytes, selected original checkout bytes, its index and HEAD remain unchanged.
+
+Rollback uses an **explicit synthetic prior-artifact fixture**, not a historical
+release or a new project version. Its initializer has a harmless distinct comment
+and its wheel omits the otherwise independent `verification_plan.py` leaf module.
+The test audits both trusted artifacts and captures their expected digests before
+installation. It installs prior → current → explicitly selected prior with pip
+force-reinstall, checking each hash set and working CLI. After rollback, the prior
+initializer is restored and the current-only leaf file is physically absent and
+removed from installed RECORD inventory. This proves tested pip replacement and
+removal behavior; it does not automatically choose, authenticate or authorize a
+rollback for a consumer installation.
+
+The accepted source-bundle API is also exercised separately with independently
+held expected integrity digest and fixture source SHA. Its consumer-skill archive
+contains exactly `SKILL.md` and its linked `CONSUMER-SCOPE.md`; verification reads
+those bytes without extraction or host activation. Source-assets members match
+the explicit allowlist and contain no native executables/libraries or wheel.
+This establishes bundle integrity for the tested inputs, not native availability,
+agent-host obedience or automatic skill installation. Wheel/native byte
+reproducibility, signatures, publication, legal license selection and release
+authorization remain separate and are not claimed by these tests.
