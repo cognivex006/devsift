@@ -255,7 +255,7 @@ class SecurityAdapter:
             self.delegate, self.repo_root, self.source_sha = delegate, repo_root, source_sha
             self._delegate_available = delegate_available
             self.repository, self.config_paths, self.redactor = repository, paths, redactor or Redactor()
-            self.capability = AdapterCapability(identity, "1.0.0", languages, True)
+            self.capability = AdapterCapability(identity, "1.1.0", languages, True)
         except Exception:
             raise ValueError("Invalid security adapter configuration") from None
 
@@ -296,6 +296,15 @@ class SecurityAdapter:
                 region = _region(text, literal.start, literal.end)
                 rule_id = "CFG003" if target.path in self.config_paths else "HC002"
                 add(rule_id, region, self._proof(target, region, True))
+            if target.language == "python":
+                from .security_context import python_contexts
+                contexts = python_contexts(text)
+                complete = complete and contexts.complete
+                for diagnostic in contexts.diagnostics:
+                    start, end = source_offsets(text, diagnostic.region)
+                    sensitive = diagnostic.rule_id == "SEC001" or any(left < end and right > start for left, right in spans)
+                    add(diagnostic.rule_id, diagnostic.region,
+                        self._proof(target, diagnostic.region, sensitive))
             if self.delegate is not None:
                 try:
                     with redirect_stdout(_Discard()), redirect_stderr(_Discard()):
