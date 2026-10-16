@@ -298,9 +298,11 @@
         "T015"
       ],
       "repo": "orchex006/devsift",
-      "status": "running",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G005.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -2450,7 +2452,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
+      "status": "in_review",
       "evidence": [
         {
           "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
@@ -2463,6 +2465,11 @@
           "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
           "test_result": "3actualCLI tests initiallyfailed thenpassed;16scanner tests pass incl nonblocking legacycriticalsecurityreview flag; exact targetandGitbytesunchanged",
           "review_result": "final integration review pending"
+        },
+        {
+          "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
+          "test_result": "6CLI+16scanner tests pass; actualhostilecleanfilter red then green; local/env/global/nestedinclude process/required callbacks disabled; exactbytespreserved",
+          "author": "cli_writer"
         }
       ],
       "assignee": "cli_writer",
@@ -2500,6 +2507,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:56:21.565095+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:00:06.828726+00:00"
         }
       ]
     },
@@ -2667,17 +2679,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
           "test_result": "5 realGit provenance invariant tests pass: crisscross+completebaseline unknown, baseline scope controls, Unicode/CRLF/dirtyindex immutability, ambiguousrename, hostile refs andstale/unresolvedsource",
           "author": "controller"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
+          "integrated_sha": "3cef9332322eff33ef53034680d4d5a653bf020d",
+          "test_result": "Distinctreviewer accepted;5realGit hardening tests pass;prior16Git mapping tests passed; ambiguity never overridespolicyincomplete; source/.git bytespreserved",
+          "evidence_uri": "docs/evidence/G005.md"
         }
       ],
       "assignee": "controller",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA005",
       "history": [
         {
@@ -2694,6 +2714,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:59:11.268476+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:00:06.666522+00:00"
         }
       ]
     },
@@ -4460,7 +4485,7 @@
       },
       "T012": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "fix/g004-filter-safe-scope",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-scope-rework",
         "paths": [
@@ -4475,7 +4500,7 @@
           "write:devsift/cli_scan.py"
         ],
         "lease": "selected G003-G005 session until accepted/reassigned",
-        "source_sha": null,
+        "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
         "producer_source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
         "integration_owner": "controller",
         "prior_jobs": [
@@ -4560,18 +4585,17 @@
       },
       "T015": {
         "owner": "controller",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g003-g005-foundations",
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
           "tests/test_git_provenance_invariants.py"
         ],
         "base_sha": "c37a3d57ef6c49904801b811439af4ddbc4cab0e",
-        "locks": [
-          "write:tests/git"
-        ],
+        "locks": [],
         "lease": "selected G003-G005 session until accepted/reassigned",
-        "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf"
+        "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
+        "integrated_sha": "3cef9332322eff33ef53034680d4d5a653bf020d"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4585,15 +4609,13 @@
       "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
       "held_locks": [
         "write:engine/results",
-        "write:devsift/cli_scan.py",
-        "write:tests/git"
+        "write:devsift/cli_scan.py"
       ],
       "active_jobs": [
-        "T012",
-        "T015"
+        "T012"
       ],
-      "latest_integrated_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
-      "updated_utc": "2026-10-16T07:59:11.268476+00:00"
+      "latest_integrated_sha": "3cef9332322eff33ef53034680d4d5a653bf020d",
+      "updated_utc": "2026-10-16T08:00:06.828726+00:00"
     },
     "previous_checkpoints": [
       {
