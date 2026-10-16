@@ -1945,8 +1945,15 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "8bc4cc9d82d7428ed3546b7f516800ef58a8c47d",
+          "author": "policy_writer",
+          "test_command": "python -m unittest discover -s tests -v",
+          "test_result": "28 on policy worktree; 8 invariant tests and explicit normative fixtures"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -1958,6 +1965,10 @@
         },
         {
           "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
           "actor": "controller"
         }
       ]
@@ -3963,7 +3974,7 @@
         "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5"
       },
       "T003": {
-        "status": "running",
+        "status": "in_review",
         "owner": "policy_writer",
         "paths": [
           "tests/test_policy_invariants.py",
@@ -3973,7 +3984,9 @@
           "write:tests/policy"
         ],
         "branch": "feature/g001-t003-invariants",
-        "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e"
+        "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
+        "source_sha": "8bc4cc9d82d7428ed3546b7f516800ef58a8c47d",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-policy-tests"
       },
       "T006": {
         "status": "running",
