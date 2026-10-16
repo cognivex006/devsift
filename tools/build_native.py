@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import hashlib
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -47,7 +49,26 @@ def build():
     if npm_cli is None:
         raise RuntimeError('Cannot locate installed npm CLI')
     run([node, str(npm_cli), 'ci', '--ignore-scripts', '--no-audit', '--no-fund'], ROOT / 'native/frontend')
-    print('Pinned native setup completed; run DEVSIFT_TEST_NATIVE=1 tests explicitly.')
+    # Setup records trusted pins once. Scans load these exact stored expectations
+    # and never regenerate hashes from possibly replaced executables/artifacts.
+    sys.path.insert(0, str(ROOT))
+    from devsift.dotnet_adapter import make_tool as dotnet_tool
+    from devsift.go_adapter import make_tool as go_tool
+    from devsift.sql_adapter import make_tool as sql_tool
+    from devsift.typescript_adapter import make_tool as typescript_tool
+    from devsift.native_manifest import ConfiguredTool, manifest_bytes
+    manifest = manifest_bytes((
+        ConfiguredTool(dotnet_tool(str(Path(dotnet).resolve()), output / 'dotnet')),
+        ConfiguredTool(go_tool(str(binary.resolve()))),
+        ConfiguredTool(sql_tool(str(Path(dotnet).resolve()), output / 'sql'), 'tsql160'),
+        ConfiguredTool(typescript_tool(str(Path(node).resolve()), ROOT / 'native/frontend')),
+    ))
+    destination = ROOT / '.devsift/local/native-manifest.json'
+    digest = hashlib.sha256(manifest).hexdigest()
+    destination.write_bytes(manifest)
+    destination.with_suffix('.sha256').write_text(digest + '\n', encoding='ascii')
+    print('Pinned native setup completed; manifest:', destination)
+    print('Manifest SHA256:', digest)
 
 
 if __name__ == '__main__':
