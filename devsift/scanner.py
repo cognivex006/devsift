@@ -10,7 +10,7 @@ import subprocess
 from typing import Protocol
 
 from .adapters import AdapterCapability, negotiate
-from .evidence import SourceEvidence, verify_source
+from .evidence import SourceEvidence, requires_source_mask, verify_source
 from .inventory import SourceTarget, inventory
 from .output import result
 from .policy import decide, resolve_policy
@@ -101,7 +101,7 @@ def _source(root, target, finding, redactor):
     location = claimed.location
     verified = verify_source(root, location.repository, location.source_sha,
                              location.path, location.region, redactor=redactor,
-                             sensitive=finding.rule_id == 'HC002')
+                             sensitive=requires_source_mask(finding.rule_id, claimed))
     if not _snapshot_matches_commit(root, verified, target.content):
         return SourceEvidence(reason='SOURCE_MISMATCH')
     return verified

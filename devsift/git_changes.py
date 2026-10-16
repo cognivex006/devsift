@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 
-from .evidence import Region, SourceEvidence, SourceLocation, verify_source
+from .evidence import Region, SourceEvidence, SourceLocation, requires_source_mask, verify_source
 from .redaction import Redactor
 from .registry import RULES
 
@@ -170,7 +170,7 @@ def classify(repo_root, base_ref, head_ref, rule_id, evidence, *, baseline=None,
             return result("UNKNOWN", "SOURCE_COMMIT_MISMATCH")
         verified = verify_source(root, claimed.repository, head, claimed.path, claimed.region,
                                  expected_before=evidence.before, redactor=redactor,
-                                 sensitive=rule_id == 'HC002')
+                                 sensitive=requires_source_mask(rule_id, evidence))
         if verified.status != "VERIFIED":
             return result("UNKNOWN", "SOURCE_UNRESOLVED")
         location = verified.location
@@ -220,7 +220,7 @@ def classify(repo_root, base_ref, head_ref, rule_id, evidence, *, baseline=None,
             if mapped is None:
                 return result("UNKNOWN", "RENAME_REGION_UNRESOLVED")
             old_source = verify_source(root, location.repository, merge_base, old_path, mapped, redactor=redactor,
-                                       sensitive=rule_id == 'HC002')
+                                       sensitive=requires_source_mask(rule_id, evidence))
             if old_source.status != "VERIFIED":
                 return result("UNKNOWN", "BASE_SOURCE_UNRESOLVED")
             lifecycle = "LEGACY_UNCHANGED" if raw_old == raw_head else "MODIFIED_PREEXISTING"
@@ -237,7 +237,7 @@ def classify(repo_root, base_ref, head_ref, rule_id, evidence, *, baseline=None,
             lifecycle = "MODIFIED_PREEXISTING"
         if mapped is not None:
             old_source = verify_source(root, location.repository, merge_base, location.path,
-                                       mapped, redactor=redactor, sensitive=rule_id == 'HC002')
+                                       mapped, redactor=redactor, sensitive=requires_source_mask(rule_id, evidence))
             if old_source.status == "VERIFIED":
                 return result(lifecycle, "EXACT_IMMUTABLE_SOURCE_MAPPING", old_source.location)
             return result("UNKNOWN", "BASE_SOURCE_UNRESOLVED")
@@ -252,7 +252,7 @@ def classify(repo_root, base_ref, head_ref, rule_id, evidence, *, baseline=None,
                 return result("UNKNOWN", "BASELINE_SOURCE_UNRESOLVED")
             checked = verify_source(root, location.repository, merge_base, location.path,
                                     finding.location.region, expected_before=finding.before, redactor=redactor,
-                                    sensitive=rule_id == 'HC002')
+                                    sensitive=requires_source_mask(rule_id, finding))
             if checked.status != "VERIFIED":
                 return result("UNKNOWN", "BASELINE_SOURCE_UNRESOLVED")
         if baseline.findings:

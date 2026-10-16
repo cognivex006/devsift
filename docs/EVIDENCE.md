@@ -1,5 +1,11 @@
 # Evidence contract v1
 
+`requires_source_mask(rule_id, source=None)` withholds HC002/CFG003/SEC001 regions
+and preserves an already fully masked source region through overlapping rules.
+Scanner, native host and classifier use the same display rule; immutable Git
+verification and raw-content fingerprints remain independent. An existing mask
+does not grant verification, lifecycle, a waiver or enforcement authority.
+
 `devsift.evidence` provides immutable source/runtime records and separately labeled
 illustrative proposals. It does not discover findings, classify Git changes,
 authorize remediation, or render complete finding reports. The public wire shapes
