@@ -182,17 +182,47 @@ def classify(repo_root, base_ref, head_ref, rule_id, evidence, *, baseline=None,
         if not selected:
             return result("UNKNOWN", "EMPTY_SOURCE_REGION")
         if location.path not in old_tree:
-            if old_tree.keys() - new_tree.keys():
-                return result("UNKNOWN", "POSSIBLE_RENAME")
             total = 0
-            for entry in old_tree.values():
+            predecessors = []
+            selected_bytes = selected.encode("utf-8")
+            for old_path, entry in old_tree.items():
                 raw_old = _blob(root, entry)
                 total += len(raw_old)
                 if total > 5_000_000:
                     return result("UNKNOWN", "COMPARISON_LIMIT")
-                if selected.encode("utf-8") in raw_old:
-                    return result("UNKNOWN", "POSSIBLE_COPY_OR_MOVE")
-            return result("NEW", "PROVEN_NEW_PATH_AND_CONTENT")
+                if selected_bytes in raw_old:
+                    predecessors.append((old_path, raw_old))
+            if not predecessors:
+                if old_tree.keys() - new_tree.keys():
+                    return result("UNKNOWN", "POSSIBLE_RENAME")
+                return result("NEW", "PROVEN_NEW_PATH_AND_CONTENT")
+            if len(predecessors) != 1:
+                return result("UNKNOWN", "AMBIGUOUS_RENAME_PREDECESSOR")
+            old_path, raw_old = predecessors[0]
+            if old_path in new_tree:
+                return result("UNKNOWN", "POSSIBLE_COPY_OR_MOVE")
+            first = raw_old.find(selected_bytes)
+            if (raw_old.find(selected_bytes, first + 1) != -1
+                    or raw_head.find(selected_bytes, raw_head.find(selected_bytes) + 1) != -1):
+                return result("UNKNOWN", "AMBIGUOUS_RENAME_REGION")
+            for new_path in new_tree.keys() - {location.path}:
+                other = _blob(root, new_tree[new_path])
+                total += len(other)
+                if total > 5_000_000:
+                    return result("UNKNOWN", "COMPARISON_LIMIT")
+                if selected_bytes in other:
+                    return result("UNKNOWN", "AMBIGUOUS_RENAME_DESTINATION")
+            old_text = raw_old.decode("utf-8")
+            if len(_lines(old_text)) > 5000 or len(_lines(new_text)) > 5000:
+                return result("UNKNOWN", "COMPARISON_LIMIT")
+            mapped = _unique_mapping(old_text, new_text, location.region)
+            if mapped is None:
+                return result("UNKNOWN", "RENAME_REGION_UNRESOLVED")
+            old_source = verify_source(root, location.repository, merge_base, old_path, mapped, redactor=redactor)
+            if old_source.status != "VERIFIED":
+                return result("UNKNOWN", "BASE_SOURCE_UNRESOLVED")
+            lifecycle = "LEGACY_UNCHANGED" if raw_old == raw_head else "MODIFIED_PREEXISTING"
+            return result(lifecycle, "UNIQUE_IMMUTABLE_RENAME_MAPPING", old_source.location)
         raw_old = _blob(root, old_tree[location.path])
         if raw_old == raw_head:
             mapped = location.region

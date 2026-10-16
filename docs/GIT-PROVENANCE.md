@@ -26,6 +26,8 @@ contract in `docs/EVIDENCE.md`. Dirty working-copy/index contents are ignored.
 | Changed file, complete selected physical-line chunk occurs exactly once in each immutable file, with exact old-region proof | MODIFIED_PREEXISTING |
 | Changed region without exact old mapping; complete scoped baseline analysis reports no findings for that rule | MODIFIED_INTRODUCED |
 | Absent old path, no deleted old paths, selected original content occurs in no old regular blob within limits | NEW |
+| New path with exactly one removed predecessor, identical file bytes, unique selected content and destination, verified old region | LEGACY_UNCHANGED |
+| Same unique predecessor/destination proof with changed file bytes and uniquely mapped unchanged physical-line chunk | MODIFIED_PREEXISTING |
 | Missing/ambiguous provenance, insufficient baseline analysis, possible copy/rename, duplicate region mapping | UNKNOWN |
 
 An unchanged selected region is not automatically new because another part of
@@ -46,12 +48,27 @@ establish MODIFIED_INTRODUCED in changed regions. Existing baseline findings who
 relation to the changed region is uncertain keep UNKNOWN. No baseline is written
 or silently refreshed, and an incomplete observation never proves absence.
 
-For NEW paths, every removed path makes rename origin uncertain. Even without
-deletions, selected text copied from any old blob prevents NEW; this includes
-partial-file copying and edited copies. Files that cannot be safely inspected
-also prevent a new-origin claim. This intentionally favors UNKNOWN for common
-snippets and large repositories. Rename-specific mapping and broader drift
-acceptance fixtures are downstream T014, not implied implemented features.
+For absent old paths, selected original content is checked against every old
+regular blob within limits. NEW requires no old content match and no removed
+path that might represent a changed rename. A rename can instead retain legacy
+origin only with exactly one candidate old path, removal of that predecessor,
+one occurrence of the selected original content in both files, and no other head
+path containing that content (including previously existing changed paths).
+The complete selected physical-line chunk
+must map uniquely into the old blob, and its old region is independently verified.
+Identical blobs retain LEGACY_UNCHANGED; renamed changed blobs retain
+MODIFIED_PREEXISTING only for that proven unchanged region. The result includes
+the actual old path/region and immutable SHA. Original-content fingerprints stay
+stable through the rename and positional drift.
+
+Multiple candidate old paths, repeated/overlapping selected content, repeated
+physical-line chunks, multiple new destinations, and copies with the old path
+retained remain UNKNOWN. Edited copies and partial-file moves cannot be called
+NEW merely because their destination path is absent in the old tree. Unsupported
+or oversized blobs also prevent convenient origin claims. This deliberately
+favors UNKNOWN for common snippets and large repositories. These are exact
+bounded source-content mappings, not heuristic similarity scores or Git's
+configurable rename detector, and do not establish semantic rule validity.
 
 ## Git safety and limits
 
@@ -71,7 +88,7 @@ The guard inspects effective Git configuration with includes, covering system,
 global, local, worktree and environment scopes; local-only inspection is insufficient.
 The actual repository root must be supplied. Only regular immutable blobs are
 read; symlink/submodule source is unsupported. Limits: 1,000 tree entries, 2 MB
-per blob, 5 MB total comparison bytes for new-path origin, 5,000 physical lines per
+per blob, 5 MB total comparison bytes for absent-path origin/rename candidates, 5,000 physical lines per
 file for changed-region matching, and 10 seconds per Git command. Exceeding limits
 produces UNKNOWN rather than partial confidence. Git stdout is checked against
 5 MB after command completion; this is not a hardened hostile-process sandbox.
@@ -84,10 +101,13 @@ in Classification, errors, `repr`, or serialized result. Hashes are identity
 signals, not encryption or proof that the rule is valid. Rule IDs must be in the
 accepted registry.
 
-Producer checks: `python -m unittest discover -s tests -p test_git_changes.py`.
+Producer checks: `python -m unittest discover -s tests -p test_git_changes.py`
+and `python -m unittest discover -s tests -p test_git_rename.py`.
 Fixtures create real temporary histories for all five lifecycles, complete and
 incomplete observations, copied/possibly renamed paths, dirty state, shifted and
 duplicate regions, masked-content fingerprints, shallow clones and unrelated
-histories. T014/T015 require their predecessor acceptance before implementation.
+histories. T014 fixtures additionally cover exact and changed renames with drift,
+old-path proof, duplicate origins/occurrences, retained copies and multiple
+destinations. T015 integration acceptance remains a downstream task.
 Rollback is a revert of this scoped library/tests/documentation commit; no
 consumer sources or runtime state are modified.
