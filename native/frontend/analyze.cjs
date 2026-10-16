@@ -3,6 +3,7 @@
 const fs = require('node:fs');
 const { Linter } = require('eslint');
 const parser = require('@typescript-eslint/parser');
+const ts = require('typescript');
 const TOOL_ID = 'devsift-typescript';
 const TOOL_VERSION = '1.0.0';
 const versions = {
@@ -32,6 +33,25 @@ function region(source, node) {
   return { start_line, start_column, end_line, end_column };
 }
 
+function strictRequest(bytes) {
+  const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
+  const value = JSON.parse(text); // Reject comments, trailing data and non-JSON syntax.
+  const tree = ts.parseJsonText('request.json', text);
+  function visit(node) {
+    if (ts.isObjectLiteralExpression(node)) {
+      const names = new Set();
+      for (const property of node.properties) {
+        const name = property.name.text;
+        if (names.has(name)) throw new Error('duplicate');
+        names.add(name);
+      }
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(tree);
+  return value;
+}
+
 if (process.argv[2] === '--probe') {
   process.stdout.write(JSON.stringify(probe));
 } else {
@@ -39,7 +59,7 @@ if (process.argv[2] === '--probe') {
     if (process.argv[2] !== '--analyze' || !pinned) throw new Error('unsupported');
     const bytes = fs.readFileSync(0);
     if (bytes.length > 2000000) throw new Error('unsupported');
-    const request = JSON.parse(bytes.toString('utf8'));
+    const request = strictRequest(bytes);
     const keys = ['dialect', 'language', 'path', 'protocol_version', 'source'];
     if (!request || typeof request !== 'object' || Array.isArray(request)
       || JSON.stringify(Object.keys(request).sort()) !== JSON.stringify(keys)

@@ -34,3 +34,5 @@ test. Native programs and dependencies remain trusted code, not an OS sandbox.
 
 References: [ESLint Linter API](https://eslint.org/docs/latest/integrate/nodejs-api#linter),
 [TypeScript parser options](https://typescript-eslint.io/packages/parser/).
+
+The native request boundary rejects duplicate JSON keys (including escaped aliases), invalid UTF-8, and trailing data before parsing source. Malformed requests return fixed incomplete output without echoing input.

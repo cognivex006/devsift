@@ -1,5 +1,6 @@
 """Actual ESLint/TypeScript parser checks enabled by explicit native setup."""
 import json
+from dataclasses import replace
 import os
 from pathlib import Path
 import shutil
@@ -11,6 +12,7 @@ from devsift.inventory import SourceTarget
 from devsift.native_host import NativeAdapter, analyze_snapshot, probe_tool
 from devsift.scanner import scan
 from devsift.typescript_adapter import make_tool
+from devsift.process_runner import run_process
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -30,6 +32,26 @@ class TypeScriptAdapterTests(unittest.TestCase):
 
     def report(self, source, path='src/sample.ts', language='typescript'):
         return analyze_snapshot(self.tool, SourceTarget(path, 'ready', language, source.encode('utf-8'), 'fixture'))
+
+    def test_native_wire_rejects_duplicates_invalid_utf8_and_trailing_data(self):
+        request = json.dumps(dict(protocol_version='1', path='src/sample.ts',
+                                  language='typescript', source='try{}catch{}', dialect=None))
+        malformed = [
+            request[:-1] + ', "source":"safe()"}',
+            request[:-1] + ', "sour\\u0063e":"safe()"}',
+            request.replace('null', '{"x":1,"x":2}'),
+            request + '{}',
+        ]
+        payloads = [item.encode() for item in malformed]
+        payloads.append(request.encode().replace(b'try{}catch{}', b'\xff'))
+        spec = replace(self.tool.process, argv=self.tool.process.argv + ('--analyze',))
+        for payload in payloads:
+            with self.subTest(payload=payload):
+                result = run_process(spec, stdin=payload)
+                response = json.loads(result.stdout)
+                self.assertFalse(response['complete'])
+                self.assertEqual(response['diagnostics'], [])
+                self.assertEqual(response['reason'], 'ANALYSIS_FAILED')
 
     def test_real_pinned_parser_and_angular_next_jsx_inputs(self):
         cases = [
