@@ -11,7 +11,7 @@ reviewed manifest change, plus matching build metadata for core modules.
 | --- | --- |
 | core-wheel | Explicit DevSift Python modules, no external runtime dependencies; generated wheel metadata is separate |
 | core-sdist | Those Python sources, pinned build configuration, manifest/audit tool and this document; generated sdist metadata is separate |
-| consumer-skill | Host-installed SKILL.md; CONSUMER-SCOPE.md optional when present and tracked; not installed by pip |
+| consumer-skill | Host-installed SKILL.md and its required linked CONSUMER-SCOPE.md; not installed by pip |
 | source-assets | DevSift-owned native helper source/project/lock/config inputs, current schema/policy files, trusted setup source and native usage docs; no compiled tools or third-party dependencies |
 
 The Python runtime embeds the canonical policy/registry in its modules. Current
