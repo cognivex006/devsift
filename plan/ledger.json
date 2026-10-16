@@ -344,7 +344,7 @@
         "T018"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
+      "status": "running",
       "evidence": [],
       "next_step": "Select a ready entry task",
       "review_budget_minutes": 25,
@@ -408,7 +408,7 @@
         "T021"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
+      "status": "running",
       "evidence": [],
       "next_step": "Select a ready entry task",
       "review_budget_minutes": 25,
@@ -2754,12 +2754,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA006"
+      "execution_id": "GA006",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.069057+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.069057+00:00"
+        }
+      ]
     },
     "T017": {
       "id": "T017",
@@ -2778,12 +2790,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA006"
+      "execution_id": "GA006",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.069057+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.069057+00:00"
+        }
+      ]
     },
     "T018": {
       "id": "T018",
@@ -2827,12 +2851,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA007"
+      "execution_id": "GA007",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.220649+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.220649+00:00"
+        }
+      ]
     },
     "T020": {
       "id": "T020",
@@ -4611,6 +4647,62 @@
         "lease": "selected G003-G005 session until accepted/reassigned",
         "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
         "integrated_sha": "3cef9332322eff33ef53034680d4d5a653bf020d"
+      },
+      "T016": {
+        "owner": "policy_writer",
+        "status": "running",
+        "branch": "feature/g006-baseline",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-baseline",
+        "paths": [
+          "devsift/baseline.py",
+          "devsift/suppressions.py",
+          "schemas/baseline.schema.json",
+          "schemas/suppression.schema.json",
+          "tests/test_baseline.py",
+          "tests/test_suppressions.py",
+          "docs/BASELINE.md"
+        ],
+        "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
+        "locks": [
+          "write:baseline/core"
+        ],
+        "lease": "selected G003-G005 session until accepted/reassigned"
+      },
+      "T017": {
+        "owner": "policy_writer",
+        "status": "running",
+        "branch": "feature/g006-baseline",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-baseline",
+        "paths": [
+          "devsift/baseline.py",
+          "devsift/suppressions.py",
+          "schemas/baseline.schema.json",
+          "schemas/suppression.schema.json",
+          "tests/test_baseline.py",
+          "tests/test_suppressions.py",
+          "docs/BASELINE.md"
+        ],
+        "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
+        "locks": [
+          "write:baseline/suppressions"
+        ],
+        "lease": "selected G003-G005 session until accepted/reassigned"
+      },
+      "T019": {
+        "owner": "cli_writer",
+        "status": "running",
+        "branch": "feature/g007-runner",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g007-runner",
+        "paths": [
+          "devsift/process_runner.py",
+          "tests/test_process_runner.py",
+          "docs/PROCESS-RUNNER.md"
+        ],
+        "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
+        "locks": [
+          "write:adapters/host"
+        ],
+        "lease": "selected G003-G005 session until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4652,8 +4744,18 @@
           "clean": true
         }
       ],
-      "held_locks": [],
-      "active_jobs": []
+      "held_locks": [
+        "write:baseline/core",
+        "write:baseline/suppressions",
+        "write:adapters/host"
+      ],
+      "active_jobs": [
+        "T016",
+        "T017",
+        "T019"
+      ],
+      "latest_integrated_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
+      "updated_utc": "2026-10-16T08:29:27.220649+00:00"
     },
     "previous_checkpoints": [
       {
