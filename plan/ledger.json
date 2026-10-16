@@ -2754,8 +2754,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "test_result": "6actualGit/file baseline+3suppression tests pass; stricttrustedhash/CAS/approval/atomicfailure/criticalexpiry guards; syntax/schema/diff passed",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2770,6 +2776,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T08:29:27.069057+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:34:43.334824+00:00"
         }
       ]
     },
@@ -2790,8 +2801,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "test_result": "6actualGit/file baseline+3suppression tests pass; stricttrustedhash/CAS/approval/atomicfailure/criticalexpiry guards; syntax/schema/diff passed",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2806,6 +2823,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T08:29:27.069057+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:34:43.334824+00:00"
         }
       ]
     },
@@ -4650,7 +4672,7 @@
       },
       "T016": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g006-baseline",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-baseline",
         "paths": [
@@ -4666,11 +4688,12 @@
         "locks": [
           "write:baseline/core"
         ],
-        "lease": "selected G003-G005 session until accepted/reassigned"
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c"
       },
       "T017": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g006-baseline",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-baseline",
         "paths": [
@@ -4686,7 +4709,8 @@
         "locks": [
           "write:baseline/suppressions"
         ],
-        "lease": "selected G003-G005 session until accepted/reassigned"
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c"
       },
       "T019": {
         "owner": "cli_writer",
@@ -4754,8 +4778,8 @@
         "T017",
         "T019"
       ],
-      "latest_integrated_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
-      "updated_utc": "2026-10-16T08:29:27.220649+00:00"
+      "latest_integrated_sha": "d833aa80f27bd5b4c63d49b8ba6be3df1587d612",
+      "updated_utc": "2026-10-16T08:34:43.334824+00:00"
     },
     "previous_checkpoints": [
       {
