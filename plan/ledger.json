@@ -2999,12 +2999,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "controller",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA007"
+      "execution_id": "GA007",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:42:16.619712+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:42:16.619712+00:00"
+        }
+      ]
     },
     "T021": {
       "id": "T021",
@@ -4848,6 +4860,23 @@
         "lease": "selected G006-G010 session until accepted/reassigned",
         "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
         "integrated_sha": "17a35d2a633711252e4906eb189f61eab8a7aa01"
+      },
+      "T020": {
+        "owner": "controller",
+        "status": "running",
+        "branch": "feature/g006-g010-native-analysis",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "paths": [
+          "devsift/native_host.py",
+          "schemas/native-protocol.schema.json",
+          "tests/test_native_host.py",
+          "docs/NATIVE-PROTOCOL.md"
+        ],
+        "base_sha": "148d318f34867583172e251295fce98fad5881e0",
+        "locks": [
+          "write:adapters/protocol"
+        ],
+        "lease": "selected execution session until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4889,10 +4918,14 @@
           "clean": true
         }
       ],
-      "held_locks": [],
-      "active_jobs": [],
-      "latest_integrated_sha": "17a35d2a633711252e4906eb189f61eab8a7aa01",
-      "updated_utc": "2026-10-16T08:42:16.290113+00:00"
+      "held_locks": [
+        "write:adapters/protocol"
+      ],
+      "active_jobs": [
+        "T020"
+      ],
+      "latest_integrated_sha": "148d318f34867583172e251295fce98fad5881e0",
+      "updated_utc": "2026-10-16T08:42:16.619712+00:00"
     },
     "previous_checkpoints": [
       {
