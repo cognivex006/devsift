@@ -410,9 +410,11 @@
         "T021"
       ],
       "repo": "orchex006/devsift",
-      "status": "running",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G007.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -973,7 +975,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T021",
             "T023",
             "T024"
           ]
@@ -1015,7 +1016,6 @@
             "T025",
             "T026",
             "T027",
-            "T028",
             "T029",
             "T030"
           ]
@@ -1128,13 +1128,11 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T021",
             "T023",
             "T024",
             "T025",
             "T026",
             "T027",
-            "T028",
             "T029",
             "T030",
             "T031",
@@ -1507,13 +1505,11 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T021",
             "T023",
             "T024",
             "T025",
             "T026",
             "T027",
-            "T028",
             "T029",
             "T030",
             "T031",
@@ -3054,17 +3050,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac",
           "test_result": "5actualprocess conformance tests pass plus9externalnegativewire cases; UTF8physicalLF/Unicodeportablepaths/timeoutactualstatus/partialdiags/no-writes validated",
           "author": "controller"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac",
+          "integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38",
+          "test_result": "Distinctreviewaccepted;5actualprocess conformance tests+9negativewirecases pass; actualLinuxCIrequiredbyfinalgoalcheckpoint",
+          "evidence_uri": "docs/evidence/G007.md"
         }
       ],
       "assignee": "controller",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA007",
       "history": [
         {
@@ -3081,6 +3085,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T08:56:10.122498+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:08.855638+00:00"
         }
       ]
     },
@@ -3294,17 +3303,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877",
           "test_result": "6actualScriptDomWindows tests pass withnativeenabled; pinnedSDK/NuGetlockedrestore/publishverified; TSQL150/160/metadata/syntax/untrustedSQLtextnoexecution/strictwire",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877",
+          "integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38",
+          "test_result": "Distinctreviewaccepted;6actualScriptDomintegrationtests PASS no skips withcorrectexplicitartifactspath; package/assembly/TSQLmetadata/noSQLexecutionverified",
+          "evidence_uri": "docs/evidence/G010.md"
         }
       ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA010",
       "history": [
         {
@@ -3321,6 +3338,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T08:56:10.406019+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:08.626007+00:00"
         }
       ]
     },
@@ -4992,7 +5014,7 @@
       },
       "T021": {
         "owner": "controller",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g006-g010-native-analysis",
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
@@ -5000,11 +5022,10 @@
           "tests/fixtures/native-protocol/"
         ],
         "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
-        "locks": [
-          "write:tests/adapters"
-        ],
+        "locks": [],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac"
+        "source_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac",
+        "integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38"
       },
       "T022": {
         "owner": "cli_writer",
@@ -5042,7 +5063,7 @@
       },
       "T028": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g010-sql-parser",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-sql-parser",
         "paths": [
@@ -5052,11 +5073,10 @@
           "docs/SQL-ADAPTER.md"
         ],
         "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
-        "locks": [
-          "write:adapters/sql"
-        ],
+        "locks": [],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877"
+        "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877",
+        "integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5099,17 +5119,13 @@
         }
       ],
       "held_locks": [
-        "write:tests/adapters",
-        "write:adapters/typescript",
-        "write:adapters/sql"
+        "write:adapters/typescript"
       ],
       "active_jobs": [
-        "T021",
-        "T025",
-        "T028"
+        "T025"
       ],
-      "latest_integrated_sha": "2ab62314e114bf9ff491aa4b5d4734d49bd930ac",
-      "updated_utc": "2026-10-16T08:59:30.483354+00:00"
+      "latest_integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38",
+      "updated_utc": "2026-10-16T09:01:08.855638+00:00"
     },
     "previous_checkpoints": [
       {
