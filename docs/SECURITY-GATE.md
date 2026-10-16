@@ -101,3 +101,62 @@ this library imports no case-approval, CI-gate or report-model workflow.
 Every explicitly configured provider must pass its probe, including providers
 whose languages have no selected target. An unavailable provider keeps the result
 incomplete while independent verified Critical observations remain visible.
+
+
+## Independent cross-boundary acceptance (T069)
+
+`tests/test_security_acceptance.py` exercises the actual `run_security_gate`
+producer independently of its author. It uses real temporary Git repositories,
+raw committed source and the built-in SecurityAdapter/scanner/evidence path;
+there are no detector mocks or successful native-provider simulations. Source
+snippets deliberately contain a marker-creating statement but are parsed as
+data, never imported/executed. The missing provider has a trusted external test
+helper and a deliberately absent required pin, so it cannot execute.
+
+| Actual fixture | Observable outcome |
+| --- | --- |
+| Local policy JSON discovered through accepted project-policy API disables quality blocks and resolves HC002 as Suggestion | Real Git-backed credential source still has catalog Critical and requires security_review; its separate quality report remains UNKNOWN/incomplete |
+| Explicit unavailable Go provider while only Python is selected | CONFIGURED_PROVIDER_UNAVAILABLE and incomplete, with the independent verified Critical observation retained |
+| Missing selected file or changed uncommitted companion source | SNAPSHOT_UNVERIFIED and incomplete; another verified Critical finding cannot disappear |
+| Saved old complete result modified with approved/waiver/publication/write claims, followed by a real new source commit | Fresh gate binds the new SHA and detects Critical; saved JSON remains data, unsupported saved-report argument and direct result fabrication are rejected |
+| Invalid approval/waiver policy keys | Fixed SECURITY_GATE_UNAVAILABLE_OR_INVALID, no completed gate or authority |
+| Complete security observation over an explicitly safe selected file, plus separate archive checks | Clean supported archive gives only scoped known-shape completion; substituted digest fails and credential-bearing source archive requires review, independently of the selected source gate |
+
+The local policy bridge is an explicit test caller: `discover_policy(...).policy()`
+is supplied to the gate only after successful resolution. This does not claim
+the security-gate API automatically discovers project configuration or consumes
+saved reports. Its explicit accepted API remains unchanged.
+
+Every gate observation retains quality_gate_complete=false, UNKNOWN lifecycle
+where findings exist, unknown liveness/exploitability/business impact, masked
+credential source and false write/execution/rotation/publication authority.
+A completed security inspection with requires_security_review=true is not a
+successful release gate. A captured old result is not a watcher or reusable
+permission after the source changes. Provider/source/config incompleteness
+cannot be cured by mutating a report or declaring approval.
+
+Archive fixtures use actual ZIP bytes and separately supplied expected SHA256;
+they do not consume the packaging/bundler implementation or assert that an
+actual release archive was produced. T052 inclusion allows source files whose
+contents still need confidentiality review. The T068 checker only inspects
+recognized shapes in supported bounded ZIP text and always retains
+release_review_required=true and false publication/write/execution flags.
+It computes no release eligibility, authenticity, credential liveness or license
+approval. At most a completed scoped inspection is input to a separately
+authorized review; it never authorizes artifact publication. An ordinary quality
+policy/result does not override a digest failure or secret-review requirement.
+
+Run the focused acceptance suite:
+
+```text
+python -B -m unittest discover -s tests -p test_security_acceptance.py -v
+```
+
+The tests compare full consumer source/file/directory and .git hashes around
+actual gate/report/archive calls, including persisted fake report/config data,
+and assert that neither source nor provider marker appears. Known synthetic
+credential values and absolute fixture roots must not occur in public gate or
+artifact results. These checks establish the stated fixture observations and
+no-write boundaries; they are not LLM/host obedience, universal OS isolation,
+whole-repository coverage, a new native conformance run or live release proof.
+No production API, CLI, consumer remediation or publisher is added by T069.
