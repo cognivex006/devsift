@@ -5600,7 +5600,7 @@
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
     "checkpoint": {
-      "status": "running",
+      "status": "selected scope accepted; final CI/publication in progress",
       "selected_goals": [
         "G006",
         "G007",
@@ -5639,8 +5639,8 @@
       ],
       "held_locks": [],
       "active_jobs": [],
-      "latest_integrated_sha": "17da8eca140188c1e0c2b7932cca4f73e859e42e",
-      "updated_utc": "2026-10-16T09:44:39.807945+00:00",
+      "latest_integrated_sha": "f2b5d522446a288671dc7b5acfd140ad82f18862",
+      "updated_utc": "2026-10-16T09:46:02.591271+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
@@ -5789,6 +5789,34 @@
           "replacement_sha": "0de2838ccf87eac535faf594a9de5fde54632538",
           "ref_retained": true,
           "reason": "clean preparatory worktree at existing integrated commit; no unique changes"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-performance-tests",
+          "contained": true,
+          "clean": true,
+          "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d",
+          "replacement_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+          "ref_retained": true,
+          "reason": "accepted frontend integration/replacement; git worktree remove succeeded"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-scope-seam",
+          "contained": true,
+          "clean": true,
+          "source_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+          "replacement_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+          "ref_retained": true,
+          "reason": "accepted frontend integration/replacement; git worktree remove succeeded"
+        }
+      ],
+      "external_worktrees_preserved": [
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\specs-boundary",
+          "reason": "Re-created concurrently outside selected work; preserve active branch"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-specs\\worktrees\\specs-boundary",
+          "reason": "Concurrent unrelated work with extensive uncommitted files; non-force cleanup refused and no files discarded"
         }
       ]
     },
