@@ -26,12 +26,14 @@ implement prompts require explicit case approval and never execute remediation.
 Credential, config-secret and sensitive-log evidence withholds the complete
 verified region. Raw-content identity is separate from masked display; if a
 fingerprint cannot be proved it remains null. Input detector messages and raw
-error text are not reproduced. Caller-known secrets must be supplied through the
+error text are not reproduced. Error codes use a closed safe vocabulary; arbitrary
+codes become SCAN_INCOMPLETE. Caller-known secrets must be supplied through the
 same Redactor for supplemental text. Redaction is defensive, not proof that
 arbitrary unknown sensitive data has been identified.
 
 Navigation is absent unless the caller supplies an explicit trusted repository
-label-to-GitHub-HTTPS mapping. Links use the proven full commit and URL-encoded
+label-to-GitHub-HTTPS mapping. Controls and whitespace in URLs are rejected;
+links matching caller-known sensitive values are withheld. Links use the proven full commit and URL-encoded
 relative path; repository labels alone never generate links. Working-tree state
 is not asserted equal to an old immutable source snapshot.
 
@@ -44,3 +46,8 @@ an exact existing ID. No source, Git metadata, baseline or report file is writte
 
 This task supplies assembly and schema. Markdown, SARIF/JSON export, substantive
 baseline/risk integration and CLI/report consumption are separate reviewed tasks.
+
+Value redaction never renames fixed protocol keys or masks enum constants. A
+caller-known value equal to a reserved word such as `confidence` or `unknown`
+does not corrupt the output schema. Dynamic identities conflicting with masking
+are rejected or withheld; source snippets are already masked during reproof.
