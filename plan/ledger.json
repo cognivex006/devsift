@@ -5774,6 +5774,15 @@
           "replacement_sha": "74698b1b54acc684aa2baa4f75c180cce4905429",
           "ref_retained": true,
           "reason": "independently accepted and integrated"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\specs-boundary",
+          "contained": true,
+          "clean": true,
+          "source_sha": "0de2838ccf87eac535faf594a9de5fde54632538",
+          "replacement_sha": "0de2838ccf87eac535faf594a9de5fde54632538",
+          "ref_retained": true,
+          "reason": "clean preparatory worktree at existing integrated commit; no unique changes"
         }
       ]
     },
