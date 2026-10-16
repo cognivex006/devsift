@@ -3431,7 +3431,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "running",
       "evidence": [
         {
           "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d",
@@ -3458,6 +3458,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T09:39:59.259453+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "controller",
+          "reason": "integrated native CLI adds explicit adapters keyword to scan seam"
         }
       ]
     },
@@ -5523,9 +5528,9 @@
       },
       "T027": {
         "owner": "policy_writer",
-        "status": "in_review",
-        "branch": "feature/g009-performance-tests",
-        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g009-performance-tests",
+        "status": "running",
+        "branch": "fix/g009-scope-seam",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-scope-seam",
         "paths": [
           "tests/test_frontend_acceptance.py",
           "tests/fixtures/frontend",
@@ -5536,7 +5541,26 @@
           "write:tests/frontend"
         ],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d"
+        "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d",
+        "prior_jobs": [
+          {
+            "owner": "policy_writer",
+            "status": "in_review",
+            "branch": "feature/g009-performance-tests",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g009-performance-tests",
+            "paths": [
+              "tests/test_frontend_acceptance.py",
+              "tests/fixtures/frontend",
+              "docs/FRONTEND-TESTS.md"
+            ],
+            "base_sha": "8fd7ee32007300692a166e04023a9507adcc07bc",
+            "locks": [
+              "write:tests/frontend"
+            ],
+            "lease": "selected execution session until accepted/reassigned",
+            "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d"
+          }
+        ]
       },
       "evidence-sensitive-display-compat": {
         "owner": "controller",
