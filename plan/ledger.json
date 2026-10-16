@@ -184,9 +184,11 @@
         "T009"
       ],
       "repo": "orchex006/devsift",
-      "status": "running",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G003.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -742,10 +744,8 @@
               "T000"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T009"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -829,7 +829,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T009",
             "T037",
             "T038",
             "T039"
@@ -924,7 +923,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T009",
             "T037"
           ]
         }
@@ -1145,7 +1143,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T009",
             "T013",
             "T016",
             "T017",
@@ -1535,7 +1532,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T009",
             "T013",
             "T016",
             "T017",
@@ -1645,7 +1641,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T009",
             "T037",
             "T038",
             "T039"
@@ -2281,17 +2276,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88",
           "test_result": "7 external wire fixturetests pass; actualGit fixture immutableproof/roundtrip/no-metadata-writes/masking/source-vs-proposal separation validated",
           "author": "controller"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88",
+          "integrated_sha": "60238d9aa20e9aac1a2ba95481dbdaf0617430a0",
+          "test_result": "Distinct reviewer accepted;79 integratedtests OK1installed-only skip; controller7targetedfixturetests passed; no source/Git bytes changed",
+          "evidence_uri": "docs/evidence/G003.md"
         }
       ],
       "assignee": "controller",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA003",
       "history": [
         {
@@ -2308,6 +2311,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:41:51.122437+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:43:12.047272+00:00"
         }
       ]
     },
@@ -4301,7 +4309,7 @@
       },
       "T009": {
         "owner": "controller",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g003-g005-foundations",
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
@@ -4309,11 +4317,10 @@
           "tests/fixtures/evidence/"
         ],
         "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
-        "locks": [
-          "write:tests/contracts"
-        ],
+        "locks": [],
         "lease": "selected G003-G005 session until accepted/reassigned",
-        "source_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88"
+        "source_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88",
+        "integrated_sha": "60238d9aa20e9aac1a2ba95481dbdaf0617430a0"
       },
       "T012": {
         "owner": "cli_writer",
@@ -4358,17 +4365,15 @@
       "status": "running",
       "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
       "held_locks": [
-        "write:tests/contracts",
         "write:engine/results",
         "write:engine/git"
       ],
       "active_jobs": [
-        "T009",
         "T012",
         "T013"
       ],
-      "latest_integrated_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88",
-      "updated_utc": "2026-10-16T07:41:51.122437+00:00"
+      "latest_integrated_sha": "60238d9aa20e9aac1a2ba95481dbdaf0617430a0",
+      "updated_utc": "2026-10-16T07:43:12.047272+00:00"
     },
     "previous_checkpoints": [
       {
