@@ -3252,7 +3252,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "running",
       "evidence": [
         {
           "source_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04",
@@ -3279,6 +3279,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T09:09:49.676750+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "controller",
+          "reason": "review duplicate source JSON accepted"
         }
       ]
     },
@@ -5113,9 +5118,9 @@
       },
       "T025": {
         "owner": "controller",
-        "status": "in_review",
-        "branch": "feature/g006-g010-native-analysis",
-        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "status": "running",
+        "branch": "fix/g009-json-rework",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-json-rework",
         "paths": [
           "devsift/typescript_adapter.py",
           "native/frontend/",
@@ -5127,7 +5132,27 @@
           "write:adapters/typescript"
         ],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04"
+        "source_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04",
+        "prior_jobs": [
+          {
+            "owner": "controller",
+            "status": "in_review",
+            "branch": "feature/g006-g010-native-analysis",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift",
+            "paths": [
+              "devsift/typescript_adapter.py",
+              "native/frontend/",
+              "tests/test_typescript_adapter.py",
+              "docs/TYPESCRIPT-ADAPTER.md"
+            ],
+            "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
+            "locks": [
+              "write:adapters/typescript"
+            ],
+            "lease": "selected execution session until accepted/reassigned",
+            "source_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04"
+          }
+        ]
       },
       "T028": {
         "owner": "policy_writer",
