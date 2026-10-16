@@ -371,10 +371,8 @@
               "T013"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T013"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T017",
@@ -801,7 +799,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T013",
             "T016",
             "T017",
             "T018"
@@ -1143,7 +1140,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T013",
             "T016",
             "T017",
             "T018",
@@ -1309,10 +1305,8 @@
               "T013"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T013"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -1532,7 +1526,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T013",
             "T016",
             "T017",
             "T018",
@@ -2504,7 +2497,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "6566171f9e97962adbc3eb7f595fe6970733bf1d",
@@ -2515,11 +2508,19 @@
           "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
           "test_result": "10 actualGit classifier+13evidence tests pass; effectivepromisor config worktree/env/global/include regressions and evidence no-lazy-fetch subprocessguard fixed; syntax/diffpass",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
+          "integrated_sha": "f75b9a1f6704b74645766220167ce5f910c9cb3c",
+          "test_result": "Independent exactSHAreview accepted; effectiveconfig bypassfixed; integrated fullsuite passed with1installedskip",
+          "evidence_uri": "docs/evidence/G005.md"
         }
       ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA005",
       "history": [
         {
@@ -2557,6 +2558,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:47:49.111823+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:49:53.566525+00:00"
         }
       ]
     },
@@ -4389,7 +4395,7 @@
       },
       "T013": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "fix/g005-no-lazy-fetch",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-classifier-rework",
         "paths": [
@@ -4401,11 +4407,7 @@
           "docs/EVIDENCE.md"
         ],
         "base_sha": "32e052827633cef20161389256b565385b8b3fa4",
-        "locks": [
-          "write:engine/git",
-          "write:devsift/evidence.py",
-          "contract:git-read-no-network"
-        ],
+        "locks": [],
         "lease": "selected G003-G005 session until accepted/reassigned",
         "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
         "prior_jobs": [
@@ -4426,7 +4428,8 @@
             "lease": "selected G003-G005 session until accepted/reassigned",
             "source_sha": "6566171f9e97962adbc3eb7f595fe6970733bf1d"
           }
-        ]
+        ],
+        "integrated_sha": "f75b9a1f6704b74645766220167ce5f910c9cb3c"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4439,17 +4442,13 @@
       "status": "running",
       "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
       "held_locks": [
-        "write:engine/results",
-        "write:engine/git",
-        "write:devsift/evidence.py",
-        "contract:git-read-no-network"
+        "write:engine/results"
       ],
       "active_jobs": [
-        "T012",
-        "T013"
+        "T012"
       ],
-      "latest_integrated_sha": "9db9c5b30e43e8d77674bc63fb564c024699d34a",
-      "updated_utc": "2026-10-16T07:47:49.111823+00:00"
+      "latest_integrated_sha": "f75b9a1f6704b74645766220167ce5f910c9cb3c",
+      "updated_utc": "2026-10-16T07:49:53.566525+00:00"
     },
     "previous_checkpoints": [
       {
