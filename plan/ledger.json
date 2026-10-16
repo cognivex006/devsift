@@ -2999,8 +2999,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66",
+          "test_result": "7realprocess protocol/probe tests pass: exactpins/missing/tamper/nonfinite/dupe/bounds/physicalLF/sourceproof/UNKNOWN/stalesnapshot; syntax/diffpassed",
+          "author": "controller"
+        }
+      ],
       "assignee": "controller",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3015,6 +3021,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T08:42:16.619712+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:46:32.092197+00:00"
         }
       ]
     },
@@ -4863,7 +4874,7 @@
       },
       "T020": {
         "owner": "controller",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g006-g010-native-analysis",
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
@@ -4876,7 +4887,8 @@
         "locks": [
           "write:adapters/protocol"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4924,8 +4936,8 @@
       "active_jobs": [
         "T020"
       ],
-      "latest_integrated_sha": "148d318f34867583172e251295fce98fad5881e0",
-      "updated_utc": "2026-10-16T08:42:16.619712+00:00"
+      "latest_integrated_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66",
+      "updated_utc": "2026-10-16T08:46:32.092197+00:00"
     },
     "previous_checkpoints": [
       {
