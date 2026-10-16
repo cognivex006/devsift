@@ -20,6 +20,10 @@ else:
     sys.path.insert(0, str(Path(__file__).resolve().parent))
     from package_manifest import COMPONENTS, inventory
 
+# Import only the explicitly selected trusted authoring checkout.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from devsift.git_runtime import git_executable
+
 MAX_BYTES = 64_000_000
 _MESSAGE = 'Invalid or unavailable package bundle'
 _NAMES = {c: 'devsift-' + c + ('-source' if c.startswith('core-') else '') + '.zip' for c in COMPONENTS}
@@ -82,8 +86,9 @@ def _read(path, limit):
 
 def _git(root, *args):
     env = {k: v for k, v in os.environ.items() if not k.upper().startswith('GIT_')}
-    env['GIT_LITERAL_PATHSPECS'] = '1'
-    run = subprocess.run(['git', '--no-replace-objects', '-c', 'core.fsmonitor=false', '-C', str(root), *args],
+    env.update(GIT_LITERAL_PATHSPECS='1', GIT_NO_LAZY_FETCH='1', GIT_NO_REPLACE_OBJECTS='1',
+               GIT_OPTIONAL_LOCKS='0', GIT_TERMINAL_PROMPT='0')
+    run = subprocess.run([git_executable(root), '--no-optional-locks', '--no-replace-objects', '-c', 'core.fsmonitor=false', '-C', str(root), *args],
                          env=env, capture_output=True, timeout=30, check=True)
     _require(len(run.stdout) <= MAX_BYTES)
     return run.stdout
@@ -102,9 +107,18 @@ def _index(root, paths):
 
 
 def _inputs(root, source_sha, components):
+    # Inspect all configuration effective in these sanitized Git calls before
+    # looking up any object: missing promisor objects can otherwise launch a
+    # remote helper automatically, even for a supposedly read-only cat-file.
+    settings = _git(root, 'config', '--includes', '--null', '--list').lower().split(b'\0')
+    keys = [item.split(b'\n', 1)[0] for item in settings]
+    _require(not any(key == b'extensions.partialclone' or key.endswith(b'.promisor') for key in keys))
+    _require(_git(root, 'rev-parse', '--is-shallow-repository').strip() == b'false')
     _require(_git(root, 'rev-parse', '--verify', source_sha + '^{commit}').strip().decode('ascii') == source_sha)
     _require(_git(root, 'rev-parse', '--verify', 'HEAD').strip().decode('ascii') == source_sha)
-    records = {c: inventory(root, c) for c in components}
+    # Read selected physical inputs without a second ambient Git invocation;
+    # the exact stage-0 index and commit-tree equality below prove tracking.
+    records = {c: inventory(root, c, require_tracked=False) for c in components}
     expected = {f.path: f for files in records.values() for f in files}
     paths = tuple(sorted(set(expected) | {'packaging/manifest.json'}))
     indexed = _index(root, paths)

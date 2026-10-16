@@ -9,6 +9,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 import zipfile
 
 from tools.build_package import PackageBuildError, build_package, verify_bundle
@@ -141,6 +142,40 @@ class ReproducibleBundleTests(unittest.TestCase):
         verify_bundle(output, expected_integrity_sha256=digest, expected_source_sha=self.sha)
         self.assertFalse(marker.exists())
         self.assertEqual(snapshot(self.root), before)
+
+    def test_missing_promisor_blob_never_executes_remote_helper(self):
+        marker = self.parent / 'LAZY_FETCH_EXECUTED'
+        helper = self.parent / 'remote_helper.py'
+        helper.write_text('from pathlib import Path\nPath(' + repr(str(marker)) + ').write_text("bad")\n', encoding='utf-8')
+        escape = lambda value: str(value).replace('%', '%%').replace(' ', '% ')
+        remote = 'ext::' + escape(Path(sys.executable).as_posix()) + ' ' + escape(helper.as_posix())
+        self.git('config', 'protocol.ext.allow', 'always')
+        self.git('config', 'remote.probe.url', remote)
+        self.git('config', 'remote.probe.promisor', 'true')
+        oid = self.git('rev-parse', self.sha + ':skills/devsift/SKILL.md').decode().strip()
+        missing = self.root / '.git/objects' / oid[:2] / oid[2:]
+        missing.chmod(0o600)  # Only this disposable fixture's loose object.
+        missing.unlink()
+        before = snapshot(self.root)
+        with self.assertRaises(PackageBuildError):
+            self.build('no-lazy-fetch', components=('consumer-skill',))
+        self.assertFalse(marker.exists())
+        self.assertFalse((self.parent / 'no-lazy-fetch').exists())
+        self.assertEqual(snapshot(self.root), before)
+
+    def test_effective_included_partial_config_rejects_and_host_git_avoids_target_path(self):
+        included = self.parent / 'included.config'
+        included.write_text('[extensions]\npartialClone = probe\n', encoding='utf-8')
+        self.git('config', 'include.path', str(included))
+        with self.assertRaises(PackageBuildError):
+            self.build('partial-included', components=('consumer-skill',))
+        self.assertFalse((self.parent / 'partial-included').exists())
+        self.git('config', '--unset', 'include.path')
+        fake = self.root / ('git.exe' if os.name == 'nt' else 'git')
+        fake.write_bytes(b'not trusted Git')
+        fake.chmod(0o755)
+        with patch.dict(os.environ, {'PATH': str(self.root) + os.pathsep + '.' + os.pathsep + os.environ['PATH']}):
+            self.build('host-git', components=('consumer-skill',))
 
     def test_output_source_git_boundary_collision_and_symlink_rejected(self):
         metadata = self.parent / 'external-git-metadata'

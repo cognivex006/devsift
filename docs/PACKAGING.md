@@ -175,3 +175,9 @@ source/Git output boundaries and actual source/output symlink cases. Source
 file/directory hashes and Git state remain unchanged by build/verify. These
 are local source-bundle results, not hosted cross-platform release or signing
 proof. Publication and complete fresh install/rollback remain separate work.
+
+Archive source proof rejects effective partial/promisor configuration and shallow
+history before object lookup. Git calls explicitly disable lazy fetching and use
+accepted host Git selection outside the selected source root. The builder reads
+physical manifest inputs, then independently proves exact stage-0 index/commit
+membership; the inventory extraction opt-out alone is never provenance.
