@@ -20,8 +20,11 @@ available.
   `devsift-consumer-skill.zip`, and `devsift-source-assets.zip`. Record the
   source SHA and independently held integrity SHA256.
 - [x] Implement and run the T072 four-component temporary Git fixture dry run;
-  see [RELEASE-READINESS.md](RELEASE-READINESS.md). The live candidate's
-  four-component bundle verification and review remain a separate unchecked item.
+  see [RELEASE-READINESS.md](RELEASE-READINESS.md). The fixture alone does not
+  establish live-candidate proof. A separate operator receipt and independent
+  verification, bound to candidate source SHA and integrity digest, are
+  required; current operator evidence is recorded in
+  [specs G024 evidence](https://github.com/orchex006/devsift-specs/blob/main/docs/evidence/G024.md).
 
 ## Dependencies, SBOM, and license evidence
 
