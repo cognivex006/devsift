@@ -974,7 +974,6 @@
           "ready": false,
           "blocking_tasks": [
             "T021",
-            "T022",
             "T023",
             "T024"
           ]
@@ -1130,7 +1129,6 @@
           "ready": false,
           "blocking_tasks": [
             "T021",
-            "T022",
             "T023",
             "T024",
             "T025",
@@ -1510,7 +1508,6 @@
           "ready": false,
           "blocking_tasks": [
             "T021",
-            "T022",
             "T023",
             "T024",
             "T025",
@@ -3104,17 +3101,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80",
           "test_result": "10actualRoslynWindows tests pass withnativeenabled; SDK9.0.205build0warnings/errors, framework-shadowingredthenfixed, spans/proof/tamper/no-targetwrites",
           "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80",
+          "integrated_sha": "2ab62314e114bf9ff491aa4b5d4734d49bd930ac",
+          "test_result": "Distinctreviewaccepted;10actualnativeRoslynintegrationtests PASS no skips, SDK9.0.205/assembly4.13.0.0/pins/semanticframework/span/no-writeverified",
+          "evidence_uri": "docs/evidence/G008.md"
         }
       ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA008",
       "history": [
         {
@@ -3131,6 +3136,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T08:56:10.256368+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:59:30.483354+00:00"
         }
       ]
     },
@@ -4998,7 +5008,7 @@
       },
       "T022": {
         "owner": "cli_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g008-roslyn",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-roslyn",
         "paths": [
@@ -5008,11 +5018,10 @@
           "docs/DOTNET-ADAPTER.md"
         ],
         "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
-        "locks": [
-          "write:adapters/dotnet"
-        ],
+        "locks": [],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80"
+        "source_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80",
+        "integrated_sha": "2ab62314e114bf9ff491aa4b5d4734d49bd930ac"
       },
       "T025": {
         "owner": "controller",
@@ -5091,18 +5100,16 @@
       ],
       "held_locks": [
         "write:tests/adapters",
-        "write:adapters/dotnet",
         "write:adapters/typescript",
         "write:adapters/sql"
       ],
       "active_jobs": [
         "T021",
-        "T022",
         "T025",
         "T028"
       ],
-      "latest_integrated_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac",
-      "updated_utc": "2026-10-16T08:56:10.406019+00:00"
+      "latest_integrated_sha": "2ab62314e114bf9ff491aa4b5d4734d49bd930ac",
+      "updated_utc": "2026-10-16T08:59:30.483354+00:00"
     },
     "previous_checkpoints": [
       {
