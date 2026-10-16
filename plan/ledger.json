@@ -184,7 +184,7 @@
         "T009"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
+      "status": "running",
       "evidence": [],
       "next_step": "Select a ready entry task",
       "review_budget_minutes": 25,
@@ -236,7 +236,7 @@
         "T012"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
+      "status": "running",
       "evidence": [],
       "next_step": "Select a ready entry task",
       "review_budget_minutes": 25,
@@ -2139,12 +2139,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA003"
+      "execution_id": "GA003",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        }
+      ]
     },
     "T008": {
       "id": "T008",
@@ -2163,12 +2175,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA003"
+      "execution_id": "GA003",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        }
+      ]
     },
     "T009": {
       "id": "T009",
@@ -2212,12 +2236,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA004"
+      "execution_id": "GA004",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        }
+      ]
     },
     "T011": {
       "id": "T011",
@@ -2236,12 +2272,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA004"
+      "execution_id": "GA004",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:26:58.248604+00:00"
+        }
+      ]
     },
     "T012": {
       "id": "T012",
@@ -3869,13 +3917,13 @@
   },
   "execution": {
     "selected_goals": [
-      "G000",
-      "G001",
-      "G002"
+      "G003",
+      "G004",
+      "G005"
     ],
     "controller": "controller",
     "policy_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
-    "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+    "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
     "jobs": {
       "T000": {
         "owner": "controller",
@@ -3968,61 +4016,159 @@
         "base_sha": "7d7f3772f34918c7419d92a06f984f4552680c67",
         "source_sha": "a44d50f1f1335e67ad5b178008b75f798ae15354",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-cli-tests"
+      },
+      "T007": {
+        "owner": "policy_writer",
+        "status": "running",
+        "branch": "feature/g003-contracts",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts",
+        "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+        "paths": [
+          "devsift/evidence.py",
+          "devsift/redaction.py",
+          "schemas/",
+          "tests/test_evidence.py",
+          "tests/test_redaction.py",
+          "docs/EVIDENCE.md"
+        ],
+        "locks": [
+          "write:contracts/source"
+        ],
+        "lease": "selected session; until accepted/reassigned"
+      },
+      "T008": {
+        "owner": "policy_writer",
+        "status": "running",
+        "branch": "feature/g003-contracts",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts",
+        "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+        "paths": [
+          "devsift/evidence.py",
+          "devsift/redaction.py",
+          "schemas/",
+          "tests/test_evidence.py",
+          "tests/test_redaction.py",
+          "docs/EVIDENCE.md"
+        ],
+        "locks": [
+          "write:contracts/runtime"
+        ],
+        "lease": "selected session; until accepted/reassigned"
+      },
+      "T010": {
+        "owner": "cli_writer",
+        "status": "running",
+        "branch": "feature/g004-inventory",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-inventory",
+        "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+        "paths": [
+          "devsift/inventory.py",
+          "devsift/adapters.py",
+          "tests/test_inventory.py",
+          "tests/test_adapters.py",
+          "docs/SCAN-CORE.md"
+        ],
+        "locks": [
+          "write:engine/scan"
+        ],
+        "lease": "selected session; until accepted/reassigned"
+      },
+      "T011": {
+        "owner": "cli_writer",
+        "status": "running",
+        "branch": "feature/g004-inventory",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-inventory",
+        "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+        "paths": [
+          "devsift/inventory.py",
+          "devsift/adapters.py",
+          "tests/test_inventory.py",
+          "tests/test_adapters.py",
+          "docs/SCAN-CORE.md"
+        ],
+        "locks": [
+          "write:engine/adapters"
+        ],
+        "lease": "selected session; until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
     "checkpoint": {
-      "completed_goals": [
-        "G000",
-        "G001",
-        "G002"
+      "selected_goals": [
+        "G003",
+        "G004",
+        "G005"
       ],
-      "accepted_tasks": [
-        "T000",
-        "T076",
-        "T001",
-        "T002",
-        "T003",
-        "T004",
-        "T005",
-        "T006"
+      "status": "running",
+      "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+      "held_locks": [
+        "write:contracts/source",
+        "write:contracts/runtime",
+        "write:engine/scan",
+        "write:engine/adapters"
       ],
-      "effective_subagent_capacity": 3,
-      "active_jobs": [],
-      "held_locks": [],
-      "code_sha": "8f7706533d4db7d11af8766f17b0328bbff6a79c",
-      "pull_request": "https://github.com/orchex006/devsift/pull/2",
-      "savepoint": "docs/evidence/SESSION-2026-10-16.md",
-      "retained_superseded_worktree": "D:/SP-Billy/devsift-dev/devsift-cli",
-      "retained_superseded_branch": "feature/g002-cli",
-      "next_action": "No further goal dispatched; select the next ready goal in a new authorized session",
-      "main_integrated_sha": "a9612ff44932bb296a29f2b4fcf39f774c449712",
-      "worktree_cleanup": [
-        {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-policy",
-          "branch": "feature/g001-policy",
-          "clean_and_integrated": true,
-          "removed": true
-        },
-        {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-policy-tests",
-          "branch": "feature/g001-t003-invariants",
-          "clean_and_integrated": true,
-          "removed": true
-        },
-        {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli-rework",
-          "branch": "feature/g002-producer-rework",
-          "clean_and_integrated": true,
-          "removed": true
-        },
-        {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli-tests",
-          "branch": "feature/g002-t006-platform",
-          "clean_and_integrated": true,
-          "removed": true
-        }
+      "active_jobs": [
+        "T007",
+        "T008",
+        "T010",
+        "T011"
       ]
-    }
+    },
+    "previous_checkpoints": [
+      {
+        "completed_goals": [
+          "G000",
+          "G001",
+          "G002"
+        ],
+        "accepted_tasks": [
+          "T000",
+          "T076",
+          "T001",
+          "T002",
+          "T003",
+          "T004",
+          "T005",
+          "T006"
+        ],
+        "effective_subagent_capacity": 3,
+        "active_jobs": [],
+        "held_locks": [],
+        "code_sha": "8f7706533d4db7d11af8766f17b0328bbff6a79c",
+        "pull_request": "https://github.com/orchex006/devsift/pull/2",
+        "savepoint": "docs/evidence/SESSION-2026-10-16.md",
+        "retained_superseded_worktree": "D:/SP-Billy/devsift-dev/devsift-cli",
+        "retained_superseded_branch": "feature/g002-cli",
+        "next_action": "No further goal dispatched; select the next ready goal in a new authorized session",
+        "main_integrated_sha": "a9612ff44932bb296a29f2b4fcf39f774c449712",
+        "worktree_cleanup": [
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-policy",
+            "branch": "feature/g001-policy",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-policy-tests",
+            "branch": "feature/g001-t003-invariants",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli-rework",
+            "branch": "feature/g002-producer-rework",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli-tests",
+            "branch": "feature/g002-t006-platform",
+            "clean_and_integrated": true,
+            "removed": true
+          }
+        ]
+      }
+    ],
+    "session_id": "2026-10-16-G003-G005"
   }
 }
