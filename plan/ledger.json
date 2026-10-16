@@ -458,9 +458,11 @@
         "T024"
       ],
       "repo": "orchex006/devsift",
-      "status": "running",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G008.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -973,10 +975,8 @@
               "T010"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T024"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T050",
@@ -1125,7 +1125,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T024",
             "T026",
             "T027",
             "T030",
@@ -1499,7 +1498,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T024",
             "T026",
             "T027",
             "T030",
@@ -3222,17 +3220,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6",
           "test_result": "Writer five actual backend acceptance suites, eight static golden cases, Git proof UNKNOWN/stale/no-writes and noexecution",
           "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6",
+          "integrated_sha": "2277259e7b57b032f6fd04604c6a28651a271517",
+          "test_result": "Distinct reviewer five actual golden suites pass100.49s; controller integrated five pass43.137s; exact static severity/region and real Git noexecution/no-write proof",
+          "evidence_uri": "docs/evidence/G008.md"
         }
       ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA008",
       "history": [
         {
@@ -3249,6 +3255,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T09:26:06.101302+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:30:53.753818+00:00"
         }
       ]
     },
@@ -5352,7 +5363,7 @@
       },
       "T024": {
         "owner": "cli_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g008-backend-tests",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-backend-tests",
         "paths": [
@@ -5361,11 +5372,10 @@
           "docs/BACKEND-TESTS.md"
         ],
         "base_sha": "af0578b1b9a05698c98d582cc8349dea85a8868b",
-        "locks": [
-          "write:tests/backend"
-        ],
+        "locks": [],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6"
+        "source_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6",
+        "integrated_sha": "2277259e7b57b032f6fd04604c6a28651a271517"
       },
       "T026": {
         "owner": "controller",
@@ -5464,17 +5474,15 @@
         }
       ],
       "held_locks": [
-        "write:tests/backend",
         "write:rules/frontend",
         "write:tests/sql"
       ],
       "active_jobs": [
-        "T024",
         "T026",
         "T030"
       ],
-      "latest_integrated_sha": "0ac6c70b262d04f3f027534e3061d23469d79f97",
-      "updated_utc": "2026-10-16T09:30:24.505338+00:00",
+      "latest_integrated_sha": "2277259e7b57b032f6fd04604c6a28651a271517",
+      "updated_utc": "2026-10-16T09:30:53.753818+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
