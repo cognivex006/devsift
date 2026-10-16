@@ -5695,6 +5695,24 @@
           "replacement_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
           "ref_retained": true,
           "reason": "accepted exact source integrated; canonical native artifacts built"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-credential-evidence",
+          "contained": true,
+          "clean": true,
+          "source_sha": "887875644aa7e7f41a155e1976646136b2847b00",
+          "replacement_sha": "887875644aa7e7f41a155e1976646136b2847b00",
+          "ref_retained": true,
+          "reason": "independently accepted and integrated"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\native-cli-manifest",
+          "contained": true,
+          "clean": true,
+          "source_sha": "74698b1b54acc684aa2baa4f75c180cce4905429",
+          "replacement_sha": "74698b1b54acc684aa2baa4f75c180cce4905429",
+          "ref_retained": true,
+          "reason": "independently accepted and integrated"
         }
       ]
     },
