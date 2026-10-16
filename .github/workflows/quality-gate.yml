@@ -36,6 +36,14 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
+      - name: Restore only locked SQL NuGet packages
+        id: nuget-cache
+        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ github.workspace }}/.devsift/local/nuget
+          key: devsift-nuget-v1-${{ runner.os }}-${{ runner.arch }}-sdk9.0.205-go1.21.3-node24-${{ hashFiles('native/**/*.csproj', 'native/**/packages.lock.json', 'native/**/global.json', 'native/**/NuGet.Config', 'native/**/Directory.Build.props', 'native/**/Directory.Build.targets', 'native/frontend/package-lock.json', 'native/go/go.mod', 'requirements-dev.txt') }}
+          enableCrossOsArchive: false
+          fail-on-cache-miss: false
       - name: Explicit trusted analyzer setup
         id: setup-native
         run: python tools/build_native.py
@@ -47,6 +55,13 @@ jobs:
         run: |
           python tools/run_quality_ci.py --output "$env:RUNNER_TEMP/devsift-quality"
           exit $LASTEXITCODE
+      - name: Save locked SQL NuGet packages on successful trusted main push
+        id: save-nuget-cache
+        if: success() && github.event_name == 'push' && github.ref == 'refs/heads/main' && steps.nuget-cache.outputs.cache-hit != 'true' && steps.nuget-cache.outputs.cache-primary-key != ''
+        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ github.workspace }}/.devsift/local/nuget
+          key: ${{ steps.nuget-cache.outputs.cache-primary-key }}
       - name: Preserve all three report artifacts even when the gate fails
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

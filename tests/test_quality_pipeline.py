@@ -113,6 +113,28 @@ class QualityPipelineTests(unittest.TestCase):
         self.assertEqual(self.snapshot(), before)
         self.assertFalse(self.marker.exists())
 
+    def test_identical_head_and_base_repeat_reports_exactly_with_unused_nuget_cache(self):
+        self.commit_source('try:\n    work()\nexcept Exception:\n    pass\n')
+        before = self.snapshot()
+        first = self.directory / 'first-output'
+        initial = self.invoke(first, base=self.base)
+        self.assertEqual(initial.returncode, 1, initial.stdout + initial.stderr)
+        self.assert_bundle(first)
+        # The scan consumes pinned tools, never setup's package cache. Simulate
+        # cache availability without asserting a GitHub cache service hit.
+        cache = self.kit / '.devsift/local/nuget'
+        cache.mkdir()
+        (cache / 'untrusted-package-marker').write_bytes(b'not-an-analyzer')
+        second = self.directory / 'second-output'
+        repeated = self.invoke(second, base=self.base)
+        self.assertEqual(repeated.returncode, 1, repeated.stdout + repeated.stderr)
+        self.assert_bundle(second)
+        for name in ('report.md', 'findings.json', 'results.sarif'):
+            self.assertEqual((first / name).read_bytes(), (second / name).read_bytes(), name)
+        self.assertEqual(initial.stdout, repeated.stdout)
+        self.assertEqual(self.snapshot(), before)
+        self.assertFalse(self.marker.exists())
+
     def test_cold_wrapper_without_B_preserves_kit_package_and_source(self):
         self.commit_source('value = 1\n')
         self.assertFalse(list(self.kit.rglob('__pycache__')))
