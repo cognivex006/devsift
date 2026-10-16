@@ -53,6 +53,7 @@ py-modules = [
     "devsift.scanner",
     "devsift.security_adapter",
     "devsift.security_context",
+    "devsift.security_gate",
     "devsift.sql_adapter",
     "devsift.suppressions",
     "devsift.typescript_adapter",

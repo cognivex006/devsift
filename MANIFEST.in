@@ -37,6 +37,7 @@ include devsift/report_export.py
 include devsift/report_model.py
 include devsift/scanner.py
 include devsift/security_adapter.py
+include devsift/security_gate.py
 include devsift/security_context.py
 include devsift/sql_adapter.py
 include devsift/suppressions.py
