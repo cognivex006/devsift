@@ -1014,7 +1014,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T026",
             "T027"
           ]
         }
@@ -1126,7 +1125,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T026",
             "T027",
             "T031",
             "T032",
@@ -1498,7 +1496,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T026",
             "T027",
             "T031",
             "T032",
@@ -3359,7 +3356,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b",
@@ -3370,11 +3367,19 @@
           "source_sha": "887875644aa7e7f41a155e1976646136b2847b00",
           "test_result": "Six actual frontend tests pass84.048s; final actual Git source mask/from_dict/classifier/baseline reproof regression passes54.518s; all credential forms including escaped identifier",
           "author": "controller"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "887875644aa7e7f41a155e1976646136b2847b00",
+          "integrated_sha": "8fd7ee32007300692a166e04023a9507adcc07bc",
+          "test_result": "Distinct reviewer six actual context tests138.54s, 13 evidence+16 scanner pass; controller six native84s and final Git mask/wire/classifier/baseline54.518s; raw fingerprints distinct",
+          "evidence_uri": "docs/evidence/G009.md"
         }
       ],
       "assignee": "controller",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA009",
       "history": [
         {
@@ -3401,6 +3406,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T09:33:22.323377+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:36:24.412899+00:00"
         }
       ]
     },
@@ -3421,12 +3431,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA009"
+      "execution_id": "GA009",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:36:24.815455+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:36:24.815455+00:00"
+        }
+      ]
     },
     "T028": {
       "id": "T028",
@@ -5401,7 +5423,7 @@
       },
       "T026": {
         "owner": "controller",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "fix/g009-credential-evidence",
         "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-credential-evidence",
         "paths": [
@@ -5413,9 +5435,7 @@
           "devsift/git_changes.py"
         ],
         "base_sha": "8243543e4de005cd8ad5eb47b8dc63b7ac478472",
-        "locks": [
-          "write:rules/frontend"
-        ],
+        "locks": [],
         "lease": "selected execution session until accepted/reassigned",
         "source_sha": "887875644aa7e7f41a155e1976646136b2847b00",
         "prior_jobs": [
@@ -5437,7 +5457,8 @@
             "lease": "selected execution session until accepted/reassigned",
             "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b"
           }
-        ]
+        ],
+        "integrated_sha": "8fd7ee32007300692a166e04023a9507adcc07bc"
       },
       "T030": {
         "owner": "policy_writer",
@@ -5487,6 +5508,22 @@
         "review_result": "accepted",
         "test_result": "18 actual Windows tests plus original8.3directoryalias probe independently pass; hosted standard/native Windows Python3.12 CI success38879997938/38879997915",
         "integrated_sha": "929173d518e7817e241c6f21123e6fb359bbdd91"
+      },
+      "T027": {
+        "owner": "policy_writer",
+        "status": "running",
+        "branch": "feature/g009-performance-tests",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g009-performance-tests",
+        "paths": [
+          "tests/test_frontend_acceptance.py",
+          "tests/fixtures/frontend",
+          "docs/FRONTEND-TESTS.md"
+        ],
+        "base_sha": "8fd7ee32007300692a166e04023a9507adcc07bc",
+        "locks": [
+          "write:tests/frontend"
+        ],
+        "lease": "selected execution session until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5529,16 +5566,16 @@
         }
       ],
       "held_locks": [
-        "write:rules/frontend",
         "write:cli/native-manifest",
-        "write:tools/native-setup"
+        "write:tools/native-setup",
+        "write:tests/frontend"
       ],
       "active_jobs": [
-        "T026",
-        "native-cli-integration"
+        "native-cli-integration",
+        "T027"
       ],
-      "latest_integrated_sha": "97d1fb02ce25244312ecb608f6d714f4617060dc",
-      "updated_utc": "2026-10-16T09:33:22.323377+00:00",
+      "latest_integrated_sha": "8fd7ee32007300692a166e04023a9507adcc07bc",
+      "updated_utc": "2026-10-16T09:36:24.815455+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
