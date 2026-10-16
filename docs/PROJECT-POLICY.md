@@ -56,6 +56,15 @@ opening, so legitimate Windows 8.3 aliases are normalized rather than rejected b
 a lexical comparison against long names. These are bounded shape checks, not
 comprehensive secret detection or an OS sandbox.
 
+Git metadata components are compared with case folding after trimming terminal
+Win32 dots/spaces, both in original inputs and canonical Windows paths. Thus
+`.git`, `.GiT`, `.GIT`, `.GiT.` and `.GiT ` cannot provide policy data or become
+policy roots. The same conservative spelling rule applies on POSIX. Windows short
+aliases that resolve to metadata are rejected before reading the policy file or
+using missing-default fallback. Ordinary `.gitfoo` directories remain allowed.
+Canonical checks cover the root binding and policy parent as well as the final
+file; legitimate non-metadata short aliases remain supported.
+
 On Windows, directory handles use `OPEN_REPARSE_POINT` and deny delete sharing,
 preventing component rename/replacement while reading. The regular-file handle
 also denies write sharing. Every handle is checked for disk type and reparse/

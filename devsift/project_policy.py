@@ -33,10 +33,21 @@ def _require(condition):
         raise _Unsafe() from None
 
 
+def _metadata_component(value):
+    # Win32 trims terminal spaces/dots and Git metadata is case-insensitive on
+    # supported Windows filesystems. Keep this conservative guard on every OS.
+    return value.rstrip(" .").casefold() == ".git"
+
+
+def _no_metadata(parts):
+    _require(not any(_metadata_component(part) for part in parts))
+
+
 def _relative(value):
     _require(type(value) is str and 0 < len(value) <= 1024)
     _require(not any(ord(char) < 32 or ord(char) == 127 or char in "\\:" for char in value))
     _require(all(part not in ("", ".", "..", ".git") for part in value.split("/")))
+    _no_metadata(value.split("/"))
     _require(value.lower().endswith(".json") and Redactor().text(value) == value)
     return value
 
@@ -69,6 +80,8 @@ def _canonical(root, candidate):
         return str(root), str(candidate), _relative(candidate.relative_to(root).as_posix())
     canonical_root = root.resolve(strict=True)
     canonical_file = candidate.resolve(strict=True)
+    _no_metadata(canonical_root.parts)
+    _no_metadata(canonical_file.parts)
     relative = _relative(canonical_file.relative_to(canonical_root).as_posix())
     return str(canonical_root), str(canonical_file), relative
 
@@ -179,6 +192,7 @@ def _read_windows(root, relative):
     try:
         for path in chain:
             _, root_id = open_handle(path, True)
+        _no_metadata(root.resolve(strict=True).parts)
         directory = root
         for part in relative.split("/")[:-1]:
             directory /= part
@@ -186,6 +200,7 @@ def _read_windows(root, relative):
                 open_handle(directory, True)
             except FileNotFoundError:
                 raise _Missing((str(root.resolve(strict=True)), None, None, root_id)) from None
+        _no_metadata(directory.resolve(strict=True).parts)
         try:
             handle, _ = open_handle(candidate, False)
         except FileNotFoundError:
@@ -276,6 +291,7 @@ def discover_policy(repo_root, *, policy_path=None):
         root = Path(repo_root)
         _require(".." not in root.parts)
         root = root.absolute()  # Do not canonicalize away original reparse components.
+        _no_metadata(root.parts)
         reader = _read_windows if os.name == "nt" else _read_posix
         try:
             raw, relative, binding = reader(root, requested)

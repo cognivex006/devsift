@@ -95,6 +95,44 @@ class ProjectPolicyTests(unittest.TestCase):
         self.assertEqual(decide("SEC001", "LEGACY_UNCHANGED", source_verified=True, policy=policy).enforcement,
                          "security_review")
 
+    def test_actual_git_metadata_case_and_win32_aliases_are_never_policy_roots(self):
+        base = self.root / ".git"
+        base.mkdir()
+        (base / "policy.json").write_text("{}", encoding="utf-8")
+        for component in (".git", ".GiT", ".GIT", ".GiT.", ".GiT ", ".GIT. "):
+            directory = self.root / component
+            if os.name != "nt":
+                directory.mkdir(exist_ok=True)
+                (directory / "policy.json").write_text("{}", encoding="utf-8")
+            with self.subTest(component=component):
+                result = discover_policy(self.root, policy_path=component + "/policy.json")
+                self.assertFalse(result.complete)
+                self.assertIsNone(result.policy())
+                self.assertFalse(discover_policy(directory).complete)
+        # A similarly named ordinary directory is not Git metadata.
+        ordinary = self.root / ".gitfoo"
+        ordinary.mkdir()
+        (ordinary / "policy.json").write_text("{}", encoding="utf-8")
+        self.assertTrue(discover_policy(self.root, policy_path=".gitfoo/policy.json").complete)
+
+    @unittest.skipUnless(os.name == "nt", "Windows metadata short alias contract")
+    def test_actual_git_metadata_short_alias_rejects_when_available(self):
+        import ctypes
+        directory = self.root / ".git"
+        directory.mkdir()
+        (directory / "policy.json").write_text("{}", encoding="utf-8")
+        get_short = ctypes.windll.kernel32.GetShortPathNameW
+        get_short.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint]
+        get_short.restype = ctypes.c_uint
+        buffer = ctypes.create_unicode_buffer(32768)
+        length = get_short(str(directory), buffer, len(buffer))
+        self.assertTrue(0 < length < len(buffer))
+        component = Path(buffer.value).name
+        if component.casefold() == ".git":
+            self.skipTest("Filesystem has no distinct short alias for Git metadata")
+        self.assertFalse(discover_policy(self.root, policy_path=component + "/policy.json").complete)
+        self.assertFalse(discover_policy(buffer.value).complete)
+
     def test_actual_symlinks_and_directory_instead_of_file_reject(self):
         self.path.parent.mkdir()
         self.path.mkdir()
