@@ -1014,7 +1014,6 @@
           "blocking_tasks": [
             "T026",
             "T027",
-            "T029",
             "T030"
           ]
         }
@@ -1129,7 +1128,6 @@
             "T024",
             "T026",
             "T027",
-            "T029",
             "T030",
             "T031",
             "T032",
@@ -1504,7 +1502,6 @@
             "T024",
             "T026",
             "T027",
-            "T029",
             "T030",
             "T031",
             "T032",
@@ -3472,7 +3469,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091",
@@ -3483,11 +3480,19 @@
           "source_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
           "test_result": "Writer reproduced eight regressions then nine rule and six parser tests pass actual ScriptDom",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
+          "integrated_sha": "719253e4856d47eb882bca84ea489081a082556e",
+          "test_result": "Distinct reviewer 9 rules plus 6 parser actual tests; controller nine rule tests pass32.785s, truncation/context incomplete",
+          "evidence_uri": "docs/evidence/G010.md"
         }
       ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA010",
       "history": [
         {
@@ -3514,6 +3519,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T09:22:13.582342+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:25:23.443544+00:00"
         }
       ]
     },
@@ -3534,12 +3544,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA010"
+      "execution_id": "GA010",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:25:23.872722+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:25:23.872722+00:00"
+        }
+      ]
     },
     "T031": {
       "id": "T031",
@@ -5264,7 +5286,7 @@
       },
       "T029": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "fix/g010-sql-flow-rework",
         "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g010-sql-flow-rework",
         "paths": [
@@ -5275,9 +5297,7 @@
           "docs/SQL-ADAPTER.md"
         ],
         "base_sha": "26b381bc8e74eebd241fa5f5ade43a4174651eec",
-        "locks": [
-          "write:rules/sql"
-        ],
+        "locks": [],
         "lease": "selected execution session until accepted/reassigned",
         "source_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
         "prior_jobs": [
@@ -5300,7 +5320,8 @@
             "lease": "selected execution session until accepted/reassigned",
             "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091"
           }
-        ]
+        ],
+        "integrated_sha": "719253e4856d47eb882bca84ea489081a082556e"
       },
       "T024": {
         "owner": "cli_writer",
@@ -5335,6 +5356,22 @@
         ],
         "lease": "selected execution session until accepted/reassigned",
         "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b"
+      },
+      "T030": {
+        "owner": "policy_writer",
+        "status": "running",
+        "branch": "feature/g010-dialect-tests",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-dialect-tests",
+        "paths": [
+          "tests/test_sql_acceptance.py",
+          "tests/fixtures/sql",
+          "docs/SQL-TESTS.md"
+        ],
+        "base_sha": "719253e4856d47eb882bca84ea489081a082556e",
+        "locks": [
+          "write:tests/sql"
+        ],
+        "lease": "selected execution session until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5377,17 +5414,17 @@
         }
       ],
       "held_locks": [
-        "write:rules/sql",
         "write:tests/backend",
-        "write:rules/frontend"
+        "write:rules/frontend",
+        "write:tests/sql"
       ],
       "active_jobs": [
-        "T029",
         "T024",
-        "T026"
+        "T026",
+        "T030"
       ],
-      "latest_integrated_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b",
-      "updated_utc": "2026-10-16T09:25:04.453728+00:00",
+      "latest_integrated_sha": "719253e4856d47eb882bca84ea489081a082556e",
+      "updated_utc": "2026-10-16T09:25:23.872722+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
