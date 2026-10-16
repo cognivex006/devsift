@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:devsift:baseline:1",
+  "title": "Reviewed baseline envelope v1",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "snapshot", "approval"],
+  "properties": {
+    "schema_version": {"const": "1"},
+    "snapshot": {"$ref": "#/$defs/snapshot"},
+    "approval": {"$ref": "#/$defs/approval"}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "label": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "\\S"},
+    "rule": {"enum": ["HC001","HC002","HC003","HC004","HC005","CFG001","CFG002","CFG003","COM001","COM002","COM003","SEC001","SEC002","SEC003","ARC001","ARC002","ARC003","API001","API002","LOG001","LOG002","TST001","TST002"]},
+    "entry": {
+      "type": "object", "additionalProperties": false,
+      "required": ["rule_id", "rule_version", "fingerprint", "location"],
+      "properties": {
+        "rule_id": {"$ref": "#/$defs/rule"},
+        "rule_version": {"$ref": "#/$defs/label"},
+        "fingerprint": {"$ref": "#/$defs/digest"},
+        "location": {"$ref": "urn:devsift:evidence:1#/$defs/location"}
+      }
+    },
+    "snapshot": {
+      "type": "object", "additionalProperties": false,
+      "required": ["schema_version", "repository", "source_sha", "tool_version", "rule_catalog_version", "entries"],
+      "properties": {
+        "schema_version": {"const": "1"},
+        "repository": {"type": "string", "minLength": 1, "maxLength": 1024, "pattern": "\\S"},
+        "source_sha": {"type": "string", "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$"},
+        "tool_version": {"$ref": "#/$defs/label"},
+        "rule_catalog_version": {"$ref": "#/$defs/label"},
+        "entries": {"type": "array", "maxItems": 1000, "items": {"$ref": "#/$defs/entry"}}
+      }
+    },
+    "approval": {
+      "type": "object", "additionalProperties": false,
+      "required": ["actor", "reviewer", "ticket", "approved_digest", "expected_digest"],
+      "properties": {
+        "actor": {"$ref": "#/$defs/label"},
+        "reviewer": {"$ref": "#/$defs/label"},
+        "ticket": {"$ref": "#/$defs/label"},
+        "approved_digest": {"$ref": "#/$defs/digest"},
+        "expected_digest": {"anyOf": [{"$ref": "#/$defs/digest"}, {"type": "null"}]}
+      }
+    }
+  }
+}
