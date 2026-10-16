@@ -130,3 +130,56 @@ rendering. Temporary real Git cases cover candidate proof/unknowns/masks, mixed
 legacy/new policy, baseline metadata, changed-region absence, immutable outputs
 and complete source/.git before/after equality. These are library/export tests,
 not runtime impact measurement, call-graph analysis or regression execution.
+
+## Mixed report gates (T042)
+
+`tests/test_mixed_report_gates.py` combines both G014 entry paths rather than
+testing either library in isolation. Stable external fixtures under
+`tests/fixtures/report_context/` define two real Git commits and golden semantic
+expectations. Diagnostic rules/regions are explicit fixture inputs, not claims
+that native analyzers ran or that business impact was measured. No fabricated
+complete-baseline absence observation is supplied.
+
+The three mixed groups exercise:
+
+1. Real snapshot capture, explicit synthetic independent-review approval,
+   atomic baseline save and trusted-digest load; actual `assess_finding` Git
+   provenance; assembler → context → JSON/Markdown/SARIF. One report carries
+   legacy advisory, proven new block, changed-region UNKNOWN/incomplete and
+   legacy critical security_review together. Verified and missing consumer/test
+   candidates remain distinct, with no false relationships, passing tests,
+   unmasked opaque values or physical locations for unresolved placeholders.
+2. Complete legacy/security-only output, complete output with an introduced
+   blocking finding, and the same known blocking finding with prior incomplete
+   execution. Exit 0/1/2 and enforced count remain independent: security flags
+   stay visible, and incomplete exit 2 dominates without losing the block count.
+   Business risk stays unknown even when a quality gate is complete.
+3. A fully masked enriched legacy case retains the sealed report's inline review
+   and implement prompts, pending approval, absent proposal and automatic-fix false.
+   Impact, change risk and affected consumers remain unknown. This does not exercise
+   a separate approval-binding or execution API.
+
+Each group compares the entire disposable consumer/.git and persisted baseline
+tree before/after the read-only workflow. All three exporters retain the full
+accepted case properties, source/context evidence and gate semantics. Official
+schema validation is enabled explicitly for the actual validation run:
+
+```powershell
+$env:DEVSIFT_TEST_SCHEMA = '1'
+$env:PYTHONPATH = (Resolve-Path .devsift/local/validation-python).Path
+python -B -m unittest discover -s tests -p test_mixed_report_gates.py -v
+```
+
+The trusted directory is a preinstalled validation-library target, not a virtual
+environment executable. Before this run, explicitly copy the central cached
+SARIF schema to this worktree's ignored `.devsift/local/schemas/` only after
+checking `tools.setup_validation.SCHEMA_BYTES` and `SCHEMA_SHA256`. Test setup
+checks the exact bytes again; it never downloads or installs anything. It
+validates unchanged report/evidence schemas and the official SARIF schema for
+every produced report/JSON/SARIF, alongside actual Markdown rendering. Without
+the explicit schema opt-in, the stdlib functional groups run but do not establish
+official schema acceptance.
+
+This fixture uses only accepted G011–G015 modules; it does not implement G016
+approval binding or edit execution, T051, or certify native runtime coverage, production
+consumer reachability, impact, approved source edits or release readiness.
