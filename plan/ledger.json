@@ -2590,8 +2590,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "b7be3890ffc98d88af4fc7ca4d23db6c2185d5df",
+          "test_result": "6rename+10classifier+13evidence tests pass; regressionrename statesUNKNOWN beforefeature; ambiguous copies/oldpaths/destinations remainUNKNOWN; syntax/diff/scanpass",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2606,6 +2612,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:50:01.311143+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:53:27.084737+00:00"
         }
       ]
     },
@@ -4458,7 +4469,7 @@
       },
       "T014": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g005-rename-drift",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-rename",
         "paths": [
@@ -4470,7 +4481,8 @@
         "locks": [
           "write:engine/git"
         ],
-        "lease": "selected G003-G005 session until accepted/reassigned"
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "b7be3890ffc98d88af4fc7ca4d23db6c2185d5df"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4490,8 +4502,8 @@
         "T012",
         "T014"
       ],
-      "latest_integrated_sha": "214ab5ac40e6b029d5692e70e9d1b60d5a570271",
-      "updated_utc": "2026-10-16T07:50:01.311143+00:00"
+      "latest_integrated_sha": "1f90668ffd861105c4d34ca4946e634ab587ec8e",
+      "updated_utc": "2026-10-16T07:53:27.084737+00:00"
     },
     "previous_checkpoints": [
       {
