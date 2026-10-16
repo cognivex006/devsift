@@ -6,7 +6,7 @@ from pathlib import Path
 import re
 
 from .adapters import AdapterCapability, LANGUAGES
-from .evidence import Region, SourceEvidence, verify_source
+from .evidence import Region, SourceEvidence, requires_source_mask, verify_source
 from .inventory import SourceTarget
 from .process_runner import ProcessSpec, run_process
 from .redaction import Redactor
@@ -224,7 +224,7 @@ class NativeAdapter:
                 try:
                     source = verify_source(self.repo_root, self.repository, self.source_sha,
                                            target.path, diagnostic.region, redactor=self.redactor,
-                                           sensitive=diagnostic.rule_id == 'HC002')
+                                           sensitive=requires_source_mask(diagnostic.rule_id))
                     if not _snapshot_matches_commit(self.repo_root, source, target.content):
                         source = SourceEvidence(reason="SOURCE_MISMATCH")
                 except (OSError, ValueError, TypeError):
