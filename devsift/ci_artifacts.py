@@ -67,9 +67,12 @@ def attach_reports(public_record, scan_record, *, repo_root, policy=None,
     """Internal CLI integration; preserve every existing failed/incomplete gate."""
     from .output import result
     try:
-        report, documents = build_reports(scan_record, repo_root=repo_root, policy=policy,
-                                          trusted_lifecycles=trusted_lifecycles, formats=formats)
         public = _decode_json(json.dumps(public_record, ensure_ascii=True, allow_nan=False))
+        scan_input = _decode_json(json.dumps(scan_record, ensure_ascii=True, allow_nan=False))
+        if public.get('complete') is False:
+            scan_input.update(complete=False, status='incomplete', exit_code=2)
+        report, documents = build_reports(scan_input, repo_root=repo_root, policy=policy,
+                                          trusted_lifecycles=trusted_lifecycles, formats=formats)
         cases = {case.case_id: case.to_dict() for case in report.cases}
         for finding in public['findings']:
             case = cases[finding['case_id']]

@@ -119,6 +119,8 @@ class ArtifactTests(unittest.TestCase):
                                 trusted_lifecycles=True)
         self.assertEqual(public['exit_code'], 2)
         self.assertFalse(public['complete'])
+        self.assertFalse(public['data']['reports']['json']['complete'])
+        self.assertFalse(public['data']['reports']['sarif']['runs'][0]['invocations'][0]['executionSuccessful'])
         self.assertNotIn(secret, json.dumps(public))
         report, docs = build_reports(run.scan_record(), repo_root=fixture.root,
                                      trusted_lifecycles=True, formats=('json',))
