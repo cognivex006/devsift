@@ -100,7 +100,8 @@ def _source(root, target, finding, redactor):
         return SourceEvidence(reason='SOURCE_NOT_VERIFIED')
     location = claimed.location
     verified = verify_source(root, location.repository, location.source_sha,
-                             location.path, location.region, redactor=redactor)
+                             location.path, location.region, redactor=redactor,
+                             sensitive=finding.rule_id == 'HC002')
     if not _snapshot_matches_commit(root, verified, target.content):
         return SourceEvidence(reason='SOURCE_MISMATCH')
     return verified
@@ -111,7 +112,7 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
     """Execute one selected trusted adapter per eligible target; return JSON data.
 
     Lifecycle values are trusted upstream attribution, never inferred from a
-    touched file. Findings default UNKNOWN. No default/native analyzer is shipped.
+    touched file. Findings default UNKNOWN. Native tools require explicit configuration.
     Invalid configuration, failed tools, unresolved evidence and partial work all
     keep the final result incomplete, even when other findings block.
     """

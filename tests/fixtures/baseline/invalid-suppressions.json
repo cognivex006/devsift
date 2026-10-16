@@ -1,0 +1,18 @@
+[
+  {"name":"security-literal", "patch":{"rule_id":"HC002"}},
+  {"name":"security-config", "patch":{"rule_id":"CFG003"}},
+  {"name":"security-log", "patch":{"rule_id":"SEC001"}},
+  {"name":"security-tls", "patch":{"rule_id":"SEC002"}},
+  {"name":"security-sql", "patch":{"rule_id":"SEC003"}},
+  {"name":"wildcard-rule", "patch":{"rule_id":"*"}},
+  {"name":"wildcard-finding", "patch":{"fingerprint":"*"}},
+  {"name":"unknown-rule", "patch":{"rule_id":"HC999"}},
+  {"name":"blank-owner", "patch":{"owner":"  "}},
+  {"name":"missing-purpose", "patch":{"reason":""}},
+  {"name":"missing-ticket", "patch":{"ticket":""}},
+  {"name":"no-expiry-zone", "patch":{"expires_at":"2026-10-18T00:00:00"}},
+  {"name":"boolean-version", "patch":{"schema_version":true}},
+  {"name":"unsupported-version", "patch":{"schema_version":"2"}},
+  {"name":"legacy-blanket", "patch":{"legacy_mode":"ignore"}},
+  {"name":"rule-disable", "patch":{"enabled":false}}
+]

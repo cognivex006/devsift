@@ -1,0 +1,36 @@
+[
+  {
+    "fixture": "positive.cs", "target": "src/Service.cs", "language": "csharp",
+    "diagnostics": [
+      {"rule_id":"HC001","severity":"Error","region":{"start_line":6,"start_column":31,"end_line":6,"end_column":66},"snippet":"\"https://api.example.invalid/items\""},
+      {"rule_id":"LOG002","severity":"Error","region":{"start_line":7,"start_column":32,"end_line":7,"end_column":53},"snippet":"catch (Exception) { }"},
+      {"rule_id":"LOG001","severity":"Warning","region":{"start_line":8,"start_column":9,"end_line":8,"end_column":35},"snippet":"Console.WriteLine(\"debug\")"}
+    ]
+  },
+  {
+    "fixture": "positive.go", "target": "src/service.go", "language": "go",
+    "diagnostics": [
+      {"rule_id":"HC001","severity":"Error","region":{"start_line":7,"start_column":14,"end_line":7,"end_column":49},"snippet":"\"https://api.example.invalid/items\""},
+      {"rule_id":"LOG002","severity":"Error","region":{"start_line":8,"start_column":5,"end_line":8,"end_column":25},"snippet":"if failure != nil {}"},
+      {"rule_id":"LOG001","severity":"Warning","region":{"start_line":9,"start_column":5,"end_line":9,"end_column":25},"snippet":"fmt.Println(\"debug\")"}
+    ]
+  },
+  {"fixture":"negative.cs","target":"src/Protocol.cs","language":"csharp","diagnostics":[]},
+  {"fixture":"negative.go","target":"src/protocol.go","language":"go","diagnostics":[]},
+  {"fixture":"config_endpoint.cs","target":"src/Client.cs","language":"csharp","diagnostics":[]},
+  {"fixture":"config_endpoint.go","target":"config/client.go","language":"go","diagnostics":[]},
+  {
+    "fixture":"positive.cs","target":"tests/Service.cs","language":"csharp",
+    "diagnostics":[
+      {"rule_id":"LOG002","severity":"Error","region":{"start_line":7,"start_column":32,"end_line":7,"end_column":53},"snippet":"catch (Exception) { }"},
+      {"rule_id":"LOG001","severity":"Warning","region":{"start_line":8,"start_column":9,"end_line":8,"end_column":35},"snippet":"Console.WriteLine(\"debug\")"}
+    ]
+  },
+  {
+    "fixture":"positive.go","target":"src/client_test.go","language":"go",
+    "diagnostics":[
+      {"rule_id":"LOG002","severity":"Error","region":{"start_line":8,"start_column":5,"end_line":8,"end_column":25},"snippet":"if failure != nil {}"},
+      {"rule_id":"LOG001","severity":"Warning","region":{"start_line":9,"start_column":5,"end_line":9,"end_column":25},"snippet":"fmt.Println(\"debug\")"}
+    ]
+  }
+]

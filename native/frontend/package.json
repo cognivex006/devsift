@@ -1,0 +1,10 @@
+{
+  "name": "devsift-frontend-analyzer",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@typescript-eslint/parser": "8.71.2",
+    "eslint": "10.12.0",
+    "typescript": "6.0.3"
+  }
+}

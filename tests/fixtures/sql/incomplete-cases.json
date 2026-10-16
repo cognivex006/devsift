@@ -1,0 +1,8 @@
+[
+  {"name":"invalid-select", "source":"SELECT * FROM;", "reason":"PARSE_ERROR"},
+  {"name":"postgres-syntax", "source":"DO $$ BEGIN RAISE NOTICE 'never execute'; END $$;", "reason":"PARSE_ERROR"},
+  {"name":"unknown-dynamic-source", "source":"EXEC(@unknown);", "reason":"ANALYSIS_FAILED"},
+  {"name":"unknown-procedure", "source":"EXEC dbo.UnreviewedProcedure;", "reason":"ANALYSIS_FAILED"},
+  {"name":"finite-quote-storage", "source":"DECLARE @name sysname=QUOTENAME(@input); DECLARE @q nvarchar(max)=N'SELECT * FROM '+@name; EXEC(@q);", "reason":"ANALYSIS_FAILED"},
+  {"name":"context-switch", "source":"DECLARE @q nvarchar(max)=N'SELECT 1'; EXECUTE AS USER='fixture'; EXEC(@q);", "reason":"ANALYSIS_FAILED"}
+]

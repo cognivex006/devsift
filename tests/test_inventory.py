@@ -113,5 +113,19 @@ class InventoryTests(unittest.TestCase):
         self.assertEqual(result.targets[0].status, 'excluded')
 
 
+class WorktreeExclusion(unittest.TestCase):
+    def test_job_worktree_container_is_never_recursively_scanned(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / 'worktrees' / 'job').mkdir(parents=True)
+            (root / 'worktrees' / 'job' / 'source.py').write_bytes(b'private job bytes')
+            result = inventory(root)
+            self.assertEqual([(target.path, target.status) for target in result.targets],
+                             [('worktrees', 'excluded')])
+            selected = inventory(root, ['worktrees/job/source.py'])
+            self.assertEqual(selected.targets[0].status, 'excluded')
+            self.assertIsNone(selected.targets[0].content)
+
+
 if __name__ == '__main__':
     unittest.main()

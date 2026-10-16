@@ -1,4 +1,4 @@
-"""Strict, read-only CLI. Analyzer/report integration is deliberately incomplete."""
+"""Strict, read-only CLI with explicitly configured native analyzers."""
 import argparse
 import json
 import platform
@@ -21,14 +21,16 @@ class Parser(argparse.ArgumentParser):
 
 
 def parser() -> Parser:
-    root = Parser(prog='devsift', description='Read-only scan coordination (native analyzers pending).')
+    root = Parser(prog='devsift', description='Read-only scans with optional explicitly trusted native analyzers.')
     commands = root.add_subparsers(dest='command', required=True)
-    scan = commands.add_parser('scan', help='Inventory targets; native analyzers are not registered yet.')
+    scan = commands.add_parser('scan', help='Inventory targets and run explicitly configured native analyzers.')
     scope = scan.add_mutually_exclusive_group()
     scope.add_argument('--changed', action='store_true', help='Inventory staged, unstaged and untracked working-tree paths (default).')
     scope.add_argument('--all', action='store_true', help='Include legacy source as recommendations.')
     scan.add_argument('--legacy-mode', choices=['recommend'], default='recommend',
                       help='Untouched legacy is advisory; no bulk remediation.')
+    scan.add_argument('--native-manifest', help='Absolute explicitly trusted native tool manifest; authorizes code execution.')
+    scan.add_argument('--native-manifest-digest', help='Independently trusted SHA256 of the exact manifest bytes.')
     explain = commands.add_parser('explain', help='Explain a verified case (backend pending).')
     explain.add_argument('case_id', help='Exact case ID in a verified report.')
     report = commands.add_parser('report', help='Read a report (backend pending); writes no files.')
@@ -57,11 +59,18 @@ def run(args: argparse.Namespace) -> dict:
                                  'case_prompts': False}}
     elif args.command == 'scan':
         from pathlib import Path
+        import re
         from .cli_scan import run_scan
-        return run_scan(Path.cwd(), all_scope=args.all, legacy_mode=args.legacy_mode)
+        if (args.native_manifest is None) != (args.native_manifest_digest is None):
+            raise ArgumentError('Native manifest and digest must be supplied together.')
+        if args.native_manifest is not None and (not Path(args.native_manifest).is_absolute()
+                or re.fullmatch('[0-9a-f]{64}', args.native_manifest_digest) is None):
+            raise ArgumentError('Native manifest requires an absolute path and lowercase SHA256 digest.')
+        return run_scan(Path.cwd(), all_scope=args.all, legacy_mode=args.legacy_mode,
+                        native_manifest=args.native_manifest, native_manifest_digest=args.native_manifest_digest)
     return result(args.command, complete=False, data=data,
                   errors=[{'code': 'CAPABILITY_UNAVAILABLE',
-                           'message': 'Analyzer and verified report backends are not implemented; '
+                           'message': 'The requested capability is unavailable in this invocation; '
                                       'no analysis or source verification was performed.'}])
 
 

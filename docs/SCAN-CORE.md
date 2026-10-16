@@ -38,7 +38,7 @@ names encountered during full traversal produce an `unsafe` diagnostic on their
 containing directory; `.` denotes a root diagnostic, not a source file location.
 
 Metadata, dependencies, caches and common build output directories are pruned:
-`.git`, `.hg`, `.svn`, `.venv`, `venv`, `node_modules`, `__pycache__`,
+`worktrees`, `.git`, `.hg`, `.svn`, `.venv`, `venv`, `node_modules`, `__pycache__`,
 `.pytest_cache`, `.mypy_cache`, `.ruff_cache`, `build`, `dist`, `coverage`,
 `.devsift`, `bin`, `obj`, `target`, `.next`, `.nuxt`, `.angular`, `.gradle`, `.cache`.
 The fixed exclusion names compare case-insensitively on all platforms. Each

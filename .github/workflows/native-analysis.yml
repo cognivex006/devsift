@@ -1,0 +1,37 @@
+name: Native analyzers
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      DEVSIFT_TEST_NATIVE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.205'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.21.3'
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Explicit trusted helper setup
+        run: python tools/build_native.py
+      - name: Actual native and regression tests
+        run: python -m unittest discover -s tests -v

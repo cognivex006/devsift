@@ -10,8 +10,8 @@ This single root commit is the **only** direct-main exception; future changes us
 
 - `main` is the intended protected, release-quality branch after bootstrap; **verify protection in GitHub**, do not infer it from files. No direct pushes after the one T000 initial commit.
 - `develop` optional integration branch if the project chooses multi-PR staging; default is **GitHub flow** `feature/*`, `fix/*`, `docs/*`, `chore/*` -> PR -> `main`. Do not create `develop` merely because the reference has one.
-- Parallel workers: `feature/<goal>-<task>-<job>` from the controller's **integrated base SHA** in isolated `<repo>.worktrees/<job>` directories. Only one writer per file/contract. One-writer job may use ordinary branch.
-- Controller validates branches and merges completed jobs into its integration branch after tests+review; only it cleans up proven-integrated clean worktrees and merged branches. Rework uses a fresh job/worktree based on latest integrated commit.
+- Parallel workers: `feature/<goal>-<task>-<job>` from the controller's **integrated base SHA** in isolated `<repo>/worktrees/<job>` directories inside the source repository. Only one writer per file/contract. One-writer job may use ordinary branch.
+- Controller validates branches and merges completed jobs into its integration branch after tests+review; only it cleans up completed clean worktree folders and merged branches after preserving source/review history. Rework uses a fresh job/worktree based on latest integrated commit.
 - PRs are targeted to the policy-selected integration branch; branch protection, required checks, no force push and signed commits (if supported) must be configured *at GitHub*, not presumed from Markdown.
 
 ## Commit style — standard Conventional Commits
@@ -30,6 +30,16 @@ Rules: `<type>(optional-scope): imperative subject`; typical types feat, fix, do
 
 ## Tests and gates
 
+Native setup is explicit: install .NET SDK `9.0.205`, Go `1.21.3`, supported Node
+(`24` in CI) and npm, then run `python tools/build_native.py` from this trusted
+source checkout. Setup builds only `native/` helpers, restores the locked
+ScriptDom package and runs `npm ci --ignore-scripts`. Outputs live under ignored
+`.devsift/local/tools/`; frontend dependencies remain in `native/frontend/node_modules`.
+Set `DEVSIFT_TEST_NATIVE=1` and run `python -m unittest discover -s tests -v`.
+Missing helpers then fail tests; the ordinary suite explicitly skips native tests.
+The native CI matrix runs setup and actual analyzers on Windows and Linux.
+No scan invokes setup, package installation or target-project builds.
+
 - Unit: DAG classification, policy, schema validation, CLI, redaction, rules positive/negative.
 - Integration: pinned analyzer execution and error propagation, changed vs legacy classification, SARIF schema and Markdown report snapshots.
 - E2E: mixed .NET/TS/Go/SQL fixtures with good and bad inputs; verify no DB access.
@@ -40,11 +50,11 @@ Rules: `<type>(optional-scope): imperative subject`; typical types feat, fix, do
 ## Worktree lifecycle and savepoints
 
 1. Check `git status --short`, base SHA and exclusive ownership. Never silently touch existing dirty worktrees.
-2. Controller creates branch+worktree for bounded writer. Job packet records job ID, goal canonical/execution ID, task IDs, base SHA, worktree, owner, locks, acceptance, result format.
+2. Controller creates branch+worktree for bounded writer at `<repo>/worktrees/<job>` only; never create sibling `devsift-*` directories. Job packet records job ID, goal canonical/execution ID, task IDs, base SHA, worktree, owner, locks, acceptance, result format.
 3. Worker commits on own branch and returns hashes, tests, changed paths, risks; it never merges or cleans.
 4. Reviewer checks independently; controller verifies and integrates with conflict checks.
-5. Only after proven integration, clean status and no unresolved review: `git worktree remove <path>` and `git branch -d <branch>` (no force). Audit deletion in ledger.
-6. Rework creates new worktree/job; historical job evidence remains immutable.
+5. After task completion, verify absolute path containment within `<repo>/worktrees/`, clean status, and accepted integration/replacement evidence. Remove its folder with `git worktree remove <path>` (no force). Delete a merged branch with `git branch -d`; for a superseded commit without merge ancestry, retain its branch/ref and the reviewed replacement SHA, while removing the clean finished folder. Audit paths, source/replacement hashes and cleanup in the ledger. Never delete unique unrecorded or dirty work.
+6. Rework creates a fresh worktree/job under `worktrees/`; once its replacement is accepted, remove the old clean superseded worktree folder while retaining commit refs and immutable evidence. No completed worktree folders remain at session completion.
 7. Before pause/move/shutdown or at milestone: `python tools/planctl.py checkpoint` plus human-readable `templates/SAVEPOINT.md`; include uncommitted changes without destroying them. Resume verifies hashes and reality before dispatching tasks.
 
 ## Execution IDs
@@ -54,3 +64,15 @@ Canonical `G###` stays immutable. `GA###` iff some true entry lacks full predece
 ## Separate permissions
 
 Discussing/planning does not authorize edits. Local implementation authorization does not authorize push, merge PR, publication or touching a consumer repository. Each operation respects explicit scope and host capabilities.
+
+## Worktree directory convention
+
+`worktrees/` is a local ignored container within this source repo, not another GitHub repository. Each child shares the main repository Git objects and remote. Example from the source root:
+
+```powershell
+git worktree add -b feature/g006-t016-j01 worktrees/g006-t016-j01 <integrated-sha>
+# After independent acceptance, clean-status and integration/ref-preservation checks:
+git worktree remove worktrees/g006-t016-j01
+```
+
+The container is excluded from Git staging, source inventory, native tool inputs and normal test discovery. On shutdown/resume inspect `git worktree list` plus the ledger. Preserve dirty/unique work with a deterministic resume record; do not leave finished folders merely because a superseded branch is retained. Review-only temporary copies follow the same contained layout and cleanup discipline.

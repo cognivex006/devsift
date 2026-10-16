@@ -36,3 +36,5 @@ With G001 containing T001 and T002, G002/T003 depends on T001 only: G002 is A an
 ## Limits
 
 No host API available for subagents in this delivered kit. This is a portable orchestration contract, not a live 5-agent system. Goals carry 165 active minute budgets (<180) and must split at an actual deadline or complexity overrun; checkpoint existing work before split. No unsupported time estimate is a user-facing promise.
+
+Worktree convention: create only `<repo>/worktrees/<job>` (ignored). At job completion remove clean integrated or documented superseded folders after preserving commit refs/replacement evidence. Keep historical branches without retaining finished folders. Never discard dirty or unique unrecorded work. Controller audits cleanup and leaves no finished job directories at session completion. This convention supersedes older wording that required retaining the folder for every unmerged superseded branch.

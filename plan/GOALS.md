@@ -1,6 +1,6 @@
 # DevSift v6 — Goal Catalog
 
-2026-10-16 sessions: **G000–G005 accepted** (17 tasks); evidence in `docs/evidence/` and canonical status in `plan/ledger.json`.
+2026-10-16 sessions: **G000–G010 accepted** (32 tasks); evidence in the code repository `docs/evidence/` and canonical execution status in `plan/ledger.json`.
 
 26 goals / 77 tasks. Goal timebox <=165 active minutes including review and checkpoint. Recompute structural class from actual transitive task dependencies.
 

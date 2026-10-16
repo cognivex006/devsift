@@ -32,6 +32,10 @@ Scope boundary: apply ONLY to an explicitly authorized task developing the `devs
 
 Pre-write: policy + source chain + scope + lock + task readiness. Pre-commit: syntax/native lint + related tests + secret scan + diff check. PR: CI + source report/contract snapshots. Merge: independent reviewer acceptance, integration tests as needed and no open blockers. Release: separate explicit authorization and security/integrity gates.
 
+## Worktree placement and cleanup
+
+Create job worktrees only at `<repo>/worktrees/<job>` (ignored locally); never create sibling `devsift-*` folders. Controller removes finished clean worktree folders after accepted integration or documented supersession with original commit refs retained. Unmerged historical branches may remain without their folders. Never discard dirty or unique unrecorded work. Record cleanup in the ledger, including path containment, status, source and replacement SHA.
+
 ## Completion
 
 Mark a task `accepted` only when reviewer evidence and actual integrated artifact exist. Refresh ready frontier and checkpoint. Goal complete only if every required task accepted. Leave blocked work with deterministic resume instructions and lock/branch ownership. Use `docs/AGENT-EXECUTION-PROTOCOL.md` for delegation mechanics.

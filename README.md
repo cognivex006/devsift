@@ -5,7 +5,7 @@
 DevSift aims to detect code-quality and security issues as changes are developed, link findings to verified source locations, explain human-readable risk and provide narrowly scoped agent remediation prompts. New code can be gated; existing legacy code is recommendation-first. Code scanning never silently refactors production services.
 
 **Repository:** https://github.com/orchex006/devsift  
-**Stage:** G000–G005 foundations accepted: bootstrap, policy/CLI, immutable evidence, scan coordination and Git provenance. Native analyzers and complete report backends remain pending; no published package.
+**Stage:** G000–G010 accepted: foundations, immutable baselines, bounded native host and actual backend/frontend/SQL AST analyzers. Complete report/prompt backends remain pending; no published package.
 **Specifications:** https://github.com/orchex006/devsift-specs  
 **Independence:** usable in arbitrary projects; AgriMap, Axiom and Drevqon are optional integrations, not architectural dependencies.
 
@@ -23,7 +23,7 @@ devsift prompt OBS-001 --mode review
 devsift doctor
 ```
 
-The CLI calls the real read-only inventory/coordinator. `--changed` selects staged, unstaged and untracked paths and reads working-tree bytes; `--all` inventories the current directory. Native analyzers are not registered by default, so scan requests remain **exit 2 (`incomplete`)**. An empty findings array is not a successful quality scan. Report/prompt backends remain pending.
+The CLI calls the real read-only inventory/coordinator. `--changed` selects staged, unstaged and untracked paths and reads working-tree bytes; `--all` inventories the current directory. Native analyzers require [explicit pinned setup and trusted manifest/digest flags](docs/NATIVE-SETUP.md). Without those flags, scans remain **exit 2 (`incomplete`)**. Source-verified findings retain UNKNOWN lifecycle until separately proven attribution is supplied. An empty findings array is not a successful quality scan. Report/prompt backends remain pending.
 
 Local libraries provide [immutable evidence](docs/EVIDENCE.md), [scan coordination](docs/SCAN-RESULTS.md), [Git source provenance](docs/GIT-PROVENANCE.md) and [policy](docs/POLICY.md). See [CLI behavior](docs/CLI.md) and [accepted progress](plan/EXECUTION-STATUS.md).
 
@@ -34,7 +34,7 @@ repository description verified, and Windows/Linux CI passes. Evidence is in
 [`docs/evidence/G000.md`](docs/evidence/G000.md). Current execution state is maintained
 in [`plan/ledger.json`](plan/ledger.json); G001 policy is accepted with
 [fixture/reviewer evidence](docs/evidence/G001.md); G002 has [installed CLI evidence](docs/evidence/G002.md). The specifications repository preserves the
-original design and planning fixture. G003–G005 evidence and all goal/task checklists are linked from the [current progress summary](plan/EXECUTION-STATUS.md). All further code changes use reviewed pull requests.
+original design and planning fixture. G003–G010 evidence and all goal/task checklists are linked from the [current progress summary](plan/EXECUTION-STATUS.md). All further code changes use reviewed pull requests.
 
 ```bash
 python tools/planctl.py validate
@@ -53,7 +53,7 @@ These offline commands validate the plan and files; **they do not push commits, 
 - `skills/`: development planning/execution/checkpoint plus planned `$devsift` consumer entrypoint
 - `docs/`: bootstrap runbook, repository identity, report contract, open-source process, source study and checklists
 - `reference/v4/`: frozen historical source-aware lint specification; **not installed as functional engine**
-- `.github/workflows/`: plan/test validation and installed CLI contract checks on Windows/Linux; analyzer quality gates remain future work
+- `.github/workflows/`: plan/test validation and installed CLI contract checks on Windows/Linux; actual pinned native analyzer tests on Windows/Linux
 
 ## License and maturity
 

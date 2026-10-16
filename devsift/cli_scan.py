@@ -43,11 +43,11 @@ def _filter_config(root):
                  for argument in ('-c', f'filter.{driver}.{option}={value}'))
 
 
-def run_scan(root, *, all_scope=False, legacy_mode="recommend"):
+def run_scan(root, *, all_scope=False, legacy_mode="recommend", native_manifest=None, native_manifest_digest=None):
     """Changed scope unions staged, unstaged and untracked file paths.
 
     This selects candidates, not finding lifecycle attribution. Deleted files
-    stay explicit incomplete targets. The coordinator registers no native tools.
+    stay explicit incomplete targets. Only an explicit trusted manifest enables native tools.
     """
     candidates = None
     if not all_scope:
@@ -70,6 +70,28 @@ def run_scan(root, *, all_scope=False, legacy_mode="recommend"):
                                    "message": "Changed scope requires a Git repository root and readable HEAD."}],
                           data={"scope": "changed", "legacy_mode": legacy_mode,
                                 "mode": "incremental", "targets": []})
-    record = scan(root, candidates)
+    adapters = ()
+    if native_manifest is not None or native_manifest_digest is not None:
+        from .native_manifest import load_manifest
+        from .native_host import NativeAdapter
+        try:
+            # All entries must validate before the first NativeAdapter probes.
+            configured = load_manifest(native_manifest, native_manifest_digest)
+            origin = Path(root).resolve(strict=True)
+            top = Path(_git(origin, 'rev-parse', '--show-toplevel').decode('utf-8').strip()).resolve()
+            head = _git(origin, 'rev-parse', '--verify', 'HEAD^{commit}').decode('ascii').strip()
+            import re
+            if top != origin or re.fullmatch('(?:[0-9a-f]{40}|[0-9a-f]{64})', head) is None:
+                raise ValueError('Immutable root source required')
+            adapters = tuple(NativeAdapter(entry.tool, repo_root=origin, source_sha=head,
+                                           dialect=entry.dialect) for entry in configured)
+        except (OSError, ValueError, TypeError, UnicodeError, subprocess.SubprocessError):
+            return result('scan', complete=False, errors=[{'code': 'NATIVE_MANIFEST_UNAVAILABLE',
+                          'message': 'Native manifest or immutable source configuration is unavailable.'}],
+                          data={'scope': 'all' if all_scope else 'changed', 'legacy_mode': legacy_mode, 'targets': []})
+    record = scan(root, candidates, adapters=adapters)
+    if any(not adapter.probe.available for adapter in adapters):
+        record.update(complete=False, status='incomplete', exit_code=2)
+        record['errors'].append({'code': 'NATIVE_TOOL_UNAVAILABLE', 'message': 'A configured native tool is unavailable.'})
     record["data"].update(scope="all" if all_scope else "changed", legacy_mode=legacy_mode)
     return record

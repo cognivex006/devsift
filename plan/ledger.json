@@ -344,9 +344,11 @@
         "T018"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G006.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -408,9 +410,11 @@
         "T021"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G007.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -454,9 +458,11 @@
         "T024"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G008.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -489,10 +495,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -506,9 +510,11 @@
         "T027"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G009.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -541,10 +547,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -558,9 +562,11 @@
         "T030"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G010.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -593,10 +599,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -645,10 +649,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -701,10 +703,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -801,12 +801,8 @@
               "T013"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T016",
-            "T017",
-            "T018"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T041",
@@ -983,15 +979,8 @@
               "T010"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019",
-            "T020",
-            "T021",
-            "T022",
-            "T023",
-            "T024"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T050",
@@ -1025,16 +1014,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T019",
-            "T025",
-            "T026",
-            "T027",
-            "T028",
-            "T029",
-            "T030"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -1144,21 +1125,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T016",
-            "T017",
-            "T018",
-            "T019",
-            "T020",
-            "T021",
-            "T022",
-            "T023",
-            "T024",
-            "T025",
-            "T026",
-            "T027",
-            "T028",
-            "T029",
-            "T030",
             "T031",
             "T032",
             "T033",
@@ -1408,7 +1374,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T019",
             "T031",
             "T032",
             "T033"
@@ -1530,21 +1495,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T016",
-            "T017",
-            "T018",
-            "T019",
-            "T020",
-            "T021",
-            "T022",
-            "T023",
-            "T024",
-            "T025",
-            "T026",
-            "T027",
-            "T028",
-            "T029",
-            "T030",
             "T031",
             "T032",
             "T033",
@@ -2754,12 +2704,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA006"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "test_result": "6actualGit/file baseline+3suppression tests pass; stricttrustedhash/CAS/approval/atomicfailure/criticalexpiry guards; syntax/schema/diff passed",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b",
+          "test_result": "DistinctexactSHAreviewaccepted;6baseline+3suppressionintegrationtests pass; tamper/CAS/approval/expiry/criticalfloorverified",
+          "evidence_uri": "docs/evidence/G006.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA006",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.069057+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.069057+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:34:43.334824+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:36:20.330984+00:00"
+        }
+      ]
     },
     "T017": {
       "id": "T017",
@@ -2778,12 +2764,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA006"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "test_result": "6actualGit/file baseline+3suppression tests pass; stricttrustedhash/CAS/approval/atomicfailure/criticalexpiry guards; syntax/schema/diff passed",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b",
+          "test_result": "DistinctexactSHAreviewaccepted;6baseline+3suppressionintegrationtests pass; tamper/CAS/approval/expiry/criticalfloorverified",
+          "evidence_uri": "docs/evidence/G006.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA006",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.069057+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.069057+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:34:43.334824+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:36:20.330984+00:00"
+        }
+      ]
     },
     "T018": {
       "id": "T018",
@@ -2803,12 +2825,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA006"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
+          "test_result": "8externalbaseline invariant tests pass+16invalidwaiver fixtures; trusteddigest/authlimits/CASversions/strictJSON/read-only/expiry/criticalfloor; syntax/diffpassed",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
+          "integrated_sha": "17a35d2a633711252e4906eb189f61eab8a7aa01",
+          "test_result": "Independentexactreviewaccepted;8baseline/waiver invariants pass incl16negativefixtures; sourceproducer6+3passed; G006complete",
+          "evidence_uri": "docs/evidence/G006.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA006",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:36:20.762077+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:36:20.762077+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:40:33.848279+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:42:16.290113+00:00"
+        }
+      ]
     },
     "T019": {
       "id": "T019",
@@ -2827,12 +2885,74 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA007"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340",
+          "test_result": "10actualWindowschild tests pass incl JobObject suspended startup/tree cleanup/timeout/flood/deadlock/env/argv/redaction; POSIX branch awaiting actualCI; syntax/diff/plan passed",
+          "author": "cli_writer"
+        },
+        {
+          "source_sha": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+          "test_result": "12actualWindows runner tests pass; real suspended-child assignment andJobterminationfailure regressions redthenfixed; boundedkill/reap andpipesclosed; syntax/diffpassed",
+          "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+          "integrated_sha": "490fca0fefce2a907856bf6dfe879eb29a3bb01b",
+          "test_result": "Independentexactreviewaccepted;12actualWindowsprocess integrationtests pass; POSIXawaitingCI; shell/env/stream/time/tree/cleanupguardsverified",
+          "evidence_uri": "docs/evidence/G007.md"
+        }
+      ],
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA007",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.220649+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:29:27.220649+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:35:00.882055+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "at": "2026-10-16T08:38:12.476794+00:00",
+          "reason": "Windows job attachment failure leaves unassigned suspended child alive"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:38:12.476794+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:38:12.476794+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:40:24.762092+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:42:15.571610+00:00"
+        }
+      ]
     },
     "T020": {
       "id": "T020",
@@ -2852,12 +2972,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA007"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66",
+          "test_result": "7realprocess protocol/probe tests pass: exactpins/missing/tamper/nonfinite/dupe/bounds/physicalLF/sourceproof/UNKNOWN/stalesnapshot; syntax/diffpassed",
+          "author": "controller"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66",
+          "integrated_sha": "af8bf8d1d885a9fb16e8a2b4ce3e1744bbed7d37",
+          "test_result": "Distinctexactreviewaccepted;7actualprocess probes/normalization tests pass; strictwire/identitypins/sourcebounds/defaultUNKNOWN verified",
+          "evidence_uri": "docs/evidence/G007.md"
+        }
+      ],
+      "assignee": "controller",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA007",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:42:16.619712+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:42:16.619712+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:46:32.092197+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:54.595636+00:00"
+        }
+      ]
     },
     "T021": {
       "id": "T021",
@@ -2877,12 +3033,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA007"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac",
+          "test_result": "5actualprocess conformance tests pass plus9externalnegativewire cases; UTF8physicalLF/Unicodeportablepaths/timeoutactualstatus/partialdiags/no-writes validated",
+          "author": "controller"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac",
+          "integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38",
+          "test_result": "Distinctreviewaccepted;5actualprocess conformance tests+9negativewirecases pass; actualLinuxCIrequiredbyfinalgoalcheckpoint",
+          "evidence_uri": "docs/evidence/G007.md"
+        }
+      ],
+      "assignee": "controller",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA007",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:54.895343+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:54.895343+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:56:10.122498+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:08.855638+00:00"
+        }
+      ]
     },
     "T022": {
       "id": "T022",
@@ -2901,12 +3093,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA008"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80",
+          "test_result": "10actualRoslynWindows tests pass withnativeenabled; SDK9.0.205build0warnings/errors, framework-shadowingredthenfixed, spans/proof/tamper/no-targetwrites",
+          "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80",
+          "integrated_sha": "2ab62314e114bf9ff491aa4b5d4734d49bd930ac",
+          "test_result": "Distinctreviewaccepted;10actualnativeRoslynintegrationtests PASS no skips, SDK9.0.205/assembly4.13.0.0/pins/semanticframework/span/no-writeverified",
+          "evidence_uri": "docs/evidence/G008.md"
+        }
+      ],
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA008",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.048992+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.048992+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:56:10.256368+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:59:30.483354+00:00"
+        }
+      ]
     },
     "T023": {
       "id": "T023",
@@ -2925,12 +3153,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA008"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766",
+          "test_result": "8actualGo1.21.3ASTtests PASS, offlineownbuild/no targetimports; aliases/shadow/errorbinding/coordinates/pinchecked; sourcefmt/syntax/diffpassed",
+          "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766",
+          "integrated_sha": "a03c53227b7db51410251405c596e97eaac20970",
+          "test_result": "Distinct reviewer accepted exact SHA; controller integration eight actual Go tests pass Windows",
+          "evidence_uri": "docs/evidence/G008.md"
+        }
+      ],
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA008",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:09.240115+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:09.240115+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:08:18.118222+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:16:06.304799+00:00"
+        }
+      ]
     },
     "T024": {
       "id": "T024",
@@ -2950,12 +3214,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA008"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6",
+          "test_result": "Writer five actual backend acceptance suites, eight static golden cases, Git proof UNKNOWN/stale/no-writes and noexecution",
+          "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6",
+          "integrated_sha": "2277259e7b57b032f6fd04604c6a28651a271517",
+          "test_result": "Distinct reviewer five actual golden suites pass100.49s; controller integrated five pass43.137s; exact static severity/region and real Git noexecution/no-write proof",
+          "evidence_uri": "docs/evidence/G008.md"
+        }
+      ],
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA008",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:20:43.232510+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:20:43.232510+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:26:06.101302+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:30:53.753818+00:00"
+        }
+      ]
     },
     "T025": {
       "id": "T025",
@@ -2974,12 +3274,68 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA009"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04",
+          "test_result": "7actualESLint10.12.0/TSparser8.71.2/TS6.0.3 tests PASS, exactnativeprobe, Angular/Next/JSX AST/no-inline-disable/no-target-configexecution/Unicode/Gitproof/no-writes",
+          "author": "controller"
+        },
+        {
+          "source_sha": "235a606",
+          "test_result": "Actual native malformed wire duplicate/escaped keys, invalid UTF8 and trailing-data regression plus existing suite",
+          "author": "controller"
+        },
+        {
+          "source_sha": "c004c27e0c10ed7c138b30b4091408554e1a6ce2",
+          "author": "controller",
+          "test_result": "8 actual frontend tests pass; includes JSON Unicode LS/PS fix"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "c004c27e0c10ed7c138b30b4091408554e1a6ce2",
+          "integrated_sha": "8243543e4de005cd8ad5eb47b8dc63b7ac478472",
+          "test_result": "Distinct reviewer eight actual native tests passed 32.07s; controller eight passed 56.945s",
+          "evidence_uri": "docs/evidence/G009.md"
+        }
+      ],
+      "assignee": "controller",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA009",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.186222+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.186222+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:09:49.676750+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "controller",
+          "reason": "review duplicate source JSON accepted"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:18:26.651518+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:21:22.409348+00:00"
+        }
+      ]
     },
     "T026": {
       "id": "T026",
@@ -2998,12 +3354,63 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA009"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b",
+          "test_result": "Five actual native frontend context suites pass Windows; endpoint aliases/shadows/config/fixtures, credentials and placeholders, Unicode regions",
+          "author": "controller"
+        },
+        {
+          "source_sha": "887875644aa7e7f41a155e1976646136b2847b00",
+          "test_result": "Six actual frontend tests pass84.048s; final actual Git source mask/from_dict/classifier/baseline reproof regression passes54.518s; all credential forms including escaped identifier",
+          "author": "controller"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "887875644aa7e7f41a155e1976646136b2847b00",
+          "integrated_sha": "8fd7ee32007300692a166e04023a9507adcc07bc",
+          "test_result": "Distinct reviewer six actual context tests138.54s, 13 evidence+16 scanner pass; controller six native84s and final Git mask/wire/classifier/baseline54.518s; raw fingerprints distinct",
+          "evidence_uri": "docs/evidence/G009.md"
+        }
+      ],
+      "assignee": "controller",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA009",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:21:22.812551+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:21:22.812551+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:25:04.453728+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "controller",
+          "reason": "review actual native Git scan leaked unrecognized credential names"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:33:22.323377+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:36:24.412899+00:00"
+        }
+      ]
     },
     "T027": {
       "id": "T027",
@@ -3022,12 +3429,63 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA009"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d",
+          "test_result": "Writer five actual native frontend acceptance39.319s; 3500declarations127280bytes2.077s within30s; strengthened no-targethook test4.669s",
+          "author": "policy_writer"
+        },
+        {
+          "source_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+          "test_result": "Fresh integratedbase five actual frontend acceptance tests30.194s; 3500decl127280bytes2.213s, native30sec; explicit emptyadapters seam compatible",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+          "integrated_sha": "17da8eca140188c1e0c2b7932cca4f73e859e42e",
+          "test_result": "Distinct reviewer five actual native acceptance60.29s, workload3.656s; controller integrated five28.526s workload1.693s127280bytes3500decl; changed scope actualAST no sourcewrites/execution",
+          "evidence_uri": "docs/evidence/G009.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA009",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:36:24.815455+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:36:24.815455+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:39:59.259453+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "controller",
+          "reason": "integrated native CLI adds explicit adapters keyword to scan seam"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:42:22.181512+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:44:39.807945+00:00"
+        }
+      ]
     },
     "T028": {
       "id": "T028",
@@ -3046,12 +3504,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA010"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877",
+          "test_result": "6actualScriptDomWindows tests pass withnativeenabled; pinnedSDK/NuGetlockedrestore/publishverified; TSQL150/160/metadata/syntax/untrustedSQLtextnoexecution/strictwire",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877",
+          "integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38",
+          "test_result": "Distinctreviewaccepted;6actualScriptDomintegrationtests PASS no skips withcorrectexplicitartifactspath; package/assembly/TSQLmetadata/noSQLexecutionverified",
+          "evidence_uri": "docs/evidence/G010.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA010",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.316795+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:55.316795+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:56:10.406019+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:08.626007+00:00"
+        }
+      ]
     },
     "T029": {
       "id": "T029",
@@ -3070,12 +3564,63 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA010"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091",
+          "test_result": "Writer: ScriptDom publish, seven SQL rules and six parser tests passed with actual native process",
+          "author": "policy_writer"
+        },
+        {
+          "source_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
+          "test_result": "Writer reproduced eight regressions then nine rule and six parser tests pass actual ScriptDom",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
+          "integrated_sha": "719253e4856d47eb882bca84ea489081a082556e",
+          "test_result": "Distinct reviewer 9 rules plus 6 parser actual tests; controller nine rule tests pass32.785s, truncation/context incomplete",
+          "evidence_uri": "docs/evidence/G010.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA010",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:09.418905+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:09.418905+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:15:48.872633+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "controller",
+          "reason": "quoted identifier truncation and EXECUTE AS context"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:22:13.582342+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:25:23.443544+00:00"
+        }
+      ]
     },
     "T030": {
       "id": "T030",
@@ -3094,12 +3639,48 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA010"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f",
+          "test_result": "Writer five actual ScriptDom dialect acceptance tests pass101.5s, no SQL/DB/source execution",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f",
+          "integrated_sha": "19967521978b61b86d443f37c3574046b589dd3b",
+          "test_result": "Distinct reviewer five actual ScriptDom acceptance pass23.75s; controller integrated five pass26.320s, no source/DB execution",
+          "evidence_uri": "docs/evidence/G010.md"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA010",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:25:23.872722+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:25:23.872722+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:30:24.505338+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:32:54.288370+00:00"
+        }
+      ]
     },
     "T031": {
       "id": "T031",
@@ -4265,13 +4846,15 @@
   },
   "execution": {
     "selected_goals": [
-      "G003",
-      "G004",
-      "G005"
+      "G006",
+      "G007",
+      "G008",
+      "G009",
+      "G010"
     ],
     "controller": "controller",
     "policy_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
-    "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+    "base_sha": "dbd9deea87c914fc63da4d286d962dfc7aa52928",
     "jobs": {
       "T000": {
         "owner": "controller",
@@ -4609,104 +5192,633 @@
         "lease": "selected G003-G005 session until accepted/reassigned",
         "source_sha": "94583e15f17c93cba565ba48e3de18ba2e89e9cf",
         "integrated_sha": "3cef9332322eff33ef53034680d4d5a653bf020d"
+      },
+      "T016": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "feature/g006-baseline",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-baseline",
+        "paths": [
+          "devsift/baseline.py",
+          "devsift/suppressions.py",
+          "schemas/baseline.schema.json",
+          "schemas/suppression.schema.json",
+          "tests/test_baseline.py",
+          "tests/test_suppressions.py",
+          "docs/BASELINE.md"
+        ],
+        "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
+        "locks": [],
+        "lease": "selected G006-G010 session until accepted/reassigned",
+        "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+        "integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b"
+      },
+      "T017": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "feature/g006-baseline",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-baseline",
+        "paths": [
+          "devsift/baseline.py",
+          "devsift/suppressions.py",
+          "schemas/baseline.schema.json",
+          "schemas/suppression.schema.json",
+          "tests/test_baseline.py",
+          "tests/test_suppressions.py",
+          "docs/BASELINE.md"
+        ],
+        "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
+        "locks": [],
+        "lease": "selected G006-G010 session until accepted/reassigned",
+        "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+        "integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b"
+      },
+      "T019": {
+        "owner": "cli_writer",
+        "status": "accepted",
+        "branch": "fix/g007-runner-cleanup",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g007-runner-cleanup",
+        "paths": [
+          "devsift/process_runner.py",
+          "tests/test_process_runner.py",
+          "docs/PROCESS-RUNNER.md"
+        ],
+        "base_sha": "a9b1a27f9ee90e6d52a29b2bec5050d5607f1dbd",
+        "locks": [],
+        "lease": "selected G006-G010 session until accepted/reassigned",
+        "source_sha": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+        "prior_jobs": [
+          {
+            "owner": "cli_writer",
+            "status": "in_review",
+            "branch": "feature/g007-runner",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g007-runner",
+            "paths": [
+              "devsift/process_runner.py",
+              "tests/test_process_runner.py",
+              "docs/PROCESS-RUNNER.md"
+            ],
+            "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
+            "locks": [
+              "write:adapters/host"
+            ],
+            "lease": "selected G006-G010 session until accepted/reassigned",
+            "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340"
+          }
+        ],
+        "integrated_sha": "490fca0fefce2a907856bf6dfe879eb29a3bb01b"
+      },
+      "T018": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "feature/g006-baseline-invariants",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-invariants",
+        "paths": [
+          "tests/test_baseline_invariants.py",
+          "tests/fixtures/baseline/"
+        ],
+        "base_sha": "71c9699ad61223b017c3aaa496174ba9f07ba686",
+        "locks": [],
+        "lease": "selected G006-G010 session until accepted/reassigned",
+        "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
+        "integrated_sha": "17a35d2a633711252e4906eb189f61eab8a7aa01"
+      },
+      "T020": {
+        "owner": "controller",
+        "status": "accepted",
+        "branch": "feature/g006-g010-native-analysis",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "paths": [
+          "devsift/native_host.py",
+          "schemas/native-protocol.schema.json",
+          "tests/test_native_host.py",
+          "docs/NATIVE-PROTOCOL.md"
+        ],
+        "base_sha": "148d318f34867583172e251295fce98fad5881e0",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66",
+        "integrated_sha": "af8bf8d1d885a9fb16e8a2b4ce3e1744bbed7d37"
+      },
+      "T021": {
+        "owner": "controller",
+        "status": "accepted",
+        "branch": "feature/g006-g010-native-analysis",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "paths": [
+          "tests/test_native_conformance.py",
+          "tests/fixtures/native-protocol/"
+        ],
+        "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "f0e79b5309459244dd6421747f93b435cf4c3cac",
+        "integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38"
+      },
+      "T022": {
+        "owner": "cli_writer",
+        "status": "accepted",
+        "branch": "feature/g008-roslyn",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-roslyn",
+        "paths": [
+          "devsift/dotnet_adapter.py",
+          "native/dotnet/",
+          "tests/test_dotnet_adapter.py",
+          "docs/DOTNET-ADAPTER.md"
+        ],
+        "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80",
+        "integrated_sha": "2ab62314e114bf9ff491aa4b5d4734d49bd930ac"
+      },
+      "T025": {
+        "owner": "controller",
+        "status": "accepted",
+        "branch": "fix/g009-json-rework",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-json-rework",
+        "paths": [
+          "devsift/typescript_adapter.py",
+          "native/frontend/",
+          "tests/test_typescript_adapter.py",
+          "docs/TYPESCRIPT-ADAPTER.md"
+        ],
+        "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "c004c27e0c10ed7c138b30b4091408554e1a6ce2",
+        "prior_jobs": [
+          {
+            "owner": "controller",
+            "status": "in_review",
+            "branch": "feature/g006-g010-native-analysis",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift",
+            "paths": [
+              "devsift/typescript_adapter.py",
+              "native/frontend/",
+              "tests/test_typescript_adapter.py",
+              "docs/TYPESCRIPT-ADAPTER.md"
+            ],
+            "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
+            "locks": [
+              "write:adapters/typescript"
+            ],
+            "lease": "selected execution session until accepted/reassigned",
+            "source_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04"
+          }
+        ],
+        "integrated_sha": "8243543e4de005cd8ad5eb47b8dc63b7ac478472"
+      },
+      "T028": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "feature/g010-sql-parser",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-sql-parser",
+        "paths": [
+          "devsift/sql_adapter.py",
+          "native/sql/",
+          "tests/test_sql_adapter.py",
+          "docs/SQL-ADAPTER.md"
+        ],
+        "base_sha": "beedbdc4c0339330c46afb38adee837265613690",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877",
+        "integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38"
+      },
+      "T023": {
+        "owner": "cli_writer",
+        "status": "accepted",
+        "branch": "feature/g008-go",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-go",
+        "paths": [
+          "devsift/go_adapter.py",
+          "native/go/",
+          "tests/test_go_adapter.py",
+          "docs/GO-ADAPTER.md"
+        ],
+        "base_sha": "26b381bc8e74eebd241fa5f5ade43a4174651eec",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766",
+        "integrated_sha": "a03c53227b7db51410251405c596e97eaac20970"
+      },
+      "T029": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "fix/g010-sql-flow-rework",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g010-sql-flow-rework",
+        "paths": [
+          "devsift/sql_adapter.py",
+          "native/sql/Program.cs",
+          "tests/test_sql_rules.py",
+          "tests/test_sql_adapter.py",
+          "docs/SQL-ADAPTER.md"
+        ],
+        "base_sha": "26b381bc8e74eebd241fa5f5ade43a4174651eec",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
+        "prior_jobs": [
+          {
+            "owner": "policy_writer",
+            "status": "in_review",
+            "branch": "feature/g010-sql-rules",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-sql-rules",
+            "paths": [
+              "devsift/sql_adapter.py",
+              "native/sql/Program.cs",
+              "tests/test_sql_rules.py",
+              "tests/test_sql_adapter.py",
+              "docs/SQL-ADAPTER.md"
+            ],
+            "base_sha": "26b381bc8e74eebd241fa5f5ade43a4174651eec",
+            "locks": [
+              "write:rules/sql"
+            ],
+            "lease": "selected execution session until accepted/reassigned",
+            "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091"
+          }
+        ],
+        "integrated_sha": "719253e4856d47eb882bca84ea489081a082556e"
+      },
+      "T024": {
+        "owner": "cli_writer",
+        "status": "accepted",
+        "branch": "feature/g008-backend-tests",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-backend-tests",
+        "paths": [
+          "tests/test_backend_golden.py",
+          "tests/fixtures/backend",
+          "docs/BACKEND-TESTS.md"
+        ],
+        "base_sha": "af0578b1b9a05698c98d582cc8349dea85a8868b",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6",
+        "integrated_sha": "2277259e7b57b032f6fd04604c6a28651a271517"
+      },
+      "T026": {
+        "owner": "controller",
+        "status": "accepted",
+        "branch": "fix/g009-credential-evidence",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-credential-evidence",
+        "paths": [
+          "devsift/evidence.py",
+          "devsift/native_host.py",
+          "devsift/scanner.py",
+          "tests/test_frontend_rules.py",
+          "docs/TYPESCRIPT-ADAPTER.md",
+          "devsift/git_changes.py"
+        ],
+        "base_sha": "8243543e4de005cd8ad5eb47b8dc63b7ac478472",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "887875644aa7e7f41a155e1976646136b2847b00",
+        "prior_jobs": [
+          {
+            "owner": "controller",
+            "status": "in_review",
+            "branch": "feature/g006-g010-native-analysis",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift",
+            "paths": [
+              "native/frontend/analyze.cjs",
+              "devsift/typescript_adapter.py",
+              "tests/test_frontend_rules.py",
+              "docs/TYPESCRIPT-ADAPTER.md"
+            ],
+            "base_sha": "8243543e4de005cd8ad5eb47b8dc63b7ac478472",
+            "locks": [
+              "write:rules/frontend"
+            ],
+            "lease": "selected execution session until accepted/reassigned",
+            "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b"
+          }
+        ],
+        "integrated_sha": "8fd7ee32007300692a166e04023a9507adcc07bc"
+      },
+      "T030": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "feature/g010-dialect-tests",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-dialect-tests",
+        "paths": [
+          "tests/test_sql_acceptance.py",
+          "tests/fixtures/sql",
+          "docs/SQL-TESTS.md"
+        ],
+        "base_sha": "719253e4856d47eb882bca84ea489081a082556e",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f",
+        "integrated_sha": "19967521978b61b86d443f37c3574046b589dd3b"
+      },
+      "native-cli-integration": {
+        "owner": "cli_writer",
+        "status": "accepted",
+        "branch": "feat/native-cli-manifest",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\native-cli-manifest",
+        "base_sha": "fe4c87fc4a35e448f93a07a4a41131780d42b643",
+        "source_sha": "74698b1b54acc684aa2baa4f75c180cce4905429",
+        "locks": [],
+        "paths": [
+          "devsift/native_manifest.py",
+          "devsift/cli.py",
+          "devsift/cli_scan.py",
+          "tools/build_native.py",
+          "tests/test_native_manifest.py",
+          "docs/NATIVE-SETUP.md"
+        ],
+        "purpose": "Controller integration of accepted native providers into explicit opt-in CLI configuration; no separate roadmap goal claimed",
+        "recorded_at": "2026-10-16T09:36:06.569019+00:00",
+        "reviewer": "reviewer",
+        "review_result": "accepted",
+        "integrated_sha": "087773e7725d3e1c3534956c9899bab20c59bba5",
+        "test_result": "Reviewer6manifest+14CLI pass inclactualGo/SQL; controller integrated6manifest pass9.267s"
+      },
+      "baseline-windows-correction": {
+        "owner": "cli_writer",
+        "status": "accepted",
+        "branch": "fix/g006-windows-baseline",
+        "source_sha": "3f9787f79101483f5b3084272dd9ba34933dacc1",
+        "locks": [],
+        "reviewer": "reviewer",
+        "review_result": "accepted",
+        "test_result": "18 actual Windows tests plus original8.3directoryalias probe independently pass; hosted standard/native Windows Python3.12 CI success38879997938/38879997915",
+        "integrated_sha": "929173d518e7817e241c6f21123e6fb359bbdd91"
+      },
+      "T027": {
+        "owner": "policy_writer",
+        "status": "accepted",
+        "branch": "fix/g009-scope-seam",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-scope-seam",
+        "paths": [
+          "tests/test_frontend_acceptance.py",
+          "tests/fixtures/frontend",
+          "docs/FRONTEND-TESTS.md"
+        ],
+        "base_sha": "8fd7ee32007300692a166e04023a9507adcc07bc",
+        "locks": [],
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+        "prior_jobs": [
+          {
+            "owner": "policy_writer",
+            "status": "in_review",
+            "branch": "feature/g009-performance-tests",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g009-performance-tests",
+            "paths": [
+              "tests/test_frontend_acceptance.py",
+              "tests/fixtures/frontend",
+              "docs/FRONTEND-TESTS.md"
+            ],
+            "base_sha": "8fd7ee32007300692a166e04023a9507adcc07bc",
+            "locks": [
+              "write:tests/frontend"
+            ],
+            "lease": "selected execution session until accepted/reassigned",
+            "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d"
+          }
+        ],
+        "integrated_sha": "17da8eca140188c1e0c2b7932cca4f73e859e42e"
+      },
+      "evidence-sensitive-display-compat": {
+        "owner": "controller",
+        "status": "accepted",
+        "source_sha": "4f65ad5e468b28b1065210385b28144d13ee5a9c",
+        "integrated_sha": "4f65ad5e468b28b1065210385b28144d13ee5a9c",
+        "reviewer": "reviewer",
+        "review_result": "accepted",
+        "locks": [],
+        "paths": [
+          "devsift/evidence.py",
+          "tests/test_evidence.py",
+          "docs/EVIDENCE.md"
+        ],
+        "test_result": "Regression failed old guard; controller14evidence tests20.572s pass, distinct reviewer actualGit compatibility regression1.91s pass; correct priorassertion upgrades tofullmask, wrongdisplayunresolved"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
     "checkpoint": {
+      "status": "selected scope accepted; final CI/publication in progress",
       "selected_goals": [
-        "G003",
-        "G004",
-        "G005"
+        "G006",
+        "G007",
+        "G008",
+        "G009",
+        "G010"
       ],
-      "status": "complete",
-      "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
-      "held_locks": [],
-      "active_jobs": [],
-      "latest_integrated_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52",
-      "updated_utc": "2026-10-16T08:02:57.269070+00:00",
-      "completed_goals": [
-        "G003",
-        "G004",
-        "G005"
-      ],
-      "accepted_tasks": [
-        "T007",
-        "T008",
-        "T009",
-        "T010",
-        "T011",
-        "T012",
-        "T013",
-        "T014",
-        "T015"
-      ],
-      "accepted_tasks_total": 17,
-      "code_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52",
-      "effective_subagent_capacity": 3,
-      "worktree_cleanup": [
+      "old_worktree_cleanup": [
         {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-contracts-rework",
-          "branch": "fix/g003-context-redaction",
-          "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
-          "integration_branch": "feature/g003-g005-foundations",
-          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
-          "clean_and_integrated": true,
-          "removed": true
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-cli",
+          "branch_retained": "feature/g002-cli",
+          "source_sha_retained": "dc62257f160374dce7be68ddeed56c92de3beea2",
+          "reviewed_replacement": "e2d569065a59eb5727a0101fd779fe956efd67e5",
+          "reason": "completed superseded job; user authorizes folder cleanup",
+          "removed": true,
+          "clean": true
         },
         {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-inventory",
-          "branch": "feature/g004-inventory",
-          "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
-          "integration_branch": "feature/g003-g005-foundations",
-          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
-          "clean_and_integrated": true,
-          "removed": true
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-contracts",
+          "branch_retained": "feature/g003-contracts",
+          "source_sha_retained": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e",
+          "reviewed_replacement": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+          "reason": "completed superseded job; user authorizes folder cleanup",
+          "removed": true,
+          "clean": true
         },
         {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-aggregation",
-          "branch": "feature/g004-aggregation",
-          "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
-          "integration_branch": "feature/g003-g005-foundations",
-          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
-          "clean_and_integrated": true,
-          "removed": true
-        },
-        {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-classifier-rework",
-          "branch": "fix/g005-no-lazy-fetch",
-          "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
-          "integration_branch": "feature/g003-g005-foundations",
-          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
-          "clean_and_integrated": true,
-          "removed": true
-        },
-        {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-rename",
-          "branch": "feature/g005-rename-drift",
-          "source_sha": "b7be3890ffc98d88af4fc7ca4d23db6c2185d5df",
-          "integration_branch": "feature/g003-g005-foundations",
-          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
-          "clean_and_integrated": true,
-          "removed": true
-        },
-        {
-          "path": "D:\\SP-Billy\\devsift-dev\\devsift-scope-rework",
-          "branch": "fix/g004-filter-safe-scope",
-          "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
-          "integration_branch": "feature/g003-g005-foundations",
-          "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
-          "clean_and_integrated": true,
-          "removed": true
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-classifier",
+          "branch_retained": "feature/g005-classifier",
+          "source_sha_retained": "6566171f9e97962adbc3eb7f595fe6970733bf1d",
+          "reviewed_replacement": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
+          "reason": "completed superseded job; user authorizes folder cleanup",
+          "removed": true,
+          "clean": true
         }
       ],
-      "pull_request": "https://github.com/orchex006/devsift/pull/5",
-      "savepoint": "docs/evidence/SESSION-G003-G005-2026-10-16.md",
-      "retained_superseded_worktrees": [
-        "D:/SP-Billy/devsift-dev/devsift-cli",
-        "D:/SP-Billy/devsift-dev/devsift-contracts",
-        "D:/SP-Billy/devsift-dev/devsift-classifier"
+      "held_locks": [],
+      "active_jobs": [],
+      "latest_integrated_sha": "f2b5d522446a288671dc7b5acfd140ad82f18862",
+      "updated_utc": "2026-10-16T09:46:02.591271+00:00",
+      "worktree_cleanup": [
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
+          "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "accepted_replacement": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "branch": "feature/g006-baseline",
+          "branch_retained": false,
+          "clean": true,
+          "removed": true,
+          "integration_sha": "5270521c99b51345d6c42a6774ffac4589f911e7"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-invariants",
+          "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
+          "accepted_replacement": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
+          "branch": "feature/g006-baseline-invariants",
+          "branch_retained": false,
+          "clean": true,
+          "removed": true,
+          "integration_sha": "5270521c99b51345d6c42a6774ffac4589f911e7"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g007-runner-cleanup",
+          "source_sha": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+          "accepted_replacement": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+          "branch": "fix/g007-runner-cleanup",
+          "branch_retained": false,
+          "clean": true,
+          "removed": true,
+          "integration_sha": "5270521c99b51345d6c42a6774ffac4589f911e7"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g007-runner",
+          "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340",
+          "accepted_replacement": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+          "branch": "feature/g007-runner",
+          "branch_retained": true,
+          "clean": true,
+          "removed": true,
+          "integration_sha": "5270521c99b51345d6c42a6774ffac4589f911e7"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g008-roslyn",
+          "contained": true,
+          "clean": true,
+          "source_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80",
+          "replacement_sha": "339cb282f2f7f949d25a2c3a5a62b456431a7c80",
+          "ref_retained": true,
+          "at": "2026-10-16T09:28:03.213283+00:00"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g008-go",
+          "contained": true,
+          "clean": true,
+          "source_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766",
+          "replacement_sha": "0d4af2b6cc77a19c311795cb47e7c1fc29cf0766",
+          "ref_retained": true,
+          "at": "2026-10-16T09:28:04.361884+00:00"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-json-rework",
+          "contained": true,
+          "clean": true,
+          "source_sha": "c004c27e0c10ed7c138b30b4091408554e1a6ce2",
+          "replacement_sha": "c004c27e0c10ed7c138b30b4091408554e1a6ce2",
+          "ref_retained": true,
+          "at": "2026-10-16T09:28:11.120768+00:00"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-windows-baseline",
+          "contained": true,
+          "clean": true,
+          "source_sha": "3f9787f79101483f5b3084272dd9ba34933dacc1",
+          "replacement_sha": "3f9787f79101483f5b3084272dd9ba34933dacc1",
+          "ref_retained": true,
+          "at": "2026-10-16T09:28:13.288023+00:00"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g010-sql-parser",
+          "contained": true,
+          "clean": true,
+          "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877",
+          "replacement_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877",
+          "ref_retained": true,
+          "at": "2026-10-16T09:28:16.586960+00:00"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g010-sql-rules",
+          "contained": true,
+          "clean": true,
+          "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091",
+          "replacement_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
+          "ref_retained": true,
+          "at": "2026-10-16T09:28:19.897572+00:00"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g008-backend-tests",
+          "contained": true,
+          "clean": true,
+          "source_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6",
+          "replacement_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6",
+          "ref_retained": true,
+          "reason": "accepted exact source integrated; canonical native artifacts built"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g010-dialect-tests",
+          "contained": true,
+          "clean": true,
+          "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f",
+          "replacement_sha": "35388d046a22089b1cdd1931c2b108183033f35f",
+          "ref_retained": true,
+          "reason": "accepted exact source integrated; canonical native artifacts built"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g010-sql-flow-rework",
+          "contained": true,
+          "clean": true,
+          "source_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
+          "replacement_sha": "19449f60ab9fbc7d66330447c1dab2720de6ce32",
+          "ref_retained": true,
+          "reason": "accepted exact source integrated; canonical native artifacts built"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-credential-evidence",
+          "contained": true,
+          "clean": true,
+          "source_sha": "887875644aa7e7f41a155e1976646136b2847b00",
+          "replacement_sha": "887875644aa7e7f41a155e1976646136b2847b00",
+          "ref_retained": true,
+          "reason": "independently accepted and integrated"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\native-cli-manifest",
+          "contained": true,
+          "clean": true,
+          "source_sha": "74698b1b54acc684aa2baa4f75c180cce4905429",
+          "replacement_sha": "74698b1b54acc684aa2baa4f75c180cce4905429",
+          "ref_retained": true,
+          "reason": "independently accepted and integrated"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\specs-boundary",
+          "contained": true,
+          "clean": true,
+          "source_sha": "0de2838ccf87eac535faf594a9de5fde54632538",
+          "replacement_sha": "0de2838ccf87eac535faf594a9de5fde54632538",
+          "ref_retained": true,
+          "reason": "clean preparatory worktree at existing integrated commit; no unique changes"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-performance-tests",
+          "contained": true,
+          "clean": true,
+          "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d",
+          "replacement_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+          "ref_retained": true,
+          "reason": "accepted frontend integration/replacement; git worktree remove succeeded"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-scope-seam",
+          "contained": true,
+          "clean": true,
+          "source_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+          "replacement_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+          "ref_retained": true,
+          "reason": "accepted frontend integration/replacement; git worktree remove succeeded"
+        }
       ],
-      "next_action": "Selected goals complete; no next goal dispatched"
+      "external_worktrees_preserved": [
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\specs-boundary",
+          "reason": "Re-created concurrently outside selected work; preserve active branch"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift-specs\\worktrees\\specs-boundary",
+          "reason": "Concurrent unrelated work with extensive uncommitted files; non-force cleanup refused and no files discarded"
+        }
+      ]
     },
     "previous_checkpoints": [
       {
@@ -4761,8 +5873,104 @@
             "removed": true
           }
         ]
+      },
+      {
+        "selected_goals": [
+          "G003",
+          "G004",
+          "G005"
+        ],
+        "status": "complete",
+        "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+        "held_locks": [],
+        "active_jobs": [],
+        "latest_integrated_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52",
+        "updated_utc": "2026-10-16T08:02:57.269070+00:00",
+        "completed_goals": [
+          "G003",
+          "G004",
+          "G005"
+        ],
+        "accepted_tasks": [
+          "T007",
+          "T008",
+          "T009",
+          "T010",
+          "T011",
+          "T012",
+          "T013",
+          "T014",
+          "T015"
+        ],
+        "accepted_tasks_total": 17,
+        "code_sha": "8c8f994c7f7f94f8a7e700d0edb97c4f05d3cf52",
+        "effective_subagent_capacity": 3,
+        "worktree_cleanup": [
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-contracts-rework",
+            "branch": "fix/g003-context-redaction",
+            "source_sha": "2123b7924ae777e60fdbcdb17767531387f7a5d7",
+            "integration_branch": "feature/g003-g005-foundations",
+            "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-inventory",
+            "branch": "feature/g004-inventory",
+            "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+            "integration_branch": "feature/g003-g005-foundations",
+            "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-aggregation",
+            "branch": "feature/g004-aggregation",
+            "source_sha": "0701363d380f4519ebfc8d46401c1f1bd02eeb77",
+            "integration_branch": "feature/g003-g005-foundations",
+            "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-classifier-rework",
+            "branch": "fix/g005-no-lazy-fetch",
+            "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
+            "integration_branch": "feature/g003-g005-foundations",
+            "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-rename",
+            "branch": "feature/g005-rename-drift",
+            "source_sha": "b7be3890ffc98d88af4fc7ca4d23db6c2185d5df",
+            "integration_branch": "feature/g003-g005-foundations",
+            "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
+            "clean_and_integrated": true,
+            "removed": true
+          },
+          {
+            "path": "D:\\SP-Billy\\devsift-dev\\devsift-scope-rework",
+            "branch": "fix/g004-filter-safe-scope",
+            "source_sha": "9efff0aec8e2662074ee7d229516410b3326ffa0",
+            "integration_branch": "feature/g003-g005-foundations",
+            "integration_sha": "76aed6f326e72d6c626229b07e6f33b92b3a701d",
+            "clean_and_integrated": true,
+            "removed": true
+          }
+        ],
+        "pull_request": "https://github.com/orchex006/devsift/pull/5",
+        "savepoint": "docs/evidence/SESSION-G003-G005-2026-10-16.md",
+        "retained_superseded_worktrees": [
+          "D:/SP-Billy/devsift-dev/devsift-cli",
+          "D:/SP-Billy/devsift-dev/devsift-contracts",
+          "D:/SP-Billy/devsift-dev/devsift-classifier"
+        ],
+        "next_action": "Selected goals complete; no next goal dispatched"
       }
     ],
-    "session_id": "2026-10-16-G003-G005"
+    "session_id": "2026-10-16-G006-G010"
   }
 }
