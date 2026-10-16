@@ -70,7 +70,7 @@ def run(args: argparse.Namespace) -> dict:
                         native_manifest=args.native_manifest, native_manifest_digest=args.native_manifest_digest)
     return result(args.command, complete=False, data=data,
                   errors=[{'code': 'CAPABILITY_UNAVAILABLE',
-                           'message': 'Analyzer and verified report backends are not implemented; '
+                           'message': 'The requested capability is unavailable in this invocation; '
                                       'no analysis or source verification was performed.'}])
 
 
