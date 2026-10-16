@@ -68,7 +68,8 @@ class SqlAdapterTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             marker = Path(directory) / "must-not-exist"
             source = "EXEC xp_cmdshell 'echo unexpected > " + str(marker).replace("'", "''") + "';"
-            self.assertTrue(self.report(source).complete)
+            # Unknown stored-procedure execution stays incomplete in rulepack1.1.
+            self.assertFalse(self.report(source).complete)
             self.assertFalse(marker.exists())
 
     def test_unicode_literals_crlf_and_line_separators_do_not_change_ast_counts(self):
