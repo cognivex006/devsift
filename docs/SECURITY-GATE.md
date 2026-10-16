@@ -97,3 +97,7 @@ comprehensive secret detection or an OS sandbox.
 fresh independent structure. Write, execution, rotation and publication authority
 are always false. CLI integration and packaging are separate controller work;
 this library imports no case-approval, CI-gate or report-model workflow.
+
+Every explicitly configured provider must pass its probe, including providers
+whose languages have no selected target. An unavailable provider keeps the result
+incomplete while independent verified Critical observations remain visible.

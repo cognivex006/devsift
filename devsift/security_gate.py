@@ -176,6 +176,8 @@ def run_security_gate(repo_root, *, paths=None, policy=None, tools=(), config_pa
         adapters = []
         for tool in tools:
             delegate = NativeAdapter(tool, repo_root=root, source_sha=sha, redactor=redactor)
+            if not delegate.probe.available:
+                reasons.append("CONFIGURED_PROVIDER_UNAVAILABLE")
             adapters.append(SecurityAdapter(delegate, repo_root=root, source_sha=sha,
                                              config_paths=configured, redactor=redactor))
             tool_versions.append({"tool_id": redactor.text(tool.tool_id), "version": redactor.text(tool.tool_version)})

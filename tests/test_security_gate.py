@@ -166,6 +166,21 @@ class SecurityGateTests(unittest.TestCase):
         self.assertNotIn(str(self.root), json.dumps(result.to_dict()))
         self.assertFalse(self.run_gate(tools=(missing, missing)).complete)
 
+    def test_unavailable_provider_with_unselected_language_never_reports_complete(self):
+        from devsift.native_host import ToolDefinition, file_digest
+        from devsift.process_runner import ProcessSpec
+        missing = ToolDefinition("missing-go", "1", ("go",), ProcessSpec(sys.executable),
+                                 file_digest(sys.executable), ((str(self.root / "missing-helper"), "0" * 64),))
+        for text, critical in (("value = 1\n", False), ("credential = '" + PAT + "'\n", True)):
+            with self.subTest(critical=critical):
+                self.commit(text)
+                result = self.run_gate(tools=(missing,))
+                self.assertFalse(result.complete)
+                self.assertEqual(result.status, "incomplete")
+                self.assertIn("CONFIGURED_PROVIDER_UNAVAILABLE", result.reasons)
+                self.assertEqual(result.requires_security_review, critical)
+                self.assertNotIn(str(self.root), json.dumps(result.to_dict()))
+
     def test_ordinary_logging_upgraded_to_critical_is_not_security_evidence(self):
         self.commit("import logging\nlogging.info('ordinary message')\n")
         result = self.run_gate(policy={"rules": {"LOG001": {"severity": "Critical"}}})
