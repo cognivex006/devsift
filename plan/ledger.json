@@ -2127,8 +2127,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e",
+          "test_result": "15 producer tests pass; complete contract worktree52 tests OK1installed skip; syntax/diff passed; PEM literal is fixture-only placeholder",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2143,6 +2149,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:33:59.424778+00:00"
         }
       ]
     },
@@ -2163,8 +2174,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e",
+          "test_result": "15 producer tests pass; complete contract worktree52 tests OK1installed skip; syntax/diff passed; PEM literal is fixture-only placeholder",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2179,6 +2196,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:26:58.248604+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:33:59.424778+00:00"
         }
       ]
     },
@@ -4055,7 +4077,7 @@
       },
       "T007": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g003-contracts",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts",
         "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
@@ -4070,11 +4092,12 @@
         "locks": [
           "write:contracts/source"
         ],
-        "lease": "selected session; until accepted/reassigned"
+        "lease": "selected session; until accepted/reassigned",
+        "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e"
       },
       "T008": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g003-contracts",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts",
         "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
@@ -4089,7 +4112,8 @@
         "locks": [
           "write:contracts/runtime"
         ],
-        "lease": "selected session; until accepted/reassigned"
+        "lease": "selected session; until accepted/reassigned",
+        "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e"
       },
       "T010": {
         "owner": "cli_writer",
@@ -4145,8 +4169,8 @@
         "T007",
         "T008"
       ],
-      "latest_integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a",
-      "updated_utc": "2026-10-16T07:32:53.022619+00:00"
+      "latest_integrated_sha": "7001031f8197d10898f7c7fcf1c3d91c8a15c9ce",
+      "updated_utc": "2026-10-16T07:33:59.424778+00:00"
     },
     "previous_checkpoints": [
       {
