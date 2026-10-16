@@ -55,6 +55,10 @@ then resumes through documented thread enumeration/OpenThread/ResumeThread APIs.
 Assignment failure (including incompatible enclosing jobs) fails closed before
 native execution. The runner terminates its job/group on completion as well as
 failure, preventing ordinary detached descendants from surviving the invocation.
+Cleanup also directly terminates and reaps the exact owned child if still alive:
+a suspended child whose job assignment failed is not contained in the empty job.
+Any failed wait triggers a further bounded direct-kill/reap attempt. Empty-job
+termination success alone is never treated as proof that the child exited.
 See Microsoft's [Job Objects](https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects)
 and [Toolhelp snapshots](https://learn.microsoft.com/en-us/windows/win32/toolhelp/snapshots-of-the-system)
 for the Windows lifecycle primitives. The Windows tests actually exercise job

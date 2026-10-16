@@ -6,7 +6,9 @@ import tempfile
 import time
 import unittest
 from unittest.mock import patch
+import subprocess
 
+import devsift.process_runner as runner
 from devsift.process_runner import ProcessSpec, run_process
 from devsift.redaction import Redactor
 
@@ -52,6 +54,53 @@ class ProcessRunnerTests(unittest.TestCase):
         self.assertEqual(failed.status, 'failed')
         self.assertEqual(failed.exit_code, 7)
         self.assertEqual(failed.stderr.strip(), 'failure')
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows suspended assignment failure')
+    def test_failed_job_assignment_terminates_owned_suspended_child(self):
+        children = []
+        actual_popen = subprocess.Popen
+        def record_child(*args, **kwargs):
+            child = actual_popen(*args, **kwargs)
+            children.append(child)
+            return child
+        try:
+            with patch.object(runner.subprocess, 'Popen', side_effect=record_child), \
+                 patch.object(runner._WindowsJob, 'attach_and_resume', side_effect=OSError('private-fixture')):
+                result = run_process(self.spec('import time; time.sleep(30)', timeout_seconds=0.2))
+            self.assertEqual(result.status, 'failed')
+            self.assertEqual(len(children), 1)
+            self.assertIsNotNone(children[0].poll())
+            self.assertIsNotNone(result.exit_code)
+            for stream in (children[0].stdin, children[0].stdout, children[0].stderr):
+                self.assertTrue(stream.closed)
+        finally:
+            for child in children:
+                if child.poll() is None:
+                    child.kill()
+                    child.wait(timeout=2)
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows job termination failure')
+    def test_failed_job_termination_still_reaps_owned_child(self):
+        children = []
+        actual_popen = subprocess.Popen
+        def record_child(*args, **kwargs):
+            child = actual_popen(*args, **kwargs)
+            children.append(child)
+            return child
+        try:
+            with patch.object(runner.subprocess, 'Popen', side_effect=record_child), \
+                 patch.object(runner._WindowsJob, 'terminate', side_effect=OSError('private-fixture')):
+                result = run_process(self.spec('import time; time.sleep(30)', timeout_seconds=0.2))
+            self.assertEqual(result.status, 'failed')
+            self.assertEqual(result.reason, 'TERMINATION_FAILED')
+            self.assertIsNotNone(children[0].poll())
+            self.assertEqual((result.stdout, result.stderr), ('', ''))
+            self.assertNotIn('private-fixture', repr(result))
+        finally:
+            for child in children:
+                if child.poll() is None:
+                    child.kill()
+                    child.wait(timeout=2)
 
     def test_stdin_and_simultaneous_streams_do_not_deadlock(self):
         code = ('import sys,threading; '

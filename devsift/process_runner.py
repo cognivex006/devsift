@@ -274,17 +274,29 @@ def run_process(spec: ProcessSpec, *, stdin: bytes = b'', redactor: Redactor | N
                         terminate_tree()
                     except OSError:
                         status, reason = 'failed', 'TERMINATION_FAILED'
+                    if job is not None:
+                        job.close()
+                    # A failed assignment can leave a suspended process outside
+                    # an otherwise successfully terminated *empty* Windows job.
+                    # Always clean up the exact Popen child as well as its tree.
+                    if process.poll() is None:
                         try:
                             process.kill()
                         except OSError:
-                            pass
-                    if job is not None:
-                        job.close()
+                            status, reason = 'failed', 'TERMINATION_FAILED'
                     try:
                         process.wait(timeout=2)
                         exit_code = process.returncode
-                    except subprocess.TimeoutExpired:
+                    except (OSError, subprocess.TimeoutExpired):
                         status, reason = 'failed', 'TERMINATION_FAILED'
+                        # A failed wait is not evidence of termination. Retry
+                        # direct owned-child termination and a bounded reap.
+                        try:
+                            process.kill()
+                            process.wait(timeout=2)
+                            exit_code = process.returncode
+                        except (OSError, subprocess.TimeoutExpired):
+                            pass
                     for thread in threads:
                         if thread.ident is not None:
                             thread.join(timeout=1)
