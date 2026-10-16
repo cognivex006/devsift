@@ -5,6 +5,8 @@ import unittest
 
 PATH = Path(__file__).resolve().parents[1] / '.github/workflows/quality-gate.yml'
 PINS = {
+    'actions/cache/restore': '0057852bfaa89a56745cba8c7296529d2fc39830',
+    'actions/cache/save': '0057852bfaa89a56745cba8c7296529d2fc39830',
     'actions/checkout': '11d5960a326750d5838078e36cf38b85af677262',
     'actions/setup-python': 'a26af69be951a213d495a4c3e4e4022e16d87065',
     'actions/setup-dotnet': '67a3573c9a986a3f9c594539f4ab511d57bb3ce9',
@@ -39,10 +41,10 @@ def contract(workflow):
     require(analysis['runs-on'] == '${{ matrix.os }}')
     require(analysis['strategy']['matrix'] == {'os': ['ubuntu-latest', 'windows-latest']})
     steps = analysis['steps']
-    require(len(steps) == 9)
+    require(len(steps) == 11)
     require([step['uses'].split('@')[0] for step in steps if 'uses' in step] == [
         'actions/checkout', 'actions/setup-python', 'actions/setup-dotnet', 'actions/setup-go',
-        'actions/setup-node', 'actions/upload-artifact'])
+        'actions/setup-node', 'actions/cache/restore', 'actions/cache/save', 'actions/upload-artifact'])
     require(steps[0]['if'] == "runner.os == 'Windows'" and steps[0]['shell'] == 'pwsh')
     require(steps[0]['run'].strip() == 'git config --global core.autocrlf false')
     require(steps[1]['uses'] == 'actions/checkout@' + PINS['actions/checkout'])

@@ -74,4 +74,40 @@ persisted credentials, shell event interpolation, swallowed gates, source globs,
 missing-file ignores, fork/cancellation guard removal, arbitrary artifact run IDs
 and privileged source execution. Runtime artifact generation/annotations are
 tested separately by the controller; this workflow contract does not simulate
-GitHub execution. Caching belongs to the later dedicated cache task.
+GitHub execution. See the bounded cache contract below.
+
+
+## Locked package cache
+
+Only `${{ github.workspace }}/.devsift/local/nuget` is cached. Restore and save
+are separate actions pinned to `0057852bfaa89a56745cba8c7296529d2fc39830`.
+PRs, including forks, restore only. Save requires successful analysis on a push
+to `refs/heads/main`, an absent exact hit, and a nonempty primary restore key.
+No publisher job uses a cache or gains cache-related permissions.
+
+The exact key includes runner OS and architecture, SDK 9.0.205, Go 1.21.3,
+Node 24, and a hash of native project/lock/config/build files, frontend lock,
+Go module and development requirements. There are no prefix restore keys or
+cross-OS archives. A miss is allowed; it never implies a successful analysis.
+A key change creates a new cache namespace; this workflow provides no fallback
+to older dependency inputs.
+
+Every run still performs explicit trusted setup, SQL NuGet restore with
+`--locked-mode` and lock content hashes, helper builds, pinned native probes,
+and the source scan. Cache-hit values never skip those steps. Cache contents
+are dependency acceleration, not analysis proof or a sandbox. No analyzer
+binary, manifest, report, token or general home-directory cache is retained.
+Setup uses the declared public NuGet source and never target-project hooks.
+
+`test_ci_cache_contract.py` checks these exact boundaries and rejects broader
+paths, fallback/cross-OS keys, moving pins, PR saves, widened token privileges,
+cache-based build/scan skipping and privileged publisher caches. The actual
+pipeline repeat fixture runs the same immutable HEAD/base twice into separate
+output directories and byte-compares all three reports while preserving an
+actual blocking exit code and unchanged source/Git bytes. Package-cache marker
+availability must not affect those reports. Other actual pipeline fixtures
+retain incomplete exit 2 and complete report artifacts. These tests run on the
+runtime Windows/Linux matrix; local results do not prove hosted cache hits.
+Hosted miss/hit/save behavior and both-platform success must be recorded from
+real GitHub runs before making that claim. Rollback removes only the restore
+and save steps; explicit setup and analysis continue without the cache.
