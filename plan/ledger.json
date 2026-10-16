@@ -2147,8 +2147,16 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "a44d50f1f1335e67ad5b178008b75f798ae15354",
+          "author": "cli_writer",
+          "local_installed_smoke": "Windows Python3.13 isolated venv: 18 command cases pass",
+          "reviewer": "reviewer",
+          "review_result": "code accepted for integration; final actual CI pending"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2160,6 +2168,10 @@
         },
         {
           "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
           "actor": "controller"
         }
       ]
@@ -3999,7 +4011,7 @@
         "worktree": "D:/SP-Billy/devsift-dev/devsift-policy-tests"
       },
       "T006": {
-        "status": "running",
+        "status": "in_review",
         "owner": "cli_writer",
         "paths": [
           "tests/test_cli_platform.py",
@@ -4009,7 +4021,9 @@
           "write:tests/cli"
         ],
         "branch": "feature/g002-t006-platform",
-        "base_sha": "7d7f3772f34918c7419d92a06f984f4552680c67"
+        "base_sha": "7d7f3772f34918c7419d92a06f984f4552680c67",
+        "source_sha": "a44d50f1f1335e67ad5b178008b75f798ae15354",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-cli-tests"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository"
