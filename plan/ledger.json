@@ -3341,8 +3341,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b",
+          "test_result": "Five actual native frontend context suites pass Windows; endpoint aliases/shadows/config/fixtures, credentials and placeholders, Unicode regions",
+          "author": "controller"
+        }
+      ],
       "assignee": "controller",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3357,6 +3363,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T09:21:22.812551+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:25:04.453728+00:00"
         }
       ]
     },
@@ -5309,7 +5320,7 @@
       },
       "T026": {
         "owner": "controller",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g006-g010-native-analysis",
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
@@ -5322,7 +5333,8 @@
         "locks": [
           "write:rules/frontend"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5374,8 +5386,8 @@
         "T024",
         "T026"
       ],
-      "latest_integrated_sha": "929173d518e7817e241c6f21123e6fb359bbdd91",
-      "updated_utc": "2026-10-16T09:22:13.582342+00:00",
+      "latest_integrated_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b",
+      "updated_utc": "2026-10-16T09:25:04.453728+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
