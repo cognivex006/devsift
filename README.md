@@ -5,7 +5,7 @@
 DevSift aims to detect code-quality and security issues as changes are developed, link findings to verified source locations, explain human-readable risk and provide narrowly scoped agent remediation prompts. New code can be gated; existing legacy code is recommendation-first. Code scanning never silently refactors production services.
 
 **Repository:** https://github.com/orchex006/devsift  
-**Stage:** bootstrap and policy accepted; installable CLI shell implemented with final platform verification in progress. No analyzer engine or published package yet.
+**Stage:** G000 bootstrap, G001 policy and G002 CLI shell accepted with Windows/Linux verification. No analyzer engine or published package yet.
 **Specifications:** https://github.com/orchex006/devsift-specs  
 **Independence:** usable in arbitrary projects; AgriMap, Axiom and Drevqon are optional integrations, not architectural dependencies.
 
@@ -34,7 +34,7 @@ G000 bootstrap is independently accepted: the approved 160-file scaffold is publ
 repository description verified, and Windows/Linux CI passes. Evidence is in
 [`docs/evidence/G000.md`](docs/evidence/G000.md). Current execution state is maintained
 in [`plan/ledger.json`](plan/ledger.json); G001 policy is accepted with
-[fixture/reviewer evidence](docs/evidence/G001.md); the specifications repository preserves the
+[fixture/reviewer evidence](docs/evidence/G001.md); G002 has [installed CLI evidence](docs/evidence/G002.md). The specifications repository preserves the
 original design snapshot. All further code changes use reviewed pull requests.
 
 ```bash

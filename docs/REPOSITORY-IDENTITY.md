@@ -3,15 +3,15 @@
 | Field | Canonical | State |
 |---|---|---|
 | Product name | DevSift | accepted naming |
-| GitHub | https://github.com/orchex006/devsift | exists; empty when checked 2026-10-16 |
-| CLI | `devsift` | planned, not implemented |
+| GitHub | https://github.com/orchex006/devsift | bootstrapped and verified 2026-10-16; see evidence/G000.md |
+| CLI | `devsift` | installable command shell; analyzers pending |
 | Agent skill | `$devsift` | planned, not implemented |
 | Config | `.devsift.yaml` | planned |
 | Reports | `.devsift/reports/` | planned |
 | Maintainer governance | `AGENTS.md` / `DEVELOPMENT.md` | v6 draft |
 | Legal license | not yet selected | owner decision needed before claiming OSI status |
 
-**Proposed GitHub Description** (T000 must apply and verify):
+**Verified GitHub Description** (T000 evidence: evidence/G000.md):
 
 > DevSift is a language-agnostic code quality toolkit for change-aware analysis, source-linked diagnostics, risk-aware remediation, and automated quality gates.
 
