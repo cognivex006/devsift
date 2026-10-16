@@ -1,0 +1,11 @@
+[
+  {"name":"environment", "path":"src/environments/environment.ts", "source":"fetch('https://api.example.test');", "rules":[]},
+  {"name":"central-config", "path":"config/network.ts", "source":"fetch('https://api.example.test');", "rules":[]},
+  {"name":"spec-fixture", "path":"src/client.spec.ts", "source":"fetch('https://api.example.test');", "rules":[]},
+  {"name":"fixture-directory", "path":"fixtures/client.ts", "source":"fetch('https://api.example.test');", "rules":[]},
+  {"name":"placeholder", "path":"src/client.ts", "source":"const apiKey='YOUR_API_KEY';", "rules":[]},
+  {"name":"lexical-shadow", "path":"src/client.ts", "source":"const fetch=(value:string)=>value; fetch('https://api.example.test');", "rules":[]},
+  {"name":"non-axios-import", "path":"src/client.ts", "source":"import client from 'other'; client.get('https://api.example.test');", "rules":[]},
+  {"name":"runtime-fetch", "path":"src/client.ts", "source":"fetch('https://api.example.test');", "rules":["HC001"]},
+  {"name":"fixture-does-not-waive-secret", "path":"tests/client.spec.ts", "source":"const apiKey='acceptanceSensitiveValue';", "rules":["HC002"]}
+]
