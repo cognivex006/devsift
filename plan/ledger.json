@@ -973,7 +973,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T020",
             "T021",
             "T022",
             "T023",
@@ -1130,7 +1129,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T020",
             "T021",
             "T022",
             "T023",
@@ -1511,7 +1509,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T020",
             "T021",
             "T022",
             "T023",
@@ -2999,17 +2996,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66",
           "test_result": "7realprocess protocol/probe tests pass: exactpins/missing/tamper/nonfinite/dupe/bounds/physicalLF/sourceproof/UNKNOWN/stalesnapshot; syntax/diffpassed",
           "author": "controller"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66",
+          "integrated_sha": "af8bf8d1d885a9fb16e8a2b4ce3e1744bbed7d37",
+          "test_result": "Distinctexactreviewaccepted;7actualprocess probes/normalization tests pass; strictwire/identitypins/sourcebounds/defaultUNKNOWN verified",
+          "evidence_uri": "docs/evidence/G007.md"
         }
       ],
       "assignee": "controller",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA007",
       "history": [
         {
@@ -3026,6 +3031,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T08:46:32.092197+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T08:48:54.595636+00:00"
         }
       ]
     },
@@ -4874,7 +4884,7 @@
       },
       "T020": {
         "owner": "controller",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g006-g010-native-analysis",
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
@@ -4884,11 +4894,10 @@
           "docs/NATIVE-PROTOCOL.md"
         ],
         "base_sha": "148d318f34867583172e251295fce98fad5881e0",
-        "locks": [
-          "write:adapters/protocol"
-        ],
+        "locks": [],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66"
+        "source_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66",
+        "integrated_sha": "af8bf8d1d885a9fb16e8a2b4ce3e1744bbed7d37"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4930,14 +4939,10 @@
           "clean": true
         }
       ],
-      "held_locks": [
-        "write:adapters/protocol"
-      ],
-      "active_jobs": [
-        "T020"
-      ],
-      "latest_integrated_sha": "0ad121a9b0fa8da6c0e49a8143a65dec648efd66",
-      "updated_utc": "2026-10-16T08:46:32.092197+00:00"
+      "held_locks": [],
+      "active_jobs": [],
+      "latest_integrated_sha": "af8bf8d1d885a9fb16e8a2b4ce3e1744bbed7d37",
+      "updated_utc": "2026-10-16T08:48:54.595636+00:00"
     },
     "previous_checkpoints": [
       {
