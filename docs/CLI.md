@@ -25,13 +25,13 @@ The scan command now calls the read-only inventory and execution coordinator.
 `--changed` unions staged, unstaged and untracked paths at the repository root
 while reading current working-tree bytes rather than staged blobs; `--all` inventories the current directory. These are
 target selections, not finding lifecycle classifications. Git/source evidence
-libraries are available to embedded adapters. Native analyzers are not registered,
-and report serialization/storage and case prompt backends remain pending.
+libraries are available to embedded adapters. Native analyzers require explicit trusted manifest configuration;
+report serialization/storage and case prompt backends remain pending.
 Current requests return an explicit incomplete result with exit 2;
 an empty findings array does **not** mean a clean scan. `doctor` reports the actual
-Python runtime and missing capabilities; it installs nothing, invokes no analyzers,
-and returns 2 while required capabilities are missing. It does not yet discover
-native providers (later doctor tasks). `prompt` validates per-case approval for
+Python runtime and provider availability; it installs nothing, runs no source
+analysis, and returns 2 while required providers are missing. It discovers PATH
+metadata without execution and probes only explicitly trusted configured providers. `prompt` validates per-case approval for
 implement mode but cannot compose a verified prompt yet and never edits source.
 
 Changed-scope queries disable effective Git clean/process/smudge filters and their

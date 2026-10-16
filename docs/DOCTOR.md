@@ -1,10 +1,9 @@
 # Doctor provider discovery
 
-`devsift.doctor.run_doctor` provides a read-only provider-discovery result for CLI
-integration. The command entrypoint is owned separately: this change does not
-add CLI flags or claim the existing `devsift doctor` entrypoint already calls the
-new implementation. It does not implement cache/config diagnostics (T059) or the
-later environment acceptance matrix (T060).
+`devsift.doctor.run_doctor` provides a read-only provider-discovery result.
+The CLI calls it through `python -m devsift doctor`. Explicit trusted probes use
+`--native-manifest <absolute-path>` and `--native-manifest-digest <trusted-sha256>`.
+Cache/config diagnostics and the later degraded-environment matrix are separate tasks.
 
 ```python
 from devsift.doctor import run_doctor
