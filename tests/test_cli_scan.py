@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -80,6 +81,68 @@ class CliScanTests(unittest.TestCase):
         self.assertFalse(record["complete"])
         self.assertEqual(record["errors"][0]["code"], "GIT_SCOPE_UNAVAILABLE")
         self.assertEqual(record["data"]["targets"], [])
+
+    def prepare_filter_fixture(self):
+        self.git('init', '-q')
+        self.git('config', 'user.name', 'CLI Fixture')
+        self.git('config', 'user.email', 'fixture@example.invalid')
+        self.git('config', 'core.autocrlf', 'false')
+        (self.root / 'source.py').write_bytes(b'print(1)\n')
+        self.git('add', 'source.py')
+        self.git('commit', '-qm', 'fixture')
+        helper = self.root / 'filter_probe.py'
+        helper.write_text('from pathlib import Path\nimport sys\n'
+                          'Path("FILTER_WAS_EXECUTED").write_text("called")\n'
+                          'if "--process" in sys.argv: sys.exit(1)\n'
+                          'sys.stdout.buffer.write(sys.stdin.buffer.read())\n', encoding='utf-8')
+        command = '"' + sys.executable.replace('\\', '/') + '" "' + str(helper).replace('\\', '/') + '"'
+        (self.root / '.gitattributes').write_text('*.py filter=CaseSensitiveDriver\n', encoding='utf-8')
+        (self.root / 'source.py').write_bytes(b'print(23456789)\n')
+        return command
+
+    def test_changed_disables_local_clean_filters_without_any_git_or_source_writes(self):
+        command = self.prepare_filter_fixture()
+        self.git('config', 'filter.CaseSensitiveDriver.clean', command)
+        self.git('config', 'filter.CaseSensitiveDriver.required', 'true')
+        before = self.snapshot()
+        record = self.invoke('--changed')
+        self.assertFalse((self.root / 'FILTER_WAS_EXECUTED').exists())
+        self.assertEqual(self.snapshot(), before)
+        targets = {row['path']: row for row in record['data']['targets']}
+        self.assertIn('source.py', targets)
+        self.assertEqual(targets['source.py']['byte_count'], len(b'print(23456789)\n'))
+        self.assertFalse(record['complete'])
+
+    def test_changed_disables_effective_env_process_filter_and_required_flag(self):
+        command = self.prepare_filter_fixture()
+        environment = {'GIT_CONFIG_COUNT': '2',
+                       'GIT_CONFIG_KEY_0': 'filter.CaseSensitiveDriver.process',
+                       'GIT_CONFIG_VALUE_0': command + ' --process',
+                       'GIT_CONFIG_KEY_1': 'filter.CaseSensitiveDriver.required',
+                       'GIT_CONFIG_VALUE_1': 'true'}
+        before = self.snapshot()
+        with patch.dict(os.environ, environment):
+            record = self.invoke('--changed')
+        self.assertFalse((self.root / 'FILTER_WAS_EXECUTED').exists())
+        self.assertEqual(self.snapshot(), before)
+        self.assertIn('source.py', {row['path'] for row in record['data']['targets']})
+
+    def test_changed_disables_filters_from_global_config_and_nested_include(self):
+        command = self.prepare_filter_fixture()
+        with tempfile.TemporaryDirectory() as configuration:
+            global_config = Path(configuration) / 'global.gitconfig'
+            included_config = Path(configuration) / 'included.gitconfig'
+            self.git('config', '--file', str(global_config), 'include.path', str(included_config))
+            self.git('config', '--file', str(included_config), 'filter.CaseSensitiveDriver.clean', command)
+            self.git('config', '--file', str(included_config), 'filter.CaseSensitiveDriver.required', 'true')
+            before = self.snapshot()
+            config_before = (global_config.read_bytes(), included_config.read_bytes())
+            with patch.dict(os.environ, {'GIT_CONFIG_GLOBAL': str(global_config)}):
+                record = self.invoke('--changed')
+            self.assertFalse((self.root / 'FILTER_WAS_EXECUTED').exists())
+            self.assertEqual(self.snapshot(), before)
+            self.assertEqual((global_config.read_bytes(), included_config.read_bytes()), config_before)
+            self.assertIn('source.py', {row['path'] for row in record['data']['targets']})
 
 
 if __name__ == "__main__":

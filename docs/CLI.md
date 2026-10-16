@@ -34,6 +34,15 @@ and returns 2 while required capabilities are missing. It does not yet discover
 native providers (later doctor tasks). `prompt` validates per-case approval for
 implement mode but cannot compose a verified prompt yet and never edits source.
 
+Changed-scope queries disable effective Git clean/process/smudge filters and their
+required flags as well as external diff/textconv/fsmonitor callbacks. Effective
+driver names are read from Git configuration including global, worktree, included
+and environment scopes, then overridden only for each query's subprocess. No
+configuration file is modified and no filter command/value is printed. Source
+Git configuration must remain stable while the query runs. Disabling conversions
+can conservatively select additional normalized/LFS-managed files; inventory still
+reads only current working-tree bytes and does not run conversion callbacks.
+
 Successful help is text on stdout with exit 0. Other valid commands emit exactly
 one JSON object on stdout. Misuse emits one JSON object on stderr, no stdout,
 and exit 3. Argument errors avoid reflecting user input, which may contain secrets.
