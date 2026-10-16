@@ -101,3 +101,20 @@ Exit 0 means the run completed with no **enforced gate violations**. It does not
 The `scan` command invokes this coordinator with no registered native adapters. `--all` inventories the working directory; `--changed` requires the Git root and inventories the union of staged differences from HEAD, unstaged differences from the index, and untracked paths (Git ignore rules apply to untracked files). Selected paths are analyzed from their current working-tree bytes, not staged blobs. A staged change canceled by an unstaged revert is still selected. This selection is not immutable finding classification. Deleted paths are explicit missing/incomplete targets. Missing HEAD, non-root/non-Git scope or unavailable Git yields `GIT_SCOPE_UNAVAILABLE`, never a fabricated empty clean scan. No branch baseline or policy configuration is silently discovered or written.
 
 Git candidate selection disables external diff, textconv, fsmonitor, optional locks, replacement objects and lazy fetching, with bounded output and timeouts. Source snippets/byte contents and Git stderr are never serialized into the target inventory. Native providers, complete Markdown/JSON/SARIF reports and per-case remediation remain later tasks.
+
+Git diff may invoke clean or process conversion filters even when external diff
+and textconv are disabled. Before querying candidates, the CLI reads effective
+configuration with `git config --includes --null --list`, including system,
+global, repository/worktree, included and environment command scopes. It extracts
+only driver names, preserving case, and passes explicit subprocess argument
+overrides disabling every discovered driver's clean/process/smudge commands and
+setting required=false on both staged and unstaged diff queries. Configuration
+values and Git stderr are never echoed. This does not modify Git configuration,
+the index or the source tree. Failure to read valid bounded configuration yields
+incomplete scope rather than running an unprotected diff. Configuration and
+environment must remain stable for the duration of the query; this is not a
+sandbox against concurrent hostile Git-config replacement. Disabling conversions
+can conservatively overselect LFS/normalized files, while downstream inventory
+continues to read exact current working-tree bytes. Tests use real hostile clean
+and process commands with required=true across local, environment and globally
+included scopes, and compare directory entries plus full source/.git bytes.
