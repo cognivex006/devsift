@@ -1,0 +1,12 @@
+{
+  "description": "Golden semantic contract expectations; no native rule-coverage or business-impact claim.",
+  "cases": [
+    {"case_id":"LEGACY","path":"legacy.ts","rule_id":"HC001","selected":"'https://legacy.example.invalid/items'","lifecycle_class":"LEGACY_UNCHANGED","enforcement":"advisory","security_escalation":false,"baseline_status":"matched"},
+    {"case_id":"INTRODUCED","path":"new.ts","rule_id":"HC001","selected":"'https://introduced.example.invalid/items'","lifecycle_class":"NEW","enforcement":"block","security_escalation":false,"baseline_status":"not_recorded"},
+    {"case_id":"UNKNOWN","path":"changed.ts","rule_id":"HC001","selected":"'https://replacement.example.invalid/items'","baseline_selected":"'https://old.example.invalid/items'","lifecycle_class":"UNKNOWN","enforcement":"incomplete","security_escalation":false,"baseline_status":"not_recorded"},
+    {"case_id":"SECURITY","path":"security.sql","rule_id":"SEC003","selected":"EXEC(@query);","lifecycle_class":"LEGACY_UNCHANGED","enforcement":"security_review","security_escalation":true,"baseline_status":"matched"}
+  ],
+  "mixed_gate":{"complete":false,"exit_code":2,"enforced_count":1},
+  "effects":{"impact":"unknown","risk":"unknown","affected_scope":"unknown","approval_status":"pending","automatic_fix":false},
+  "opaque_values_not_for_export":["mixedOpaqueConsumerPrivateValue","mixedOpaqueTestPrivateValue"]
+}
