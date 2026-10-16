@@ -27,6 +27,7 @@ include devsift/native_manifest.py
 include devsift/observability.py
 include devsift/output.py
 include devsift/policy.py
+include devsift/project_policy.py
 include devsift/process_runner.py
 include devsift/redaction.py
 include devsift/registry.py

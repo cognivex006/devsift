@@ -42,6 +42,7 @@ py-modules = [
     "devsift.observability",
     "devsift.output",
     "devsift.policy",
+    "devsift.project_policy",
     "devsift.process_runner",
     "devsift.redaction",
     "devsift.registry",
