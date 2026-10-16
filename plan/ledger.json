@@ -3431,8 +3431,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d",
+          "test_result": "Writer five actual native frontend acceptance39.319s; 3500declarations127280bytes2.077s within30s; strengthened no-targethook test4.669s",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3447,6 +3453,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T09:36:24.815455+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:39:59.259453+00:00"
         }
       ]
     },
@@ -5512,7 +5523,7 @@
       },
       "T027": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g009-performance-tests",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g009-performance-tests",
         "paths": [
@@ -5524,7 +5535,8 @@
         "locks": [
           "write:tests/frontend"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d"
       },
       "evidence-sensitive-display-compat": {
         "owner": "controller",
@@ -5587,8 +5599,8 @@
       "active_jobs": [
         "T027"
       ],
-      "latest_integrated_sha": "8fd7ee32007300692a166e04023a9507adcc07bc",
-      "updated_utc": "2026-10-16T09:36:24.815455+00:00",
+      "latest_integrated_sha": "ef5b4f6de0b224bf638104038d817f51105c1bf0",
+      "updated_utc": "2026-10-16T09:39:59.259453+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
