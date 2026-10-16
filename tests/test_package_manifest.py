@@ -60,8 +60,10 @@ class ManifestTests(unittest.TestCase):
                 self.assertEqual(entry.to_dict(), {'path': entry.path, 'size': len(raw), 'sha256': hashlib.sha256(raw).hexdigest()})
         self.assertEqual(snapshot(self.source), before)
 
-    def test_untracked_optional_asset_fails_and_explicit_reviewed_extraction_is_separate(self):
+    def test_untracked_selected_asset_fails_and_explicit_reviewed_extraction_is_separate(self):
         optional = self.source / 'skills/devsift/CONSUMER-SCOPE.md'
+        subprocess.run(['git', '-C', str(self.source), 'rm', '--cached', '--',
+                        'skills/devsift/CONSUMER-SCOPE.md'], check=True, capture_output=True)
         optional.write_text('untracked private consumer configuration')
         with self.assertRaises(PackageManifestError):
             inventory(self.source, 'consumer-skill')
@@ -70,6 +72,15 @@ class ManifestTests(unittest.TestCase):
         for unknown in (None, 1, 'false'):
             with self.assertRaises(PackageManifestError):
                 inventory(self.source, 'core-wheel', require_tracked=unknown)
+
+    def test_consumer_bundle_cannot_omit_its_linked_scope_note(self):
+        skill = (self.source / 'skills/devsift/SKILL.md').read_text(encoding='utf8')
+        self.assertIn('[consumer scope](CONSUMER-SCOPE.md)', skill)
+        component = next(c for c in load_manifest(self.source) if c.name == 'consumer-skill')
+        self.assertIn('skills/devsift/CONSUMER-SCOPE.md', component.required)
+        (self.source / 'skills/devsift/CONSUMER-SCOPE.md').unlink()
+        with self.assertRaises(PackageManifestError):
+            inventory(self.source, 'consumer-skill')
 
     def test_duplicate_unknown_case_collision_and_unsafe_paths_fail_before_selection(self):
         for path in ('../secret', '/tmp/secret', 'C:/secret', 'native\\secret.cs',
