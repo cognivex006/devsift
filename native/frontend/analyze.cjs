@@ -229,7 +229,8 @@ if (process.argv[2] === '--probe') {
                 if ((current.type === 'AssignmentExpression' || current.type === 'UpdateExpression')
                   && (current.left || current.argument)?.type === 'MemberExpression') {
                   const target = current.left || current.argument;
-                  if (target.object.type === 'Identifier') mutatedRoots.add(target.object.name);
+                  const root = identifier(target.object);
+                  if (root) mutatedRoots.add(root);
                 }
                 for (const key of context.sourceCode.visitorKeys[current.type] || []) {
                   const value = current[key];

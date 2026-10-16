@@ -44,6 +44,16 @@ class NativeSecurityContexts(unittest.TestCase):
         cast_alias = "import https from 'node:https';const alias=(https as any);alias.Agent=class {};new https.Agent({rejectUnauthorized:false});"
         self.assertFalse(self.report(cast_alias).complete)
         self.assertNotIn("SEC002", [item.rule_id for item in self.report(cast_alias).diagnostics])
+        for root in ("(https as any)", "https!"):
+            source = "import https from 'node:https';" + root + ".Agent=class {};new https.Agent({rejectUnauthorized:false});"
+            with self.subTest(root=root):
+                report = self.report(source)
+                self.assertFalse(report.complete)
+                self.assertNotIn("SEC002", [item.rule_id for item in report.diagnostics])
+        for root in ("(console as any)", "console!"):
+            source = root + ".error=()=>{};console.error('" + PAT + "');"
+            with self.subTest(root=root):
+                self.assertNotIn("SEC001", [item.rule_id for item in self.report(source).diagnostics])
 
     def test_direct_literal_or_lexical_binding_in_actual_console_call(self):
         for source in ("console.error('" + PAT + "');", "const value='" + PAT + "'; console.log(value);"):
