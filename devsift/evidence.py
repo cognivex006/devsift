@@ -207,9 +207,12 @@ def verify_source(repo_root, repository, source_sha, path, region, *, expected_b
             return SourceEvidence(reason="REGION_UNAVAILABLE")
         start_offset = sum(len(line) for line in lines[:region.start_line - 1]) + region.start_column - 1
         end_offset = sum(len(line) for line in lines[:region.end_line - 1]) + region.end_column - 1
-        before = '[REDACTED]' if sensitive else redactor.slice(content, start_offset, end_offset)
-        if expected_before is not None and redactor.text(expected_before) != before:
+        before = redactor.slice(content, start_offset, end_offset)
+        if (expected_before is not None and redactor.text(expected_before) != before
+                and not (sensitive and expected_before == '[REDACTED]')):
             return SourceEvidence(reason="SOURCE_MISMATCH")
+        if sensitive:
+            before = '[REDACTED]'
         return SourceEvidence("VERIFIED", location, before, None, None, _seal=_SEAL)
     except (OSError, ValueError, UnicodeError, subprocess.SubprocessError):
         return SourceEvidence(reason="SOURCE_UNAVAILABLE")

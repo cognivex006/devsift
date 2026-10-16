@@ -46,6 +46,16 @@ class EvidenceTests(unittest.TestCase):
         return verify_source(self.root, "fixture/repo", self.sha, "code.py",
                              Region(2, 1, 2, 11), **options)
 
+    def test_sensitive_reproof_accepts_prior_verified_display_without_revealing_it(self):
+        prior = self.evidence()
+        masked = self.evidence(expected_before=prior.before, sensitive=True)
+        self.assertEqual(masked.status, 'VERIFIED')
+        self.assertEqual(masked.before, '[REDACTED]')
+        self.assertEqual(masked.location, prior.location)
+        self.assertEqual(SourceEvidence.from_dict(masked.to_dict(), repo_root=self.root).before, '[REDACTED]')
+        bad = self.evidence(expected_before='not the committed content', sensitive=True)
+        self.assertEqual(bad.status, 'SOURCE_UNRESOLVED')
+
     def test_verified_before_comes_from_commit_and_roundtrips(self):
         (self.root / "code.py").write_text("uncommitted content", encoding="utf-8")
         before_status = self.git("status", "--porcelain")

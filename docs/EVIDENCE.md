@@ -124,3 +124,5 @@ temporary Git commits, including symlink index entries, compare dirty working
 state before/after, and verify source/runtime/proposal masking. T009 acceptance
 fixtures are a separate downstream task. Rollback is the scoped producer commit
 revert; there are no data migrations or consumer-source modifications.
+
+Explicit sensitive-region verification masks the complete BEFORE range after checking immutable content and any prior display assertion. Existing verified displays can be re-proved and upgraded to full masking; a wrong display remains unresolved. A fully masked wire display re-proves the same immutable region while retaining the mask. The sensitive flag is conservative even for an empty selection; default empty-region behavior is unchanged.
