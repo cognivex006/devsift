@@ -58,3 +58,39 @@ snapshot rejection, failure precedence, protected review flags and no source/Git
 writes. This is CI coordination evidence, not a claim that this fixture ships as
 a production language adapter. Native/report upload integration is separately
 reviewed in T044/T045.
+
+## Workflow integration entrypoint
+
+`python tools/run_quality_ci.py --output ABSOLUTE_OUTSIDE_DIRECTORY` uses this
+trusted kit as the default Git source root. `--repo` explicitly selects another
+Git root for integration testing without importing its package or executing its
+source. The fixed kit `.devsift/local/native-manifest.json` and `.sha256` must
+already exist from explicit setup. This entrypoint never installs or builds.
+
+Scope is exactly tracked top-level production `devsift/*.py` files, selected from
+Git and filtered without wildcard shell expansion. Test/helper/nested/untracked
+files are not implied coverage. The Python security rulepack is enabled and all
+configured native probes must succeed; this does not claim whole-repository or
+every-native-language rule coverage. The trusted runtime/package is imported from
+the kit location, never from the optional target checkout.
+
+`--base` overrides DEVSIFT_BASE_SHA; either must be a full nonzero 40-hex commit.
+Without a base, findings retain UNKNOWN and incomplete rather than becoming NEW.
+Actual CI exits 1/2 remain failed, and report reproof incompleteness takes priority.
+Independent security-review incompleteness is also reflected in generated reports,
+not hidden behind a scan that completed without blocking quality violations.
+
+The wrapper assembles source-reproved complete Markdown/JSON/SARIF and explicitly
+writes only `report.md`, `findings.json`, `results.sarif` outside the source tree.
+Existing report files are never overwritten. Invalid arguments/output locations
+return static 3; unavailable setup/source/report work returns static incomplete 2.
+Only accepted safe annotations and a scope-count notice reach stdout; no source,
+credentials, raw subprocess errors or target command execution is printed.
+
+`test_quality_pipeline.py` copies a controlled kit, supplies a real trusted Python
+AST helper through its fixed cache, and invokes the actual wrapper subprocess
+against immutable temporary Git histories. It verifies clean/error/UNKNOWN and
+legacy-security review exits, all three artifacts, whole credential masks,
+source/Git preservation, no target-package execution and output collision safety.
+The helper fixture is not a production native Python adapter claim. Actual
+GitHub Actions/artifact/service results require the integrated workflow run.
