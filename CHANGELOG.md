@@ -9,6 +9,8 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ### Added
 - Source-reproved full JSON, Markdown and SARIF in scan/CI output, with explicit format selection, safe CI annotations and an outside-source artifact writer.
+- Source-linked candidate consumer/test context and mixed baseline gates, preserving unknown effects and pending case approval.
+- Windows/Linux report workflow with exact-key NuGet-only cache restoration, protected main-branch cache saving and deterministic report artifacts.
 - Conservative credential/security-context analysis and structured observability recommendations with unknown impact and consumer evidence preserved.
 - Fresh read-only CI entry with pinned-manifest authorization, immutable snapshot checks, actual Git source attribution, supported severity thresholds and independent security-review gating.
 - Immutable source-reproved report assembly with conservative lifecycle trust, explicit unknown impact/consumer evidence, pending proposals and case-scoped read/implement guidance.
