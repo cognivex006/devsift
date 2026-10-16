@@ -2281,8 +2281,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88",
+          "test_result": "7 external wire fixturetests pass; actualGit fixture immutableproof/roundtrip/no-metadata-writes/masking/source-vs-proposal separation validated",
+          "author": "controller"
+        }
+      ],
       "assignee": "controller",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2297,6 +2303,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:39:08.449478+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:41:51.122437+00:00"
         }
       ]
     },
@@ -4290,7 +4301,7 @@
       },
       "T009": {
         "owner": "controller",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g003-g005-foundations",
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
@@ -4301,7 +4312,8 @@
         "locks": [
           "write:tests/contracts"
         ],
-        "lease": "selected G003-G005 session until accepted/reassigned"
+        "lease": "selected G003-G005 session until accepted/reassigned",
+        "source_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88"
       },
       "T012": {
         "owner": "cli_writer",
@@ -4355,8 +4367,8 @@
         "T012",
         "T013"
       ],
-      "latest_integrated_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
-      "updated_utc": "2026-10-16T07:39:08.721077+00:00"
+      "latest_integrated_sha": "2e7c9b3c24fa02e0badd62e90c8f53e4f437ab88",
+      "updated_utc": "2026-10-16T07:41:51.122437+00:00"
     },
     "previous_checkpoints": [
       {
