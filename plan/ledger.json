@@ -2504,11 +2504,16 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
+      "status": "in_review",
       "evidence": [
         {
           "source_sha": "6566171f9e97962adbc3eb7f595fe6970733bf1d",
           "test_result": "9 actualGit tests pass including all5lifecycle states, scopedbaseline, crisscross, shallowhistory, promisor rejection, rawfingerprints; syntax/diff/credentialscan pass",
+          "author": "policy_writer"
+        },
+        {
+          "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
+          "test_result": "10 actualGit classifier+13evidence tests pass; effectivepromisor config worktree/env/global/include regressions and evidence no-lazy-fetch subprocessguard fixed; syntax/diffpass",
           "author": "policy_writer"
         }
       ],
@@ -2547,6 +2552,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T07:45:28.746919+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T07:47:49.111823+00:00"
         }
       ]
     },
@@ -4379,7 +4389,7 @@
       },
       "T013": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "fix/g005-no-lazy-fetch",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-classifier-rework",
         "paths": [
@@ -4397,7 +4407,7 @@
           "contract:git-read-no-network"
         ],
         "lease": "selected G003-G005 session until accepted/reassigned",
-        "source_sha": null,
+        "source_sha": "53334a8da5cafe95da7fba2efcd5fd9897dc3b1e",
         "prior_jobs": [
           {
             "owner": "policy_writer",
@@ -4438,8 +4448,8 @@
         "T012",
         "T013"
       ],
-      "latest_integrated_sha": "b9d52204227517fb2393811b39a26e3b04570488",
-      "updated_utc": "2026-10-16T07:46:58.747065+00:00"
+      "latest_integrated_sha": "9db9c5b30e43e8d77674bc63fb564c024699d34a",
+      "updated_utc": "2026-10-16T07:47:49.111823+00:00"
     },
     "previous_checkpoints": [
       {
