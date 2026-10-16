@@ -84,10 +84,100 @@ backend and build actual wheel/sdist from controlled temporary trusted copies an
 inspect member bytes/names, including hostile untracked extra modules, secrets,
 maintainer assets and caches. They also exercise manifest/index/path/symlink
 boundaries and check that original source/Git state is unchanged. They do not
-publish artifacts, certify a license, prove deterministic archive hashes or
+publish artifacts, certify a license, establish reproducible wheel bytes or
 complete install/rollback validation. The default suite runs stdlib inventory
 guards and visibly skips the explicit build group; opting in without the exact
-backend fails rather than silently skipping. Deterministic archives/checksums and fresh
-installation/rollback remain separately gated follow-up work.
+backend fails rather than silently skipping. Deterministic source-component
+archives are described below; fresh installation/rollback remains a separately
+gated follow-up.
 
 Build pin reference: [official setuptools 83.0.0 release](https://pypi.org/project/setuptools/83.0.0/).
+
+
+## Reproducible source-component bundles
+
+`tools/build_package.py` implements deterministic ZIP **source input bundles**,
+not backend-generated wheels, Python sdists or precompiled native distributions.
+The `core-wheel` component becomes `devsift-core-wheel-source.zip`, and
+`core-sdist` becomes `devsift-core-sdist-source.zip`. The other names are
+`devsift-consumer-skill.zip` and `devsift-source-assets.zip`. A source ZIP is not
+a directly installable wheel or an assurance that native analysis is available.
+No build backend, compiler, download, dependency installer or publisher runs.
+The package version and absence of an owner-selected license are unchanged.
+
+```text
+python -B tools/build_package.py build --root <trusted-checkout> --source-sha <full-commit-sha> --output <new-absolute-directory>
+python -B tools/build_package.py verify --output <directory> --source-sha <independently-trusted-commit-sha> --integrity-sha256 <independently-trusted-integrity-digest>
+```
+
+With no `--component`, all four components are bundled. Repeat `--component`
+to select distinct components. The library API is
+`build_package(root, destination, source_sha=..., components=(...))`, returning
+frozen `Artifact(name, size, sha256)` records. Its only writes are in the new
+explicit destination. The matching read-only `verify_bundle(destination,
+expected_integrity_sha256=..., expected_source_sha=...)` returns those records
+only after every integrity check succeeds. Failures have a fixed public message
+and CLI exit 2 without source/config/error-output echoes.
+
+The full lowercase nonzero 40-character Git commit SHA must equal HEAD. The
+manifest and every selected path must have matching regular stage-zero index
+and commit tree entries. Raw commit blobs are compared with bounded physical
+working bytes and the accepted inventory hashes. Changed selected source,
+staged changes (even if working bytes were restored), missing files or a changed
+manifest fail before output creation. The builder uses raw blob/index queries,
+no clean/smudge/process filters, textconv, target hooks or fsmonitor callbacks;
+replacement Git objects and inherited Git override variables are disabled.
+Unselected files and unrelated untracked secrets never enter these bundles.
+This is selected-input cleanliness, not a claim that an entire developer working
+tree has no unrelated edits. A commit SHA identifies input objects; it does not
+authenticate a remote repository, author, review or publication authority.
+
+Physical CRLF conversion that differs from the commit is rejected rather than
+silently attributed to that commit. Prepare an explicitly trusted checkout with
+matching bytes (for example disable automatic checkout conversion during setup).
+The builder never changes checkout settings or normalizes the user's files.
+Different timestamps/host metadata do not affect ZIP bytes: entries are sorted,
+stored without compression, fixed at 1980-01-01 00:00:00 with Unix regular-file
+0644 metadata, and have no directory, extra or comment entries. There is no
+build timestamp, local path or host identity in the integrity record.
+
+`integrity.json` binds the source SHA, exact packaging-manifest SHA256 and each
+component archive name, byte size, SHA256 and member path/size/SHA256.
+`SHA256SUMS` covers all archives and integrity.json in sorted order; it cannot
+hash itself. The JSON is canonical ASCII with sorted keys, compact separators
+and a final LF. Archive bytes and these files repeat for the same immutable
+inputs and format implementation. This does not establish reproducible wheel,
+compiler output or third-party runtime bytes.
+
+Checksums supplied beside an untrusted archive are not authentication. The
+verifier requires the expected integrity digest and source SHA independently,
+checks archive hashes, exact bounded file lists/content, normalized ZIP metadata,
+checksum-file bytes and absence of extra output files. It never extracts or
+executes content. Installation needs separately trusted instructions and the
+later install/rollback checks; do not derive a new trusted digest merely to
+accept changed content.
+
+The output must be an absolute, nonexistent directory outside source and its
+actual Git/common directories, with existing ordinary parent directories.
+Existing files/directories and symlink/junction/reparse components are rejected.
+Inputs are fully checked before creating the destination, then files are opened
+exclusively. An OS write failure may leave a partial new directory, which is not
+a valid bundle and is never silently reused or overwritten. Source and output
+parents must remain under trusted stable control; these checks are not an OS
+sandbox against a concurrent hostile filesystem owner. Source data is bounded
+to 8 MB per file and 64 MB of distinct inputs; manifest and integrity parsing
+are bounded. No output is created inside a consumer checkout as part of a scan.
+
+`python -B -m unittest discover -s tests -p test_build_package.py -v` uses real
+temporary Git commits, repeated ZIP builds, trusted-digest verification,
+tampering, selected dirty/staged/missing inputs, wrong commit IDs, no-overwrite,
+source/Git output boundaries and actual source/output symlink cases. Source
+file/directory hashes and Git state remain unchanged by build/verify. These
+are local source-bundle results, not hosted cross-platform release or signing
+proof. Publication and complete fresh install/rollback remain separate work.
+
+Archive source proof rejects effective partial/promisor configuration and shallow
+history before object lookup. Git calls explicitly disable lazy fetching and use
+accepted host Git selection outside the selected source root. The builder reads
+physical manifest inputs, then independently proves exact stage-0 index/commit
+membership; the inventory extraction opt-out alone is never provenance.
