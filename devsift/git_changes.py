@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import subprocess
 
+from .git_runtime import git_executable
 from .evidence import Region, SourceEvidence, SourceLocation, requires_source_mask, verify_source
 from .redaction import Redactor
 from .registry import RULES
@@ -64,7 +65,7 @@ def _git(root, *args):
     environment = os.environ.copy()
     environment.update(GIT_NO_REPLACE_OBJECTS="1", GIT_LITERAL_PATHSPECS="1",
                        GIT_OPTIONAL_LOCKS="0", GIT_TERMINAL_PROMPT="0", GIT_NO_LAZY_FETCH="1")
-    result = subprocess.run(["git", "-c", "core.fsmonitor=false", "-C", str(root), *args],
+    result = subprocess.run([git_executable(root), "-c", "core.fsmonitor=false", "-C", str(root), *args],
                             env=environment, capture_output=True, timeout=10)
     if result.returncode or len(result.stdout) > 5_000_000:
         raise ProvenanceError("Git provenance unavailable")

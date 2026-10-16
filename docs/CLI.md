@@ -16,7 +16,7 @@ devsift prompt OBS-001 --mode review
 devsift prompt OBS-001 --mode implement --approved-case OBS-001
 ```
 
-`python -m devsift` provides the same interface. All commands support `--help`.
+`python -I -B -m devsift` uses the installed interface without consumer module shadowing or bytecode writes. Source-checkout tests use `-P` with an explicitly trusted source PYTHONPATH instead; do not use that development override for untrusted consumer projects. All commands support `--help`.
 Options are strict, with no abbreviations. `--changed` and `--all` are mutually
 exclusive; changed scope is the default. Untouched legacy has only the
 `recommend` mode. There is no bulk fix or enforcing legacy mode.
@@ -33,10 +33,9 @@ Repeat `--report-format json|markdown|sarif` to select formats; the default incl
 all three. These are in-memory documents; CLI scans write no report files.
 Unconfigured language capabilities return an explicit incomplete result with exit 2;
 an empty findings array does **not** mean a clean scan. `doctor` reports the actual
-Python runtime and missing capabilities; it installs nothing, invokes no analyzers,
-and returns 2 while required capabilities are missing. It does not yet discover
-native providers (later doctor tasks). `prompt` validates per-case approval for
-implement mode but cannot compose a verified prompt yet and never edits source.
+Python runtime and provider availability; it installs nothing, runs no source
+analysis, and returns 2 while required providers are missing. It discovers PATH
+metadata without execution and probes only explicitly trusted configured providers. `prompt --scan-input` composes a source-reproved case prompt and never edits source. See the explicit case workflow below.
 
 Changed-scope queries disable effective Git clean/process/smudge filters and their
 required flags as well as external diff/textconv/fsmonitor callbacks. Effective
@@ -83,5 +82,25 @@ Errors contain `code` and `message`; command-specific capability data lives in
 `data`. Misuse has `command: null` because parsing may not establish a command.
 This envelope is a command result, not the full source-aware finding/report schema;
 the full report formats live under `data.reports`, each generated from the same
-source-reproved model. `report --latest`, `explain`, and `prompt` storage backends
-remain pending in this CLI integration.
+source-reproved model. `report --latest` and `explain` storage discovery remain pending. Case prompts use explicit scan input; no project report or approval is discovered automatically.
+
+## Doctor provider diagnostics
+
+`python -m devsift doctor` inventories runtime and host-tool metadata without executing PATH programs or project hooks. It does not auto-load a target manifest. To authorize bounded, hash-pinned provider probes, pass `--native-manifest <absolute-path>` and `--native-manifest-digest <independently-trusted-sha256>`. Missing, mismatched or partial provider coverage stays incomplete (exit 2). Discovery is not a code scan. See [doctor behavior](DOCTOR.md).
+
+
+## Explicit Doctor config checks
+
+`python -I -B -m devsift doctor --policy /absolute/policy.json --cache-path /absolute/cache` validates an explicit bounded JSON policy and cache metadata read-only. Missing cache is informational; invalid config is incomplete and prevents native probes. No directories are created or cleaned. Native trust flags remain explicit and paired.
+
+## Explicit case commands
+
+```text
+python -I -B -m devsift prompt CASE-1 --mode review --scan-input /absolute/scan.json
+python -I -B -m devsift prompt CASE-1 --mode implement --approved-case CASE-1 --scan-input /absolute/scan.json
+python -I -B -m devsift prompt CASE-1 --mode implement --approved-case CASE-1 --scan-input /absolute/scan.json --approval-file /absolute/operator-approval.json
+```
+
+Input is a scan command envelope, reassembled against the current Git root. Imported `data.reports` is ignored; serialized cases/approvals never replace source reproof. JSON input is bounded to 4 MB, 64 levels and 100,000 values; approval input is at most 64 KB. Use bounded scan scope and selected report formats for large projects. Duplicate keys, non-finite values, links and invalid inputs fail with constant errors; paths and JSON values are not echoed.
+
+Review returns exit 0 only for a generated prompt with verified immutable source. This is prompt-generation success, not a scan quality pass; UNKNOWN origin/impact remains explicit. Missing proof returns 2 with a lookup plan and no fabricated source location/patch. Implementation proposals return 2/review_required. A matching case selector alone is insufficient: explicit operator approval binds case/SHA/fingerprint/prompt digest and time window, and still permits only manual planning when effects are unknown. Expired/stale/dirty/mismatched approvals are denied. No command applies source edits. Approval-file options are invalid in review mode. See [the full workflow](CASE-PROMPTS.md).

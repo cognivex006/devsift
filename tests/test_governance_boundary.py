@@ -33,8 +33,15 @@ class ConsumerAssetTests(unittest.TestCase):
         text = skill.read_text(encoding='utf-8')
         self.assertIn('[consumer scope](CONSUMER-SCOPE.md)', text)
         for reference in re.findall(r'\]\(([^)]+)\)', text):
-            self.assertEqual(reference, 'CONSUMER-SCOPE.md')
-            self.assertTrue((skill.parent / reference).is_file())
+            if reference == 'CONSUMER-SCOPE.md':
+                self.assertTrue((skill.parent / reference).is_file())
+            else:
+                allowed_docs = ('CLI.md', 'CASE-PROMPTS.md', 'REPORT-CONTEXT.md')
+                prefix = 'https://github.com/orchex006/devsift/blob/main/docs/'
+                self.assertTrue(reference.startswith(prefix))
+                leaf = reference[len(prefix):]
+                self.assertIn(leaf, allowed_docs)
+                self.assertTrue((ROOT / 'docs' / leaf).is_file())
         commands = re.findall(r'`(python[^`]+)`', text)
         self.assertTrue(commands)
         for command in commands:
@@ -45,7 +52,13 @@ class ConsumerAssetTests(unittest.TestCase):
 
     def test_package_configuration_does_not_install_maintainer_workflows(self):
         config = tomllib.loads((ROOT / 'pyproject.toml').read_text(encoding='utf-8'))
-        self.assertEqual(config['tool']['setuptools']['packages']['find']['include'], ['devsift*'])
+        settings = config['tool']['setuptools']
+        self.assertEqual(settings['packages'], [])
+        self.assertIs(settings['include-package-data'], False)
+        modules = settings['py-modules']
+        self.assertTrue(modules)
+        self.assertIn('devsift.cli', modules)
+        self.assertTrue(all(re.fullmatch(r'devsift\.[a-z_]+', name) for name in modules))
         self.assertEqual(config['project']['dependencies'], [])
         self.assertEqual(config['project']['scripts'], {'devsift': 'devsift.cli:main'})
         self.assertNotIn('data-files', config['tool']['setuptools'])
