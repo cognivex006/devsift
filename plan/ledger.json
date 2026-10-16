@@ -2869,12 +2869,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA006"
+      "execution_id": "GA006",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T08:36:20.762077+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T08:36:20.762077+00:00"
+        }
+      ]
     },
     "T019": {
       "id": "T019",
@@ -4717,7 +4729,7 @@
         ],
         "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
         "locks": [],
-        "lease": "selected G003-G005 session until accepted/reassigned",
+        "lease": "selected G006-G010 session until accepted/reassigned",
         "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
         "integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b"
       },
@@ -4737,7 +4749,7 @@
         ],
         "base_sha": "32f4bb9b6f711d02d2342dae8a02a929c428e951",
         "locks": [],
-        "lease": "selected G003-G005 session until accepted/reassigned",
+        "lease": "selected G006-G010 session until accepted/reassigned",
         "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
         "integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b"
       },
@@ -4755,8 +4767,23 @@
         "locks": [
           "write:adapters/host"
         ],
-        "lease": "selected G003-G005 session until accepted/reassigned",
+        "lease": "selected G006-G010 session until accepted/reassigned",
         "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340"
+      },
+      "T018": {
+        "owner": "policy_writer",
+        "status": "running",
+        "branch": "feature/g006-baseline-invariants",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-invariants",
+        "paths": [
+          "tests/test_baseline_invariants.py",
+          "tests/fixtures/baseline/"
+        ],
+        "base_sha": "71c9699ad61223b017c3aaa496174ba9f07ba686",
+        "locks": [
+          "write:tests/baseline"
+        ],
+        "lease": "selected G006-G010 session until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4799,13 +4826,15 @@
         }
       ],
       "held_locks": [
-        "write:adapters/host"
+        "write:adapters/host",
+        "write:tests/baseline"
       ],
       "active_jobs": [
-        "T019"
+        "T019",
+        "T018"
       ],
-      "latest_integrated_sha": "51957188d0253047622b98f2f1c926afb5e9bb0b",
-      "updated_utc": "2026-10-16T08:36:20.330984+00:00"
+      "latest_integrated_sha": "71c9699ad61223b017c3aaa496174ba9f07ba686",
+      "updated_utc": "2026-10-16T08:36:20.762077+00:00"
     },
     "previous_checkpoints": [
       {
