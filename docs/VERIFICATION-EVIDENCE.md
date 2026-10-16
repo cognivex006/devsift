@@ -40,8 +40,11 @@ is checked for partial/promisor clones before object reads; shallow histories ar
 rejected. Lazy fetch, replacement objects, optional locks and fsmonitor are
 disabled. Diff uses `--no-ext-diff --no-textconv --no-renames`; no hooks, target
 builds, filters, network or source/index writes are invoked. Only regular UTF-8
-text changes are supported. Binary/NUL, symlink/submodule, unsupported mode-only
-diffs or unavailable proof fail closed with a fixed `VerificationError`.
+text changes are supported. A regular-file executable-bit-only change counts as
+one changed file and zero added/removed text lines. Its mode and behavior effects
+remain unverified; comparison stays incomplete and grants no editing authority.
+Binary/NUL, symlink/submodule changes or unavailable proof fail closed with a
+fixed `VerificationError`.
 At most 256 changed paths, 1,000 tree entries per revision and 2 MB aggregate
 changed before/after blob content are supported. These are resource bounds, not
 operator change-budget thresholds. Paths reject traversal, controls, absolute
