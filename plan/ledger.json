@@ -3431,11 +3431,16 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
+      "status": "in_review",
       "evidence": [
         {
           "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d",
           "test_result": "Writer five actual native frontend acceptance39.319s; 3500declarations127280bytes2.077s within30s; strengthened no-targethook test4.669s",
+          "author": "policy_writer"
+        },
+        {
+          "source_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+          "test_result": "Fresh integratedbase five actual frontend acceptance tests30.194s; 3500decl127280bytes2.213s, native30sec; explicit emptyadapters seam compatible",
           "author": "policy_writer"
         }
       ],
@@ -3463,6 +3468,11 @@
           "status": "rework",
           "actor": "controller",
           "reason": "integrated native CLI adds explicit adapters keyword to scan seam"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:42:22.181512+00:00"
         }
       ]
     },
@@ -5528,7 +5538,7 @@
       },
       "T027": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "fix/g009-scope-seam",
         "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-scope-seam",
         "paths": [
@@ -5541,7 +5551,7 @@
           "write:tests/frontend"
         ],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d",
+        "source_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
         "prior_jobs": [
           {
             "owner": "policy_writer",
@@ -5623,8 +5633,8 @@
       "active_jobs": [
         "T027"
       ],
-      "latest_integrated_sha": "ef5b4f6de0b224bf638104038d817f51105c1bf0",
-      "updated_utc": "2026-10-16T09:39:59.259453+00:00",
+      "latest_integrated_sha": "0de2838ccf87eac535faf594a9de5fde54632538",
+      "updated_utc": "2026-10-16T09:42:22.181512+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
