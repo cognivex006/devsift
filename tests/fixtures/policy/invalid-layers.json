@@ -1,0 +1,20 @@
+[
+  {"name":"unknown-root", "layer":{"allow_all":true}},
+  {"name":"unknown-gate-key", "layer":{"quality_gate":{"blocking":["Error"]}}},
+  {"name":"unknown-rule", "layer":{"rules":{"HC999":{"severity":"Error"}}}},
+  {"name":"unknown-rule-setting", "layer":{"rules":{"HC001":{"enabled":false}}}},
+  {"name":"wrong-version-type", "layer":{"schema_version":1}},
+  {"name":"unsupported-version", "layer":{"schema_version":"2"}},
+  {"name":"legacy-mass-enforcement", "layer":{"legacy_mode":"block"}},
+  {"name":"gate-not-array", "layer":{"quality_gate":{"block_on":"Error"}}},
+  {"name":"duplicate-gate", "layer":{"quality_gate":{"block_on":["Error","Error"]}}},
+  {"name":"unsupported-gate", "layer":{"quality_gate":{"block_on":["Warning"]}}},
+  {"name":"null-gate", "layer":{"quality_gate":null}},
+  {"name":"null-registry", "layer":{"rules":null}},
+  {"name":"null-rule", "layer":{"rules":{"HC001":null}}},
+  {"name":"null-severity", "layer":{"rules":{"HC001":{"severity":null}}}},
+  {"name":"historical-severity-spelling", "layer":{"rules":{"COM003":{"severity":"advisory"}}}},
+  {"name":"severity-is-case-sensitive", "layer":{"rules":{"HC001":{"severity":"error"}}}},
+  {"name":"array-root", "layer":[]},
+  {"name":"boolean-root", "layer":false}
+]
