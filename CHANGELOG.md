@@ -4,8 +4,21 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+### Fixed
+- Accept actual Windows 8.3 root/policy/cache aliases in read-only Doctor diagnostics after original-component link/reparse checks, retaining canonical root containment and descriptor identity protection.
+
 ### Changed
+- Expose read-only Doctor config/cache flags and explicit case-input review/proposal commands with bounded JSON, exact operator binding and no automatic source writes. Consumer skill uses isolated bytecode-free installed Python invocations.
+- Add read-only Doctor provider discovery with explicit native-manifest trust, bounded probes, actionable missing-tool diagnostics and matching CLI flags.
+- Assess finding origin with verified Git provenance, reviewed baselines and expiring waivers while preserving unknown business impact and independent security review.
+
 - Moved specifications, plans and maintainer orchestration to devsift-specs. Kept the consumer skill and runtime, replaced plan CI with runtime tests, and documented actual CLI capabilities.
+
+- Development jobs use ignored `worktrees/<job>` inside the source repository; finished integrated or superseded folders are removed while preserving commit refs and cleanup evidence.
+- Published and independently verified the initial 160-file scaffold; historical planner tests now tolerate execution progress.
+- Root task entry paths require T000 acceptance, not full G000 completion; 26 goals and 77 tasks with exact A/B reclassification.
+- Documentation, task ownership, paths and prompts now consistently reference `orchex006/devsift` rather than a generic quality-lint repository.
+- Brand-independent adapters: integration with AgriMap, Drevqon, Axiom is optional, not mandatory.
 
 ### Added
 - Explicit maintainer/consumer boundaries, compact specifications-owned task templates and isolated installed-CLI governance fixtures.
@@ -30,13 +43,6 @@ All notable user-facing changes to DevSift will be documented here. This follows
 - T000 first-run autopilot to publish the complete v6 scaffold to the initially empty repository and set its professional GitHub Description.
 - Independent bootstrap verification T076, offline kit validator, Linux/Windows plan-validation workflow, README/Contributing/Security scaffolding.
 - G000 bootstrap goal with partial-task dependency gates, preserving 25 prior goal IDs and 75 prior task IDs.
-
-### Changed
-- Development jobs use ignored `worktrees/<job>` inside the source repository; finished integrated or superseded folders are removed while preserving commit refs and cleanup evidence.
-- Published and independently verified the initial 160-file scaffold; historical planner tests now tolerate execution progress.
-- Root task entry paths require T000 acceptance, not full G000 completion; 26 goals and 77 tasks with exact A/B reclassification.
-- Documentation, task ownership, paths and prompts now consistently reference `orchex006/devsift` rather than a generic quality-lint repository.
-- Brand-independent adapters: integration with AgriMap, Drevqon, Axiom is optional, not mandatory.
 
 ### Security
 - Credential findings withhold the entire verified source region through native output, scanner reproof, classifier and baseline capture; raw-content fingerprints remain distinct.

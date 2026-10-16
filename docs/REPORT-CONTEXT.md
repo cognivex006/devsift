@@ -154,10 +154,9 @@ The three mixed groups exercise:
    execution. Exit 0/1/2 and enforced count remain independent: security flags
    stay visible, and incomplete exit 2 dominates without losing the block count.
    Business risk stays unknown even when a quality gate is complete.
-3. A fully masked enriched legacy case retains the sealed report's inline review
-   and implement prompts, pending approval, absent proposal and automatic-fix false.
-   Impact, change risk and affected consumers remain unknown. This does not exercise
-   a separate approval-binding or execution API.
+3. A fully masked enriched legacy case through prompt composition and an exact
+   explicit approval binding. Unknown effects still produce review_required,
+   manual planning only, and no execution/write/automatic-fix authority.
 
 Each group compares the entire disposable consumer/.git and persisted baseline
 tree before/after the read-only workflow. All three exporters retain the full
@@ -166,7 +165,7 @@ schema validation is enabled explicitly for the actual validation run:
 
 ```powershell
 $env:DEVSIFT_TEST_SCHEMA = '1'
-$env:PYTHONPATH = (Resolve-Path .devsift/local/validation-python).Path
+$env:PYTHONPATH = 'D:/SP-Billy/devsift-dev/devsift/.devsift/local/g014-g020-validation-python'
 python -B -m unittest discover -s tests -p test_mixed_report_gates.py -v
 ```
 
@@ -180,6 +179,5 @@ every produced report/JSON/SARIF, alongside actual Markdown rendering. Without
 the explicit schema opt-in, the stdlib functional groups run but do not establish
 official schema acceptance.
 
-This fixture uses only accepted G011–G015 modules; it does not implement G016
-approval binding or edit execution, T051, or certify native runtime coverage, production
+This does not implement T051 or certify native runtime coverage, production
 consumer reachability, impact, approved source edits or release readiness.
