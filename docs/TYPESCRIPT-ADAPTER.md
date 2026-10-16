@@ -51,3 +51,5 @@ Credential literals remain findings in tests and configuration; a directory name
 cannot waive security. These bounded syntactic patterns do not establish that a
 credential is live or provide interprocedural taint analysis. The host emits fixed
 registry text and source-safe regions, never the credential literal.
+
+HC002 evidence suppresses the entire verified finding region as [REDACTED], including scanner re-verification and cropped evidence. This uses the detected rule context, not a credential-name regex. Immutable SHA/region proof remains; masking never establishes secret validity. Fully masked wire evidence can be re-verified against the same immutable region without revealing its contents. Frontend cold-start execution remains bounded at 30 seconds.

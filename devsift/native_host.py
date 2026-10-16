@@ -223,7 +223,8 @@ class NativeAdapter:
             if self.repo_root is not None and self.source_sha is not None:
                 try:
                     source = verify_source(self.repo_root, self.repository, self.source_sha,
-                                           target.path, diagnostic.region, redactor=self.redactor)
+                                           target.path, diagnostic.region, redactor=self.redactor,
+                                           sensitive=diagnostic.rule_id == 'HC002')
                     if not _snapshot_matches_commit(self.repo_root, source, target.content):
                         source = SourceEvidence(reason="SOURCE_MISMATCH")
                 except (OSError, ValueError, TypeError):
