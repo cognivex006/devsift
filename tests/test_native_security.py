@@ -55,6 +55,26 @@ class NativeSecurityContexts(unittest.TestCase):
             with self.subTest(root=root):
                 self.assertNotIn("SEC001", [item.rule_id for item in self.report(source).diagnostics])
 
+    def test_direct_member_mutation_forms_never_retain_original_security_identity(self):
+        https_mutations = ["delete https.Agent;", "delete (https as any).Agent;", "https.Agent++;",
+                           "https.Agent ||= replacement;", "({value:https.Agent}=source);",
+                           "[https.Agent]=source;", "for(https.Agent of source){}",
+                           "for(https.Agent in source){}", "delete (https.Agent as any);", "delete https?.Agent;",
+                           "(https.Agent as any)=class {};", "(https satisfies any).Agent=class {};",
+                           "({value:https.Agent=replacement}=source);", "[...https.Agent]=source;",
+                           "({...https.Agent}=source);", "https.Agent.prototype.createConnection=replacement;"]
+        for mutation in https_mutations:
+            with self.subTest(mutation=mutation):
+                report = self.report("import https from 'node:https';" + mutation + "new https.Agent({rejectUnauthorized:false});")
+                self.assertFalse(report.complete)
+                self.assertEqual(report.reason, "ANALYSIS_FAILED")
+                self.assertNotIn("SEC002", [item.rule_id for item in report.diagnostics])
+        for mutation in ("delete console.error;", "delete (console as any).error;", "console.error++;",
+                         "({value:console.error}=source);", "[console.error]=source;"):
+            with self.subTest(mutation=mutation):
+                report = self.report(mutation + "console.error('" + PAT + "');")
+                self.assertNotIn("SEC001", [item.rule_id for item in report.diagnostics])
+
     def test_direct_literal_or_lexical_binding_in_actual_console_call(self):
         for source in ("console.error('" + PAT + "');", "const value='" + PAT + "'; console.log(value);"):
             with self.subTest(source=source):

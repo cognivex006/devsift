@@ -180,6 +180,11 @@ linked for member-mutation invalidation; replacing a member through an alias
 invalidates the original import identity and keeps analysis incomplete rather
 than reporting against a conveniently assumed original implementation. This is
 bounded static alias handling, not arbitrary object/interprocedural taint.
+Direct mutation targets include assignment/update/delete, destructuring with
+rest/default patterns, and for-in/for-of writes. Transparent TypeScript/chain
+wrappers and nested member receivers invalidate the underlying identifier root.
+Function-based reflection such as Object.assign/defineProperty and arbitrary
+interprocedural mutation are outside this direct-write contract.
 
 Masked literals, placeholders, ordinary text, unrelated imports, same-name
 parameters and sanitized-value examples do not acquire SEC001 merely from their

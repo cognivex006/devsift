@@ -208,11 +208,32 @@ if (process.argv[2] === '--probe') {
             Program(node) {
               const stack = [node];
               const aliases = new Map(), securityImports = new Set();
+              function unwrap(value) {
+                while (value && ['TSAsExpression', 'TSTypeAssertion', 'TSNonNullExpression', 'TSSatisfiesExpression',
+                  'TSInstantiationExpression', 'ParenthesizedExpression', 'ChainExpression'].includes(value.type)) value = value.expression;
+                return value;
+              }
               function identifier(value) {
-                let depth = 0;
-                while (value && ['TSAsExpression', 'TSTypeAssertion', 'TSNonNullExpression', 'ParenthesizedExpression'].includes(value.type)
-                  && depth++ < 16) value = value.expression;
+                value = unwrap(value);
                 return value?.type === 'Identifier' ? value.name : null;
+              }
+              function mutationTargets(value) {
+                const targets = [value];
+                while (targets.length) {
+                  const target = unwrap(targets.pop());
+                  if (!target) continue;
+                  if (target.type === 'MemberExpression') {
+                    let object = unwrap(target.object);
+                    while (object?.type === 'MemberExpression') object = unwrap(object.object);
+                    const root = identifier(object);
+                    if (root) mutatedRoots.add(root);
+                  } else if (target.type === 'ObjectPattern') {
+                    for (const property of target.properties) targets.push(property.type === 'RestElement' ? property.argument : property.value);
+                  } else if (target.type === 'ArrayPattern') targets.push(...target.elements);
+                  else if (target.type === 'RestElement') targets.push(target.argument);
+                  else if (target.type === 'AssignmentPattern') targets.push(target.left);
+                  else if (target.type === 'VariableDeclaration') for (const declaration of target.declarations) targets.push(declaration.id);
+                }
               }
               function alias(left, right) {
                 if (!left || !right) return;
@@ -226,12 +247,8 @@ if (process.argv[2] === '--probe') {
                   for (const specifier of current.specifiers) securityImports.add(specifier.local.name);
                 if (current.type === 'VariableDeclarator') alias(identifier(current.id), identifier(current.init));
                 if (current.type === 'AssignmentExpression' && current.operator === '=') alias(identifier(current.left), identifier(current.right));
-                if ((current.type === 'AssignmentExpression' || current.type === 'UpdateExpression')
-                  && (current.left || current.argument)?.type === 'MemberExpression') {
-                  const target = current.left || current.argument;
-                  const root = identifier(target.object);
-                  if (root) mutatedRoots.add(root);
-                }
+                if (['AssignmentExpression', 'ForInStatement', 'ForOfStatement'].includes(current.type)) mutationTargets(current.left);
+                else if (current.type === 'UpdateExpression' || current.type === 'UnaryExpression' && current.operator === 'delete') mutationTargets(current.argument);
                 for (const key of context.sourceCode.visitorKeys[current.type] || []) {
                   const value = current[key];
                   if (Array.isArray(value)) { for (const child of value) if (child?.type) stack.push(child); }
