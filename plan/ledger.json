@@ -46,7 +46,7 @@
       "evidence": [
         "docs/evidence/G000.md"
       ],
-      "next_step": "Execute selected G001/G002",
+      "next_step": "Selected three-goal session complete; consult current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
