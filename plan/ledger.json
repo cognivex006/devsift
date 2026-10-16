@@ -3222,8 +3222,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6",
+          "test_result": "Writer five actual backend acceptance suites, eight static golden cases, Git proof UNKNOWN/stale/no-writes and noexecution",
+          "author": "cli_writer"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3238,6 +3244,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T09:20:43.232510+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:26:06.101302+00:00"
         }
       ]
     },
@@ -5325,7 +5336,7 @@
       },
       "T024": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g008-backend-tests",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-backend-tests",
         "paths": [
@@ -5337,7 +5348,8 @@
         "locks": [
           "write:tests/backend"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "ae8bb15de592e484faf4d2d5d9a5048a7c8949f6"
       },
       "T026": {
         "owner": "controller",
@@ -5423,8 +5435,8 @@
         "T026",
         "T030"
       ],
-      "latest_integrated_sha": "719253e4856d47eb882bca84ea489081a082556e",
-      "updated_utc": "2026-10-16T09:25:23.872722+00:00",
+      "latest_integrated_sha": "d85b40ad4ad9965a0e6ba6c6ea52953293c7ceed",
+      "updated_utc": "2026-10-16T09:26:06.101302+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
