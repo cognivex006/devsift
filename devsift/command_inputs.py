@@ -36,6 +36,19 @@ def _constant(_):
     _require(False)
 
 
+def _bounded_tree(value):
+    pending=[(value,0)]
+    nodes=0
+    while pending:
+        item,depth=pending.pop()
+        nodes+=1
+        _require(nodes<=100_000 and depth<=64)
+        children=item.values() if type(item) is dict else item if type(item) is list else ()
+        _require(len(children)+nodes+len(pending)<=100_000)
+        pending.extend((child,depth+1) for child in children)
+    return value
+
+
 def load_json_input(path, *, maximum_bytes=4_000_000):
     """Read one operator-selected regular file; no discovery, writes or execution.
 
@@ -66,7 +79,7 @@ def load_json_input(path, *, maximum_bytes=4_000_000):
         final=selected.stat()
         _require((final.st_dev,final.st_ino,final.st_size,final.st_mtime_ns)==
                  (after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns))
-        return json.loads(raw.decode('utf-8'),object_pairs_hook=_pairs,parse_constant=_constant)
+        return _bounded_tree(json.loads(raw.decode('utf-8'),object_pairs_hook=_pairs,parse_constant=_constant))
     except (OSError,ValueError,TypeError,RecursionError,OverflowError):
         raise CommandInputError('Invalid or unavailable command input') from None
     finally:
