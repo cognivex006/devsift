@@ -5,6 +5,7 @@ All notable user-facing changes to DevSift will be documented here. This follows
 ## [Unreleased]
 
 ### Added
+- Explicit pinned native helper setup and Windows/Linux CI running actual Roslyn, Go AST, ESLint/TypeScript and ScriptDom tests.
 - Immutable Git merge-base/fingerprint/rename-region provenance with explicit UNKNOWN for ambiguous history or origin.
 - Trusted adapter execution and conservative aggregation connected to CLI inventory, including filter-free staged/unstaged/untracked scope selection.
 - Immutable Git-backed source evidence, distinct runtime/proposal contracts, strict wire schemas and full-context snippet redaction.

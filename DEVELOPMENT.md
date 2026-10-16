@@ -30,6 +30,16 @@ Rules: `<type>(optional-scope): imperative subject`; typical types feat, fix, do
 
 ## Tests and gates
 
+Native setup is explicit: install .NET SDK `9.0.205`, Go `1.21.3`, supported Node
+(`24` in CI) and npm, then run `python tools/build_native.py` from this trusted
+source checkout. Setup builds only `native/` helpers, restores the locked
+ScriptDom package and runs `npm ci --ignore-scripts`. Outputs live under ignored
+`.devsift/local/tools/`; frontend dependencies remain in `native/frontend/node_modules`.
+Set `DEVSIFT_TEST_NATIVE=1` and run `python -m unittest discover -s tests -v`.
+Missing helpers then fail tests; the ordinary suite explicitly skips native tests.
+The native CI matrix runs setup and actual analyzers on Windows and Linux.
+No scan invokes setup, package installation or target-project builds.
+
 - Unit: DAG classification, policy, schema validation, CLI, redaction, rules positive/negative.
 - Integration: pinned analyzer execution and error propagation, changed vs legacy classification, SARIF schema and Markdown report snapshots.
 - E2E: mixed .NET/TS/Go/SQL fixtures with good and bad inputs; verify no DB access.
