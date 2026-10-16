@@ -438,10 +438,8 @@
               "T010"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T010"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -492,7 +490,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019"
           ]
         }
@@ -545,7 +542,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019"
           ]
         }
@@ -598,7 +594,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019"
           ]
         }
@@ -651,7 +646,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019"
           ]
         }
@@ -709,7 +703,6 @@
           "ready": false,
           "blocking_tasks": [
             "T008",
-            "T010",
             "T019"
           ]
         }
@@ -1005,7 +998,6 @@
           "ready": false,
           "blocking_tasks": [
             "T007",
-            "T010",
             "T019",
             "T020",
             "T021",
@@ -1048,7 +1040,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019",
             "T025",
             "T026",
@@ -1169,7 +1160,6 @@
             "T007",
             "T008",
             "T009",
-            "T010",
             "T013",
             "T016",
             "T017",
@@ -1438,7 +1428,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T010",
             "T019",
             "T031",
             "T032",
@@ -1564,7 +1553,6 @@
             "T007",
             "T008",
             "T009",
-            "T010",
             "T013",
             "T016",
             "T017",
@@ -2236,17 +2224,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
           "test_result": "53 discovery tests OK with 1 installed-only skip; 16 producer tests pass; plan/kit/syntax/diff/credential checks pass",
           "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+          "integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a",
+          "test_result": "Independent reviewer accepted; 53 integrated tests OK1installed-only skip; DAG/kit/diff passed",
+          "evidence_uri": "docs/evidence/G004.md"
         }
       ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA004",
       "history": [
         {
@@ -2263,6 +2259,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:31:59.005869+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:32:53.022619+00:00"
         }
       ]
     },
@@ -2283,17 +2284,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
           "test_result": "53 discovery tests OK with 1 installed-only skip; 16 producer tests pass; plan/kit/syntax/diff/credential checks pass",
           "author": "cli_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+          "integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a",
+          "test_result": "Independent reviewer accepted; 53 integrated tests OK1installed-only skip; DAG/kit/diff passed",
+          "evidence_uri": "docs/evidence/G004.md"
         }
       ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA004",
       "history": [
         {
@@ -2310,6 +2319,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:31:59.005869+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T07:32:53.022619+00:00"
         }
       ]
     },
@@ -4079,7 +4093,7 @@
       },
       "T010": {
         "owner": "cli_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g004-inventory",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-inventory",
         "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
@@ -4090,15 +4104,14 @@
           "tests/test_adapters.py",
           "docs/SCAN-CORE.md"
         ],
-        "locks": [
-          "write:engine/scan"
-        ],
+        "locks": [],
         "lease": "selected session; until accepted/reassigned",
-        "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28"
+        "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+        "integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a"
       },
       "T011": {
         "owner": "cli_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g004-inventory",
         "worktree": "D:/SP-Billy/devsift-dev/devsift-inventory",
         "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
@@ -4109,11 +4122,10 @@
           "tests/test_adapters.py",
           "docs/SCAN-CORE.md"
         ],
-        "locks": [
-          "write:engine/adapters"
-        ],
+        "locks": [],
         "lease": "selected session; until accepted/reassigned",
-        "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28"
+        "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
+        "integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4127,18 +4139,14 @@
       "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
       "held_locks": [
         "write:contracts/source",
-        "write:contracts/runtime",
-        "write:engine/scan",
-        "write:engine/adapters"
+        "write:contracts/runtime"
       ],
       "active_jobs": [
         "T007",
-        "T008",
-        "T010",
-        "T011"
+        "T008"
       ],
-      "latest_integrated_sha": "c362e802e3f18d28ec224cb9d5971fe2005ad690",
-      "updated_utc": "2026-10-16T07:31:59.005869+00:00"
+      "latest_integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a",
+      "updated_utc": "2026-10-16T07:32:53.022619+00:00"
     },
     "previous_checkpoints": [
       {
