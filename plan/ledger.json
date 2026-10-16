@@ -3252,12 +3252,22 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
+      "status": "in_review",
       "evidence": [
         {
           "source_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04",
           "test_result": "7actualESLint10.12.0/TSparser8.71.2/TS6.0.3 tests PASS, exactnativeprobe, Angular/Next/JSX AST/no-inline-disable/no-target-configexecution/Unicode/Gitproof/no-writes",
           "author": "controller"
+        },
+        {
+          "source_sha": "235a606",
+          "test_result": "Actual native malformed wire duplicate/escaped keys, invalid UTF8 and trailing-data regression plus existing suite",
+          "author": "controller"
+        },
+        {
+          "source_sha": "c004c27e0c10ed7c138b30b4091408554e1a6ce2",
+          "author": "controller",
+          "test_result": "8 actual frontend tests pass; includes JSON Unicode LS/PS fix"
         }
       ],
       "assignee": "controller",
@@ -3284,6 +3294,11 @@
           "status": "rework",
           "actor": "controller",
           "reason": "review duplicate source JSON accepted"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:18:26.651518+00:00"
         }
       ]
     },
@@ -5123,7 +5138,7 @@
       },
       "T025": {
         "owner": "controller",
-        "status": "running",
+        "status": "in_review",
         "branch": "fix/g009-json-rework",
         "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-json-rework",
         "paths": [
@@ -5137,7 +5152,7 @@
           "write:adapters/typescript"
         ],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04",
+        "source_sha": "c004c27e0c10ed7c138b30b4091408554e1a6ce2",
         "prior_jobs": [
           {
             "owner": "controller",
@@ -5281,8 +5296,8 @@
         "T025",
         "T029"
       ],
-      "latest_integrated_sha": "a03c53227b7db51410251405c596e97eaac20970",
-      "updated_utc": "2026-10-16T09:16:06.304799+00:00",
+      "latest_integrated_sha": "657b141ab7dcbbb552958313a4019c3e2a6b7ad3",
+      "updated_utc": "2026-10-16T09:18:26.651518+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
