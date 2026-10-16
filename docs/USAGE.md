@@ -51,7 +51,7 @@ Native configuration authorizes only the specified hash-pinned tool processes. I
 | Situation | Starting command | What it establishes |
 | --- | --- | --- |
 | Current development changes | `python -I -B -m devsift scan --changed` | Staged, unstaged and untracked path selection; current working bytes |
-| Existing repository inventory | `python -I -B -m devsift scan --all --legacy-mode recommend` | All selected source; recommendations for unchanged legacy |
+| Existing repository inventory | `python -I -B -m devsift scan --all --legacy-mode recommend` | All selected current source; recommend mode requested, legacy origin still needs proof |
 | Committed CI change | Follow [CI gate setup](CI-GATE.md) | Fresh analysis with explicit tool trust and immutable Git provenance |
 
 Changed paths do not establish a finding's origin. A verified location proves matching immutable source, while lifecycle, regression behavior, consumer impact and business effects may remain UNKNOWN. New blocking findings need supported provenance and policy. Unchanged legacy is not permission for a broad refactor; Critical security escalation remains independent of ordinary quality thresholds. Gradually review recommendations and approved case scopes rather than enforcing unproved history.
@@ -77,6 +77,6 @@ Save an explicit scan envelope outside source, then select a real case ID from i
 python -I -B -m devsift prompt CASE-1 --mode review --scan-input /absolute/scan.json
 ```
 
-Review generation succeeds only with reproved source; it performs no new scan. `report --latest` and `explain` storage discovery are unavailable. Implementation proposals require an explicit matching selector and a separately supplied case-bound operator record; a selector alone grants no authorization. Even a matching record with unknown effects permits manual planning only. No CLI command applies source edits. See [case prompts and approval](CASE-PROMPTS.md) for the actual record format and denial conditions.
+Review generation succeeds only with reproved source; it performs no new scan. `report --latest` and `explain` storage discovery are unavailable. An implementation proposal and its digest can be generated with an explicit matching selector and scan input before supplying an operator record; that result remains incomplete with explicit approval required. A separately supplied case-bound operator record is needed to evaluate approval for that proposal. A selector alone grants no authorization. Even a matching record with unknown effects permits manual planning only. No CLI command applies source edits. See [case prompts and approval](CASE-PROMPTS.md) for the actual record format and denial conditions.
 
 Project-policy discovery and the separate security escalation library are documented in [project policy](PROJECT-POLICY.md) and [security gate](SECURITY-GATE.md). These library entry points are not automatic CLI configuration discovery. Start from [development](../DEVELOPMENT.md) for changing the tooling itself.
