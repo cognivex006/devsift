@@ -35,16 +35,62 @@ class Redactor:
             _fail()
         object.__setattr__(self, "secrets", tuple(sorted(set(self.secrets), key=lambda value: (-len(value), value))))
 
-    def text(self, value):
+    def _spans(self, value):
         if type(value) is not str or len(value) > _LIMIT:
             _fail()
-        # Preserve existing masks, including when an explicit sensitive value
-        # happens to be a substring of the marker itself.
-        for secret in self.secrets:
-            value = MASK.join(piece.replace(secret, MASK) for piece in value.split(MASK))
+        spans = []
+        # Longest alternatives first: an explicit full secret containing a mask
+        # wins over the existing marker; a marker wins over its short substrings.
+        alternatives = sorted(set(self.secrets) | {MASK}, key=lambda item: (-len(item), item))
+        explicit = re.compile("|".join(re.escape(item) for item in alternatives))
+        for match in explicit.finditer(value):
+            if match.group() != MASK:
+                spans.append(match.span())
         for pattern, replacement in _PATTERNS:
-            value = pattern.sub(replacement, value)
-        return value
+            for match in pattern.finditer(value):
+                start = match.end(1) if replacement.startswith(r"\g<1>") else match.start()
+                end = match.end() - 1 if replacement.endswith("@") else match.end()
+                spans.append((start, end))
+        merged = []
+        for start, end in sorted(spans):
+            if merged and start <= merged[-1][1]:
+                merged[-1] = (merged[-1][0], max(end, merged[-1][1]))
+            else:
+                merged.append((start, end))
+        return merged
+
+    def slice(self, value, start, end):
+        """Mask a selected range using sensitive spans found in full context.
+
+        Offsets are zero-based Unicode code points in the original unmasked
+        value, end exclusive. Any overlap emits one whole mask, never a partial
+        credential. No replacement can shift later source offsets.
+        """
+        spans = self._spans(value)
+        if type(start) is not int or type(end) is not int or not 0 <= start <= end <= len(value):
+            _fail()
+        if start == end:
+            return ""
+        pieces = []
+        cursor = start
+        for left, right in spans:
+            if left >= end:
+                break
+            if right <= start:
+                continue
+            pieces.append(value[cursor:max(cursor, left)])
+            pieces.append(MASK)
+            cursor = min(end, right)
+        pieces.append(value[cursor:end])
+        result = "".join(pieces)
+        if len(result) > _LIMIT:
+            _fail()
+        return result
+
+    def text(self, value):
+        if type(value) is not str:
+            _fail()
+        return self.slice(value, 0, len(value))
 
     def redact(self, value):
         """Return a fresh JSON-compatible tree, including masked dictionary keys.

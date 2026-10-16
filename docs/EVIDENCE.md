@@ -55,7 +55,11 @@ echoing input. Missing commits/files/tools, unsupported source, invalid source
 bounds and mismatched `expected_before` return `SOURCE_UNRESOLVED`.
 
 A VERIFIED `SourceEvidence` contains its physical location and redacted exact
-BEFORE. An unresolved record contains **no physical location or BEFORE**, only a
+BEFORE. Sensitive spans are found in the complete original blob before slicing;
+even a region selecting only part of an assignment value, Bearer credential or
+multiline key emits a complete mask for the overlapping sensitive span. Offsets
+always refer to original source, so earlier masks cannot shift the selected
+region. An unresolved record contains **no physical location or BEFORE**, only a
 fixed reason code and bounded lookup plan. Runtime messages cannot fill these
 fields. `SourceEvidence()` starts unresolved; normal construction cannot assert
 VERIFIED. `SourceEvidence.from_dict` requires `repo_root` for a VERIFIED record
@@ -104,6 +108,13 @@ lookups never include source snippets, Git stderr, raw paths or sensitive values
 Use the same redactor before creating source/runtime/proposal objects and on
 other report/log/prompt structures; this module cannot intercept unrelated caller
 logging. Already-masked values remain masked consistently.
+
+`Redactor.slice(full_text, start, end)` uses zero-based original Unicode code-point
+offsets, with an exclusive end. It returns selected non-sensitive text plus whole
+masks for overlapping sensitive spans; an empty selection remains empty. Explicit
+secrets containing the mask marker are recognized before preserving ordinary
+markers. `SourceEvidence(..., redactor=...)` and unresolved `from_dict` apply that
+same redactor to lookup plans, without retaining its sensitive values.
 
 Producer verification: `python -m unittest discover -s tests -p test_evidence.py`
 and `python -m unittest discover -s tests -p test_redaction.py`. Tests create real

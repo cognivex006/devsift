@@ -54,6 +54,21 @@ class RedactionTests(unittest.TestCase):
         with self.assertRaises(RedactionError):
             Redactor().redact(value)
 
+    def test_explicit_secret_containing_marker_is_masked_before_marker_preservation(self):
+        secret = "abc[REDACTED]xyz"
+        redactor = Redactor((secret, "RED"))
+        self.assertEqual(redactor.text(secret), "[REDACTED]")
+        self.assertEqual(redactor.text(redactor.text(secret)), "[REDACTED]")
+
+    def test_context_slice_masks_overlapping_sensitive_spans_using_original_offsets(self):
+        secret = "fixture" + "SensitiveValue"
+        value = "password='" + secret + "' visible"
+        self.assertEqual(Redactor().slice(value, 10, 31), "[REDACTED]")
+        self.assertEqual(Redactor().slice(value, 15, 20), "[REDACTED]")
+        self.assertEqual(Redactor().slice(value, 10, len(value)), "[REDACTED] visible")
+        self.assertEqual(Redactor().slice(value, 15, 15), "")
+        self.assertEqual(Redactor().slice(value, 33, len(value)), "visible")
+
 
 if __name__ == "__main__":
     unittest.main()

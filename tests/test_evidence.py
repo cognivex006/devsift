@@ -127,6 +127,8 @@ class EvidenceTests(unittest.TestCase):
                                Region(1, 1, 1, len(secret) + 1), redactor=redactor)
         self.assertEqual(result.before, "[REDACTED]")
         self.assertNotIn(secret, repr(result) + json.dumps(result.to_dict()))
+        direct = SourceEvidence(lookup_plan="Inspect " + secret, redactor=Redactor((secret,)))
+        self.assertEqual(direct.lookup_plan, "Inspect [REDACTED]")
         self.assertEqual(SourceEvidence.from_dict(result.to_dict(), repo_root=self.root, redactor=redactor), result)
 
     def test_nested_wire_types_and_runtime_timestamp_are_strict(self):
@@ -150,6 +152,32 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(first.before, "a\u2028b\u2029c\vd\fe\r")
         second = verify_source(self.root, "fixture/repo", sha, "code.py", Region(2, 1, 2, 6))
         self.assertEqual(second.before, "last\r")
+
+    def test_source_slice_uses_complete_secret_context_not_only_selected_text(self):
+        secret = "fixture" + "SensitiveValue"
+        content = ("password='" + secret + "'\n"
+                   + "Authorization: Bearer " + secret + "\n"
+                   + "-----BEGIN PRIVATE KEY-----\n" + secret + "\n-----END PRIVATE KEY-----\n")
+        (self.root / "code.py").write_bytes(content.encode())
+        self.git("-c", "core.autocrlf=false", "add", "code.py")
+        self.git("commit", "-qm", "context masking fixture")
+        sha = self.git("rev-parse", "HEAD").strip()
+        for region in (Region(1, 11, 1, 32), Region(1, 14, 1, 19),
+                       Region(2, 23, 2, 44), Region(4, 1, 4, 22), Region(3, 1, 5, 26)):
+            with self.subTest(region=region):
+                result = verify_source(self.root, "fixture/repo", sha, "code.py", region)
+                self.assertEqual(result.status, "VERIFIED")
+                self.assertEqual(result.location.region, region)
+                self.assertEqual(result.before, "[REDACTED]")
+                self.assertNotIn(secret, repr(result) + json.dumps(result.to_dict()))
+
+    def test_unresolved_wire_lookup_plan_honors_explicit_redactor(self):
+        secret = "fixture" + "SensitiveValue"
+        wire = SourceEvidence().to_dict()
+        wire["lookup_plan"] = "Inspect " + secret
+        result = SourceEvidence.from_dict(wire, redactor=Redactor((secret,)))
+        self.assertEqual(result.lookup_plan, "Inspect [REDACTED]")
+        self.assertNotIn(secret, repr(result) + json.dumps(result.to_dict()))
 
 
 if __name__ == "__main__":

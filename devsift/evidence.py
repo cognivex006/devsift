@@ -105,14 +105,15 @@ class SourceEvidence:
     lookup_plan: str | None
 
     def __init__(self, status="SOURCE_UNRESOLVED", location=None, before=None,
-                 reason="SOURCE_NOT_VERIFIED", lookup_plan=_LOOKUP, *, _seal=None):
+                 reason="SOURCE_NOT_VERIFIED", lookup_plan=_LOOKUP, *, redactor=None, _seal=None):
+        _require(redactor is None or type(redactor) is Redactor)
         _require(type(status) is str and status in ("VERIFIED", "SOURCE_UNRESOLVED"))
         if status == "VERIFIED":
             _require(_seal is _SEAL and type(location) is SourceLocation
                      and type(before) is str and reason is None and lookup_plan is None)
         else:
             _require(location is None and before is None and type(reason) is str and reason in _REASONS)
-            lookup_plan = _text(lookup_plan, maximum=4096)
+            lookup_plan = _text(lookup_plan, maximum=4096, redactor=redactor)
         for name, value in (("status", status), ("location", location), ("before", before),
                             ("reason", reason), ("lookup_plan", lookup_plan)):
             object.__setattr__(self, name, value)
@@ -125,7 +126,7 @@ class SourceEvidence:
     def from_dict(cls, data, *, repo_root=None, redactor=None):
         _fields(data, ("status", "location", "before", "reason", "lookup_plan"))
         if data["status"] == "SOURCE_UNRESOLVED":
-            return cls(**data)
+            return cls(**data, redactor=redactor)
         _require(data["status"] == "VERIFIED" and repo_root is not None
                  and data["reason"] is None and data["lookup_plan"] is None and type(data["before"]) is str)
         location = SourceLocation.from_dict(data["location"])
@@ -201,13 +202,9 @@ def verify_source(repo_root, repository, source_sha, path, region, *, expected_b
         end = line_body(lines[region.end_line - 1])
         if region.start_column > len(start) + 1 or region.end_column > len(end) + 1:
             return SourceEvidence(reason="REGION_UNAVAILABLE")
-        if region.start_line == region.end_line:
-            before = start[region.start_column - 1:region.end_column - 1]
-        else:
-            before = (lines[region.start_line - 1][region.start_column - 1:]
-                      + "".join(lines[region.start_line:region.end_line - 1])
-                      + end[:region.end_column - 1])
-        before = redactor.text(before)
+        start_offset = sum(len(line) for line in lines[:region.start_line - 1]) + region.start_column - 1
+        end_offset = sum(len(line) for line in lines[:region.end_line - 1]) + region.end_column - 1
+        before = redactor.slice(content, start_offset, end_offset)
         if expected_before is not None and redactor.text(expected_before) != before:
             return SourceEvidence(reason="SOURCE_MISMATCH")
         return SourceEvidence("VERIFIED", location, before, None, None, _seal=_SEAL)
