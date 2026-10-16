@@ -1,6 +1,6 @@
 # DevSift — Product & Engineering Specification v6
 
-**Status:** approved naming and development plan, **not implemented**.  
+**Status:** approved specification baseline. G000/G001/G002 foundations are implemented; current acceptance evidence is in `plan/ledger.json` and `docs/evidence/`. Analyzer/report engines remain pending.  
 **Canonical repository:** https://github.com/orchex006/devsift  
 **Owner:** `orchex006`  
 **Product:** `DevSift` · proposed CLI: `devsift` · proposed skill: `$devsift`  

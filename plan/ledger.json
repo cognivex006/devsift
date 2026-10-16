@@ -46,7 +46,7 @@
       "evidence": [
         "docs/evidence/G000.md"
       ],
-      "next_step": "Execute selected G001/G002",
+      "next_step": "Selected three-goal session complete; consult current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -76,9 +76,11 @@
         "T003"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G001.md"
+      ],
+      "next_step": "Selected goal complete; source classifier and analyzer engine remain later goals",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -99,10 +101,8 @@
               "T000"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T002",
@@ -115,10 +115,8 @@
               "T000"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -132,9 +130,11 @@
         "T006"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G002.md"
+      ],
+      "next_step": "Selected three-goal session complete; analyzer/report engines remain future scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -155,10 +155,8 @@
               "T000"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T005",
@@ -171,10 +169,8 @@
               "T000"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -211,10 +207,8 @@
               "T000"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T008",
@@ -227,10 +221,8 @@
               "T000"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -271,11 +263,8 @@
               "T001"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000",
-            "T001"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T011",
@@ -292,11 +281,8 @@
               "T004"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000",
-            "T004"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -339,7 +325,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
             "T007"
           ]
         }
@@ -388,7 +373,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
             "T007",
             "T013"
           ]
@@ -408,11 +392,8 @@
               "T002"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000",
-            "T002"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -459,8 +440,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
             "T010"
           ]
         }
@@ -513,8 +492,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
             "T010",
             "T019"
           ]
@@ -568,8 +545,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
             "T010",
             "T019"
           ]
@@ -623,8 +598,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
             "T010",
             "T019"
           ]
@@ -678,8 +651,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
             "T010",
             "T019"
           ]
@@ -737,8 +708,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
             "T008",
             "T010",
             "T019"
@@ -786,7 +755,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
             "T007",
             "T008",
             "T009"
@@ -846,8 +814,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T002",
             "T007",
             "T013",
             "T016",
@@ -877,7 +843,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
             "T007",
             "T008",
             "T009",
@@ -926,13 +891,8 @@
               "T000"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000",
-            "T004",
-            "T005",
-            "T006"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -980,7 +940,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
             "T007",
             "T008",
             "T009",
@@ -1045,8 +1004,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
             "T007",
             "T010",
             "T019",
@@ -1091,8 +1048,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
             "T010",
             "T019",
             "T025",
@@ -1211,12 +1166,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
-            "T002",
-            "T004",
-            "T005",
-            "T006",
             "T007",
             "T008",
             "T009",
@@ -1299,11 +1248,8 @@
               "T001"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000",
-            "T001"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -1344,11 +1290,8 @@
               "T004"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000",
-            "T004"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -1395,7 +1338,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
             "T007",
             "T013"
           ]
@@ -1439,11 +1381,8 @@
               "T001"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000",
-            "T001"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -1499,8 +1438,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
             "T010",
             "T019",
             "T031",
@@ -1624,12 +1561,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
-            "T001",
-            "T002",
-            "T004",
-            "T005",
-            "T006",
             "T007",
             "T008",
             "T009",
@@ -1718,11 +1649,8 @@
               "T001"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T000",
-            "T001"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         },
         {
           "entry_task": "T074",
@@ -1746,7 +1674,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T000",
             "T007",
             "T008",
             "T009",
@@ -1797,7 +1724,7 @@
       ],
       "assignee": "controller",
       "reviewer": "reviewer",
-      "next_step": "T076 verification; refresh ready frontier",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA000",
       "history": [
         {
@@ -1814,6 +1741,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T06:56:17.587881+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "source_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
         }
       ]
     },
@@ -1834,11 +1766,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "512f41d810301b212ab93ff2c903207b2bfac6ab",
+          "test_command": "python -m unittest discover -s tests -p test_policy.py -v",
+          "test_result": "10 passed",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
+          "test_result": "20 integrated tests passed; reviewer 230 decision matrix checks passed"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA001",
       "history": [
         {
@@ -1847,6 +1792,14 @@
         },
         {
           "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
           "actor": "controller"
         }
       ]
@@ -1868,11 +1821,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "512f41d810301b212ab93ff2c903207b2bfac6ab",
+          "test_command": "python -m unittest discover -s tests -p test_policy.py -v",
+          "test_result": "10 passed",
+          "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
+          "test_result": "20 integrated tests passed; reviewer 230 decision matrix checks passed"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA001",
       "history": [
         {
@@ -1881,6 +1847,14 @@
         },
         {
           "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
           "actor": "controller"
         }
       ]
@@ -1903,12 +1877,43 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA001"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "8bc4cc9d82d7428ed3546b7f516800ef58a8c47d",
+          "author": "policy_writer",
+          "test_command": "python -m unittest discover -s tests -v",
+          "test_result": "28 on policy worktree; 8 invariant tests and explicit normative fixtures"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "4eeac177a8bfc502404d80289a5e2c2052e2f63d",
+          "test_result": "36 integrated tests passed"
+        }
+      ],
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA001",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller"
+        }
+      ]
     },
     "T004": {
       "id": "T004",
@@ -1927,11 +1932,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5",
+          "author": "cli_writer",
+          "test_command": "python -m unittest discover -s tests -v",
+          "test_result": "28 passed; wheel install and installed command smoke verified; strict completion regression first failed then passed"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "7d7f3772f34918c7419d92a06f984f4552680c67",
+          "test_result": "28 integrated tests passed"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA002",
       "history": [
         {
@@ -1940,6 +1958,31 @@
         },
         {
           "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "reason": "complete must be a strict boolean to avoid unknown becoming clean"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
           "actor": "controller"
         }
       ]
@@ -1961,11 +2004,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5",
+          "author": "cli_writer",
+          "test_command": "python -m unittest discover -s tests -v",
+          "test_result": "28 passed; wheel install and installed command smoke verified; strict completion regression first failed then passed"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "7d7f3772f34918c7419d92a06f984f4552680c67",
+          "test_result": "28 integrated tests passed"
+        }
+      ],
       "assignee": "cli_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA002",
       "history": [
         {
@@ -1974,6 +2030,31 @@
         },
         {
           "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "reason": "complete must be a strict boolean to avoid unknown becoming clean"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
           "actor": "controller"
         }
       ]
@@ -1996,12 +2077,50 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA002"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "a44d50f1f1335e67ad5b178008b75f798ae15354",
+          "author": "cli_writer",
+          "local_installed_smoke": "Windows Python3.13 isolated venv: 18 command cases pass",
+          "reviewer": "reviewer",
+          "review_result": "code accepted for integration; final actual CI pending"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "8f7706533d4db7d11af8766f17b0328bbff6a79c",
+          "installed_ci": "https://github.com/orchex006/devsift/actions/runs/38865417406",
+          "validation_ci": "https://github.com/orchex006/devsift/actions/runs/38865417326",
+          "platforms": [
+            "windows-latest",
+            "ubuntu-latest"
+          ],
+          "test_result": "37 discovery tests OK skipped=1; actual installed suite 18 command cases passed both OS"
+        }
+      ],
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
+      "next_step": "Accepted; see goal evidence and current frontier",
+      "execution_id": "GA002",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller"
+        }
+      ]
     },
     "T007": {
       "id": "T007",
@@ -3707,7 +3826,7 @@
       ],
       "assignee": "reviewer",
       "reviewer": "controller",
-      "next_step": "G000 complete; execute selected G001/G002",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA000",
       "history": [
         {
@@ -3767,33 +3886,35 @@
       },
       "T001": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "accepted",
         "paths": [
           "devsift/policy.py",
           "policy/",
           "tests/test_policy.py",
           "docs/POLICY.md"
         ],
-        "locks": [
-          "write:policy/schema"
-        ],
-        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+        "locks": [],
+        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+        "branch": "feature/g001-policy",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-policy",
+        "source_sha": "512f41d810301b212ab93ff2c903207b2bfac6ab"
       },
       "T002": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "accepted",
         "paths": [
           "devsift/registry.py",
           "policy/registry.json"
         ],
-        "locks": [
-          "write:policy/rules"
-        ],
-        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+        "locks": [],
+        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+        "branch": "feature/g001-policy",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-policy",
+        "source_sha": "512f41d810301b212ab93ff2c903207b2bfac6ab"
       },
       "T004": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "accepted",
         "paths": [
           "devsift/cli.py",
           "devsift/__main__.py",
@@ -3802,23 +3923,79 @@
           "tests/test_cli.py",
           "docs/CLI.md"
         ],
-        "locks": [
-          "write:cli/commands"
-        ],
-        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+        "locks": [],
+        "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
+        "branch": "feature/g002-producer-rework",
+        "prior_job_sha": "dc62257f160374dce7be68ddeed56c92de3beea2",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-cli-rework",
+        "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5"
       },
       "T005": {
         "owner": "cli_writer",
-        "status": "running",
+        "status": "accepted",
         "paths": [
           "devsift/output.py"
         ],
-        "locks": [
-          "write:cli/io"
+        "locks": [],
+        "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
+        "branch": "feature/g002-producer-rework",
+        "prior_job_sha": "dc62257f160374dce7be68ddeed56c92de3beea2",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-cli-rework",
+        "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5"
+      },
+      "T003": {
+        "status": "accepted",
+        "owner": "policy_writer",
+        "paths": [
+          "tests/test_policy_invariants.py",
+          "tests/fixtures/policy/"
         ],
-        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+        "locks": [],
+        "branch": "feature/g001-t003-invariants",
+        "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
+        "source_sha": "8bc4cc9d82d7428ed3546b7f516800ef58a8c47d",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-policy-tests"
+      },
+      "T006": {
+        "status": "accepted",
+        "owner": "cli_writer",
+        "paths": [
+          "tests/test_cli_platform.py",
+          ".github/workflows/cli-contract.yml"
+        ],
+        "locks": [],
+        "branch": "feature/g002-t006-platform",
+        "base_sha": "7d7f3772f34918c7419d92a06f984f4552680c67",
+        "source_sha": "a44d50f1f1335e67ad5b178008b75f798ae15354",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-cli-tests"
       }
     },
-    "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository"
+    "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
+    "checkpoint": {
+      "completed_goals": [
+        "G000",
+        "G001",
+        "G002"
+      ],
+      "accepted_tasks": [
+        "T000",
+        "T076",
+        "T001",
+        "T002",
+        "T003",
+        "T004",
+        "T005",
+        "T006"
+      ],
+      "effective_subagent_capacity": 3,
+      "active_jobs": [],
+      "held_locks": [],
+      "code_sha": "8f7706533d4db7d11af8766f17b0328bbff6a79c",
+      "pull_request": "https://github.com/orchex006/devsift/pull/2",
+      "savepoint": "docs/evidence/SESSION-2026-10-16.md",
+      "retained_superseded_worktree": "D:/SP-Billy/devsift-dev/devsift-cli",
+      "retained_superseded_branch": "feature/g002-cli",
+      "next_action": "No further goal dispatched; select the next ready goal in a new authorized session"
+    }
   }
 }

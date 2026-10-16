@@ -5,6 +5,8 @@ All notable user-facing changes to DevSift will be documented here. This follows
 ## [Unreleased]
 
 ### Added
+- Installable Python CLI shell with strict commands, JSON error envelopes and exit codes 0/1/2/3; unavailable analyzer/report capabilities remain incomplete.
+- Strict policy v1 overlays and immutable 23-rule severity registry, with evidence-aware legacy/unknown enforcement and independent critical-security review.
 - DevSift brand, canonical repository URL, scoped maintainer and consumer skill identities.
 - T000 first-run autopilot to publish the complete v6 scaffold to the initially empty repository and set its professional GitHub Description.
 - Independent bootstrap verification T076, offline kit validator, Linux/Windows plan-validation workflow, README/Contributing/Security scaffolding.

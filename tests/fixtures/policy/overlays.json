@@ -1,0 +1,5 @@
+{
+  "repo": {"schema_version":"1", "quality_gate":{"block_on":["Error"]}, "rules":{"HC001":{"severity":"Warning"}, "COM003":{"severity":"Error"}}},
+  "overlay": {"quality_gate":{"block_on":[]}, "rules":{"HC001":{"severity":"Suggestion"}, "HC002":{}}},
+  "expected": {"schema_version":"1", "legacy_mode":"recommend", "quality_gate":{"block_on":[]}, "rules":{"HC001":{"severity":"Suggestion"}, "COM003":{"severity":"Error"}, "HC002":{}}}
+}

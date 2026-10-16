@@ -1,0 +1,22 @@
+{
+  "contract": "docs/FINDINGS-AND-REPORT-CONTRACT.md behavior policy; docs/POLICY.md v1",
+  "cases": [
+    {"name":"introduced-error", "rule":"HC001", "classes":["NEW","MODIFIED_INTRODUCED"], "verified":true, "policy":{}, "severity":"Error", "enforcement":"block", "escalate":false},
+    {"name":"introduced-critical-security", "rule":"SEC003", "classes":["NEW","MODIFIED_INTRODUCED"], "verified":true, "policy":{}, "severity":"Critical", "enforcement":"block", "escalate":true},
+    {"name":"preexisting-error", "rule":"HC001", "classes":["MODIFIED_PREEXISTING","LEGACY_UNCHANGED"], "verified":true, "policy":{}, "severity":"Error", "enforcement":"advisory", "escalate":false},
+    {"name":"preexisting-security", "rule":"SEC002", "classes":["MODIFIED_PREEXISTING","LEGACY_UNCHANGED"], "verified":true, "policy":{}, "severity":"Critical", "enforcement":"security_review", "escalate":true},
+    {"name":"warning-does-not-block", "rule":"HC004", "classes":["NEW","MODIFIED_INTRODUCED","MODIFIED_PREEXISTING","LEGACY_UNCHANGED"], "verified":true, "policy":{}, "severity":"Warning", "enforcement":"advisory", "escalate":false},
+    {"name":"historical-advisory", "rule":"ARC002", "classes":["NEW","MODIFIED_INTRODUCED","LEGACY_UNCHANGED"], "verified":true, "policy":{}, "severity":"Suggestion", "enforcement":"advisory", "escalate":false},
+    {"name":"critical-only-gate-error", "rule":"HC001", "classes":["NEW","MODIFIED_INTRODUCED"], "verified":true, "policy":{"quality_gate":{"block_on":["Critical"]}}, "severity":"Error", "enforcement":"advisory", "escalate":false},
+    {"name":"critical-only-gate-critical", "rule":"HC002", "classes":["NEW"], "verified":true, "policy":{"quality_gate":{"block_on":["Critical"]}}, "severity":"Critical", "enforcement":"block", "escalate":true},
+    {"name":"error-only-gate-error", "rule":"HC001", "classes":["NEW"], "verified":true, "policy":{"quality_gate":{"block_on":["Error"]}}, "severity":"Error", "enforcement":"block", "escalate":false},
+    {"name":"error-only-gate-security", "rule":"HC002", "classes":["NEW"], "verified":true, "policy":{"quality_gate":{"block_on":["Error"]}}, "severity":"Critical", "enforcement":"advisory", "escalate":true},
+    {"name":"empty-gate-critical", "rule":"CFG003", "classes":["NEW"], "verified":true, "policy":{"quality_gate":{"block_on":[]}}, "severity":"Critical", "enforcement":"advisory", "escalate":true},
+    {"name":"downgraded-introduced-security", "rule":"SEC001", "classes":["NEW","MODIFIED_INTRODUCED"], "verified":true, "policy":{"rules":{"SEC001":{"severity":"Suggestion"}}}, "severity":"Suggestion", "enforcement":"advisory", "escalate":true},
+    {"name":"downgraded-legacy-security", "rule":"SEC001", "classes":["MODIFIED_PREEXISTING","LEGACY_UNCHANGED"], "verified":true, "policy":{"rules":{"SEC001":{"severity":"Suggestion"}},"quality_gate":{"block_on":[]}}, "severity":"Suggestion", "enforcement":"security_review", "escalate":true},
+    {"name":"promoted-suggestion", "rule":"COM003", "classes":["NEW","MODIFIED_INTRODUCED"], "verified":true, "policy":{"rules":{"COM003":{"severity":"Error"}}}, "severity":"Error", "enforcement":"block", "escalate":false},
+    {"name":"promoted-legacy-is-still-legacy", "rule":"COM003", "classes":["MODIFIED_PREEXISTING","LEGACY_UNCHANGED"], "verified":true, "policy":{"rules":{"COM003":{"severity":"Critical"}}}, "severity":"Critical", "enforcement":"advisory", "escalate":false},
+    {"name":"unknown-security-with-evidence", "rule":"SEC003", "classes":["UNKNOWN"], "verified":true, "policy":{}, "severity":"Critical", "enforcement":"incomplete", "escalate":true},
+    {"name":"unverified-security", "rule":"HC002", "classes":["NEW","MODIFIED_INTRODUCED","MODIFIED_PREEXISTING","LEGACY_UNCHANGED","UNKNOWN"], "verified":false, "policy":{}, "severity":"Critical", "enforcement":"incomplete", "escalate":false}
+  ]
+}

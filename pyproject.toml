@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=77,<83"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "devsift"
+version = "0.0.0.dev0"
+description = "Read-only command interface for change-aware quality analysis (engine pending)"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+devsift = "devsift.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["devsift*"]
