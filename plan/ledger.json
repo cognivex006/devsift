@@ -5212,7 +5212,49 @@
         "T029"
       ],
       "latest_integrated_sha": "7d896cc68b935e0840f71e60034d2e6ccbe52d04",
-      "updated_utc": "2026-10-16T09:09:49.676750+00:00"
+      "updated_utc": "2026-10-16T09:09:49.676750+00:00",
+      "worktree_cleanup": [
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
+          "source_sha": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "accepted_replacement": "52db23f6245724f060aefd242d4fa0d6e41bbd5c",
+          "branch": "feature/g006-baseline",
+          "branch_retained": false,
+          "clean": true,
+          "removed": true,
+          "integration_sha": "5270521c99b51345d6c42a6774ffac4589f911e7"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-invariants",
+          "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
+          "accepted_replacement": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
+          "branch": "feature/g006-baseline-invariants",
+          "branch_retained": false,
+          "clean": true,
+          "removed": true,
+          "integration_sha": "5270521c99b51345d6c42a6774ffac4589f911e7"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g007-runner-cleanup",
+          "source_sha": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+          "accepted_replacement": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+          "branch": "fix/g007-runner-cleanup",
+          "branch_retained": false,
+          "clean": true,
+          "removed": true,
+          "integration_sha": "5270521c99b51345d6c42a6774ffac4589f911e7"
+        },
+        {
+          "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g007-runner",
+          "source_sha": "a625083e574604266b3d7cbac6a8abcac6088340",
+          "accepted_replacement": "7985194f8209253fb5ebfcf7b4592a29cfa777b8",
+          "branch": "feature/g007-runner",
+          "branch_retained": true,
+          "clean": true,
+          "removed": true,
+          "integration_sha": "5270521c99b51345d6c42a6774ffac4589f911e7"
+        }
+      ]
     },
     "previous_checkpoints": [
       {
