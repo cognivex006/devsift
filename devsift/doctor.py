@@ -61,12 +61,15 @@ def _diagnostic_path(origin, value, *, missing_ok=False):
     if '..' in path.parts or (path.drive and not path.is_absolute()):
         raise ValueError('Unavailable diagnostic path')
     path = path if path.is_absolute() else origin / path
-    if not path.is_relative_to(origin):
-        raise ValueError('Unavailable diagnostic path')
+    # Check original spelling before any resolution: an 8.3 alias is legitimate,
+    # a symlink/junction/reparse component is not, even if it resolves inside.
     info = _walk_metadata(path, missing_ok=missing_ok)
-    if not path.resolve(strict=False).is_relative_to(origin):
+    canonical = path.resolve(strict=False)
+    if not canonical.is_relative_to(origin):
         raise ValueError('Unavailable diagnostic path')
-    return path, info
+    # Keep extension/access checks on the real file name (e.g. a .JSON file's
+    # short name can have .JSO). Descriptor identity still uses original metadata.
+    return canonical, info
 
 
 def _identity(info):

@@ -2,6 +2,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -64,6 +65,114 @@ class DoctorConfigTests(unittest.TestCase):
         self.assertEqual(before, self.snapshot())
         self.assertNotIn('private-secret', json.dumps(record))
         self.assertNotIn(str(self.root), json.dumps(record))
+
+    def test_normal_absolute_and_relative_paths_keep_canonical_root_containment(self):
+        policy = self.root / 'policy.json'
+        policy.write_text('{}', encoding='utf-8')
+        cache = self.root / 'cache'
+        cache.mkdir()
+        before = self.snapshot()
+        for root, explicit_policy, explicit_cache in (
+                (self.root.resolve(), policy.resolve(), cache.resolve()),
+                (self.root, 'policy.json', 'cache')):
+            record = run_doctor(root=root, policy_path=explicit_policy, cache_path=explicit_cache, search_path='')
+            self.assertEqual(record['data']['config_checks']['status'], 'valid')
+            self.assertEqual(record['data']['cache_checks']['status'], 'present')
+            self.assertEqual(record['exit_code'], 2)  # no native trust was supplied
+        self.assertEqual(before, self.snapshot())
+
+    def short_path(self, path):
+        import ctypes
+        function = ctypes.windll.kernel32.GetShortPathNameW
+        function.argtypes = [ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32]
+        function.restype = ctypes.c_uint32
+        buffer = ctypes.create_unicode_buffer(32768)
+        size = function(str(path), buffer, len(buffer))
+        self.assertTrue(0 < size < len(buffer), 'Actual GetShortPathNameW failed')
+        alias = Path(buffer.value)
+        if alias == path.resolve():
+            self.skipTest('Filesystem has no distinct actual 8.3 alias')
+        self.assertEqual(alias.resolve(), path.resolve())
+        return alias
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows real 8.3 root/file aliases')
+    def test_real_short_roots_absolute_policy_and_cache_aliases_are_read_only(self):
+        policy = self.root / 'diagnostic policy configuration.json'
+        policy.write_text('{}', encoding='utf-8')
+        cache = self.root / 'diagnostic cache directory'
+        cache.mkdir()
+        (cache / 'opaque.bin').write_bytes(b'cache child content must not be read')
+        short = self.short_path(self.root)
+        short_policy, short_cache = self.short_path(policy), self.short_path(cache)
+        self.assertFalse((short / policy.name).is_relative_to(self.root.resolve()))
+        before = self.snapshot()
+        with patch('os.scandir', side_effect=AssertionError('no child enumeration')):
+            for root, explicit_policy, explicit_cache in (
+                    (short, short / policy.name, short / cache.name),
+                    (self.root.resolve(), short / policy.name, short / cache.name),
+                    (short, policy.resolve(), cache.resolve()),
+                    (short, short_policy, short_cache),
+                    (self.root.resolve(), short_policy, short_cache),
+                    (short, policy.name, cache.name)):
+                with self.subTest(root=str(root), policy=str(explicit_policy)):
+                    record = run_doctor(root=root, policy_path=explicit_policy, cache_path=explicit_cache, search_path='')
+                    self.assertEqual(record['data']['config_checks']['status'], 'valid')
+                    self.assertEqual(record['data']['cache_checks']['status'], 'present')
+                    self.assertEqual(record['exit_code'], 2)
+                    self.assertNotIn(str(self.root), json.dumps(record))
+        self.assertEqual(before, self.snapshot())
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows real 8.3 CLI argument paths')
+    def test_real_short_absolute_cli_arguments_accept_policy_and_leave_missing_cache_absent(self):
+        policy = self.root / 'policy.json'
+        policy.write_text('{}', encoding='utf-8')
+        alias = self.short_path(self.root)
+        before = self.snapshot()
+        process = subprocess.run(
+            [sys.executable, '-P', '-B', '-m', 'devsift', 'doctor', '--policy', str(alias / 'policy.json'),
+             '--cache-path', str(alias / 'absent-cache')], cwd=alias,
+            env=dict(os.environ, PYTHONPATH=str(Path(__file__).resolve().parents[1]), PYTHONDONTWRITEBYTECODE='1'),
+            capture_output=True, text=True, timeout=30)
+        self.assertEqual(process.returncode, 2, process.stderr)
+        self.assertEqual(process.stderr, '')
+        record = json.loads(process.stdout)
+        self.assertEqual(record['data']['config_checks']['status'], 'valid')
+        self.assertEqual(record['data']['cache_checks']['status'], 'missing')
+        self.assertFalse((self.root / 'absent-cache').exists())
+        self.assertEqual(before, self.snapshot())
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows 8.3 outside-root and reparse safety')
+    def test_short_aliases_do_not_bypass_traversal_outside_or_original_junction_checks(self):
+        import _winapi
+        safe = self.root / 'safe diagnostic root'
+        safe.mkdir()
+        outside = self.root / 'private outside directory'
+        outside.mkdir()
+        outside_policy = outside / 'policy.json'
+        outside_policy.write_text('{}', encoding='utf-8')
+        short_safe, short_outside = self.short_path(safe), self.short_path(outside)
+        real = safe / 'real target directory'
+        real.mkdir()
+        (real / 'policy.json').write_text('{}', encoding='utf-8')
+        link = safe / 'inside pointing junction'
+        _winapi.CreateJunction(str(real), str(link))
+        try:
+            self.assertTrue(link.is_junction())
+            short_link = self.short_path(link)
+            before = self.snapshot()
+            with patch('devsift.doctor.os.open', side_effect=AssertionError('unsafe path must not open content')):
+                for value in (short_outside / 'policy.json', short_safe / '..' / outside.name / 'policy.json',
+                              short_safe / 'missing' / '..' / 'policy.json', short_link / 'policy.json'):
+                    record = run_doctor(root=short_safe, policy_path=value, search_path='')
+                    self.assertEqual(record['data']['config_checks']['status'], 'incomplete')
+                for value in (short_outside, short_outside / 'missing-cache', short_link):
+                    record = run_doctor(root=short_safe, cache_path=value, search_path='')
+                    self.assertEqual(record['data']['cache_checks']['status'], 'incomplete')
+                record = run_doctor(root=short_link, search_path='')
+                self.assertEqual(record['data']['config_checks']['reason'], 'ROOT_UNAVAILABLE')
+            self.assertEqual(before, self.snapshot())
+        finally:
+            link.rmdir()
 
     def test_malformed_duplicate_unknown_nonfinite_or_secret_policy_fails_safely(self):
         path = self.root / 'policy.json'
