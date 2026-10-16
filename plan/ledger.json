@@ -510,9 +510,11 @@
         "T027"
       ],
       "repo": "orchex006/devsift",
-      "status": "running",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G009.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -1012,10 +1014,8 @@
               "T019"
             ]
           },
-          "ready": false,
-          "blocking_tasks": [
-            "T027"
-          ]
+          "ready": true,
+          "blocking_tasks": []
         }
       ]
     },
@@ -1125,7 +1125,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T027",
             "T031",
             "T032",
             "T033",
@@ -1496,7 +1495,6 @@
           },
           "ready": false,
           "blocking_tasks": [
-            "T027",
             "T031",
             "T032",
             "T033",
@@ -3431,7 +3429,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d",
@@ -3442,11 +3440,19 @@
           "source_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
           "test_result": "Fresh integratedbase five actual frontend acceptance tests30.194s; 3500decl127280bytes2.213s, native30sec; explicit emptyadapters seam compatible",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
+          "integrated_sha": "17da8eca140188c1e0c2b7932cca4f73e859e42e",
+          "test_result": "Distinct reviewer five actual native acceptance60.29s, workload3.656s; controller integrated five28.526s workload1.693s127280bytes3500decl; changed scope actualAST no sourcewrites/execution",
+          "evidence_uri": "docs/evidence/G009.md"
         }
       ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA009",
       "history": [
         {
@@ -3473,6 +3479,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T09:42:22.181512+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:44:39.807945+00:00"
         }
       ]
     },
@@ -5538,7 +5549,7 @@
       },
       "T027": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "fix/g009-scope-seam",
         "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-scope-seam",
         "paths": [
@@ -5547,9 +5558,7 @@
           "docs/FRONTEND-TESTS.md"
         ],
         "base_sha": "8fd7ee32007300692a166e04023a9507adcc07bc",
-        "locks": [
-          "write:tests/frontend"
-        ],
+        "locks": [],
         "lease": "selected execution session until accepted/reassigned",
         "source_sha": "49ac036d50e3664b04f77c431f0cd603504e1d7e",
         "prior_jobs": [
@@ -5570,7 +5579,8 @@
             "lease": "selected execution session until accepted/reassigned",
             "source_sha": "6b181bd77ceaca1dfeebfd1c3f947fe7eb044b2d"
           }
-        ]
+        ],
+        "integrated_sha": "17da8eca140188c1e0c2b7932cca4f73e859e42e"
       },
       "evidence-sensitive-display-compat": {
         "owner": "controller",
@@ -5627,14 +5637,10 @@
           "clean": true
         }
       ],
-      "held_locks": [
-        "write:tests/frontend"
-      ],
-      "active_jobs": [
-        "T027"
-      ],
-      "latest_integrated_sha": "0de2838ccf87eac535faf594a9de5fde54632538",
-      "updated_utc": "2026-10-16T09:42:22.181512+00:00",
+      "held_locks": [],
+      "active_jobs": [],
+      "latest_integrated_sha": "17da8eca140188c1e0c2b7932cca4f73e859e42e",
+      "updated_utc": "2026-10-16T09:44:39.807945+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
