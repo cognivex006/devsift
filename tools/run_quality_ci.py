@@ -1,6 +1,7 @@
 """Explicit production-Python CI scan and outside-source report bundle."""
 from pathlib import Path, PurePosixPath
 import sys
+sys.dont_write_bytecode = True
 
 KIT_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(KIT_ROOT))  # Never import the --repo target package.

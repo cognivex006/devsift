@@ -78,13 +78,17 @@ class QualityPipelineTests(unittest.TestCase):
     def snapshot(self):
         return {str(p.relative_to(self.source)): None if p.is_dir() else p.read_bytes() for p in self.source.rglob('*')}
 
-    def invoke(self, output, *, base=None, environment_base=None):
-        env = dict(os.environ, PYTHONDONTWRITEBYTECODE='1')
+    def invoke(self, output, *, base=None, environment_base=None, suppress_bytecode=True):
+        env = dict(os.environ)
+        env.pop('PYTHONDONTWRITEBYTECODE', None)
+        if suppress_bytecode:
+            env['PYTHONDONTWRITEBYTECODE'] = '1'
         env.pop('PYTHONPATH', None)
         env.pop('DEVSIFT_BASE_SHA', None)
         if environment_base is not None:
             env['DEVSIFT_BASE_SHA'] = environment_base
-        arguments = [sys.executable, '-B', str(self.script), '--repo', str(self.source), '--output', str(output)]
+        arguments = [sys.executable, *(['-B'] if suppress_bytecode else []), str(self.script),
+                     '--repo', str(self.source), '--output', str(output)]
         if base is not None:
             arguments += ['--base', base]
         return subprocess.run(arguments, cwd=self.source, env=env, capture_output=True, text=True, timeout=60)
@@ -108,6 +112,20 @@ class QualityPipelineTests(unittest.TestCase):
         self.assertTrue(self.assert_bundle(output)['complete'])
         self.assertEqual(self.snapshot(), before)
         self.assertFalse(self.marker.exists())
+
+    def test_cold_wrapper_without_B_preserves_kit_package_and_source(self):
+        self.commit_source('value = 1\n')
+        self.assertFalse(list(self.kit.rglob('__pycache__')))
+        before_kit = {str(p.relative_to(self.kit)): None if p.is_dir() else p.read_bytes()
+                      for p in self.kit.rglob('*')}
+        before_source = self.snapshot()
+        output = self.directory / 'cold-output'
+        executed = self.invoke(output, base=self.base, suppress_bytecode=False)
+        self.assertEqual(executed.returncode, 0, executed.stdout + executed.stderr)
+        self.assertEqual(before_kit, {str(p.relative_to(self.kit)): None if p.is_dir() else p.read_bytes()
+                                      for p in self.kit.rglob('*')})
+        self.assertEqual(self.snapshot(), before_source)
+        self.assertTrue(self.assert_bundle(output)['complete'])
 
     def test_new_error_blocks_and_missing_base_keeps_unknown_incomplete(self):
         self.commit_source('try:\n    work()\nexcept Exception:\n    pass\n')
