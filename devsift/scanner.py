@@ -9,6 +9,7 @@ import re
 import subprocess
 from typing import Protocol
 
+from .git_runtime import git_executable
 from .adapters import AdapterCapability, negotiate
 from .evidence import SourceEvidence, requires_source_mask, verify_source
 from .inventory import SourceTarget, inventory
@@ -73,7 +74,7 @@ def _snapshot_matches_commit(root, source, content):
     environment = dict(os.environ, GIT_NO_REPLACE_OBJECTS='1', GIT_LITERAL_PATHSPECS='1',
                        GIT_OPTIONAL_LOCKS='0', GIT_TERMINAL_PROMPT='0', GIT_NO_LAZY_FETCH='1')
     try:
-        process = subprocess.run(['git', '-C', str(root), 'ls-tree', '-z', location.source_sha,
+        process = subprocess.run([git_executable(root), '-C', str(root), 'ls-tree', '-z', location.source_sha,
                                   '--', location.path], capture_output=True, timeout=10, env=environment)
         if process.returncode:
             return False

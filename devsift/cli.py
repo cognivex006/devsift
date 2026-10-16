@@ -1,7 +1,6 @@
 """Strict, read-only CLI with explicitly configured native analyzers."""
 import argparse
 import json
-import platform
 import sys
 
 from .output import misuse, result
@@ -50,11 +49,17 @@ def parser() -> Parser:
     explain.add_argument('case_id', help='Exact case ID in a verified report.')
     report = commands.add_parser('report', help='Read a report (backend pending); writes no files.')
     report.add_argument('--latest', action='store_true', help='Request the latest verified report.')
-    commands.add_parser('doctor', help='Report runtime and capability availability without changes.')
+    doctor = commands.add_parser('doctor', help='Diagnose providers without changes; native probes require explicit trust.')
+    doctor.add_argument('--native-manifest', help='Absolute explicitly trusted native tool manifest; authorizes bounded probes.')
+    doctor.add_argument('--native-manifest-digest', help='Independently trusted SHA256 of the exact manifest bytes.')
+    doctor.add_argument('--policy', help='Explicit JSON policy to validate read-only; no automatic discovery.')
+    doctor.add_argument('--cache-path', help='Explicit cache directory to inspect without creating or changing it.')
     prompt = commands.add_parser('prompt', help='Request a case prompt; never executes remediation.')
     prompt.add_argument('case_id')
     prompt.add_argument('--mode', choices=['review', 'implement'], required=True)
-    prompt.add_argument('--approved-case', help='Explicit approval must match this one case ID.')
+    prompt.add_argument('--approved-case', help='Bind the implementation target case; matching the ID alone grants no authority.')
+    prompt.add_argument('--scan-input', help='Explicit scan JSON to reassemble and reprove against this Git root.')
+    prompt.add_argument('--approval-file', help='Explicit operator approval JSON; never discovered or treated as a signature.')
     return root
 
 
@@ -62,16 +67,31 @@ def run(args: argparse.Namespace) -> dict:
     if args.command == 'prompt':
         if args.mode == 'implement' and args.approved_case != args.case_id:
             raise ArgumentError('Implement mode requires --approved-case matching the case ID.')
-        if args.mode == 'review' and args.approved_case is not None:
-            raise ArgumentError('--approved-case is valid only for implement mode.')
+        if args.mode == 'review' and (args.approved_case is not None or args.approval_file is not None):
+            raise ArgumentError('Approval options are valid only for implement mode.')
+        if args.approval_file is not None and args.scan_input is None:
+            raise ArgumentError('Approval input requires an explicit scan input.')
+        if args.scan_input is not None:
+            from pathlib import Path
+            from .case_command import run_case_command
+            return run_case_command(args.case_id, mode=args.mode, scan_input=args.scan_input,
+                                    repo_root=Path.cwd(), approved_case=args.approved_case,
+                                    approval_file=args.approval_file)
     data = {}
     if args.command == 'doctor':
-        data = {'runtime': {'name': 'python', 'version': platform.python_version(),
-                            'supported': sys.version_info >= (3, 12)},
-                'capabilities': {'command_parser': True, 'read_only': True,
-                                 'inventory': True, 'git_provenance': True,
-                                 'analyzers': False, 'reports': False,
-                                 'case_prompts': False}}
+        from pathlib import Path
+        import re
+        from .doctor import run_doctor
+        if (args.native_manifest is None) != (args.native_manifest_digest is None):
+            raise ArgumentError('Native manifest and digest must be supplied together.')
+        if args.native_manifest is not None and (not Path(args.native_manifest).is_absolute()
+                or re.fullmatch('[0-9a-f]{64}', args.native_manifest_digest) is None):
+            raise ArgumentError('Native manifest requires an absolute path and lowercase SHA256 digest.')
+        diagnostics = run_doctor(native_manifest=args.native_manifest,
+                                 native_manifest_digest=args.native_manifest_digest,
+                                 root=Path.cwd(), policy_path=args.policy, cache_path=args.cache_path)
+        diagnostics['data']['capabilities'].update(reports=True, case_prompts=True)
+        return diagnostics
     elif args.command == 'ci':
         from pathlib import Path
         import re

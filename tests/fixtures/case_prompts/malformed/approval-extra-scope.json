@@ -1,0 +1,8 @@
+{
+  "fixture_id": "approval-extra-scope",
+  "target": "approval",
+  "path": ["scope"],
+  "value": "MALFORMED_APPROVAL_CANARY: unrestricted project edits",
+  "expected_exception": "CaseApprovalError",
+  "expected_message": "Invalid or unavailable case approval input"
+}

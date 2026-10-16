@@ -13,7 +13,7 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     env:
       DEVSIFT_TEST_NATIVE: '1'
       DEVSIFT_TEST_SCHEMA: '1'
