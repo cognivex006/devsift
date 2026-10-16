@@ -3170,12 +3170,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA008"
+      "execution_id": "GA008",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:09.240115+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:09.240115+00:00"
+        }
+      ]
     },
     "T024": {
       "id": "T024",
@@ -3363,12 +3375,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA010"
+      "execution_id": "GA010",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:09.418905+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:01:09.418905+00:00"
+        }
+      ]
     },
     "T030": {
       "id": "T030",
@@ -5034,7 +5058,7 @@
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-roslyn",
         "paths": [
           "devsift/dotnet_adapter.py",
-          "devsift/native/dotnet/",
+          "native/dotnet/",
           "tests/test_dotnet_adapter.py",
           "docs/DOTNET-ADAPTER.md"
         ],
@@ -5051,7 +5075,7 @@
         "worktree": "D:/SP-Billy/devsift-dev/devsift",
         "paths": [
           "devsift/typescript_adapter.py",
-          "devsift/native/frontend/",
+          "native/frontend/",
           "tests/test_typescript_adapter.py",
           "docs/TYPESCRIPT-ADAPTER.md"
         ],
@@ -5068,7 +5092,7 @@
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-sql-parser",
         "paths": [
           "devsift/sql_adapter.py",
-          "devsift/native/sql/",
+          "native/sql/",
           "tests/test_sql_adapter.py",
           "docs/SQL-ADAPTER.md"
         ],
@@ -5077,6 +5101,41 @@
         "lease": "selected execution session until accepted/reassigned",
         "source_sha": "b32c8a0844ccbe600c084fb8dd2d3be44cd96877",
         "integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38"
+      },
+      "T023": {
+        "owner": "cli_writer",
+        "status": "running",
+        "branch": "feature/g008-go",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-go",
+        "paths": [
+          "devsift/go_adapter.py",
+          "native/go/",
+          "tests/test_go_adapter.py",
+          "docs/GO-ADAPTER.md"
+        ],
+        "base_sha": "26b381bc8e74eebd241fa5f5ade43a4174651eec",
+        "locks": [
+          "write:adapters/go"
+        ],
+        "lease": "selected execution session until accepted/reassigned"
+      },
+      "T029": {
+        "owner": "policy_writer",
+        "status": "running",
+        "branch": "feature/g010-sql-rules",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-sql-rules",
+        "paths": [
+          "devsift/sql_adapter.py",
+          "native/sql/Program.cs",
+          "tests/test_sql_rules.py",
+          "tests/test_sql_adapter.py",
+          "docs/SQL-ADAPTER.md"
+        ],
+        "base_sha": "26b381bc8e74eebd241fa5f5ade43a4174651eec",
+        "locks": [
+          "write:rules/sql"
+        ],
+        "lease": "selected execution session until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5119,13 +5178,17 @@
         }
       ],
       "held_locks": [
-        "write:adapters/typescript"
+        "write:adapters/typescript",
+        "write:adapters/go",
+        "write:rules/sql"
       ],
       "active_jobs": [
-        "T025"
+        "T025",
+        "T023",
+        "T029"
       ],
-      "latest_integrated_sha": "60346bc3aa63915ba7e330decbf045c431c92e38",
-      "updated_utc": "2026-10-16T09:01:08.855638+00:00"
+      "latest_integrated_sha": "26b381bc8e74eebd241fa5f5ade43a4174651eec",
+      "updated_utc": "2026-10-16T09:01:09.418905+00:00"
     },
     "previous_checkpoints": [
       {
