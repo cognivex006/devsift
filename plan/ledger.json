@@ -3560,8 +3560,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f",
+          "test_result": "Writer five actual ScriptDom dialect acceptance tests pass101.5s, no SQL/DB/source execution",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -3576,6 +3582,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T09:25:23.872722+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T09:30:24.505338+00:00"
         }
       ]
     },
@@ -5397,7 +5408,7 @@
       },
       "T030": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g010-dialect-tests",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-dialect-tests",
         "paths": [
@@ -5409,7 +5420,8 @@
         "locks": [
           "write:tests/sql"
         ],
-        "lease": "selected execution session until accepted/reassigned"
+        "lease": "selected execution session until accepted/reassigned",
+        "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5461,8 +5473,8 @@
         "T026",
         "T030"
       ],
-      "latest_integrated_sha": "d85b40ad4ad9965a0e6ba6c6ea52953293c7ceed",
-      "updated_utc": "2026-10-16T09:26:06.101302+00:00",
+      "latest_integrated_sha": "0ac6c70b262d04f3f027534e3061d23469d79f97",
+      "updated_utc": "2026-10-16T09:30:24.505338+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
