@@ -77,6 +77,7 @@ if (process.argv[2] === '--probe') {
       output(false, [], 'UNSUPPORTED_SOURCE');
     } else {
       const diagnostics = [];
+      let securityIncomplete = false;
       const fixturePath = /(^|\/)(__tests__|tests?|fixtures?|__mocks__)(\/|$)|\.(test|spec)\.[cm]?[jt]sx?$/i.test(request.path);
       const configPath = /(^|\/)(config|configuration|environments?)(\/|$)|(^|\/)(environment(?:\.[^/]*)?|[^/]*\.config)\.[cm]?[jt]s$/i.test(request.path);
       const literal = node => node && node.type === 'Literal' && typeof node.value === 'string' ? node.value : null;
@@ -171,7 +172,19 @@ if (process.argv[2] === '--probe') {
               : reference?.module === 'https' && ['get', 'request'].includes(method)
                 || reference?.module === 'tls' && method === 'connect';
             if (!recognized) return false;
-            const options = node.arguments.find(argument => argument.type === 'ObjectExpression');
+            // Match API positions, not an arbitrary object elsewhere in argv.
+            // In particular Agent ignores a second options-looking argument.
+            let options = null;
+            const first = node.arguments[0], second = node.arguments[1], third = node.arguments[2];
+            if (first?.type === 'ObjectExpression') options = first;
+            else if (node.type !== 'NewExpression' && reference?.module === 'https'
+              && typeof literal(first) === 'string' && /^https:\/\//i.test(literal(first))) options = second;
+            else if (node.type !== 'NewExpression' && reference?.module === 'tls'
+              && first?.type === 'Literal' && Number.isInteger(first.value) && first.value >= 0 && first.value <= 65535) {
+              options = second?.type === 'ObjectExpression' ? second
+                : typeof literal(second) === 'string' ? third : null;
+            }
+            if (options?.type !== 'ObjectExpression') return false;
             if (!options || options.properties.some(property => property.type !== 'Property'
               || property.computed && literal(property.key) === null)) return false;
             const matches = options.properties.filter(property => keyName(property.key) === 'rejectUnauthorized');
@@ -194,8 +207,25 @@ if (process.argv[2] === '--probe') {
           return {
             Program(node) {
               const stack = [node];
+              const aliases = new Map(), securityImports = new Set();
+              function identifier(value) {
+                let depth = 0;
+                while (value && ['TSAsExpression', 'TSTypeAssertion', 'TSNonNullExpression', 'ParenthesizedExpression'].includes(value.type)
+                  && depth++ < 16) value = value.expression;
+                return value?.type === 'Identifier' ? value.name : null;
+              }
+              function alias(left, right) {
+                if (!left || !right) return;
+                if (!aliases.has(left)) aliases.set(left, new Set());
+                if (!aliases.has(right)) aliases.set(right, new Set());
+                aliases.get(left).add(right); aliases.get(right).add(left);
+              }
               while (stack.length) {
                 const current = stack.pop();
+                if (current.type === 'ImportDeclaration' && ['node:https', 'https', 'node:tls', 'tls'].includes(current.source.value))
+                  for (const specifier of current.specifiers) securityImports.add(specifier.local.name);
+                if (current.type === 'VariableDeclarator') alias(identifier(current.id), identifier(current.init));
+                if (current.type === 'AssignmentExpression' && current.operator === '=') alias(identifier(current.left), identifier(current.right));
                 if ((current.type === 'AssignmentExpression' || current.type === 'UpdateExpression')
                   && (current.left || current.argument)?.type === 'MemberExpression') {
                   const target = current.left || current.argument;
@@ -207,6 +237,13 @@ if (process.argv[2] === '--probe') {
                   else if (value?.type) stack.push(value);
                 }
               }
+              const queue = [...mutatedRoots];
+              for (let index = 0; index < queue.length; index++) {
+                for (const linked of aliases.get(queue[index]) || []) {
+                  if (!mutatedRoots.has(linked)) { mutatedRoots.add(linked); queue.push(linked); }
+                }
+              }
+              if ([...securityImports].some(name => mutatedRoots.has(name))) securityIncomplete = true;
             },
             VariableDeclarator(node) { if (node.id.type === 'Identifier') secret(node.id.name, node.init, node); },
             AssignmentExpression(node) {
@@ -255,6 +292,7 @@ if (process.argv[2] === '--probe') {
       const parseFailure = messages.some(message => message.fatal);
       if (parseFailure) output(false, [], 'PARSE_ERROR');
       else if (diagnostics.length > 1000) output(false, diagnostics.slice(0, 1000));
+      else if (securityIncomplete) output(false, diagnostics);
       else output(true, diagnostics, 'COMPLETED');
     }
   } catch (_error) {

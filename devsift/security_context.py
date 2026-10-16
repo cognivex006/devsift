@@ -35,7 +35,7 @@ def python_contexts(text):
         from .security_adapter import _Literal, _candidate
         tree = ast.parse(text)
         parents = {child: node for node in ast.walk(tree) for child in ast.iter_child_nodes(node)}
-        module_bindings, mutated_roots = {}, set()
+        module_bindings, mutated_roots, alias_edges, security_imports = {}, set(), [], set()
         for node in ast.walk(tree):
             parent = parents.get(node)
             nested = False
@@ -44,18 +44,31 @@ def python_contexts(text):
                     nested = True; break
                 parent = parents.get(parent)
             if nested: continue
+            if isinstance(node, ast.Import):
+                security_imports.update(alias.asname or alias.name for alias in node.names if alias.name in {"logging", "requests", "ssl"})
             names = []
             if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store): names = [node.id]
             elif isinstance(node, (ast.Import, ast.ImportFrom)): names = [alias.asname or alias.name.split(".")[0] for alias in node.names]
             elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)): names = [node.name]
             elif isinstance(node, ast.Attribute) and isinstance(node.ctx, ast.Store) and isinstance(node.value, ast.Name): mutated_roots.add(node.value.id)
             for name in names: module_bindings[name] = module_bindings.get(name, 0) + 1
+            if isinstance(node, (ast.Assign, ast.AnnAssign)) and isinstance(node.value, ast.Name):
+                targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                alias_edges.extend((target.id, node.value.id) for target in targets if isinstance(target, ast.Name))
+        graph = {}
+        for left, right in alias_edges:
+            graph.setdefault(left, set()).add(right)
+            graph.setdefault(right, set()).add(left)
+        queue = list(mutated_roots)
+        for name in queue:
+            for alias in graph.get(name, ()):
+                if alias not in mutated_roots: mutated_roots.add(alias); queue.append(alias)
         chunks = text.split("\n")
         starts, running = [], 0
         for chunk in chunks:
             starts.append(running); running += len(chunk) + 1
         diagnostics, seen = [], set()
-        complete = True
+        complete = not bool(mutated_roots & security_imports)
 
         def span(node):
             def offset(line, column):
@@ -104,7 +117,20 @@ def python_contexts(text):
                     arguments += [keyword.value for keyword in node.keywords
                                   if keyword.arg in ({"sep", "end"} if called == "print" else {"msg"})]
                     if any(value(argument, env)[1] for argument in arguments): emit("SEC001", node)
-                if called == "ssl._create_unverified_context": emit("SEC002", node)
+                if called == "ssl._create_unverified_context":
+                    keywords = {keyword.arg: keyword.value for keyword in node.keywords}
+                    if node.args or len(keywords) != len(node.keywords) or not keywords.keys() <= {"cert_reqs", "check_hostname"}:
+                        complete = False
+                    else:
+                        requirement = callee(keywords["cert_reqs"], env) if "cert_reqs" in keywords else "ssl.CERT_NONE"
+                        hostname_node = keywords.get("check_hostname")
+                        hostname = False if hostname_node is None else hostname_node.value if isinstance(hostname_node, ast.Constant) and type(hostname_node.value) is bool else None
+                        if requirement == "ssl.CERT_REQUIRED" and hostname is True:
+                            pass  # Trusted stdlib restores both certificate and hostname checks.
+                        elif requirement in {"ssl.CERT_NONE", "ssl.CERT_REQUIRED"} and hostname is False:
+                            emit("SEC002", node)
+                        else:
+                            complete = False
                 if called.startswith("requests.") and called.split(".")[-1] in _HTTP:
                     if any(keyword.arg == "verify" and isinstance(keyword.value, ast.Constant)
                            and keyword.value.value is False for keyword in node.keywords): emit("SEC002", node)
@@ -159,7 +185,7 @@ def python_contexts(text):
                     for alias in node.names:
                         known = node.level == 0 and ((node.module == "logging" and alias.name in _METHODS | {"getLogger"})
                             or (node.module == "requests" and alias.name in _HTTP | {"Session", "session"})
-                            or (node.module == "ssl" and alias.name == "_create_unverified_context"))
+                            or (node.module == "ssl" and alias.name in {"_create_unverified_context", "CERT_REQUIRED", "CERT_NONE"}))
                         env[alias.asname or alias.name] = (node.module + "." + alias.name if known else "unknown", False)
                 elif isinstance(node, (ast.Assign, ast.AnnAssign, ast.NamedExpr)):
                     calls(node.value, env)
@@ -167,7 +193,12 @@ def python_contexts(text):
                     for target in targets:
                         if isinstance(target, ast.Name): env[target.id] = value(node.value, env, target.id)
                         elif isinstance(target, ast.Attribute):
-                            if value(target.value, env)[0] == "session":
+                            owner = value(target.value, env)[0]
+                            if owner in {"logging", "requests", "ssl", "logger"}:
+                                complete = False
+                                for name, symbol in list(env.items()):
+                                    if symbol[0] == owner: env[name] = _UNKNOWN
+                            elif owner == "session":
                                 if target.attr == "verify" and isinstance(node.value, ast.Constant) and node.value.value is False:
                                     emit("SEC002", node)
                                 elif target.attr in _HTTP and isinstance(target.value, ast.Name): env[target.value.id] = _UNKNOWN
@@ -176,6 +207,8 @@ def python_contexts(text):
                             for name in assigned(target): env[name] = _UNKNOWN
                 elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     env[node.name] = _UNKNOWN
+                    blocked = {name for name, symbol in env.items() if symbol[0] not in {"literal", "unknown"}
+                               and (module_bindings.get(name, 0) > 1 or name in mutated_roots)}
                     inner = {name: symbol for name, symbol in env.items() if symbol[0] not in {"literal", "unknown"}
                              and module_bindings.get(name, 0) <= 1 and name not in mutated_roots}
                     for name in module_bindings:
@@ -184,6 +217,8 @@ def python_contexts(text):
                     locals_.update(argument.arg for argument in [*node.args.posonlyargs, *node.args.args, *node.args.kwonlyargs])
                     if node.args.vararg: locals_.add(node.args.vararg.arg)
                     if node.args.kwarg: locals_.add(node.args.kwarg.arg)
+                    if "print" in module_bindings and "print" not in env: blocked.add("print")
+                    if blocked - locals_ and relevant(node, env): complete = False
                     for name in locals_: inner[name] = _UNKNOWN
                     block(node.body, inner)
                 elif isinstance(node, ast.ClassDef):

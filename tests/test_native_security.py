@@ -29,6 +29,22 @@ class NativeSecurityContexts(unittest.TestCase):
     def report(self, text):
         return analyze_snapshot(self.tool, SourceTarget("src/security.ts", "ready", "typescript", text.encode(), ""))
 
+    def test_actual_agent_ignores_second_argument_and_import_alias_mutation_is_partial(self):
+        # Construct trusted built-in Agents only. No request/socket is opened.
+        child = "const https=require('node:https');const a=new https.Agent(undefined,{rejectUnauthorized:false});if(a.options.rejectUnauthorized===false)process.exit(1);const b=new https.Agent({rejectUnauthorized:false});if(b.options.rejectUnauthorized!==false)process.exit(2);const original=https.Agent;const alias=https;alias.Agent=class{};if(https.Agent===original)process.exit(3);"
+        result = subprocess.run([self.tool.process.executable, "-e", child], capture_output=True, timeout=10, check=True)
+        self.assertEqual(result.returncode, 0)
+        ignored = "import {Agent} from 'node:https';new Agent(undefined,{rejectUnauthorized:false});"
+        report = self.report(ignored)
+        self.assertEqual([item.rule_id for item in report.diagnostics if item.rule_id == "SEC002"], [])
+        overridden = "import https from 'node:https';const alias=https;alias.Agent=class {};new https.Agent({rejectUnauthorized:false});"
+        report = self.report(overridden)
+        self.assertFalse(report.complete)
+        self.assertNotIn("SEC002", [item.rule_id for item in report.diagnostics])
+        cast_alias = "import https from 'node:https';const alias=(https as any);alias.Agent=class {};new https.Agent({rejectUnauthorized:false});"
+        self.assertFalse(self.report(cast_alias).complete)
+        self.assertNotIn("SEC002", [item.rule_id for item in self.report(cast_alias).diagnostics])
+
     def test_direct_literal_or_lexical_binding_in_actual_console_call(self):
         for source in ("console.error('" + PAT + "');", "const value='" + PAT + "'; console.log(value);"):
             with self.subTest(source=source):
@@ -50,7 +66,9 @@ class NativeSecurityContexts(unittest.TestCase):
     def test_actual_node_import_tls_false_and_lookalike_or_safe_controls(self):
         positives = ["import https from 'node:https';new https.Agent({rejectUnauthorized:false});",
                      "import {Agent as A} from 'https';new A({rejectUnauthorized:false});",
-                     "import * as tls from 'node:tls';tls.connect({rejectUnauthorized:false});"]
+                     "import * as tls from 'node:tls';tls.connect({rejectUnauthorized:false});",
+                     "import https from 'node:https';https.get('https://example.invalid',{rejectUnauthorized:false});",
+                     "import * as tls from 'node:tls';tls.connect(443,'example.invalid',{rejectUnauthorized:false});"]
         negatives = ["import https from 'node:https';new https.Agent({rejectUnauthorized:true});",
                      "import https from 'node:https';new https.Agent({rejectUnauthorized:'false'});",
                      "import https from 'other';new https.Agent({rejectUnauthorized:false});",

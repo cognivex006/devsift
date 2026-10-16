@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import subprocess
+import ssl
 import tempfile
 import unittest
 
@@ -14,6 +15,28 @@ PAT = "ghp_" + "Ab7" * 12
 
 
 class PythonSecurityContexts(unittest.TestCase):
+    def test_actual_ssl_verified_override_is_not_an_unverified_configuration(self):
+        context = ssl._create_unverified_context(cert_reqs=ssl.CERT_REQUIRED, check_hostname=True)
+        self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+        self.assertTrue(context.check_hostname)
+        source = "import ssl\nssl._create_unverified_context(cert_reqs=ssl.CERT_REQUIRED,check_hostname=True)"
+        report = python_contexts(source)
+        self.assertTrue(report.complete)
+        self.assertEqual(report.diagnostics, ())
+        restored = "from ssl import _create_unverified_context as build,CERT_REQUIRED as required\nbuild(check_hostname=True,cert_reqs=required)"
+        self.assertEqual(python_contexts(restored).diagnostics, ())
+        self.assertTrue(python_contexts(restored).complete)
+        unknown = "import ssl\nssl._create_unverified_context(cert_reqs=mode,check_hostname=True)"
+        self.assertFalse(python_contexts(unknown).complete)
+
+    def test_known_module_alias_member_override_invalidates_all_aliases(self):
+        for source in ("import logging\nalias=logging\nalias.error=lambda *a:None\nlogging.error('" + PAT + "')",
+                       "import logging\ndef f():\n logging.error('" + PAT + "')\nalias=logging\nalias.error=lambda *a:None"):
+            with self.subTest(source=source):
+                report = python_contexts(source)
+                self.assertFalse(report.complete)
+                self.assertEqual(report.diagnostics, ())
+
     def rules(self, text):
         report = python_contexts(text)
         self.assertTrue(report.complete)
@@ -37,8 +60,6 @@ class PythonSecurityContexts(unittest.TestCase):
                    "import logging\ndef f(logging):\n logging.error('" + PAT + "')\n",
                    "import logging\nlogging=object()\nlogging.error('" + PAT + "')",
                    "import logging\nx='" + PAT + "'\nlogging.info(redact(x))",
-                   "import logging\ndef f():\n logging.error('" + PAT + "')\nlogging=object()\n",
-                   "def f():\n print('" + PAT + "')\nprint=object()\n",
                    "x='" + PAT + "'\ndef f():\n print(x)\n"]
         for source in sources:
             with self.subTest(source=source):
@@ -62,6 +83,8 @@ class PythonSecurityContexts(unittest.TestCase):
 
     def test_unknown_flow_syntax_and_scope_do_not_become_supported_security_claims(self):
         for source in ("def broken(", "from custom import *\nprint('" + PAT + "')",
+                       "import logging\ndef f():\n logging.error('" + PAT + "')\nlogging=object()\n",
+                       "def f():\n print('" + PAT + "')\nprint=object()\n",
                        "import logging\nif enabled:\n logging.info('" + PAT + "')\n"):
             with self.subTest(source=source): self.assertFalse(python_contexts(source).complete)
         for source in ("for row in rows:\n print(row)\n", "if enabled:\n print('ordinary')\n",

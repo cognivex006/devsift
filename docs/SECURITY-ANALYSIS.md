@@ -145,6 +145,11 @@ verify keyword or a tracked requests Session.verify assignment. String 'false',
 integer values, arbitrary similarly named functions, and normal verified requests
 do not trigger this rule. The explicitly imported ssl._create_unverified_context
 factory is recognized; general SSL-context property/dataflow analysis is absent.
+For this factory, the checked default or explicitly resolved CERT_NONE/CERT_REQUIRED
+and boolean check_hostname states determine the finding. Restoring both
+CERT_REQUIRED and check_hostname=True produces no SEC002; unproved/unsupported
+arguments or conflicting states remain incomplete. The test constructs the
+actual stdlib SSL context with restored checks without opening any connection.
 No requests, ssl or target imports execute during these checks.
 
 Unrelated Python application branches, loops or classes are outside bounded rule
@@ -165,6 +170,16 @@ use the effective last static property; spreads, unknown computed properties,
 string values, reassignments and overridden module members are not treated as
 proof of an insecure option. CommonJS require, deep option aliases, arbitrary
 logger libraries and runtime module mutation outside the source are not covered.
+Options positions follow the supported API signatures: Agent reads argument 0;
+https.get/request read argument 0 or argument 1 after an explicit HTTPS URL;
+tls.connect reads argument 0 or the supported numeric-port/optional-host options
+position. An ignored second Agent argument never becomes evidence of TLS bypass.
+An actual built-in Agent construction test confirms its options without network
+activity. Direct module-object aliases (including transparent TS casts) are
+linked for member-mutation invalidation; replacing a member through an alias
+invalidates the original import identity and keeps analysis incomplete rather
+than reporting against a conveniently assumed original implementation. This is
+bounded static alias handling, not arbitrary object/interprocedural taint.
 
 Masked literals, placeholders, ordinary text, unrelated imports, same-name
 parameters and sanitized-value examples do not acquire SEC001 merely from their
