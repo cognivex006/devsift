@@ -36,3 +36,18 @@ References: [ESLint Linter API](https://eslint.org/docs/latest/integrate/nodejs-
 [TypeScript parser options](https://typescript-eslint.io/packages/parser/).
 
 The native request boundary rejects duplicate JSON keys (including escaped aliases), invalid UTF-8, and trailing data before parsing source. Malformed requests return fixed incomplete output without echoing input.
+
+## Runtime context rules (T026)
+
+Tool protocol version 1.1.0 adds actual ESTree-based HC001/HC002. HC001 covers
+literal HTTP(S) endpoints passed directly to unshadowed global fetch or default
+imports from axios (including aliases). Other imports, lexical shadows, arbitrary
+strings, indirect values, test/fixture paths and centralized environment/config
+paths are excluded from this narrow endpoint detector. No target imports execute.
+HC002 covers explicit credential-named variable, assignment, object-property and
+class-field string literals. Dynamic computed names, environment reads, empty
+values and explicit example/dummy/YOUR_* placeholders are not verified secrets.
+Credential literals remain findings in tests and configuration; a directory name
+cannot waive security. These bounded syntactic patterns do not establish that a
+credential is live or provide interprocedural taint analysis. The host emits fixed
+registry text and source-safe regions, never the credential literal.

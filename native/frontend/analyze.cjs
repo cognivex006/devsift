@@ -5,7 +5,7 @@ const { Linter } = require('eslint');
 const parser = require('@typescript-eslint/parser');
 const ts = require('typescript');
 const TOOL_ID = 'devsift-typescript';
-const TOOL_VERSION = '1.0.0';
+const TOOL_VERSION = '1.1.0';
 const versions = {
   eslint: require('eslint/package.json').version,
   parser: require('@typescript-eslint/parser/package.json').version,
@@ -77,6 +77,62 @@ if (process.argv[2] === '--probe') {
       output(false, [], 'UNSUPPORTED_SOURCE');
     } else {
       const diagnostics = [];
+      const fixturePath = /(^|\/)(__tests__|tests?|fixtures?|__mocks__)(\/|$)|\.(test|spec)\.[cm]?[jt]sx?$/i.test(request.path);
+      const configPath = /(^|\/)(config|configuration|environments?)(\/|$)|(^|\/)(environment(?:\.[^/]*)?|[^/]*\.config)\.[cm]?[jt]s$/i.test(request.path);
+      const literal = node => node && node.type === 'Literal' && typeof node.value === 'string' ? node.value : null;
+      const keyName = node => node && (node.type === 'Identifier' ? node.name : literal(node));
+      const credentialName = name => typeof name === 'string' && /^(?:api[_-]?key|access[_-]?token|auth[_-]?token|password|passwd|client[_-]?secret|secret[_-]?key|private[_-]?key)$/i.test(name);
+      const placeholder = value => /^(?:|example|sample|dummy|placeholder|changeme|replace[_-]?me|your[_-].*|<[^>]+>|\$\{[^}]+\})$/i.test(value.trim());
+      const contextRules = {
+        meta: { type: 'problem', schema: [], messages: { issue: 'Literal runtime configuration.' } },
+        create(context) {
+          function emit(rule_id, node) {
+            diagnostics.push({ rule_id, region: region(request.source, node) });
+            context.report({ node, messageId: 'issue' });
+          }
+          function secret(name, value, node) {
+            const text = literal(value);
+            if (credentialName(name) && text !== null && !placeholder(text)) emit('HC002', node);
+          }
+          function variable(node, name) {
+            let scope = context.sourceCode.getScope(node);
+            while (scope) {
+              const found = scope.set.get(name);
+              if (found) return found;
+              scope = scope.upper;
+            }
+            return null;
+          }
+          function networkCall(node) {
+            const callee = node.callee;
+            if (callee.type === 'Identifier' && callee.name === 'fetch') {
+              const found = variable(node, 'fetch');
+              return !found || (found.defs.length === 0 && !found.references.some(ref => ref.isWrite()));
+            }
+            if (callee.type !== 'MemberExpression' || callee.computed || callee.object.type !== 'Identifier'
+              || !['get', 'post', 'put', 'patch', 'delete', 'request'].includes(callee.property.name)) return false;
+            const found = variable(node, callee.object.name);
+            return !!found && !found.references.some(ref => ref.isWrite()) && found.defs.some(def => def.type === 'ImportBinding'
+              && def.node.type === 'ImportDefaultSpecifier' && def.parent.source.value === 'axios');
+          }
+          return {
+            VariableDeclarator(node) { if (node.id.type === 'Identifier') secret(node.id.name, node.init, node); },
+            AssignmentExpression(node) {
+              const name = node.left.type === 'Identifier' ? node.left.name
+                : node.left.type === 'MemberExpression' && (!node.left.computed || literal(node.left.property) !== null)
+                  ? keyName(node.left.property) : null;
+              secret(name, node.right, node);
+            },
+            Property(node) { if (!node.method && node.kind === 'init' && (!node.computed || literal(node.key) !== null)) secret(keyName(node.key), node.value, node); },
+            PropertyDefinition(node) { if (!node.computed || literal(node.key) !== null) secret(keyName(node.key), node.value, node); },
+            CallExpression(node) {
+              const endpoint = literal(node.arguments[0]);
+              if (!fixturePath && !configPath && endpoint !== null && /^https?:\/\/[^\s/]+/i.test(endpoint)
+                && networkCall(node)) emit('HC001', node.arguments[0]);
+            },
+          };
+        },
+      };
       const emptyCatch = {
         meta: { type: 'problem', schema: [], messages: { issue: 'Empty catch block.' } },
         create(context) {
@@ -94,8 +150,8 @@ if (process.argv[2] === '--probe') {
         languageOptions: { parser, ecmaVersion: 'latest', sourceType: 'module',
           parserOptions: { project: false, projectService: false, tsconfigRootDir: __dirname,
             ecmaFeatures: { jsx: true } } },
-        plugins: { devsift: { rules: { 'empty-catch': emptyCatch } } },
-        rules: { 'devsift/empty-catch': 'error' },
+        plugins: { devsift: { rules: { 'empty-catch': emptyCatch, 'runtime-context': contextRules } } },
+        rules: { 'devsift/empty-catch': 'error', 'devsift/runtime-context': 'error' },
       }], { filename: request.path, allowInlineConfig: false });
       const parseFailure = messages.some(message => message.fatal);
       if (parseFailure) output(false, [], 'PARSE_ERROR');
