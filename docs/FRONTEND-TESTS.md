@@ -20,8 +20,10 @@ invokes real AST analysis; severity is never inferred by a test-side regex.
 The changed-scope integration fixture creates a real Git history with unchanged
 legacy, staged config, unstaged runtime code and untracked TSX. It calls the actual
 `run_scan` Git candidate selector. A test-only scanner seam supplies a recording
-wrapper around **real NativeAdapter execution**, since the inventory CLI does not
-register native tools by default. Neither the candidate selection nor analyzer
+wrapper around **real NativeAdapter execution**. The CLI now supports explicitly
+trusted native manifests, but this fixture supplies none and asserts that its
+unconfigured adapter tuple is empty before injecting the test adapter. No native
+tools are auto-discovered. Neither the candidate selection nor analyzer
 outcomes are mocked. Spies confirm that Python source inventory reads and native
 analysis touch exactly the three changed candidates, never unchanged legacy.
 This does not assert that Git avoids reading index/stat metadata. Dirty findings

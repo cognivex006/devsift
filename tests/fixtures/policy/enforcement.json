@@ -1,5 +1,5 @@
 {
-  "contract": "docs/FINDINGS-AND-REPORT-CONTRACT.md behavior policy; docs/POLICY.md v1",
+  "contract": "https://github.com/orchex006/devsift-specs/blob/main/docs/FINDINGS-AND-REPORT-CONTRACT.md behavior policy; docs/POLICY.md v1",
   "cases": [
     {"name":"introduced-error", "rule":"HC001", "classes":["NEW","MODIFIED_INTRODUCED"], "verified":true, "policy":{}, "severity":"Error", "enforcement":"block", "escalate":false},
     {"name":"introduced-critical-security", "rule":"SEC003", "classes":["NEW","MODIFIED_INTRODUCED"], "verified":true, "policy":{}, "severity":"Critical", "enforcement":"block", "escalate":true},

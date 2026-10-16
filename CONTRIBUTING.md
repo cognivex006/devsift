@@ -1,7 +1,5 @@
 # Contributing to DevSift
 
-DevSift is currently in the planning/bootstrap stage; quality scanning features are **not implemented** yet. Before contributing code, read `AGENTS.md`, `DEVELOPMENT.md`, task ledger and related cards. Find a bounded task, preserve canonical IDs, confirm readiness based on accepted predecessors and lock allocation, then work on a scoped branch and open a pull request. Avoid changing legacy rule behaviors without regression evidence.
+Read AGENTS.md and DEVELOPMENT.md. This repository contains the consumer skill and working Python/native analysis components; some reporting and lifecycle capabilities remain incomplete. Requirements, the live task ledger and maintainer coordination belong to [devsift-specs](https://github.com/orchex006/devsift-specs).
 
-Use Conventional Commits, Keep a Changelog (`Unreleased`), targeted tests and independent review. Report existing defects via issues; describe minimal reproduction, expected behavior and relevant context without sharing credentials.
-
-**License status:** No license has been selected yet. Public visibility is not a grant of redistribution or reuse rights. Do not claim this is OSI-licensed until an actual LICENSE file is committed with owner approval.
+Use bounded branches, Conventional Commits, Unreleased changelog entries, relevant regression tests and independently reviewed PRs. Preserve unrelated work. Describe reproductions without credentials. The owner has not selected a license; public visibility alone grants no license.

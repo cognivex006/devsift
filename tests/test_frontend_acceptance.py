@@ -83,7 +83,10 @@ class FrontendAcceptance(unittest.TestCase):
                     analyzed.append(target.path)
                     return native.analyze(target)
 
-            def execute(selected_root, candidates):
+            def execute(selected_root, candidates, *, adapters=()):
+                # No manifest was supplied to run_scan: explicitly configured
+                # native CLI support must not auto-discover any tool here.
+                self.assertEqual(adapters, ())
                 return scan(selected_root, candidates, adapters=(RecordingAdapter(),))
 
             before = self.git(root, "status", "--porcelain")

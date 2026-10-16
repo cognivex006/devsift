@@ -4,6 +4,9 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+### Changed
+- Moved specifications, plans and maintainer orchestration to devsift-specs. Kept the consumer skill and runtime, replaced plan CI with runtime tests, and documented actual CLI capabilities.
+
 ### Added
 - Reviewed immutable baseline approval/CAS and owner-ticket-expiry waivers, including fail-closed critical-security policy.
 - Bounded native process/protocol host and actual pinned Roslyn, Go AST, ESLint/TypeScript and ScriptDom rules with positive/negative source fixtures.

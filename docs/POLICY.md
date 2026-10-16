@@ -37,7 +37,7 @@ assert decision.enforcement == "advisory"
 ```
 
 `devsift.registry.RULES` is an immutable ordered registry of the 23 historical
-IDs in `reference/v4/SPEC.md`; it retains their default severity and security
+IDs in [historical rule specification](https://github.com/orchex006/devsift-specs/blob/main/reference/v4/SPEC.md); it retains their default severity and security
 classification. Historical COM003/ARC002 `advisory` becomes `Suggestion` under the
 v6 Critical/Error/Warning/Suggestion vocabulary. Rule presence means policy
 metadata exists; it does not mean detection is implemented. Applicability and
