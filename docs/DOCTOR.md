@@ -129,6 +129,16 @@ inside root. Cache files/wrong types, inaccessible metadata or access denials ar
 incomplete; the directory is never enumerated, refreshed, cleared or locked.
 `os.access` is only an access hint, not a Windows ACL or cache usability proof.
 
+Legitimate Windows 8.3 short names are supported for the explicit root and
+absolute policy/cache paths, including a short temporary-directory prefix such
+as `RUNNER~1`. Containment is checked on canonical paths only **after** inspecting
+every original component with metadata-only no-link/reparse checks. A lexical
+short-name versus long-name mismatch is not an outside-root escape. File suffix
+and access checks use the canonical name, so a real `.json` policy's `.JSO` short
+alias is still recognized. Original file metadata remains the descriptor identity
+reference; all containment/type checks precede content reads. This does not permit
+traversal, outside-root files, or junctions pointing back inside the root.
+
 An explicit policy must be a regular readable UTF-8 `.json` file, at most 1 MiB.
 The reader uses a bounded descriptor read and regular-file/device/inode/size/mtime
 identity checks before/after reading, `O_NOFOLLOW`/`O_NONBLOCK` where supported,
@@ -171,6 +181,15 @@ or unreadable inputs, outside/traversal/root failures, descriptor identity drift
 actual symlink/junction redirection refusal and suppression of native probes on
 invalid configuration. Fixtures are disposable and byte/tree snapshots prove no
 doctor-created directory, cache clearing, policy repair or content mutation.
+
+Windows regressions call actual `GetShortPathNameW` rather than fabricate aliases.
+They cover short/long root and absolute/relative input combinations, full file
+aliases, a `-P -B` source-checkout CLI subprocess with trusted PYTHONPATH, missing
+cache noncreation, and short-spelled outside/traversal/inside-pointing-junction
+rejection before any content open. The normal absolute/relative path regression
+runs on every OS; Windows-only cases explicitly skip where short-name support is
+unavailable. A successful policy/cache check still cannot make absent native
+providers available or turn diagnostics into a clean analysis result.
 
 Use `python -B` or `PYTHONDONTWRITEBYTECODE=1` for strict cold source/package-tree
 no-bytecode execution, as explained in [CLI.md](CLI.md). Doctor itself writes no
