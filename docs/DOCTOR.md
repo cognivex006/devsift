@@ -1,14 +1,20 @@
 # Doctor provider discovery
 
-`devsift.doctor.run_doctor` provides a read-only provider-discovery result.
+`devsift.doctor.run_doctor` provides read-only provider discovery and optional
+cache/config diagnostics.
 The CLI calls it through `python -m devsift doctor`. Explicit trusted probes use
 `--native-manifest <absolute-path>` and `--native-manifest-digest <trusted-sha256>`.
-Cache/config diagnostics and the later degraded-environment matrix are separate tasks.
+The added optional arguments below belong to the callable API until the separate
+CLI owner wires their flags. This change does not edit the CLI or complete the
+later degraded-environment acceptance matrix (T060).
 
 ```python
 from devsift.doctor import run_doctor
 
 record = run_doctor()  # Metadata only; no external command is executed.
+
+# Optional explicit files/directories inside an existing diagnostic root:
+record = run_doctor(root=project_root, policy_path="policy.json", cache_path=".cache/devsift")
 
 # Only after independently reviewing and trusting the configured programs:
 record = run_doctor(
@@ -89,13 +95,64 @@ The bundled native helpers do not currently supply a Python analyzer; that gap
 remains unavailable rather than being invented by doctor. Setup cannot be assumed
 to add a provider that does not exist.
 
-Complete/exit 0 is possible only when the current Python runtime is supported
-and **all six language provider checks** succeed. It means the declared provider
+Complete/exit 0 is possible only when the current Python runtime is supported,
+**all six language provider checks** succeed and optional root/config/cache
+checks have no errors. It means the declared provider
 discovery scope completed, not that host PATH tool versions, scan rule coverage,
 report/case-prompt backends or source quality passed. `reports` and `case_prompts`
 remain false in this module; the separate CLI owner must describe future backend
 integration accurately. Missing/partial/changed/unverified native providers always
 yield incomplete/2. No tools are automatically installed to make that status green.
+
+## Optional cache/config checks
+
+`run_doctor(..., root=None, policy_path=None, cache_path=None)` uses the current
+directory when root is absent, and inspects only its directory metadata. It never
+searches for project YAML/JSON, native manifests or cache locations. With no
+explicit policy, `resolve_policy()` produces fresh defaults in memory; no file is
+read or created. No native configuration is enabled by policy/cache content.
+
+Stable additive result fields:
+
+- `data.config_checks`: status `default`, `valid` or `incomplete`, fixed reason and
+  action, and `policy_schema_version` (`"1"` for valid/default, null on failure).
+- `data.cache_checks`: status `not_requested`, `missing`, `present` or `incomplete`,
+  fixed reason and action. Missing optional directories are informational and are
+  never created. A present cache only establishes directory metadata/access hints;
+  child contents, aggregate size and writability are deliberately not checked.
+
+Explicit policy/cache paths may be relative to root or absolute **within** root;
+outside-root paths and parent traversal are rejected. All original path components,
+including the root's ancestors, are checked before resolving aliases. Symlinks,
+junctions and other Windows reparse points are refused, even if they point back
+inside root. Cache files/wrong types, inaccessible metadata or access denials are
+incomplete; the directory is never enumerated, refreshed, cleared or locked.
+`os.access` is only an access hint, not a Windows ACL or cache usability proof.
+
+An explicit policy must be a regular readable UTF-8 `.json` file, at most 1 MiB.
+The reader uses a bounded descriptor read and regular-file/device/inode/size/mtime
+identity checks before/after reading, `O_NOFOLLOW`/`O_NONBLOCK` where supported,
+and a final component/path recheck. The file is never reopened for parsing.
+Instead of `load_policy`'s unbounded pathname reader, doctor reuses that loader's
+exact duplicate-key/non-finite JSON hooks and the public `resolve_policy` validator
+on the bounded snapshot. JSON null/arrays, duplicate nested keys, unknown policy
+fields/rules, unsupported severities, malformed JSON and non-finite values remain
+invalid. No policy.py API/source is changed and no temporary policy file is made.
+Nothing from the raw policy or its exception is included in the public result.
+
+Invalid root/policy/cache checks add constant `DOCTOR_ROOT_UNAVAILABLE`,
+`DOCTOR_POLICY_UNAVAILABLE` or `DOCTOR_CACHE_UNAVAILABLE` errors and force exit 2.
+They also skip explicit native probes until corrected; valid optional configuration
+cannot turn absent analyzers into available ones. T058's `scope` remains
+`provider_discovery_only` for envelope compatibility; these additive checks are
+metadata/explicit-JSON diagnostics, not target analysis or broader config execution.
+
+The filesystem must be stable during diagnosis. Checks reduce accidental link
+redirection and detect identity drift but are not a hostile concurrent same-user
+filesystem sandbox, particularly where ancestor-handle/no-follow APIs are not
+available on Windows. Cache child permission/size/integrity checks and remote
+filesystem latency are outside this metadata-only scope. Doctor does not infer
+them as passing or silently follow project execution configuration.
 
 ## Read-only verification
 
@@ -106,6 +163,14 @@ coverage, whole-manifest validation before any probe, changed artifacts, reduced
 process limits and unsupported Python. Test helpers/manifests live only in fresh
 temporary fixtures. Byte snapshots confirm diagnostics preserve the fixture tree;
 changed-artifact tests prove no execution or automatic pin update happens.
+
+`python -B -m unittest discover -s tests -p test_doctor_config.py -v` checks default
+in-memory policy/no autodiscovery, optional missing cache, no child enumeration,
+valid policy byte preservation, duplicate/malformed/secret/oversized/nonregular
+or unreadable inputs, outside/traversal/root failures, descriptor identity drift,
+actual symlink/junction redirection refusal and suppression of native probes on
+invalid configuration. Fixtures are disposable and byte/tree snapshots prove no
+doctor-created directory, cache clearing, policy repair or content mutation.
 
 Use `python -B` or `PYTHONDONTWRITEBYTECODE=1` for strict cold source/package-tree
 no-bytecode execution, as explained in [CLI.md](CLI.md). Doctor itself writes no
