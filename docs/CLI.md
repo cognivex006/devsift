@@ -6,15 +6,21 @@ Installation/building can create packaging and interpreter files; installation i
 separate from read-only command execution. `0.0.0.dev0` is an unreleased packaging
 placeholder, not a release or a claim that an analyzer exists.
 
+For first use, see the [getting-started guide](GETTING-STARTED.md) and
+[command cookbook](USAGE.md). The examples below assume the selected `python`
+is the trusted environment where DevSift is installed, and the current directory
+is the consumer Git repository root.
+
 ```text
-devsift scan --changed
-devsift scan --all --legacy-mode recommend
-devsift explain OBS-001
-devsift report --latest
-devsift doctor
-devsift prompt OBS-001 --mode review
-devsift prompt OBS-001 --mode implement --approved-case OBS-001
+python -I -B -m devsift --help
+python -I -B -m devsift doctor
+python -I -B -m devsift scan --changed
+python -I -B -m devsift scan --all --legacy-mode recommend
 ```
+
+`explain` and `report --latest` have parser entries but their storage backends
+are pending; they return incomplete rather than retrieve a report. Use
+`data.reports` from a scan and the explicit case workflow below instead.
 
 `python -I -B -m devsift` uses the installed interface without consumer module shadowing or bytecode writes. Source-checkout tests use `-P` with an explicitly trusted source PYTHONPATH instead; do not use that development override for untrusted consumer projects. All commands support `--help`.
 Options are strict, with no abbreviations. `--changed` and `--all` are mutually

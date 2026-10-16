@@ -4,9 +4,16 @@
 cache/config diagnostics.
 The CLI calls it through `python -m devsift doctor`. Explicit trusted probes use
 `--native-manifest <absolute-path>` and `--native-manifest-digest <trusted-sha256>`.
-The added optional arguments below belong to the callable API until the separate
-CLI owner wires their flags. The degraded-environment fixture matrix described
-below adds focused evidence; it does not enable optional CLI flags by itself.
+The CLI also accepts `--policy <explicit-json>` and `--cache-path <explicit-directory>`
+for read-only diagnostics. These paths are explicit inputs, not automatically
+discovered project configuration. For an installed, isolated invocation:
+
+```text
+python -I -B -m devsift doctor --policy /absolute/policy.json --cache-path /absolute/cache
+```
+
+See [troubleshooting](TROUBLESHOOTING.md) for first-use symptoms and
+[the CLI reference](CLI.md) for result and argument conventions.
 
 ```python
 from devsift.doctor import run_doctor
@@ -56,10 +63,11 @@ invocation verified a working Git runtime. No source provenance is queried here.
 
 ## Explicit native trust and verified versions
 
-Without both manifest arguments, all unconfigured providers remain unavailable
-and the result is incomplete, exit 2. A missing partner, unreadable/relative path,
-bad digest, malformed later tool or invalid SQL dialect also returns incomplete
-with a static error and starts no native probe. No manifest is auto-discovered
+Without manifest arguments, all unconfigured providers remain unavailable
+and the result is incomplete, exit 2. At the CLI boundary, a missing partner,
+relative manifest path or incorrectly formatted digest is misuse, exit 3.
+An unreadable manifest, well-formed but mismatched digest, malformed tool or invalid
+SQL dialect returns incomplete, exit 2, with a static error and starts no native probe. No manifest is auto-discovered
 from project configuration or ignored setup directories.
 
 Supplying the pair explicitly authorizes the configured native programs, just

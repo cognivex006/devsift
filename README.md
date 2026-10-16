@@ -1,47 +1,84 @@
 # DevSift
 
-A code-quality skill backed by a read-only Python CLI and optional native analyzers for .NET, TypeScript, Go and SQL. The skill guides an agent to run checks and interpret source-linked findings.
+DevSift เป็นเครื่องมือช่วยตรวจโค้ดที่เน้นหลักฐานจาก source ประกอบด้วย:
 
-## Use
+- **Skill สำหรับ agent** ช่วยเลือกคำสั่ง อ่านผล และอธิบายข้อจำกัดตามขอบเขตของโปรเจกต์
+- **Python CLI** สำหรับสแกนแบบอ่านอย่างเดียว สร้างผล JSON/Markdown/SARIF ในหน่วยความจำ และตรวจสถานะเครื่องมือ
+- **Native analyzers แบบเลือกใช้** สำหรับ .NET, TypeScript, Go และ SQL เมื่อตั้งค่าเครื่องมือที่เชื่อถือได้อย่างชัดเจน
 
-Requires Python 3.12+. Install the package into a trusted Python environment (preferably a virtual environment) from the trusted checkout with `python -m pip install .`, and load [skills/devsift](skills/devsift/SKILL.md) in your agent host. Pip installs the CLI; the skill folder is installed separately in the host's skill directory.
+Python CLI เป็นตัวประสานงานหลัก; การไม่มี native analyzer ไม่ได้แปลว่าภาษานั้นผ่านการตรวจ
 
-From the target Git repository root:
+## เริ่มจากงานที่ต้องการทำ
+
+| ต้องการ | อ่านต่อ |
+| --- | --- |
+| ติดตั้งและลองสแกนครั้งแรก | [เริ่มต้นใช้งาน](docs/GETTING-STARTED.md) |
+| ติดตั้ง CLI และ Skill ในสภาพแวดล้อมของคุณ | [การติดตั้ง](docs/INSTALL.md) |
+| เลือกคำสั่งให้ตรงกับงานและอ่านผลลัพธ์ | [คู่มือคำสั่ง](docs/USAGE.md) |
+| แก้ปัญหา Python, Git หรือ native tools | [การแก้ปัญหา](docs/TROUBLESHOOTING.md) |
+| ค้นหาเอกสารทั้งหมด | [สารบัญเอกสาร](docs/README.md) |
+
+## เริ่มสแกนจาก terminal
+
+ต้องใช้ Python 3.12 ขึ้นไป และติดตั้ง DevSift ใน Python environment ที่เชื่อถือได้ก่อน
+จากนั้นรันจาก Git root ของโปรเจกต์เป้าหมาย:
 
 ```sh
 python -I -B -m devsift --help
 python -I -B -m devsift doctor
 python -I -B -m devsift scan --changed
-python -I -B -m devsift scan --all --legacy-mode recommend
 ```
 
-A scan without configured native tools inventories source and returns incomplete. Actual analysis requires an explicitly trusted absolute manifest and independently trusted SHA256:
+`doctor` ตรวจความพร้อมของเครื่องมือ ไม่ได้สแกน source ส่วน `scan --changed`
+เลือกไฟล์ที่เปลี่ยนใน working tree เพื่อวิเคราะห์; ผลอาจยังไม่สมบูรณ์หากขาด analyzer
+ดูวิธีติดตั้งจาก [คู่มือเริ่มต้น](docs/GETTING-STARTED.md) ก่อนใช้งานจริง
 
-```sh
-python -I -B -m devsift scan --changed --native-manifest /absolute/trusted-tools.json --native-manifest-digest <sha256>
-```
+## เริ่มจาก agent chat
 
-Add `--security` for bounded credential and supported logging/TLS checks; see [security coverage](docs/SECURITY-ANALYSIS.md). The [CI gate](docs/CI-GATE.md) runs fresh analysis with explicit native configuration and Git provenance. [Report context](docs/REPORT-CONTEXT.md) keeps candidate consumer/test relationships and production impact explicitly unknown.
+ถ้า host ของคุณรองรับการติดตั้ง skill ให้นำเข้า [DevSift Skill](skills/devsift/SKILL.md)
+พร้อมไฟล์ [ขอบเขตการใช้งาน](skills/devsift/CONSUMER-SCOPE.md) แล้วสั่ง agent ด้วยภาษาธรรมชาติ
+ตัวอย่าง:
 
-See [native setup](docs/NATIVE-SETUP.md) and [CLI behavior](docs/CLI.md). Incomplete output and empty findings do not prove a clean scan. Lifecycle attribution may remain UNKNOWN despite verified source. Scan and CI return full JSON, Markdown and SARIF in `data.reports`. Explicit `prompt --scan-input` composes one source-reproved case review or implementation proposal; operator approval never grants automatic source writes. `report --latest` and `explain` storage discovery remain unavailable.
+> ช่วยตรวจเฉพาะการเปลี่ยนแปลงใน working tree ด้วย DevSift สรุปว่าตรวจอะไรได้ครบ
+> มี analyzer ใดขาด และมีประเด็นความปลอดภัยที่ต้องให้คนทบทวนหรือไม่
 
-## Start with the right scope
+การติดตั้ง CLI และการนำ Skill เข้า host เป็นคนละขั้นตอน; DevSift ไม่มีตัวติดตั้ง,
+ตัวอัปเดต หรือการลงทะเบียน host แบบอัตโนมัติ คู่มือ Skill เป็นแนวทางให้ agent
+และไม่เปลี่ยนคำขอให้สแกนเป็นสิทธิ์แก้ source
 
-For new changes, use `scan --changed` during development and the [CI gate](docs/CI-GATE.md) for an explicitly selected committed change. Changed-file selection does not prove that every finding is new. Verified locations and finding lifecycle are separate: unresolved origin stays UNKNOWN and incomplete.
+## เลือกขอบเขต
 
-For an existing codebase, start with `scan --all --legacy-mode recommend`. Review the inventory and findings before proposing any edit. Unchanged legacy findings remain recommendations; Critical security findings still require independent review. There is no mass rewrite or automatic fix mode.
+- **งานที่กำลังแก้:** `scan --changed` อ่านไฟล์ที่ staged, unstaged และ untracked
+  โดยใช้ bytes ปัจจุบันใน working tree
+- **ตรวจโปรเจกต์เดิม:** `scan --all --legacy-mode recommend` ตรวจ scope ทั้งหมดที่รองรับ
+  และแนะนำการทบทวน legacy โดยไม่สั่งแก้เป็นชุด
+- **ตรวจ change ที่ commit แล้วใน CI:** ใช้ `ci --base <trusted-base-ref>` พร้อม
+  native manifest และ digest ที่เชื่อถือได้; CI ใช้ประวัติ Git เพื่อช่วยจำแนกที่มาของ finding
 
-Read the [getting-started guide](docs/USAGE.md) for installation, native trust, exit codes and case review. The [report walkthrough](docs/cases/REPORT-WALKTHROUGH.md) demonstrates source verification, redaction and unresolved cases with a disposable fixture.
+ไฟล์ที่ถูกแตะไม่ได้แปลว่า finding ทุกข้อเกิดจาก change นั้น และ finding ที่ยังระบุที่มาไม่ได้
+คงสถานะ UNKNOWN/incomplete ไว้
 
-## Contents
+## สิ่งที่ควรรู้ก่อนแปลผล
 
-- `skills/devsift/`: consumer skill instructions.
-- `devsift/`: Python CLI, scan coordination, evidence, policy and adapters.
-- `native/`: language analyzers.
-- `policy/`, `schemas/`: executable defaults and validation contracts.
-- `tests/`, `tools/build_native.py`, `.github/`: runtime verification and build tools.
-- `docs/`: runtime usage and implementation documentation.
+- ผลลัพธ์วิเคราะห์อยู่ใน `data.reports`; CLI ไม่บันทึก report ให้อัตโนมัติ
+- exit code `2` หมายถึงวิเคราะห์ไม่ครบหรือยังมี review ที่ค้างอยู่; findings ว่างไม่ใช่หลักฐานว่า clean
+- `--security` เพิ่มตัวตรวจแบบ bounded; ประเด็นความปลอดภัยอาจต้องทบทวนแยกจาก quality gate
+- native analyzers ต้องระบุ manifest แบบ absolute และ SHA256 ที่ได้จากแหล่งเชื่อถือแยกต่างหาก
+- คำสั่ง prompt สร้างข้อความสำหรับทบทวนหรือข้อเสนอเท่านั้น ไม่แก้ไฟล์; prompt สำเร็จไม่ใช่ผลสแกนผ่าน
+- `report --latest` และการค้นหา storage ของ `explain` ยังไม่พร้อมใช้งาน
+- โปรเจกต์ยังไม่มี public release channel และเจ้าของยังไม่ได้เลือก license
 
-Specifications, historical references, task plans, the live ledger and development orchestration belong only to [devsift-specs](https://github.com/orchex006/devsift-specs). See [development](DEVELOPMENT.md). No package release is implied; the owner has not selected a license.
+## โฟลเดอร์ไหนใช้ทำอะไร
 
-See [Doctor diagnostics](docs/DOCTOR.md), [case prompts and approval](docs/CASE-PROMPTS.md), and [source-linked report context](docs/REPORT-CONTEXT.md) for the implemented workflows. Isolated `-I -B` invocations avoid consumer module shadowing and bytecode writes; use the interpreter containing the trusted installation.
+| ตำแหน่ง | หน้าที่ |
+| --- | --- |
+| `skills/devsift/` | ไฟล์ Skill สำหรับนำเข้า agent host |
+| `devsift/` | Python package ที่รันผ่าน `python -m devsift`; ชื่อซ้ำกับ repo เป็นโครงสร้าง package |
+| `native/` | Source ของ analyzers ที่ Python CLI เรียกผ่าน native protocol |
+| `docs/` | คู่มือใช้งานและเอกสารเทคนิคของ runtime |
+| [devsift-specs](https://github.com/orchex006/devsift-specs) | ข้อกำหนด แผนงาน และ ledger สำหรับผู้ดูแล; ไม่ต้องติดตั้งเพื่อใช้ Skill/CLI |
+
+Source ของผลิตภัณฑ์อยู่ใน repo นี้ ส่วนข้อกำหนดอยู่ใน devsift-specs ตามหน้าที่ข้างต้น
+
+ผู้ดูแลที่ต้องการพัฒนา DevSift เองเริ่มจาก [DEVELOPMENT.md](DEVELOPMENT.md)
+ส่วนประวัติข้อกำหนดและการประสานงานอยู่ใน [devsift-specs](https://github.com/orchex006/devsift-specs)
