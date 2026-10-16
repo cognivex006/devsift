@@ -17,6 +17,8 @@ def result(command: str | None, *, complete: bool, enforced_count: int = 0,
     Callers must supply a verified enforced_count. This function does not classify
     findings or decide whether a finding is eligible for enforcement.
     """
+    if type(complete) is not bool:
+        raise ValueError('complete must be a boolean')
     if type(enforced_count) is not int or enforced_count < 0:
         raise ValueError('enforced_count must be a nonnegative integer')
     outcome = (Outcome.INCOMPLETE if not complete else

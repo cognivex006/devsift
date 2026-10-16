@@ -101,6 +101,13 @@ class CliTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             result('scan', complete=True, enforced_count=-1)
 
+    def test_completion_requires_an_explicit_boolean(self):
+        from devsift.output import result
+        for ambiguous in (None, 'unknown', 1, 0, [], {}, ''):
+            with self.subTest(complete=ambiguous):
+                with self.assertRaisesRegex(ValueError, 'complete must be a boolean'):
+                    result('scan', complete=ambiguous)
+
 
 if __name__ == '__main__':
     unittest.main()

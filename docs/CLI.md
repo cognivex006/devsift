@@ -51,6 +51,8 @@ startup hooks and build/install tools are outside this command's control.
 Incomplete takes precedence over enforced violations; unknown never means pass.
 Codes 0/1 for analysis are exported via `devsift.output.result` for future engine
 integration and contract tests. Current analysis commands cannot return them.
+The exported result builder requires an explicit boolean `complete`; ambiguous
+values such as `None`, strings or integers raise `ValueError` rather than pass.
 
 JSON envelope version `1.0` always contains `schema_version`, `command`, `status`,
 `exit_code`, `complete`, `enforced_count`, `findings`, `errors`, and `data`.
