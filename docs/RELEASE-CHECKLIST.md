@@ -1,13 +1,17 @@
 # Release preparation checklist
 
-This checklist records release evidence to gather. Items below are unchecked
-because this task prepares documentation only. Checking a box requires current,
-reviewable evidence for the intended release candidate and owner authorization.
+This checklist records release evidence to gather. The T072 fixture dry-run
+command was implemented and run, but it is not evidence that the live
+integration candidate has completed its four-component dry run. Other items
+remain unchecked until their candidate-specific evidence and owner decisions are
+available.
 
 ## Candidate and source identity
 
 - [ ] Select a release version and source commit through the authorized owner
-  process; keep `pyproject.toml`'s current `0.0.0.dev0` until that decision.
+  process under [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html);
+  keep `pyproject.toml`'s current PEP 440 `0.0.0.dev0` development placeholder
+  until that decision. Specification v6 is not a software release.
 - [ ] Confirm the reviewed commit, clean selected package inputs, and exact
   component manifest using `packaging/manifest.json` and
   `tools/package_manifest.py`.
@@ -15,7 +19,9 @@ reviewable evidence for the intended release candidate and owner authorization.
   `devsift-core-wheel-source.zip`, `devsift-core-sdist-source.zip`,
   `devsift-consumer-skill.zip`, and `devsift-source-assets.zip`. Record the
   source SHA and independently held integrity SHA256.
-- [ ] Complete the planned T072 four-component dry run and retain its evidence.
+- [x] Implement and run the T072 four-component temporary Git fixture dry run;
+  see [RELEASE-READINESS.md](RELEASE-READINESS.md). The live candidate's
+  four-component bundle verification and review remain a separate unchecked item.
 
 ## Dependencies, SBOM, and license evidence
 
@@ -33,7 +39,10 @@ reviewable evidence for the intended release candidate and owner authorization.
   list as current metadata, with setuptools `83.0.0` as the pinned build
   requirement. The build backend is not a Python runtime dependency.
 - [ ] Resolve license identifiers and notices for the actual shipped
-  components and dependencies. Current project license decision is pending;
+  components and dependencies using the official
+  [SPDX License List specification](https://spdx.github.io/spdx-spec/v2.3.1/)
+  only when supported by evidence and the owner decision. Current project
+  license decision is pending;
   preserve unknown/not-determined values as `NOASSERTION` where the chosen SBOM
   format defines that value. This records uncertainty and is not legal approval.
 - [ ] Obtain owner-selected project license and approval before adding license
@@ -49,7 +58,9 @@ reviewable evidence for the intended release candidate and owner authorization.
   binaries, license suitability, or all release policies.
 - [ ] Complete and record relevant CI, test, install, and rollback checks for
   the actual candidate. A passing selected-bundle check alone is not release
-  readiness.
+  readiness. T054 established install and explicit rollback for its tested
+  artifacts/fixtures; changed assets or a future owner-selected candidate need
+  matching evidence. T072 performs no pip or install/rollback step.
 - [ ] Obtain and verify required signing evidence and release-owner review.
 - [ ] Confirm `release_ready` and publication authorization through the
   authorized release process; the readiness checker itself always leaves both
