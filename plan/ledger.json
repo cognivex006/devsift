@@ -2127,7 +2127,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "running",
       "evidence": [
         {
           "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e",
@@ -2154,6 +2154,22 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:33:59.424778+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "at": "2026-10-16T07:34:58.766797+00:00",
+          "reason": "partial-region masking lacks source context; explicit secret containing mask marker not removed"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:34:58.766797+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:34:58.766797+00:00"
         }
       ]
     },
@@ -2174,7 +2190,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "running",
       "evidence": [
         {
           "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e",
@@ -2201,6 +2217,22 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:33:59.424778+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "at": "2026-10-16T07:34:58.766797+00:00",
+          "reason": "partial-region masking lacks source context; explicit secret containing mask marker not removed"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:34:58.766797+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:34:58.766797+00:00"
         }
       ]
     },
@@ -4077,10 +4109,10 @@
       },
       "T007": {
         "owner": "policy_writer",
-        "status": "in_review",
-        "branch": "feature/g003-contracts",
-        "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts",
-        "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+        "status": "running",
+        "branch": "fix/g003-context-redaction",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts-rework",
+        "base_sha": "8c6a2ca",
         "paths": [
           "devsift/evidence.py",
           "devsift/redaction.py",
@@ -4093,14 +4125,36 @@
           "write:contracts/source"
         ],
         "lease": "selected session; until accepted/reassigned",
-        "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e"
+        "source_sha": null,
+        "prior_jobs": [
+          {
+            "owner": "policy_writer",
+            "status": "in_review",
+            "branch": "feature/g003-contracts",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts",
+            "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+            "paths": [
+              "devsift/evidence.py",
+              "devsift/redaction.py",
+              "schemas/",
+              "tests/test_evidence.py",
+              "tests/test_redaction.py",
+              "docs/EVIDENCE.md"
+            ],
+            "locks": [
+              "write:contracts/source"
+            ],
+            "lease": "selected session; until accepted/reassigned",
+            "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e"
+          }
+        ]
       },
       "T008": {
         "owner": "policy_writer",
-        "status": "in_review",
-        "branch": "feature/g003-contracts",
-        "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts",
-        "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+        "status": "running",
+        "branch": "fix/g003-context-redaction",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts-rework",
+        "base_sha": "8c6a2ca",
         "paths": [
           "devsift/evidence.py",
           "devsift/redaction.py",
@@ -4113,7 +4167,29 @@
           "write:contracts/runtime"
         ],
         "lease": "selected session; until accepted/reassigned",
-        "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e"
+        "source_sha": null,
+        "prior_jobs": [
+          {
+            "owner": "policy_writer",
+            "status": "in_review",
+            "branch": "feature/g003-contracts",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift-contracts",
+            "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
+            "paths": [
+              "devsift/evidence.py",
+              "devsift/redaction.py",
+              "schemas/",
+              "tests/test_evidence.py",
+              "tests/test_redaction.py",
+              "docs/EVIDENCE.md"
+            ],
+            "locks": [
+              "write:contracts/runtime"
+            ],
+            "lease": "selected session; until accepted/reassigned",
+            "source_sha": "7274dd74baa62f86ca82111fc5da5ccbc68cbb1e"
+          }
+        ]
       },
       "T010": {
         "owner": "cli_writer",
