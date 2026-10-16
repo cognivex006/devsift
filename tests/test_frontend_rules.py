@@ -11,6 +11,8 @@ from devsift.inventory import SourceTarget
 from devsift.native_host import NativeAdapter, analyze_snapshot, probe_tool
 from devsift.scanner import scan
 from devsift.evidence import Region, SourceEvidence, verify_source
+from devsift.baseline import capture_entry
+from devsift.git_changes import classify
 from devsift.typescript_adapter import make_tool
 
 
@@ -101,6 +103,10 @@ class FrontendRulesTests(unittest.TestCase):
                 restored = SourceEvidence.from_dict(outcome.findings[0].source.to_dict(), repo_root=root)
                 self.assertEqual(restored.status, 'VERIFIED')
                 self.assertEqual(restored.before, '[REDACTED]')
+                provenance = classify(root, sha, sha, 'HC002', restored)
+                self.assertEqual(provenance.lifecycle_class, 'LEGACY_UNCHANGED')
+                entry = capture_entry(root, 'HC002', '1', restored)
+                self.assertEqual(len(entry.fingerprint), 64)
             record = scan(root, adapters=(adapter,))
             self.assertEqual(len(record['findings']), len(cases))
             self.assertNotIn('fixtureSensitiveValue', json.dumps(record))
