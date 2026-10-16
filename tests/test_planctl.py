@@ -21,12 +21,16 @@ class Classification(unittest.TestCase):
  def test_readiness_does_not_change_class(self):
   p=self.p({'G001':['T001'],'G002':['T002']},{'T002':['T001']});r1=evaluate(p)[0]['G002'];p['tasks']['T001']['status']='accepted';r2=evaluate(p)[0]['G002'];self.assertEqual(r1['class'],r2['class']);self.assertFalse(r1['entry_paths'][0]['ready']);self.assertTrue(r2['entry_paths'][0]['ready'])
  def test_bootstrap_is_only_initial_ready_task(self):
-  p=load();r,_=evaluate(p)
+  p=load()
+  for task in p['tasks'].values():task['status']='pending'
+  r,_=evaluate(p)
   ready=[t for t,x in p['tasks'].items() if x['status']=='pending' and all(p['tasks'][d]['status']=='accepted' for d in x['depends_on'])]
   self.assertEqual(ready,['T000'])
   self.assertEqual(r['G000']['execution_id'],'GA000')
  def test_partial_bootstrap_acceptance_unlocks_without_goal_complete(self):
-  p=load();p['tasks']['T000']['status']='accepted'
+  p=load()
+  for task in p['tasks'].values():task['status']='pending'
+  p['tasks']['T000']['status']='accepted'
   r,_=evaluate(p)
   self.assertFalse(r['G000']['goal_complete'])
   ready=[t for t,x in p['tasks'].items() if x['status']=='pending' and all(p['tasks'][d]['status']=='accepted' for d in x['depends_on'])]

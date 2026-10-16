@@ -42,9 +42,11 @@
         "T076"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Run T000 preflight, then one initial commit and GitHub description update if repository is still empty",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G000.md"
+      ],
+      "next_step": "Execute selected G001/G002",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -1771,12 +1773,49 @@
         "paths:all-initial-files"
       ],
       "acceptance": "After a non-destructive remote-empty preflight, upload all approved v6 source and docs in one initial main commit; update GitHub description exactly; verify remote file paths, manifest count, SHA and description; preserve audit evidence. If repo changed, abort and reconcile without overwriting.",
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "Inspect repo state, source kit manifest and secrets; execute docs/BOOTSTRAP-AUTOPILOT.md; submit evidence for independent review.",
-      "execution_id": "GA000"
+      "status": "accepted",
+      "evidence": [
+        {
+          "commit_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+          "ci_url": "https://github.com/orchex006/devsift/actions/runs/38863982650",
+          "files": 160,
+          "description_verified": true
+        },
+        {
+          "review_result": "accepted",
+          "reviewer": "reviewer",
+          "source_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+          "manifest_sha256": "a1819b87ad076135982f95104ce89f47ce7affa2c5e969bae49617b7cd55dbcd",
+          "remote_files_verified": 160,
+          "ci_platforms": [
+            "windows-latest",
+            "ubuntu-latest"
+          ],
+          "branch_protection": "not_configured",
+          "releases": 0
+        }
+      ],
+      "assignee": "controller",
+      "reviewer": "reviewer",
+      "next_step": "T076 verification; refresh ready frontier",
+      "execution_id": "GA000",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T06:56:17.587854+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T06:56:17.587878+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T06:56:17.587881+00:00"
+        }
+      ]
     },
     "T001": {
       "id": "T001",
@@ -1795,12 +1834,22 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA001"
+      "execution_id": "GA001",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        }
+      ]
     },
     "T002": {
       "id": "T002",
@@ -1819,12 +1868,22 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA001"
+      "execution_id": "GA001",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        }
+      ]
     },
     "T003": {
       "id": "T003",
@@ -1868,12 +1927,22 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA002"
+      "execution_id": "GA002",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        }
+      ]
     },
     "T005": {
       "id": "T005",
@@ -1892,12 +1961,22 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA002"
+      "execution_id": "GA002",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        }
+      ]
     },
     "T006": {
       "id": "T006",
@@ -3614,12 +3693,40 @@
         "ci:bootstrap"
       ],
       "acceptance": "Independent reviewer verifies remote tree and SHA against approved kit manifest; planctl tests pass on checked-out commit; CI runs where available; description is exact and no unapproved release/config mutation occurred. Record actual branch-protection status; never infer it from AGENTS.md.",
-      "status": "pending",
-      "evidence": [],
-      "assignee": null,
-      "reviewer": null,
-      "next_step": "Review T000 evidence independently, compare source/remote trees, record real CI and protection status.",
-      "execution_id": "GA000"
+      "status": "accepted",
+      "evidence": [
+        {
+          "source_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+          "review_result": "accepted",
+          "verifier": "reviewer",
+          "acceptance_reviewer": "controller",
+          "evidence_uri": "docs/evidence/G000.md",
+          "branch_protection": "not_configured",
+          "package_visibility": "unavailable: read:packages missing"
+        }
+      ],
+      "assignee": "reviewer",
+      "reviewer": "controller",
+      "next_step": "G000 complete; execute selected G001/G002",
+      "execution_id": "GA000",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller"
+        },
+        {
+          "status": "running",
+          "actor": "controller"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller"
+        }
+      ]
     }
   },
   "capacity": {
@@ -3640,5 +3747,78 @@
     "empty": true,
     "description": null,
     "note": "Read-only GitHub metadata snapshot; recheck before T000 writes."
+  },
+  "execution": {
+    "selected_goals": [
+      "G000",
+      "G001",
+      "G002"
+    ],
+    "controller": "controller",
+    "policy_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+    "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd",
+    "jobs": {
+      "T000": {
+        "owner": "controller",
+        "status": "accepted",
+        "locks": [],
+        "branch": "main",
+        "source_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+      },
+      "T001": {
+        "owner": "policy_writer",
+        "status": "running",
+        "paths": [
+          "devsift/policy.py",
+          "policy/",
+          "tests/test_policy.py",
+          "docs/POLICY.md"
+        ],
+        "locks": [
+          "write:policy/schema"
+        ],
+        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+      },
+      "T002": {
+        "owner": "policy_writer",
+        "status": "running",
+        "paths": [
+          "devsift/registry.py",
+          "policy/registry.json"
+        ],
+        "locks": [
+          "write:policy/rules"
+        ],
+        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+      },
+      "T004": {
+        "owner": "cli_writer",
+        "status": "running",
+        "paths": [
+          "devsift/cli.py",
+          "devsift/__main__.py",
+          "devsift/__init__.py",
+          "pyproject.toml",
+          "tests/test_cli.py",
+          "docs/CLI.md"
+        ],
+        "locks": [
+          "write:cli/commands"
+        ],
+        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+      },
+      "T005": {
+        "owner": "cli_writer",
+        "status": "running",
+        "paths": [
+          "devsift/output.py"
+        ],
+        "locks": [
+          "write:cli/io"
+        ],
+        "base_sha": "3b59aaebe632334687cf06b68b1821be8a8c45fd"
+      }
+    },
+    "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository"
   }
 }
