@@ -16,7 +16,7 @@ workflow or authorize edits to either repository.
 ## Consumer invocation
 
 The consumer entrypoint is [skills/devsift/SKILL.md](../skills/devsift/SKILL.md).
-It calls the installed `python -m devsift` from the target Git root. Its
+It calls the installed `python -I -B -m devsift` from the target Git root. Its
 [consumer scope note](../skills/devsift/CONSUMER-SCOPE.md) explains the boundary
 without importing maintainer instructions. It does not need a DevSift source
 checkout, specs repository, planning tool or task ledger to scan. Missing runtime
@@ -69,7 +69,47 @@ separately authorized bounded changes under the target's rules and verify them.
 The T055 audit checks actual package discovery/configuration and current
 consumer-skill assets for maintainer dependencies. It establishes an instruction
 and asset boundary, not a host sandbox or proof that every future installer
-will enforce a bundle allowlist. The separately scoped governance fixture task
-will test behavioral examples; this policy does not claim that pending test
-coverage already exists. Changes to skill references or packaging must preserve
-this boundary and be reviewed against the actual resulting assets.
+will enforce a bundle allowlist. Changes to skill references or packaging must
+preserve this boundary and be reviewed against the actual resulting assets.
+
+
+## Installed consumer fixture checks
+
+Use `python -I -B -m devsift` from the consumer Git root, with the runtime
+installed in that exact Python environment, or an installed console script
+resolved from its trusted scripts directory. `-I` excludes the target directory
+and PYTHONPATH from module lookup; `-B` prevents bytecode writes. Isolated mode
+does not make native programs an OS sandbox and does not load packages from a
+source checkout. A missing installation is unavailable; do not bypass it by
+running project-local modules or adding untrusted import paths.
+
+`tests/test_governance_boundary.py` uses stdlib asset checks by default. With
+`DEVSIFT_TEST_INSTALLED=1`, installation and its console script outside the
+checkout are mandatory: absence or mismatched installed CLI fails setup rather
+than skipping. The installed CLI workflow explicitly installs this trusted
+package and runs these fixtures on Windows and Linux.
+
+A disposable real consumer Git repository contains its own AGENTS.md, ordinary
+conversation/input records, source and a deliberate `devsift.py` shadow canary.
+An explicit plain-module positive control executes that canary, proving the
+risk. Isolated module and trusted installed-console invocations must avoid it.
+Actual doctor/scan calls receive the fixture input without invoking planning,
+creating tasks, changing branches/refs, editing source or installed package
+bytes, or creating publisher artifacts. Full source/.git/package snapshots
+include empty directory entries and file hashes; scans remain incomplete when
+analyzers are unconfigured. The console fixture also disables bytecode through
+PYTHONDONTWRITEBYTECODE=1. No target-source execution or target build is needed.
+
+These are executable import/filesystem and instruction-asset checks. They do
+not simulate a language model interpreting conversation, prove host-agent
+obedience, monitor all remote publisher APIs or assert every host's installer
+behavior. Passing ordinary text to a CLI that does not interpret it as planning
+is not an LLM safety evaluation. Applicable target governance remains intact;
+no fixture grants edit, installation, publishing or release authority.
+
+For explicit trusted package installation, follow DEVELOPMENT.md in the DevSift
+checkout; consumers do not need that maintainer document to run the product.
+After installation, run `python -B -m unittest discover -s tests -p
+test_governance_boundary.py -v` with `DEVSIFT_TEST_INSTALLED=1` from the test
+checkout. Actual platform evidence must come from the installed CI matrix,
+not these policy statements.
