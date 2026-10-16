@@ -21,11 +21,11 @@ class Parser(argparse.ArgumentParser):
 
 
 def parser() -> Parser:
-    root = Parser(prog='devsift', description='Read-only quality analysis interface (engine pending).')
+    root = Parser(prog='devsift', description='Read-only scan coordination (native analyzers pending).')
     commands = root.add_subparsers(dest='command', required=True)
-    scan = commands.add_parser('scan', help='Request analysis; engine not yet available.')
+    scan = commands.add_parser('scan', help='Inventory targets; native analyzers are not registered yet.')
     scope = scan.add_mutually_exclusive_group()
-    scope.add_argument('--changed', action='store_true', help='Analyze changed regions (default).')
+    scope.add_argument('--changed', action='store_true', help='Inventory tracked changes from HEAD and untracked files (default).')
     scope.add_argument('--all', action='store_true', help='Include legacy source as recommendations.')
     scan.add_argument('--legacy-mode', choices=['recommend'], default='recommend',
                       help='Untouched legacy is advisory; no bulk remediation.')
@@ -52,10 +52,13 @@ def run(args: argparse.Namespace) -> dict:
         data = {'runtime': {'name': 'python', 'version': platform.python_version(),
                             'supported': sys.version_info >= (3, 12)},
                 'capabilities': {'command_parser': True, 'read_only': True,
+                                 'inventory': True, 'git_provenance': True,
                                  'analyzers': False, 'reports': False,
                                  'case_prompts': False}}
     elif args.command == 'scan':
-        data = {'scope': 'all' if args.all else 'changed', 'legacy_mode': args.legacy_mode}
+        from pathlib import Path
+        from .cli_scan import run_scan
+        return run_scan(Path.cwd(), all_scope=args.all, legacy_mode=args.legacy_mode)
     return result(args.command, complete=False, data=data,
                   errors=[{'code': 'CAPABILITY_UNAVAILABLE',
                            'message': 'Analyzer and verified report backends are not implemented; '

@@ -91,3 +91,13 @@ integrity belong to later analyzer-host work. Tests use controlled injected
 fixtures, real temporary Git repositories and directory/file snapshots. For cold
 package-tree no-write guarantees, retain the CLI's documented Python `-B` or
 `PYTHONDONTWRITEBYTECODE=1` launch setting.
+
+## Exit zero and independent security review
+
+Exit 0 means the run completed with no **enforced gate violations**. It does not mean no findings or no urgent follow-up. A verified unchanged legacy Critical security finding remains nonblocking while retaining `enforcement: security_review` and `security_escalation: true` in its finding. Consumers must route that explicit flag to the independent security-review workflow; scanning does not authorize a fix. Any unresolved evidence/tool failure still takes precedence as incomplete 2.
+
+## CLI integration
+
+The `scan` command invokes this coordinator with no registered native adapters. `--all` inventories the working directory; `--changed` requires the Git root and inventories tracked index/working-tree differences from HEAD plus untracked paths (Git ignore rules apply to untracked files). This selection is not immutable finding classification. Deleted paths are explicit missing/incomplete targets. Missing HEAD, non-root/non-Git scope or unavailable Git yields `GIT_SCOPE_UNAVAILABLE`, never a fabricated empty clean scan. No branch baseline or policy configuration is silently discovered or written.
+
+Git candidate selection disables external diff, textconv, fsmonitor, optional locks, replacement objects and lazy fetching, with bounded output and timeouts. Source snippets/byte contents and Git stderr are never serialized into the target inventory. Native providers, complete Markdown/JSON/SARIF reports and per-case remediation remain later tasks.

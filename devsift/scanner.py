@@ -71,7 +71,7 @@ def _snapshot_matches_commit(root, source, content):
         return False
     location = source.location
     environment = dict(os.environ, GIT_NO_REPLACE_OBJECTS='1', GIT_LITERAL_PATHSPECS='1',
-                       GIT_OPTIONAL_LOCKS='0', GIT_TERMINAL_PROMPT='0')
+                       GIT_OPTIONAL_LOCKS='0', GIT_TERMINAL_PROMPT='0', GIT_NO_LAZY_FETCH='1')
     try:
         process = subprocess.run(['git', '-C', str(root), 'ls-tree', '-z', location.source_sha,
                                   '--', location.path], capture_output=True, timeout=10, env=environment)

@@ -89,6 +89,18 @@ class ScannerTests(unittest.TestCase):
         self.assertEqual(record['findings'][0]['enforcement'], 'advisory')
         self.assertEqual(ScanFinding('CASE-2', 'HC001', self.evidence()).lifecycle_class, 'UNKNOWN')
 
+    def test_legacy_critical_security_review_survives_nonblocking_exit(self):
+        finding = ScanFinding('SECURITY-1', 'HC002', self.evidence(),
+                              lifecycle_class='LEGACY_UNCHANGED')
+        adapter = Stub(lambda target: AdapterOutcome(True, (finding,)))
+        record = scan(self.root, ['a.py'], adapters=(adapter,))
+        self.assertEqual(record['exit_code'], 0)
+        self.assertTrue(record['complete'])
+        self.assertEqual(record['enforced_count'], 0)
+        self.assertEqual(len(record['findings']), 1)
+        self.assertEqual(record['findings'][0]['enforcement'], 'security_review')
+        self.assertTrue(record['findings'][0]['security_escalation'])
+
     def test_wrong_target_evidence_and_changed_during_execution_are_incomplete(self):
         finding = self.finding()
         (self.root / 'b.py').write_bytes(b'print(1)\n')
