@@ -2651,12 +2651,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "controller",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA005"
+      "execution_id": "GA005",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:56:01.327020+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:56:01.327020+00:00"
+        }
+      ]
     },
     "T016": {
       "id": "T016",
@@ -4495,6 +4507,20 @@
         "lease": "selected G003-G005 session until accepted/reassigned",
         "source_sha": "b7be3890ffc98d88af4fc7ca4d23db6c2185d5df",
         "integrated_sha": "22a31867205fdd958276255e3e36cebdc65c341b"
+      },
+      "T015": {
+        "owner": "controller",
+        "status": "running",
+        "branch": "feature/g003-g005-foundations",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "paths": [
+          "tests/test_git_provenance_invariants.py"
+        ],
+        "base_sha": "c37a3d57ef6c49904801b811439af4ddbc4cab0e",
+        "locks": [
+          "write:tests/git"
+        ],
+        "lease": "selected G003-G005 session until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4507,13 +4533,15 @@
       "status": "running",
       "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
       "held_locks": [
-        "write:engine/results"
+        "write:engine/results",
+        "write:tests/git"
       ],
       "active_jobs": [
-        "T012"
+        "T012",
+        "T015"
       ],
-      "latest_integrated_sha": "22a31867205fdd958276255e3e36cebdc65c341b",
-      "updated_utc": "2026-10-16T07:56:00.778208+00:00"
+      "latest_integrated_sha": "c37a3d57ef6c49904801b811439af4ddbc4cab0e",
+      "updated_utc": "2026-10-16T07:56:01.327020+00:00"
     },
     "previous_checkpoints": [
       {
