@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:devsift:native:1",
+  "title": "DevSift native protocol v1 (runtime also validates pins and source bounds)",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol_version", "tool_id", "tool_version", "complete", "diagnostics", "reason", "metadata"],
+  "properties": {
+    "protocol_version": {"const": "1"},
+    "tool_id": {"type": "string"},
+    "tool_version": {"type": "string"},
+    "complete": {"type": "boolean"},
+    "diagnostics": {"type": "array", "maxItems": 1000, "items": {"type": "object", "additionalProperties": false, "required": ["rule_id", "region"], "properties": {"rule_id": {"type": "string"}, "region": {"$ref": "evidence.schema.json#/$defs/region"}}}},
+    "reason": {"enum": ["COMPLETED", "PARSE_ERROR", "UNSUPPORTED_DIALECT", "ANALYSIS_FAILED", "UNSUPPORTED_SOURCE"]},
+    "metadata": {"type": "object", "additionalProperties": false, "properties": {"dialect": {"enum": ["tsql150", "tsql160"]}, "unqualified_references": {"type": "integer", "minimum": 0, "maximum": 1000000}, "ddl_statements": {"type": "integer", "minimum": 0, "maximum": 1000000}}}
+  }
+}
