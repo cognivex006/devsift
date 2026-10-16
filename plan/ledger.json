@@ -5454,6 +5454,39 @@
         "lease": "selected execution session until accepted/reassigned",
         "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f",
         "integrated_sha": "19967521978b61b86d443f37c3574046b589dd3b"
+      },
+      "native-cli-integration": {
+        "owner": "cli_writer",
+        "status": "in_review",
+        "branch": "feat/native-cli-manifest",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\native-cli-manifest",
+        "base_sha": "fe4c87fc4a35e448f93a07a4a41131780d42b643",
+        "source_sha": "74698b1b54acc684aa2baa4f75c180cce4905429",
+        "locks": [
+          "write:cli/native-manifest",
+          "write:tools/native-setup"
+        ],
+        "paths": [
+          "devsift/native_manifest.py",
+          "devsift/cli.py",
+          "devsift/cli_scan.py",
+          "tools/build_native.py",
+          "tests/test_native_manifest.py",
+          "docs/NATIVE-SETUP.md"
+        ],
+        "purpose": "Controller integration of accepted native providers into explicit opt-in CLI configuration; no separate roadmap goal claimed",
+        "recorded_at": "2026-10-16T09:36:06.569019+00:00"
+      },
+      "baseline-windows-correction": {
+        "owner": "cli_writer",
+        "status": "accepted",
+        "branch": "fix/g006-windows-baseline",
+        "source_sha": "3f9787f79101483f5b3084272dd9ba34933dacc1",
+        "locks": [],
+        "reviewer": "reviewer",
+        "review_result": "accepted",
+        "test_result": "18 actual Windows tests plus original8.3directoryalias probe independently pass; hosted standard/native Windows Python3.12 CI success38879997938/38879997915",
+        "integrated_sha": "929173d518e7817e241c6f21123e6fb359bbdd91"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5496,10 +5529,13 @@
         }
       ],
       "held_locks": [
-        "write:rules/frontend"
+        "write:rules/frontend",
+        "write:cli/native-manifest",
+        "write:tools/native-setup"
       ],
       "active_jobs": [
-        "T026"
+        "T026",
+        "native-cli-integration"
       ],
       "latest_integrated_sha": "97d1fb02ce25244312ecb608f6d714f4617060dc",
       "updated_utc": "2026-10-16T09:33:22.323377+00:00",
