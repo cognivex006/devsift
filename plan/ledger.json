@@ -296,7 +296,7 @@
         "T015"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
+      "status": "running",
       "evidence": [],
       "next_step": "Select a ready entry task",
       "review_budget_minutes": 25,
@@ -2281,12 +2281,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "controller",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA003"
+      "execution_id": "GA003",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.449478+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.449478+00:00"
+        }
+      ]
     },
     "T010": {
       "id": "T010",
@@ -2426,12 +2438,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA004"
+      "execution_id": "GA004",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.585547+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.585547+00:00"
+        }
+      ]
     },
     "T013": {
       "id": "T013",
@@ -2450,12 +2474,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "policy_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA005"
+      "execution_id": "GA005",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.721077+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:39:08.721077+00:00"
+        }
+      ]
     },
     "T014": {
       "id": "T014",
@@ -4251,6 +4287,53 @@
         "lease": "selected session; until accepted/reassigned",
         "source_sha": "3029093e547546e4d720eea3c2d11d9150de4f28",
         "integrated_sha": "b21d4ef210ae3fc1a493ec3b53784e6a7031e68a"
+      },
+      "T009": {
+        "owner": "controller",
+        "status": "running",
+        "branch": "feature/g003-g005-foundations",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "paths": [
+          "tests/test_evidence_fixtures.py",
+          "tests/fixtures/evidence/"
+        ],
+        "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+        "locks": [
+          "write:tests/contracts"
+        ],
+        "lease": "selected G003-G005 session until accepted/reassigned"
+      },
+      "T012": {
+        "owner": "cli_writer",
+        "status": "running",
+        "branch": "feature/g004-aggregation",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-aggregation",
+        "paths": [
+          "devsift/scanner.py",
+          "tests/test_scanner.py",
+          "docs/SCAN-RESULTS.md"
+        ],
+        "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+        "locks": [
+          "write:engine/results"
+        ],
+        "lease": "selected G003-G005 session until accepted/reassigned"
+      },
+      "T013": {
+        "owner": "policy_writer",
+        "status": "running",
+        "branch": "feature/g005-classifier",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-classifier",
+        "paths": [
+          "devsift/git_changes.py",
+          "tests/test_git_changes.py",
+          "docs/GIT-PROVENANCE.md"
+        ],
+        "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+        "locks": [
+          "write:engine/git"
+        ],
+        "lease": "selected G003-G005 session until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4262,10 +4345,18 @@
       ],
       "status": "running",
       "base_sha": "0f87cc53075ca56a1d3a976f4fe6e37cdf9a0845",
-      "held_locks": [],
-      "active_jobs": [],
-      "latest_integrated_sha": "ac797fd48a5d4e3a908d6c8087a1d4996b9f9a62",
-      "updated_utc": "2026-10-16T07:38:57.960216+00:00"
+      "held_locks": [
+        "write:tests/contracts",
+        "write:engine/results",
+        "write:engine/git"
+      ],
+      "active_jobs": [
+        "T009",
+        "T012",
+        "T013"
+      ],
+      "latest_integrated_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+      "updated_utc": "2026-10-16T07:39:08.721077+00:00"
     },
     "previous_checkpoints": [
       {
