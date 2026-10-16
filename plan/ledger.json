@@ -560,9 +560,11 @@
         "T030"
       ],
       "repo": "orchex006/devsift",
-      "status": "running",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G010.md"
+      ],
+      "next_step": "Selected goal complete; use current frontier for next authorized scope",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -1013,8 +1015,7 @@
           "ready": false,
           "blocking_tasks": [
             "T026",
-            "T027",
-            "T030"
+            "T027"
           ]
         }
       ]
@@ -1127,7 +1128,6 @@
           "blocking_tasks": [
             "T026",
             "T027",
-            "T030",
             "T031",
             "T032",
             "T033",
@@ -1500,7 +1500,6 @@
           "blocking_tasks": [
             "T026",
             "T027",
-            "T030",
             "T031",
             "T032",
             "T033",
@@ -3571,17 +3570,25 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f",
           "test_result": "Writer five actual ScriptDom dialect acceptance tests pass101.5s, no SQL/DB/source execution",
           "author": "policy_writer"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f",
+          "integrated_sha": "19967521978b61b86d443f37c3574046b589dd3b",
+          "test_result": "Distinct reviewer five actual ScriptDom acceptance pass23.75s; controller integrated five pass26.320s, no source/DB execution",
+          "evidence_uri": "docs/evidence/G010.md"
         }
       ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
-      "next_step": "claim when prerequisites accepted",
+      "next_step": "Accepted; see goal evidence and current frontier",
       "execution_id": "GA010",
       "history": [
         {
@@ -3598,6 +3605,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T09:30:24.505338+00:00"
+        },
+        {
+          "status": "accepted",
+          "actor": "controller",
+          "at": "2026-10-16T09:32:54.288370+00:00"
         }
       ]
     },
@@ -5418,7 +5430,7 @@
       },
       "T030": {
         "owner": "policy_writer",
-        "status": "in_review",
+        "status": "accepted",
         "branch": "feature/g010-dialect-tests",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g010-dialect-tests",
         "paths": [
@@ -5427,11 +5439,10 @@
           "docs/SQL-TESTS.md"
         ],
         "base_sha": "719253e4856d47eb882bca84ea489081a082556e",
-        "locks": [
-          "write:tests/sql"
-        ],
+        "locks": [],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f"
+        "source_sha": "35388d046a22089b1cdd1931c2b108183033f35f",
+        "integrated_sha": "19967521978b61b86d443f37c3574046b589dd3b"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5474,15 +5485,13 @@
         }
       ],
       "held_locks": [
-        "write:rules/frontend",
-        "write:tests/sql"
+        "write:rules/frontend"
       ],
       "active_jobs": [
-        "T026",
-        "T030"
+        "T026"
       ],
-      "latest_integrated_sha": "2277259e7b57b032f6fd04604c6a28651a271517",
-      "updated_utc": "2026-10-16T09:30:53.753818+00:00",
+      "latest_integrated_sha": "19967521978b61b86d443f37c3574046b589dd3b",
+      "updated_utc": "2026-10-16T09:32:54.288370+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
