@@ -1,0 +1,6 @@
+{
+  "before": {"schema_version":"1","kind":"diagnostic","case_id":"case-1","source_sha":"BEFORE","scope_digest":"SCOPE","analyzer_id":"external-fixture","analyzer_version":"1","complete":true,"findings":[["HC001","aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]]},
+  "after": {"schema_version":"1","kind":"diagnostic","case_id":"case-1","source_sha":"AFTER","scope_digest":"SCOPE","analyzer_id":"external-fixture","analyzer_version":"1","complete":true,"findings":[]},
+  "regression": {"schema_version":"1","kind":"regression","case_id":"case-1","before_sha":"BEFORE","after_sha":"AFTER","scope_digest":"SCOPE","status":"pass"},
+  "rollback": {"schema_version":"1","kind":"rollback","case_id":"case-1","before_sha":"BEFORE","after_sha":"AFTER","scope_digest":"SCOPE","action":"restore_before_commit"}
+}
