@@ -3228,12 +3228,24 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "pending",
+      "status": "running",
       "evidence": [],
-      "assignee": null,
-      "reviewer": null,
+      "assignee": "cli_writer",
+      "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
-      "execution_id": "GA008"
+      "execution_id": "GA008",
+      "history": [
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T09:20:43.232510+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T09:20:43.232510+00:00"
+        }
+      ]
     },
     "T025": {
       "id": "T025",
@@ -5247,6 +5259,22 @@
             "source_sha": "98073738225c8f0195bf14757b14de78a0c2c091"
           }
         ]
+      },
+      "T024": {
+        "owner": "cli_writer",
+        "status": "running",
+        "branch": "feature/g008-backend-tests",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g008-backend-tests",
+        "paths": [
+          "tests/test_backend_golden.py",
+          "tests/fixtures/backend",
+          "docs/BACKEND-TESTS.md"
+        ],
+        "base_sha": "af0578b1b9a05698c98d582cc8349dea85a8868b",
+        "locks": [
+          "write:tests/backend"
+        ],
+        "lease": "selected execution session until accepted/reassigned"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -5290,14 +5318,16 @@
       ],
       "held_locks": [
         "write:adapters/typescript",
-        "write:rules/sql"
+        "write:rules/sql",
+        "write:tests/backend"
       ],
       "active_jobs": [
         "T025",
-        "T029"
+        "T029",
+        "T024"
       ],
-      "latest_integrated_sha": "657b141ab7dcbbb552958313a4019c3e2a6b7ad3",
-      "updated_utc": "2026-10-16T09:18:26.651518+00:00",
+      "latest_integrated_sha": "af0578b1b9a05698c98d582cc8349dea85a8868b",
+      "updated_utc": "2026-10-16T09:20:43.232510+00:00",
       "worktree_cleanup": [
         {
           "path": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g006-baseline",
