@@ -105,11 +105,24 @@ string/value positions, partial identifiers and unsupported contexts remain
 incomplete. This is bounded syntactic context proof, not catalog resolution,
 permission validation or assurance that the target object exists.
 
+Quoted-identifier proof is preserved through local storage only when the target
+is explicitly `nvarchar(max)`. Finite `nvarchar` (including `sysname`), `varchar`
+conversion, and unknown storage capacity discard that proof and remain incomplete
+at execution: a truncated closing delimiter can make apparently quoted input
+unsafe. Both DECLARE initialization and subsequent SET/+= assignments apply this
+check, including aliases; finite-capacity worst-case length analysis is outside
+the bounded rule except a conservative guard that rejects literal/quoted-identifier
+assembly whose UTF-16 worst-case length exceeds 4,000 (258 per QUOTENAME result).
+Assigning to `nvarchar(max)` does not by itself prevent finite intermediate
+concatenation truncation. Direct QUOTENAME expressions without intervening storage still
+require the same parsed table-identifier context proof.
+
 Unknown SQL execution provenance, arbitrary transformations/functions, unknown
 procedure execution, remote/context execution, query-based variable assignment,
 cursor mutation, and unsupported control flow return `complete=false` with a
 fixed `ANALYSIS_FAILED` reason. IF/WHILE/TRY-CATCH/GOTO/RETURN invalidate convenient
-local values; function/trigger bodies are not treated as analyzed procedure
+local values, as do standalone EXECUTE AS/REVERT context switches. Function/trigger
+bodies are not treated as analyzed procedure
 scopes. Incomplete reports may retain independently detected diagnostics, but
 must never become a clean scan. No arbitrary expression/dataflow analysis,
 numeric conversion safety, interprocedural taint, runtime reachability, SQL

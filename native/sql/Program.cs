@@ -113,11 +113,24 @@ public sealed class DynamicSqlVisitor(TSqlParser parser, string source) : TSqlFr
     enum Kind { Literal, Input, QuotedIdentifier, Unknown }
     sealed record Part(Kind Kind, string Text = "");
     Dictionary<string, Part[]> variables = new(StringComparer.OrdinalIgnoreCase);
+    HashSet<string> unboundedUnicodeStorage = new(StringComparer.OrdinalIgnoreCase);
     static Part[] Unknown => [new(Kind.Unknown)];
     public bool Complete { get; private set; } = true;
     public List<object> Diagnostics { get; } = [];
 
-    static Part[] Join(Part[] left, Part[] right) => left.Length + right.Length <= 256 ? [.. left, .. right] : Unknown;
+    static Part[] Join(Part[] left, Part[] right)
+    {
+        if (left.Length + right.Length > 256) return Unknown;
+        Part[] joined = [.. left, .. right];
+        // Assignment to nvarchar(max) does not prevent truncation in an earlier
+        // finite-width concatenation. Refuse identifier safety when even this
+        // conservative UTF-16 worst-case bound exceeds nvarchar's finite width.
+        if (joined.Any(part => part.Kind == Kind.QuotedIdentifier)
+            && joined.All(part => part.Kind is Kind.Literal or Kind.QuotedIdentifier)
+            && joined.Sum(part => part.Kind == Kind.QuotedIdentifier ? 258L : part.Text.Length) > 4000)
+            return Unknown;
+        return joined;
+    }
 
     Part[] Value(ScalarExpression? expression, int depth = 0)
     {
@@ -143,13 +156,26 @@ public sealed class DynamicSqlVisitor(TSqlParser parser, string source) : TSqlFr
     public override void ExplicitVisit(TSqlBatch node)
     {
         variables.Clear();
+        unboundedUnicodeStorage.Clear();
         base.ExplicitVisit(node);
     }
+
+    static bool PreservesQuotedIdentifier(DataTypeReference? dataType) =>
+        dataType is SqlDataTypeReference sql && sql.SqlDataTypeOption == SqlDataTypeOption.NVarChar
+        && sql.Parameters.Count == 1 && sql.Parameters[0] is MaxLiteral;
+
+    Part[] Stored(string name, Part[] value) => value.Any(part => part.Kind == Kind.QuotedIdentifier)
+        && !unboundedUnicodeStorage.Contains(name) ? Unknown : value;
 
     public override void ExplicitVisit(DeclareVariableStatement node)
     {
         foreach (var declaration in node.Declarations)
-            variables[declaration.VariableName.Value] = Value(declaration.Value);
+        {
+            string name = declaration.VariableName.Value;
+            if (PreservesQuotedIdentifier(declaration.DataType)) unboundedUnicodeStorage.Add(name);
+            else unboundedUnicodeStorage.Remove(name);
+            variables[name] = Stored(name, Value(declaration.Value));
+        }
     }
 
     public override void ExplicitVisit(SetVariableStatement node)
@@ -159,7 +185,7 @@ public sealed class DynamicSqlVisitor(TSqlParser parser, string source) : TSqlFr
             value = Join(Value(node.Variable), value);
         else if (node.AssignmentKind != AssignmentKind.Equals)
             value = Unknown;
-        variables[node.Variable.Name] = value;
+        variables[node.Variable.Name] = Stored(node.Variable.Name, value);
     }
 
     public override void ExplicitVisit(SelectSetVariable node)
@@ -176,6 +202,8 @@ public sealed class DynamicSqlVisitor(TSqlParser parser, string source) : TSqlFr
     public override void ExplicitVisit(FetchCursorStatement node) { Complete = false; Invalidate(); }
     public override void ExplicitVisit(GoToStatement node) { Complete = false; Invalidate(); }
     public override void ExplicitVisit(ReturnStatement node) { Complete = false; Invalidate(); }
+    public override void ExplicitVisit(ExecuteAsStatement node) { Complete = false; Invalidate(); }
+    public override void ExplicitVisit(RevertStatement node) { Complete = false; Invalidate(); }
 
     void Invalidate()
     {
@@ -220,12 +248,18 @@ public sealed class DynamicSqlVisitor(TSqlParser parser, string source) : TSqlFr
     void Procedure(ProcedureStatementBodyBase node)
     {
         var outer = variables;
+        var outerStorage = unboundedUnicodeStorage;
         variables = new(StringComparer.OrdinalIgnoreCase);
+        unboundedUnicodeStorage = new(StringComparer.OrdinalIgnoreCase);
         foreach (var parameter in node.Parameters)
+        {
             variables[parameter.VariableName.Value] = [new(Kind.Input)];
+            if (PreservesQuotedIdentifier(parameter.DataType)) unboundedUnicodeStorage.Add(parameter.VariableName.Value);
+        }
         if (node.StatementList is null || node.MethodSpecifier is not null) Complete = false;
         node.StatementList?.Accept(this);
         variables = outer;
+        unboundedUnicodeStorage = outerStorage;
     }
     public override void ExplicitVisit(CreateProcedureStatement node) => Procedure(node);
     public override void ExplicitVisit(AlterProcedureStatement node) => Procedure(node);

@@ -67,6 +67,11 @@ class SqlRuleTests(unittest.TestCase):
         self.assertFalse(self.report(unsafe).complete)
         self.assertEqual(self.report(unsafe).diagnostics, ())
 
+    def test_max_storage_does_not_prove_finite_intermediate_quoting_capacity(self):
+        prefix = "SELECT * FROM " + " " * 3980
+        source = "DECLARE @q nvarchar(max)=N'" + prefix + "' + QUOTENAME(@input); EXEC(@q);"
+        self.assertFalse(self.report(source).complete)
+
     def test_unknown_execution_transform_and_control_flow_never_claim_complete_safe(self):
         sources = ["EXEC(@sql);", "EXEC dbo.UnknownProcedure;",
                    "DECLARE @sql nvarchar(max)=N'SELECT ' + dbo.UnknownTransform(@input); EXEC(@sql);",
@@ -107,6 +112,22 @@ class SqlRuleTests(unittest.TestCase):
         for source in sources:
             with self.subTest(source=source):
                 self.assertFalse(self.report(source).complete)
+
+    def test_quoted_identifier_storage_requires_proven_capacity_and_context_switch_is_incomplete(self):
+        sources = [
+            "DECLARE @safe nvarchar(5)=QUOTENAME(@input); DECLARE @q nvarchar(max)=N'SELECT * FROM ' + @safe; EXEC(@q);",
+            "DECLARE @safe sysname=QUOTENAME(@input); DECLARE @q nvarchar(max)=N'SELECT * FROM ' + @safe; EXEC(@q);",
+            "DECLARE @safe nvarchar(128); SET @safe=QUOTENAME(@input); DECLARE @q nvarchar(max)=N'SELECT * FROM ' + @safe; EXEC(@q);",
+            "DECLARE @safe varchar(max)=QUOTENAME(@input); DECLARE @q nvarchar(max)=N'SELECT * FROM ' + @safe; EXEC(@q);",
+            "DECLARE @q nvarchar(max)=N'SELECT 1'; EXECUTE AS USER='x'; EXEC(@q);",
+        ]
+        for dialect in ("tsql150", "tsql160"):
+            for source in sources:
+                with self.subTest(source=source, dialect=dialect):
+                    self.assertFalse(self.report(source, dialect).complete)
+        safe = "DECLARE @safe nvarchar(max); SET @safe=QUOTENAME(@input); DECLARE @q nvarchar(max)=N'SELECT * FROM ' + @safe; EXEC(@q);"
+        self.assertTrue(self.report(safe).complete)
+        self.assertEqual(self.report(safe).diagnostics, ())
 
 
 if __name__ == "__main__":
