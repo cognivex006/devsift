@@ -36,7 +36,9 @@ function region(source, node) {
 function strictRequest(bytes) {
   const text = new TextDecoder('utf-8', { fatal: true }).decode(bytes);
   const value = JSON.parse(text); // Reject comments, trailing data and non-JSON syntax.
-  const tree = ts.parseJsonText('request.json', text);
+  // JSON permits literal LS/PS inside strings; the TypeScript scanner treats
+  // them as source line terminators. Escape these equivalent JSON characters.
+  const tree = ts.parseJsonText('request.json', text.replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029'));
   function visit(node) {
     if (ts.isObjectLiteralExpression(node)) {
       const names = new Set();
