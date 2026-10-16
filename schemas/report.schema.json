@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:devsift:report:1",
+  "title": "DevSift source-reproved report v1",
+  "description": "Structural schema only; immutable Git reproof, policy and attribution trust require runtime assembly.",
+  "type": "object", "additionalProperties": false,
+  "required": ["schema_version", "tool", "complete", "status", "exit_code", "enforced_count", "cases", "errors", "contextual_recommendations"],
+  "properties": {
+    "schema_version": {"const": "1"}, "tool": {"const": "devsift"},
+    "complete": {"type": "boolean"}, "status": {"enum": ["clean", "enforced", "incomplete"]},
+    "exit_code": {"type": "integer", "minimum": 0, "maximum": 2},
+    "enforced_count": {"type": "integer", "minimum": 0},
+    "cases": {"type": "array", "maxItems": 1000, "items": {"$ref": "#/$defs/case"}},
+    "errors": {"type": "array", "maxItems": 1000, "items": {"type": "object", "additionalProperties": false, "required": ["code", "message"], "properties": {"code": {"type": "string"}, "message": {"type": "string"}}}},
+    "contextual_recommendations": {"type": "array", "maxItems": 1000}
+  },
+  "$defs": {
+    "assessment": {"type": "object", "additionalProperties": false, "required": ["level", "reason", "evidence"], "properties": {"level": {"enum": ["high", "medium", "low", "unknown"]}, "reason": {"type": "string"}, "evidence": {"type": "array"}}},
+    "strings": {"type": "array", "items": {"type": "string"}},
+    "case": {
+      "type": "object", "additionalProperties": false,
+      "required": ["case_id", "rule_id", "title", "severity", "confidence", "lifecycle_class", "enforcement", "security_escalation", "source", "fingerprint", "navigation", "related_locations", "runtime_evidence", "human_explanation", "why_detector_fired", "invalidating_exception", "after_proposal", "alternatives", "impact_if_unchanged", "risk_if_changed", "affected_scope", "verification", "rollback", "approval_status", "automatic_fix", "review_prompt", "implement_prompt"],
+      "properties": {
+        "case_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$"},
+        "rule_id": {"type": "string", "pattern": "^[A-Z]{2,3}[0-9]{3}$"},
+        "title": {"type": "string"}, "severity": {"enum": ["Critical", "Error", "Warning", "Suggestion"]},
+        "confidence": {"enum": ["high", "medium", "low", "unknown"]},
+        "lifecycle_class": {"enum": ["NEW", "MODIFIED_INTRODUCED", "MODIFIED_PREEXISTING", "LEGACY_UNCHANGED", "UNKNOWN"]},
+        "enforcement": {"enum": ["block", "incomplete", "security_review", "advisory"]},
+        "security_escalation": {"type": "boolean"},
+        "source": {"$ref": "evidence.schema.json#/$defs/source"},
+        "fingerprint": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "navigation": {"type": ["string", "null"]},
+        "related_locations": {"type": "array", "items": {"$ref": "evidence.schema.json#/$defs/source"}},
+        "runtime_evidence": {"type": "array", "items": {"$ref": "evidence.schema.json#/$defs/runtime"}},
+        "human_explanation": {"type": "string"}, "why_detector_fired": {"type": "string"},
+        "invalidating_exception": {"type": "string"},
+        "after_proposal": {"type": "object", "additionalProperties": false, "required": ["label", "code", "confidence", "status"], "properties": {"label": {"const": "AFTER (PROPOSAL)"}, "code": {"type": ["string", "null"]}, "confidence": {"enum": ["high", "medium", "low", "unknown"]}, "status": {"type": "string"}}},
+        "alternatives": {"$ref": "#/$defs/strings"},
+        "impact_if_unchanged": {"$ref": "#/$defs/assessment"}, "risk_if_changed": {"$ref": "#/$defs/assessment"},
+        "affected_scope": {"type": "object", "additionalProperties": false, "required": ["status", "consumers", "test_evidence"], "properties": {"status": {"enum": ["unknown", "observed"]}, "consumers": {"$ref": "#/$defs/strings"}, "test_evidence": {"$ref": "#/$defs/strings"}}},
+        "verification": {"$ref": "#/$defs/strings"}, "rollback": {"type": "string"},
+        "approval_status": {"const": "pending"}, "automatic_fix": {"const": false},
+        "review_prompt": {"type": "string"}, "implement_prompt": {"type": "string"}
+      }
+    }
+  }
+}

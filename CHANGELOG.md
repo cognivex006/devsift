@@ -8,6 +8,7 @@ All notable user-facing changes to DevSift will be documented here. This follows
 - Moved specifications, plans and maintainer orchestration to devsift-specs. Kept the consumer skill and runtime, replaced plan CI with runtime tests, and documented actual CLI capabilities.
 
 ### Added
+- Immutable source-reproved report assembly with conservative lifecycle trust, explicit unknown impact/consumer evidence, pending proposals and case-scoped read/implement guidance.
 - Reviewed immutable baseline approval/CAS and owner-ticket-expiry waivers, including fail-closed critical-security policy.
 - Bounded native process/protocol host and actual pinned Roslyn, Go AST, ESLint/TypeScript and ScriptDom rules with positive/negative source fixtures.
 - Explicit trusted manifest/digest flags enable native CLI scans with immutable source proof and conservative UNKNOWN lifecycle gating.
