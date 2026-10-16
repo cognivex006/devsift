@@ -18,8 +18,11 @@ means the documented configured rules, not comprehensive language quality.
 
 `--all`, `--changed` (default) and `--paths` are mutually exclusive. Paths are exact
 repository-relative file paths, not directory expansion; the resulting scope is
-explicit in output. Changed scope uses existing filter-free staged, unstaged and
-untracked Git selection. Every actual analyzed snapshot must match immutable HEAD,
+explicit in output. Changed CI scope requires `--base` and unions the immutable
+merge-base-to-HEAD committed delta with existing filter-free staged, unstaged and
+untracked Git selection. A missing/ambiguous base cannot turn an empty worktree
+diff into a successful PR scan. The ordinary `scan --changed` command retains its
+working-tree selection semantics. Every actual analyzed snapshot must match immutable HEAD,
 including clean snapshots: dirty or untracked clean text cannot hide a finding
 in committed source. Unresolved, parse-failed or unavailable work remains 2.
 
@@ -37,7 +40,8 @@ policy's supported thresholds; Warning/Suggestion are not silently promoted to
 blocking rules. Verified legacy security flags remain independently escalated;
 the public CI entry returns 2 with SECURITY_REVIEW_REQUIRED when quality analysis
 would otherwise return 0 but independent security review is still required.
-There is no public waiver for that review. Invalid arguments return 3 safely.
+There is no public waiver for that review: GateConfig rejects a false
+require_security_review value too. Invalid arguments return 3 safely.
 
 The library API is `run_ci(root, native_manifest=..., native_manifest_digest=...,
 base_ref=None, all_scope=False, paths=None, security=False, config=GateConfig())`.

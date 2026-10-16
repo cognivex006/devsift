@@ -169,5 +169,15 @@ class CiGateTests(unittest.TestCase):
             self.assertNotIn('private-', completed.stderr)
 
     def test_gate_configuration_uses_strict_types(self):
-        for args in [(True,), ('private',), ('Warning',), ('Error', 1)]:
+        for args in [(True,), ('private',), ('Warning',), ('Error', 1), ('Error', False)]:
             with self.assertRaises(CiError): GateConfig(*args)
+
+    def test_default_ci_changed_scope_includes_committed_base_to_head_source(self):
+        self.source('try:\n    work()\nexcept:\n    pass\n')
+        outcome = run_ci(self.root, native_manifest=self.manifest, native_manifest_digest=self.digest,
+                         base_ref=self.base)
+        self.assertEqual(outcome.exit_code, 1)
+        self.assertEqual([target['path'] for target in outcome.to_dict()['data']['targets']], ['code.py'])
+        self.assertEqual(outcome.to_dict()['data']['counts']['executed'], 1)
+        ambiguous = run_ci(self.root, native_manifest=self.manifest, native_manifest_digest=self.digest)
+        self.assertEqual(ambiguous.exit_code, 2)

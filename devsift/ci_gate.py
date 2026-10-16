@@ -7,7 +7,7 @@ import re
 import subprocess
 
 from .adapters import AdapterCapability
-from .cli_scan import _git, changed_candidates
+from .cli_scan import _filter_config, _git, changed_candidates
 from .git_changes import classify
 from .native_host import NativeAdapter
 from .native_manifest import load_manifest
@@ -27,7 +27,7 @@ class GateConfig:
     def __post_init__(self):
         if (type(self.minimum_severity) is not str
                 or self.minimum_severity not in ('Critical', 'Error')
-                or type(self.require_security_review) is not bool):
+                or self.require_security_review is not True):
             raise CiError('Invalid CI gate configuration') from None
 
     def policy(self):
@@ -119,7 +119,18 @@ def run_ci(root, *, native_manifest, native_manifest_digest, base_ref=None,
                 raise CiError('Invalid explicit scan scope')
             candidates, scope = list(paths), 'paths'
         else:
-            candidates, scope = (None, 'all') if all_scope else (changed_candidates(root), 'changed')
+            if all_scope:
+                candidates, scope = None, 'all'
+            else:
+                if base_ref is None:
+                    raise CiError('Changed CI scope requires an immutable base')
+                bases = _git(root, 'merge-base', '--all', base_ref, head).decode('ascii').splitlines()
+                if len(bases) != 1:
+                    raise CiError('Ambiguous comparison base')
+                committed = _git(root, 'diff', '--no-ext-diff', '--no-textconv', '--no-renames',
+                                 '--name-only', '-z', bases[0], head, '--', config=_filter_config(root))
+                candidates = sorted(set(changed_candidates(root)) | {path.decode('utf-8') for path in committed.split(b'\0') if path})
+                scope = 'changed'
         native = tuple(NativeAdapter(entry.tool, repo_root=root, source_sha=head,
                                      dialect=entry.dialect) for entry in configured)
         delegates = [(delegate, None) for delegate in native]
