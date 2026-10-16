@@ -76,9 +76,11 @@
         "T003"
       ],
       "repo": "orchex006/devsift",
-      "status": "pending",
-      "evidence": [],
-      "next_step": "Select a ready entry task",
+      "status": "accepted",
+      "evidence": [
+        "docs/evidence/G001.md"
+      ],
+      "next_step": "Selected goal complete; source classifier and analyzer engine remain later goals",
       "review_budget_minutes": 25,
       "checkpoint_budget_minutes": 15,
       "implementation_budget_minutes": 125,
@@ -1945,13 +1947,19 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "accepted",
       "evidence": [
         {
           "source_sha": "8bc4cc9d82d7428ed3546b7f516800ef58a8c47d",
           "author": "policy_writer",
           "test_command": "python -m unittest discover -s tests -v",
           "test_result": "28 on policy worktree; 8 invariant tests and explicit normative fixtures"
+        },
+        {
+          "reviewer": "reviewer",
+          "review_result": "accepted",
+          "integrated_sha": "4eeac177a8bfc502404d80289a5e2c2052e2f63d",
+          "test_result": "36 integrated tests passed"
         }
       ],
       "assignee": "policy_writer",
@@ -1969,6 +1977,10 @@
         },
         {
           "status": "in_review",
+          "actor": "controller"
+        },
+        {
+          "status": "accepted",
           "actor": "controller"
         }
       ]
@@ -3974,15 +3986,13 @@
         "source_sha": "e2d569065a59eb5727a0101fd779fe956efd67e5"
       },
       "T003": {
-        "status": "in_review",
+        "status": "accepted",
         "owner": "policy_writer",
         "paths": [
           "tests/test_policy_invariants.py",
           "tests/fixtures/policy/"
         ],
-        "locks": [
-          "write:tests/policy"
-        ],
+        "locks": [],
         "branch": "feature/g001-t003-invariants",
         "base_sha": "18eae178460a3b4e558bad029ba42bf6b5e5980e",
         "source_sha": "8bc4cc9d82d7428ed3546b7f516800ef58a8c47d",
