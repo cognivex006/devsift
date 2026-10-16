@@ -39,10 +39,11 @@ available.
   list as current metadata, with setuptools `83.0.0` as the pinned build
   requirement. The build backend is not a Python runtime dependency.
 - [ ] Resolve license identifiers and notices for the actual shipped
-  components and dependencies using the official
-  [SPDX License List specification](https://spdx.github.io/spdx-spec/v2.3.1/)
-  only when supported by evidence and the owner decision. Current project
-  license decision is pending;
+  components and dependencies using identifiers from the official
+  [SPDX License List](https://spdx.org/licenses/) and expressions following the
+  [SPDX Specification 2.3.1](https://spdx.github.io/spdx-spec/v2.3.1/), only when
+  supported by evidence and the owner decision. Current project license
+  decision is pending;
   preserve unknown/not-determined values as `NOASSERTION` where the chosen SBOM
   format defines that value. This records uncertainty and is not legal approval.
 - [ ] Obtain owner-selected project license and approval before adding license

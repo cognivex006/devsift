@@ -63,7 +63,13 @@ class ReleaseDryRunTests(unittest.TestCase):
         result = check_release_readiness(bundle_a, source_sha=self.sha, integrity_sha256=trusted)
         inspections = next(check for check in result["checks"] if check["name"] == "bounded_archive_security_inspection")
         self.assertEqual(len(inspections["archives"]), 4)
-        self.assertTrue(all(item["complete"] or item["issues"] for item in inspections["archives"]))
+        observed = {item["name"]: item["issues"] for item in inspections["archives"]}
+        self.assertEqual(observed, {
+            "devsift-consumer-skill.zip": [],
+            "devsift-core-sdist-source.zip": ["RECOGNIZED_SENSITIVE_SHAPE"],
+            "devsift-core-wheel-source.zip": ["RECOGNIZED_SENSITIVE_SHAPE"],
+            "devsift-source-assets.zip": ["RECOGNIZED_SENSITIVE_SHAPE"],
+        })
         self.assertEqual(result["status"], "incomplete")
         self.assertEqual(result["verified_archives"], sorted(item["archive"] for item in integrity["components"]))
         self.assertIn("OWNER_LICENSE_APPROVAL_PENDING", result["blockers"])

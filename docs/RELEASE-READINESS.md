@@ -36,11 +36,12 @@ placeholder, not the owner-selected software release version. Select a
 software-facing version under [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html)
 through the authorized owner process; Specification v6 is not a software release.
 
-Use identifiers or expressions from the official
-[SPDX License List specification](https://spdx.github.io/spdx-spec/v2.3.1/)
-only after the owner decision and component evidence support them. The project
-license remains unselected. Where an SBOM format permits `NOASSERTION`, it may
-record an unknown value; it is not approval or a substitute for legal review.
+Use identifiers from the official [SPDX License List](https://spdx.org/licenses/)
+only after the owner decision and component evidence support them. Use SPDX
+expressions according to the [SPDX Specification 2.3.1](https://spdx.github.io/spdx-spec/v2.3.1/).
+The project license remains unselected. Where an SBOM format permits
+`NOASSERTION`, it may record an unknown value; it is not approval or a
+substitute for legal review.
 
 The source SHA identifies Git objects and the expected integrity digest binds
 bundle bytes only when both values are independently trusted by the caller.
@@ -69,10 +70,11 @@ an SBOM, select or approve a license, prove signatures or hosted CI, or authoriz
 publication. Source assets remain subject to every conservative inspection
 finding; no finding is suppressed to obtain a completed result.
 
-The T072 fixture currently produces `RECOGNIZED_SENSITIVE_SHAPE` on the two core
-source archives and source-assets archive. Their digest-bound inspections ran,
-but these findings keep the aggregate readiness result incomplete and require
-review. The test asserts this observed result rather than masking it. The
+In the current T072 fixture, the consumer-skill archive has no reported issue;
+the core wheel source, core sdist source, and source-assets archives each report
+`RECOGNIZED_SENSITIVE_SHAPE`. Their digest-bound inspections ran, but these
+findings keep the aggregate readiness result incomplete and require review.
+The test asserts this observed per-archive distribution rather than masking it. The
 separate accepted T054 tests established actual installation and explicit
 rollback for their tested implementation and fixtures; this T072 test adds no
 pip, native build, install, or rollback evidence. For an owner-selected future
