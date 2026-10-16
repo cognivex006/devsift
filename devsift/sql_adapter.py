@@ -28,7 +28,7 @@ def make_tool(dotnet_executable, artifact_dir):
             for item in deps["libraries"]
         ):
             raise ValueError()
-        return ToolDefinition("devsift-sql", "1.0.0", ("sql",),
+        return ToolDefinition("devsift-sql", "1.1.0", ("sql",),
                               ProcessSpec(str(executable), (str(paths[0]),), max_stdin_bytes=2_000_000),
                               file_digest(executable), tuple((str(path), file_digest(path)) for path in paths),
                               (("scriptdom", SCRIPT_DOM_VERSION),))
