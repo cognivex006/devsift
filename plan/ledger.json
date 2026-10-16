@@ -2493,7 +2493,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "running",
       "evidence": [
         {
           "source_sha": "6566171f9e97962adbc3eb7f595fe6970733bf1d",
@@ -2520,6 +2520,22 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T07:44:26.942989+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "reviewer",
+          "at": "2026-10-16T07:45:28.746919+00:00",
+          "reason": "effective promisor config outside local scope not rejected before verifier; possible lazy fetch"
+        },
+        {
+          "status": "claimed",
+          "actor": "controller",
+          "at": "2026-10-16T07:45:28.746919+00:00"
+        },
+        {
+          "status": "running",
+          "actor": "controller",
+          "at": "2026-10-16T07:45:28.746919+00:00"
         }
       ]
     },
@@ -4351,20 +4367,44 @@
       },
       "T013": {
         "owner": "policy_writer",
-        "status": "in_review",
-        "branch": "feature/g005-classifier",
-        "worktree": "D:/SP-Billy/devsift-dev/devsift-classifier",
+        "status": "running",
+        "branch": "fix/g005-no-lazy-fetch",
+        "worktree": "D:/SP-Billy/devsift-dev/devsift-classifier-rework",
         "paths": [
           "devsift/git_changes.py",
           "tests/test_git_changes.py",
-          "docs/GIT-PROVENANCE.md"
+          "docs/GIT-PROVENANCE.md",
+          "devsift/evidence.py",
+          "tests/test_evidence.py",
+          "docs/EVIDENCE.md"
         ],
-        "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+        "base_sha": "32e052827633cef20161389256b565385b8b3fa4",
         "locks": [
-          "write:engine/git"
+          "write:engine/git",
+          "write:devsift/evidence.py",
+          "contract:git-read-no-network"
         ],
         "lease": "selected G003-G005 session until accepted/reassigned",
-        "source_sha": "6566171f9e97962adbc3eb7f595fe6970733bf1d"
+        "source_sha": null,
+        "prior_jobs": [
+          {
+            "owner": "policy_writer",
+            "status": "in_review",
+            "branch": "feature/g005-classifier",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift-classifier",
+            "paths": [
+              "devsift/git_changes.py",
+              "tests/test_git_changes.py",
+              "docs/GIT-PROVENANCE.md"
+            ],
+            "base_sha": "1ffa2feaea61f3e5ef5ed30d4e9f607f813129e8",
+            "locks": [
+              "write:engine/git"
+            ],
+            "lease": "selected G003-G005 session until accepted/reassigned",
+            "source_sha": "6566171f9e97962adbc3eb7f595fe6970733bf1d"
+          }
+        ]
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
