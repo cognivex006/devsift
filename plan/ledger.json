@@ -2869,8 +2869,14 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "running",
-      "evidence": [],
+      "status": "in_review",
+      "evidence": [
+        {
+          "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c",
+          "test_result": "8externalbaseline invariant tests pass+16invalidwaiver fixtures; trusteddigest/authlimits/CASversions/strictJSON/read-only/expiry/criticalfloor; syntax/diffpassed",
+          "author": "policy_writer"
+        }
+      ],
       "assignee": "policy_writer",
       "reviewer": "reviewer",
       "next_step": "claim when prerequisites accepted",
@@ -2885,6 +2891,11 @@
           "status": "running",
           "actor": "controller",
           "at": "2026-10-16T08:36:20.762077+00:00"
+        },
+        {
+          "status": "in_review",
+          "actor": "controller",
+          "at": "2026-10-16T08:40:33.848279+00:00"
         }
       ]
     },
@@ -4817,7 +4828,7 @@
       },
       "T018": {
         "owner": "policy_writer",
-        "status": "running",
+        "status": "in_review",
         "branch": "feature/g006-baseline-invariants",
         "worktree": "D:/SP-Billy/devsift-dev/devsift/worktrees/g006-invariants",
         "paths": [
@@ -4828,7 +4839,8 @@
         "locks": [
           "write:tests/baseline"
         ],
-        "lease": "selected G006-G010 session until accepted/reassigned"
+        "lease": "selected G006-G010 session until accepted/reassigned",
+        "source_sha": "3727f928e2ebeac6d6f5dc04aff14d223be12b5c"
       }
     },
     "scope": "2026-10-16 user-authorized first three goals; specs published separately; canonical execution ledger lives in code repository",
@@ -4878,8 +4890,8 @@
         "T019",
         "T018"
       ],
-      "latest_integrated_sha": "7db8b9ac54a0360fe71a5e5041c6ae62a0ee8b20",
-      "updated_utc": "2026-10-16T08:40:24.762092+00:00"
+      "latest_integrated_sha": "8a9e1e89d54b4c148758a348b888e40d20e137ba",
+      "updated_utc": "2026-10-16T08:40:33.848279+00:00"
     },
     "previous_checkpoints": [
       {
