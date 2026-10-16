@@ -3349,7 +3349,7 @@
         "Relevant fixtures/tests pass with recorded command and result",
         "Independent reviewer accepts evidence after integration"
       ],
-      "status": "in_review",
+      "status": "running",
       "evidence": [
         {
           "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b",
@@ -3376,6 +3376,11 @@
           "status": "in_review",
           "actor": "controller",
           "at": "2026-10-16T09:25:04.453728+00:00"
+        },
+        {
+          "status": "rework",
+          "actor": "controller",
+          "reason": "review actual native Git scan leaked unrecognized credential names"
         }
       ]
     },
@@ -5353,12 +5358,13 @@
       },
       "T026": {
         "owner": "controller",
-        "status": "in_review",
-        "branch": "feature/g006-g010-native-analysis",
-        "worktree": "D:/SP-Billy/devsift-dev/devsift",
+        "status": "running",
+        "branch": "fix/g009-credential-evidence",
+        "worktree": "D:\\SP-Billy\\devsift-dev\\devsift\\worktrees\\g009-credential-evidence",
         "paths": [
-          "native/frontend/analyze.cjs",
-          "devsift/typescript_adapter.py",
+          "devsift/evidence.py",
+          "devsift/native_host.py",
+          "devsift/scanner.py",
           "tests/test_frontend_rules.py",
           "docs/TYPESCRIPT-ADAPTER.md"
         ],
@@ -5367,7 +5373,27 @@
           "write:rules/frontend"
         ],
         "lease": "selected execution session until accepted/reassigned",
-        "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b"
+        "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b",
+        "prior_jobs": [
+          {
+            "owner": "controller",
+            "status": "in_review",
+            "branch": "feature/g006-g010-native-analysis",
+            "worktree": "D:/SP-Billy/devsift-dev/devsift",
+            "paths": [
+              "native/frontend/analyze.cjs",
+              "devsift/typescript_adapter.py",
+              "tests/test_frontend_rules.py",
+              "docs/TYPESCRIPT-ADAPTER.md"
+            ],
+            "base_sha": "8243543e4de005cd8ad5eb47b8dc63b7ac478472",
+            "locks": [
+              "write:rules/frontend"
+            ],
+            "lease": "selected execution session until accepted/reassigned",
+            "source_sha": "5ee982f324df36c5db41c52625b1d9326877ae1b"
+          }
+        ]
       },
       "T030": {
         "owner": "policy_writer",
