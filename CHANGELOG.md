@@ -4,6 +4,9 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+### Fixed
+- Accept actual Windows 8.3 root/policy/cache aliases in read-only Doctor diagnostics after original-component link/reparse checks, retaining canonical root containment and descriptor identity protection.
+
 ### Changed
 - Expose read-only Doctor config/cache flags and explicit case-input review/proposal commands with bounded JSON, exact operator binding and no automatic source writes. Consumer skill uses isolated bytecode-free installed Python invocations.
 - Add read-only Doctor provider discovery with explicit native-manifest trust, bounded probes, actionable missing-tool diagnostics and matching CLI flags.
