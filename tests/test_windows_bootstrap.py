@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @unittest.skipUnless(os.name == 'nt' and shutil.which('powershell'), 'Windows PowerShell 5.1 required')
 class WindowsBootstrapTests(unittest.TestCase):
-    def run_bootstrap(self, script, *, broken_first=False, tampered=False):
+    def run_bootstrap(self, script, *, broken_first=False, tampered=False, bundle_bytes=None):
         with tempfile.TemporaryDirectory(prefix='devsift-powershell-') as tmp:
             home = Path(tmp) / 'isolated home'
             home.mkdir()
@@ -40,7 +40,7 @@ class WindowsBootstrapTests(unittest.TestCase):
                            'import json,sys\n'
                            'home=Path.home()\n'
                            '(home/"bootstrap-reached.json").write_text(json.dumps({"home":str(home),"python":sys.executable}))\n')
-            archive = stream.getvalue()
+            archive = stream.getvalue() if bundle_bytes is None else bundle_bytes
             resources = {
                 '/' + script: (ROOT / 'scripts' / script).read_bytes(),
                 '/devsift-install.zip': archive,
@@ -89,13 +89,20 @@ if ([System.Environment]::GetEnvironmentVariable('Path', 'User') -ne $actualUser
                 encoded = base64.b64encode(code.encode('utf-16-le')).decode()
                 run = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
                                       '-EncodedCommand', encoded], env=env, capture_output=True,
-                                     text=True, timeout=45)
+                                     text=True, timeout=120 if bundle_bytes is not None else 45)
                 if tampered:
                     self.assertNotEqual(run.returncode, 0)
                     self.assertIn('checksum mismatch', run.stderr)
                     self.assertFalse((home / 'bootstrap-reached.json').exists())
                     return
                 self.assertEqual(run.returncode, 0, run.stdout + run.stderr)
+                if bundle_bytes is not None:
+                    state = json.loads((home / '.local/share/devsift/installation.json').read_text())
+                    for skill in state['skills']:
+                        self.assertTrue((Path(skill) / 'references/REPORT-TEMPLATE.md').is_file())
+                    result = subprocess.run([state['launcher'], '--help'], capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    return
                 marker = json.loads((home / 'bootstrap-reached.json').read_text())
                 self.assertEqual(Path(marker['home']), home)
                 self.assertEqual(Path(marker['python']), Path(sys.executable))
@@ -112,6 +119,10 @@ if ([System.Environment]::GetEnvironmentVariable('Path', 'User') -ne $actualUser
 
     def test_checksum_mismatch_stops_before_python_installer(self):
         self.run_bootstrap('install.ps1', tampered=True)
+
+    @unittest.skipUnless(os.environ.get('DEVSIFT_TEST_INSTALLER_BUNDLE'), 'explicit actual installer bundle path required')
+    def test_actual_bundle_through_downloaded_windows_installer(self):
+        self.run_bootstrap('install.ps1', bundle_bytes=Path(os.environ['DEVSIFT_TEST_INSTALLER_BUNDLE']).read_bytes())
 
 
 if __name__ == '__main__':
