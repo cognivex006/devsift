@@ -73,6 +73,10 @@ manifest อนุญาตเฉพาะโปรแกรมที่ระ�
 
 ## อ่านผลและ exit code
 
+ใช้ [Report template](REPORT-TEMPLATE.md) เป็นแบบฟอร์มรายงานฉบับเต็มสำหรับ AI
+พร้อม [ตัวอย่างรายงาน](cases/REPORT-EXAMPLE.md) Skill ที่ติดตั้งมีทั้งสองไฟล์แนบไปด้วย
+ใน `references/` ให้รายงานทุก case พร้อมหลักฐานและข้อจำกัด ไม่สร้างข้อเสนอหรือผลทดสอบที่ยังไม่มี
+
 คำสั่ง `--help` แสดงข้อความช่วยเหลือบน stdout และคืน exit code `0` ส่วนคำสั่งอื่นที่ใช้
 argument ถูกต้องจะส่ง JSON envelope แม้ผลจะ incomplete; misuse ส่ง JSON บน stderr และคืน
 exit code `3` scan และ CI วางเอกสาร JSON, Markdown และ SARIF
@@ -86,6 +90,20 @@ exit code `3` scan และ CI วางเอกสาร JSON, Markdown แ�
 ```text
 devsift scan --changed --report-format markdown
 ```
+
+คำสั่งนี้ยังส่ง **JSON envelope**; Markdown ที่จัดรูปแบบแล้วอยู่ที่
+`data.reports.markdown` หากต้องการบันทึกเป็น `.md` ให้เลือก path นอก source tree
+อย่างชัดเจนและใช้ UTF-8 ตัวอย่าง PowerShell โดยแทน path ปลายทางก่อนรัน:
+
+```powershell
+$result = devsift scan --changed --report-format markdown | ConvertFrom-Json
+$scanExitCode = $LASTEXITCODE
+$result.data.reports.markdown | Set-Content -LiteralPath 'C:/Reports/devsift-report.md' -Encoding UTF8
+```
+
+`C:/Reports` ต้องมีอยู่ก่อน รักษา `$scanExitCode` และสถานะ complete ไว้ในการสรุปผล
+การเขียนไฟล์สำเร็จไม่ได้แปลว่าผล scan ผ่าน ตัวอย่างนี้บันทึกเฉพาะ rendered Markdown;
+case prompts ต้องใช้ scan envelope เต็มที่บันทึกแยกไว้ ไม่ใช่ไฟล์ `.md`
 
 รายละเอียดการใช้ Python environment เดียวกับที่ติดตั้ง DevSift บน PowerShell และ POSIX
 shell อยู่ใน [คู่มือติดตั้ง](INSTALL.md) และ [เริ่มต้นใช้งาน](GETTING-STARTED.md)

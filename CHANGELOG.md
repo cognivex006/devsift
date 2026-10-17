@@ -4,6 +4,12 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+### Fixed
+- Repair Windows PowerShell 5.1 Python detection in install/update bootstraps and continue past broken PATH candidates; exercise the downloaded scripts through `irm | iex` in real legacy PowerShell.
+
+### Added
+- A visible full report template and illustrative incomplete report, bundled with the consumer skill and linked from report workflows; explain extracting Markdown from the JSON envelope.
+
 ## [0.1.12] - 2026-10-17
 
 ### Fixed

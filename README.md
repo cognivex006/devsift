@@ -55,6 +55,7 @@ Skill มีคู่มือการใช้งานแนบไปด้�
 | เริ่มตรวจครั้งแรก | [เริ่มต้นใช้งาน](docs/GETTING-STARTED.md) |
 | ติดตั้ง อัปเดต และจัดการ PATH | [ติดตั้ง](docs/INSTALL.md) |
 | เลือกคำสั่งและอ่านผล | [คู่มือใช้งาน](docs/USAGE.md) |
+| รูปแบบรายงานฉบับเต็มสำหรับ AI | [Report template](docs/REPORT-TEMPLATE.md) |
 | ใช้ skill หรือ plugin กับ AI | [Agent integrations](docs/AGENT-INTEGRATIONS.md) |
 | แก้ปัญหา | [Troubleshooting](docs/TROUBLESHOOTING.md) |
 | ค้นหาคู่มือและเอกสารอ้างอิง | [เอกสารผู้ใช้](docs/README.md) |

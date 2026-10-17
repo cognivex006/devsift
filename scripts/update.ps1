@@ -7,7 +7,14 @@ try {
     $python = $null
     foreach ($candidate in @('python', 'python3', 'py')) {
         if (Get-Command $candidate -ErrorAction SilentlyContinue) {
-            $probe = & $candidate -I -B -c 'import sys; print(sys.executable if sys.version_info >= (3,12) else "")' 2>$null
+            try {
+                # Windows PowerShell 5.1 strips embedded double quotes in native
+                # arguments. Keep the Python expression free of string literals.
+                $probe = & $candidate -I -B -c 'import sys; sys.exit(1) if sys.version_info < (3,12) else print(sys.executable)' 2>$null
+            } catch {
+                # A broken PATH candidate must not prevent trying python3/py.
+                continue
+            }
             if ($LASTEXITCODE -eq 0 -and $probe) { $python = $probe.Trim(); break }
         }
     }

@@ -40,3 +40,6 @@ jobs:
           PYTHONDONTWRITEBYTECODE: '1'
           PIP_NO_INDEX: '1'
         run: python -B -m unittest discover -s tests -p test_package_install.py -v
+      - name: Verify downloaded installer in Windows PowerShell 5.1
+        if: runner.os == 'Windows'
+        run: python -B -m unittest discover -s tests -p test_windows_bootstrap.py -v
