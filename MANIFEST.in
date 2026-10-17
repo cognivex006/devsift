@@ -43,7 +43,7 @@ include devsift/sql_adapter.py
 include devsift/suppressions.py
 include devsift/typescript_adapter.py
 include devsift/verification_plan.py
-include docs/PACKAGING.md
+include docs/development/PACKAGING.md
 include packaging/manifest.json
 include pyproject.toml
 include tools/package_manifest.py

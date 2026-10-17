@@ -61,19 +61,22 @@ def _allowed(path, component):
     parts = PurePosixPath(path).parts
     module = len(parts) == 2 and parts[0] == 'devsift' and re.fullmatch(r'[a-z_]+\.py', parts[1]) is not None
     metadata = {'MANIFEST.in', 'pyproject.toml', 'packaging/manifest.json',
-                'tools/package_manifest.py', 'docs/PACKAGING.md'}
+                'tools/package_manifest.py', 'docs/development/PACKAGING.md'}
     if component == 'core-wheel':
         _require(module)
     elif component == 'core-sdist':
         _require(module or path in metadata)
     elif component == 'consumer-skill':
-        _require(path in {'skills/devsift/SKILL.md', 'skills/devsift/CONSUMER-SCOPE.md'})
+        _require(path in {'skills/devsift/SKILL.md', 'skills/devsift/CONSUMER-SCOPE.md'}
+                 or (parts[:3] == ('skills', 'devsift', 'references')
+                     and len(parts) in {4, 5} and path.endswith('.md')
+                     and (len(parts) == 4 or parts[3] in {'reference', 'cases'})))
     else:
         native = (len(parts) == 3 and parts[0] == 'native' and parts[1] in {'dotnet', 'sql', 'go', 'frontend'}
                   and PurePosixPath(path).suffix.casefold() in {'.cs', '.csproj', '.json', '.config', '.props', '.targets', '.go', '.mod', '.cjs'})
         schema = len(parts) == 2 and parts[0] == 'schemas' and parts[1].endswith('.schema.json')
         _require(native or schema or path in {'policy/defaults.json', 'policy/schema.json',
-                 'tools/build_native.py', 'docs/NATIVE-SETUP.md', 'docs/NATIVE-PROTOCOL.md'})
+                 'tools/build_native.py', 'docs/NATIVE-SETUP.md', 'docs/development/NATIVE-PROTOCOL.md'})
 
 
 def _plain(path, *, file=False):

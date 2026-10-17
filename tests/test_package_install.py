@@ -116,7 +116,7 @@ class PackageInstallTests(unittest.TestCase):
             info = next(name.split("/")[0] for name in archive.namelist() if name.endswith(".dist-info/METADATA"))
             headers = BytesParser().parsebytes(archive.read(info + "/METADATA"))
             self.assertEqual(headers["Name"], "devsift")
-            self.assertEqual(headers["Version"], "0.0.0.dev0")
+            self.assertEqual(headers["Version"], "0.1.12")
             self.assertNotIn(b"Requires-Dist:", archive.read(info + "/METADATA"))
             self.assertIn(b"Wheel-Version: 1.0", archive.read(info + "/WHEEL"))
             self.assertIn(b"devsift = devsift.cli:main", archive.read(info + "/entry_points.txt"))
@@ -211,7 +211,7 @@ print(json.dumps(actual,sort_keys=True))
                 tar_modules = {}
                 for member in members:
                     parts = PurePosixPath(member.name).parts
-                    self.assertTrue(parts and parts[0] == "devsift-0.0.0.dev0")
+                    self.assertTrue(parts and parts[0] == "devsift-0.1.12")
                     self.assertNotIn("..", parts)
                     self.assertNotIn("\\", member.name)
                     self.assertNotIn(":", member.name)

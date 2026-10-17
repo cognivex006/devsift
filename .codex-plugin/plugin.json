@@ -1,0 +1,6 @@
+{
+  "name": "devsift",
+  "version": "0.1.12",
+  "description": "Source-backed code quality and security analysis with the installed DevSift CLI.",
+  "skills": "./skills/"
+}

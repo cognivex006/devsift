@@ -28,7 +28,7 @@ def snapshot(root):
 
 
 class ConsumerAssetTests(unittest.TestCase):
-    def test_consumer_skill_links_only_consumer_scope_and_uses_isolated_installed_commands(self):
+    def test_consumer_skill_links_only_consumer_scope_and_portable_user_guides(self):
         skill = ROOT / 'skills/devsift/SKILL.md'
         text = skill.read_text(encoding='utf-8')
         self.assertIn('[consumer scope](CONSUMER-SCOPE.md)', text)
@@ -36,16 +36,13 @@ class ConsumerAssetTests(unittest.TestCase):
             if reference == 'CONSUMER-SCOPE.md':
                 self.assertTrue((skill.parent / reference).is_file())
             else:
-                allowed_docs = ('CLI.md', 'CASE-PROMPTS.md', 'REPORT-CONTEXT.md')
-                prefix = 'https://github.com/orchex006/devsift/blob/main/docs/'
-                self.assertTrue(reference.startswith(prefix))
-                leaf = reference[len(prefix):]
-                self.assertIn(leaf, allowed_docs)
-                self.assertTrue((ROOT / 'docs' / leaf).is_file())
-        commands = re.findall(r'`(python[^`]+)`', text)
+                self.assertTrue(reference.startswith('references/'))
+                self.assertTrue((skill.parent / reference).is_file())
+                self.assertNotIn('development/', reference)
+        commands = re.findall(r'`(devsift[^`]+)`', text)
         self.assertTrue(commands)
         for command in commands:
-            self.assertTrue(command.startswith('python -I -B -m devsift'), command)
+            self.assertTrue(command.startswith('devsift'), command)
         for reference in ('DEVELOPMENT.md', 'AGENTS.md', 'devsift-specs', 'planctl', 'plan/ledger.json',
                           'DELEGATION-PACKET', 'REVIEW-CHECKLIST'):
             self.assertNotIn(reference, text)
@@ -63,7 +60,9 @@ class ConsumerAssetTests(unittest.TestCase):
         self.assertEqual(config['project']['scripts'], {'devsift': 'devsift.cli:main'})
         self.assertNotIn('data-files', config['tool']['setuptools'])
         self.assertNotIn('package-data', config['tool']['setuptools'])
-        self.assertEqual({p.name for p in (ROOT / 'skills/devsift').iterdir()}, {'SKILL.md', 'CONSUMER-SCOPE.md'})
+        self.assertEqual({p.name for p in (ROOT / 'skills/devsift').iterdir()}, {'SKILL.md', 'CONSUMER-SCOPE.md', 'references'})
+        self.assertTrue((ROOT / 'skills/devsift/references/USAGE.md').is_file())
+        self.assertFalse((ROOT / 'skills/devsift/references/development').exists())
 
 
 @unittest.skipUnless(os.environ.get('DEVSIFT_TEST_INSTALLED') == '1',

@@ -4,12 +4,15 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+## [0.1.12] - 2026-10-17
+
 ### Fixed
 - Accept actual Windows 8.3 root/policy/cache aliases in read-only Doctor diagnostics after original-component link/reparse checks, retaining canonical root containment and descriptor identity protection.
 
 ### Changed
+- Separate user guides, consumer reference and developer documentation; remove planning identifiers from product documentation and use `devsift` in command examples.
 - Reorganize consumer documentation around Thai first-use, separate CLI/skill installation, everyday commands and troubleshooting; correct stale Doctor flag and pending report-storage examples.
-- Expose read-only Doctor config/cache flags and explicit case-input review/proposal commands with bounded JSON, exact operator binding and no automatic source writes. Consumer skill uses isolated bytecode-free installed Python invocations.
+- Expose read-only Doctor config/cache flags and explicit case-input review/proposal commands with bounded JSON, exact operator binding and no automatic source writes. Consumer skill invokes the installed CLI.
 - Add read-only Doctor provider discovery with explicit native-manifest trust, bounded probes, actionable missing-tool diagnostics and matching CLI flags.
 - Assess finding origin with verified Git provenance, reviewed baselines and expiring waivers while preserving unknown business impact and independent security review.
 
@@ -17,11 +20,11 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 - Development jobs use ignored `worktrees/<job>` inside the source repository; finished integrated or superseded folders are removed while preserving commit refs and cleanup evidence.
 - Published and independently verified the initial 160-file scaffold; historical planner tests now tolerate execution progress.
-- Root task entry paths require T000 acceptance, not full G000 completion; 26 goals and 77 tasks with exact A/B reclassification.
 - Documentation, task ownership, paths and prompts now consistently reference `orchex006/devsift` rather than a generic quality-lint repository.
 - Brand-independent adapters: integration with AgriMap, Drevqon, Axiom is optional, not mandatory.
 
 ### Added
+- Windows/POSIX install and update scripts, private CLI environments, release-asset preparation, and portable offline consumer skills for Codex, Claude Code, Gemini CLI, Antigravity and Cursor with host plugin manifests.
 - Deterministic commit-bound source ZIP bundles with independently trusted integrity checks; actual offline wheel/sdist fresh-install and explicit rollback proof runs on Windows and Linux.
 - Bounded read-only ZIP/wheel secret-shape inspection with full stored/deflate payload integrity checks; incomplete and review results never grant publication authority.
 - Explicit component allowlists and audited wheel/sdist inputs, excluding unlisted source and maintainer assets.
@@ -47,9 +50,8 @@ All notable user-facing changes to DevSift will be documented here. This follows
 - Installable Python CLI shell with strict commands, JSON error envelopes and exit codes 0/1/2/3; unavailable analyzer/report capabilities remain incomplete.
 - Strict policy v1 overlays and immutable 23-rule severity registry, with evidence-aware legacy/unknown enforcement and independent critical-security review.
 - DevSift brand, canonical repository URL, scoped maintainer and consumer skill identities.
-- T000 first-run autopilot to publish the complete v6 scaffold to the initially empty repository and set its professional GitHub Description.
-- Independent bootstrap verification T076, offline kit validator, Linux/Windows plan-validation workflow, README/Contributing/Security scaffolding.
-- G000 bootstrap goal with partial-task dependency gates, preserving 25 prior goal IDs and 75 prior task IDs.
+- First-run bootstrap for the initial repository scaffold and GitHub description.
+- Independent bootstrap verification, offline kit validation and Linux/Windows checks.
 
 ### Security
 - Credential findings withhold the entire verified source region through native output, scanner reproof, classifier and baseline capture; raw-content fingerprints remain distinct.
