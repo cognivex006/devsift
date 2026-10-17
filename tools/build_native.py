@@ -37,7 +37,7 @@ def build(*, progress=None):
         command = [dotnet, 'restore', project + '.csproj', '--configfile', 'NuGet.Config']
         if folder == 'sql':
             command += ['--locked-mode', '--packages', str(ROOT / '.devsift/local/nuget')]
-        report(10 + index * 35, f'Downloading {folder} dependencies (transfer size unknown)')
+        report(10 + index * 35, f'Size unknown | downloading {folder} deps')
         run(command, directory)
         report(25 + index * 35, f'Building {folder} helper')
         run([dotnet, 'publish', project + '.csproj', '-c', 'Release', '--no-restore',
@@ -59,7 +59,7 @@ def build(*, progress=None):
     npm_cli = next((path.resolve() for path in candidates if path.is_file()), None)
     if npm_cli is None:
         raise RuntimeError('Cannot locate installed npm CLI')
-    report(80, 'Downloading frontend dependencies (transfer size unknown)')
+    report(80, 'Size unknown | downloading frontend deps')
     run([node, str(npm_cli), 'ci', '--ignore-scripts', '--no-audit', '--no-fund'], ROOT / 'native/frontend')
     report(95, 'Verifying and pinning native tool manifest')
     # Setup records trusted pins once. Scans load these exact stored expectations
