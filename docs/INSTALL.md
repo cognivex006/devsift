@@ -15,12 +15,21 @@ powershell -ExecutionPolicy Bypass -c "irm https://github.com/orchex006/devsift/
 macOS / Linux:
 
 ```sh
-curl -fsSL https://github.com/orchex006/devsift/releases/latest/download/install.sh | sh
+curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/install.sh | sh
 ```
 
 ตัวติดตั้งดาวน์โหลด `devsift-install.zip` และตรวจ SHA256 จาก release เดียวกันก่อนติดตั้ง
 checksum ตรวจความเสียหายของไฟล์ ไม่ใช่ลายเซ็นรับรองผู้เผยแพร่
 ต้องเชื่อถือ repository และ release ที่เลือกติดตั้ง
+
+ระหว่างทำงานจะแสดงแถบความคืบหน้าเดียวพร้อมเปอร์เซ็นต์และขั้นตอนปัจจุบัน:
+ตรวจ Python → ดาวน์โหลด → ตรวจ checksum → แตก bundle → เตรียม environment →
+ติดตั้ง CLI/skills → ตั้งค่า PATH ดาวน์โหลดแสดงเปอร์เซ็นต์จาก bytes จริง ส่วน
+ขั้นตอนในเครื่องแสดงความคืบหน้ารวมและเวลาที่ผ่านไป เมื่อไม่ทราบขนาดดาวน์โหลด
+จะแสดง `size unknown` พร้อมจำนวน bytes แทนการเดาเปอร์เซ็นต์
+
+หน้าจอปกติไม่แสดง pip/build logs หลังเสร็จสรุปเฉพาะเวอร์ชัน ตำแหน่ง CLI,
+hosts ที่ติดตั้ง และคำสั่งถัดไป หากล้มเหลวจะบอกขั้นตอนและสาเหตุ ไม่แสดงสถานะ Ready
 
 Installer assets เผยแพร่พร้อม [v0.1.12](https://github.com/orchex006/devsift/releases/tag/v0.1.12)
 หากดาวน์โหลดไม่ได้ให้ตรวจ network หรือใช้ source installation ด้านล่าง
@@ -44,7 +53,7 @@ powershell -ExecutionPolicy Bypass -c "irm https://github.com/orchex006/devsift/
 ```
 
 ```sh
-curl -fsSL https://github.com/orchex006/devsift/releases/latest/download/update.sh | sh
+curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/update.sh | sh
 ```
 
 อัปเดต CLI และคู่มือ skill พร้อมกัน ใช้ environment ใหม่และตรวจ help ก่อนเปลี่ยน launcher

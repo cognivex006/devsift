@@ -156,7 +156,8 @@
         "schemas/native-protocol.schema.json",
         "schemas/report.schema.json",
         "schemas/suppression.schema.json",
-        "tools/build_native.py"
+        "tools/build_native.py",
+        "tools/install_progress.py"
       ],
       "optional": []
     }

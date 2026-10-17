@@ -1,9 +1,12 @@
 """Installer failure boundaries and portable launcher behavior in disposable homes."""
 import importlib.util
+from contextlib import redirect_stdout
+import io
 import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
@@ -59,6 +62,22 @@ class InstallerTests(unittest.TestCase):
                 installer.install(self.bundle, self.home, self.bin, ['cursor'])
             create.assert_not_called()
         self.assertEqual((dest / 'SKILL.md').read_text(), 'personal customization')
+
+    def test_failed_install_reports_stage_without_dumping_pip_output(self):
+        def create(path, **kwargs):
+            Path(path).mkdir(parents=True)
+        output = io.StringIO()
+        args = ['install.py', '--bundle', str(self.bundle), '--home', str(self.home), '--progress', 'json']
+        failure = subprocess.CalledProcessError(1, ['pip'], output='UNWANTED_PIP_OUTPUT', stderr='UNWANTED_PIP_ERROR')
+        with patch.object(sys, 'argv', args), patch.object(installer.venv, 'create', side_effect=create), \
+                patch.object(installer.subprocess, 'run', side_effect=failure), redirect_stdout(output):
+            self.assertEqual(installer.main(), 1)
+        events = [json.loads(line) for line in output.getvalue().splitlines()]
+        self.assertEqual(events[-1]['type'], 'error')
+        self.assertEqual(events[-1]['stage'], 'Installing CLI from verified local wheel')
+        self.assertNotIn('UNWANTED_PIP', output.getvalue())
+        self.assertFalse(any(event.get('percent') == 100 for event in events))
+        self.assertEqual(self.launcher.read_text(), 'previous working launcher')
 
     def test_all_hosts_receive_offline_guides_and_selected_state(self):
         def create(path, **kwargs):

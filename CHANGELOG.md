@@ -4,6 +4,10 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+### Changed
+- Show a single installer/update progress display with measured transfer percentages, current setup stage and elapsed time; hide routine pip logs and retain concise completion/error state.
+- Require download feedback in repository development instructions and add it to schema/native setup workflows.
+
 ### Fixed
 - Repair Windows PowerShell 5.1 Python detection in install/update bootstraps and continue past broken PATH candidates; exercise the downloaded scripts through `irm | iex` in real legacy PowerShell.
 

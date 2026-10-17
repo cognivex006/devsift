@@ -19,8 +19,8 @@ powershell -ExecutionPolicy Bypass -c "irm https://github.com/orchex006/devsift/
 **macOS / Linux — ติดตั้ง / อัปเดต:**
 
 ```sh
-curl -fsSL https://github.com/orchex006/devsift/releases/latest/download/install.sh | sh
-curl -fsSL https://github.com/orchex006/devsift/releases/latest/download/update.sh | sh
+curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/install.sh | sh
+curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/update.sh | sh
 ```
 
 Release ปัจจุบันคือ [v0.1.12](https://github.com/orchex006/devsift/releases/tag/v0.1.12)

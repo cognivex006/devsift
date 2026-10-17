@@ -76,7 +76,7 @@ def _allowed(path, component):
                   and PurePosixPath(path).suffix.casefold() in {'.cs', '.csproj', '.json', '.config', '.props', '.targets', '.go', '.mod', '.cjs'})
         schema = len(parts) == 2 and parts[0] == 'schemas' and parts[1].endswith('.schema.json')
         _require(native or schema or path in {'policy/defaults.json', 'policy/schema.json',
-                 'tools/build_native.py', 'docs/NATIVE-SETUP.md', 'docs/development/NATIVE-PROTOCOL.md'})
+                 'tools/build_native.py', 'tools/install_progress.py', 'docs/NATIVE-SETUP.md', 'docs/development/NATIVE-PROTOCOL.md'})
 
 
 def _plain(path, *, file=False):
