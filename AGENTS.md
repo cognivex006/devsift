@@ -19,6 +19,17 @@ reviewed PRs, no direct main writes or force push. Stage only owned files. Run
 relevant tests and diff checks and obtain independent review before merge.
 Releases require separate authorization.
 
+All explicit download workflows must provide live progress bars and transfer
+percentages based on received bytes and a known total (server length or a trusted
+expected size). This is a development rule for new and changed download code.
+When the total is unavailable, show an indeterminate bar/spinner, received bytes
+and "size unknown"; never invent a transfer percentage. Distinguish overall
+setup-stage progress from transfer progress. Update the same console indicator
+instead of printing periodic log lines, keep a concise completion/failure summary,
+and support structured/noninteractive output without terminal control noise.
+Test known-size, unknown-size, interruption and checksum-failure behavior. This
+rule does not authorize network activity during read-only scans.
+
 Scans and reviews are read-only. Native execution requires an explicitly trusted
 manifest and digest. No target builds, automatic dependency installation or mass
 remediation. Consumer edits require user authorization and applicable target

@@ -27,3 +27,16 @@ retained for operator rollback. Skill/plugin copying and PATH changes are not a
 multi-directory transaction; a filesystem failure during host directory replacement can
 leave a partial host update while preserving the previous launcher. Re-run after correcting the error. Installer release
 checksums detect corruption but do not authenticate a publisher independently.
+
+Shell bootstraps own one overall setup bar. Download ranges reflect actual
+received bytes/Content-Length and expose a separate transfer percentage; unknown
+lengths show bytes and `size unknown`. The verified Python bootstrap emits a
+private JSON-lines progress protocol with stage/percent/elapsed events, a final
+state, or an error. Shells consume these records without showing them as logs.
+`tools/install_progress.py` also renders one-line progress for direct Python setup
+and keeps pip output captured. No timer increases a percentage: heartbeat updates
+only the spinner and elapsed time. Redirected human output contains a concise
+final summary; structured protocol output is for the shell relay.
+
+The development download-feedback rule is in [AGENTS.md](../../AGENTS.md) and
+[DEVELOPMENT.md](../../DEVELOPMENT.md); it applies to schema and native setup too.

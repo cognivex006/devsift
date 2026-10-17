@@ -27,6 +27,7 @@ def build(root, output):
         subprocess.run([sys.executable, '-I', '-B', '-m', 'pip', 'wheel', '--no-deps',
                         '--no-build-isolation', '--wheel-dir', str(stage / 'wheels'), str(root)], check=True)
         shutil.copy2(root / 'tools/install.py', stage / 'install.py')
+        shutil.copy2(root / 'tools/install_progress.py', stage / 'install_progress.py')
         for entry in skill_files:
             target = stage / entry.path
             target.parent.mkdir(parents=True, exist_ok=True)

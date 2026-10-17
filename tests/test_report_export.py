@@ -1,5 +1,6 @@
 import copy
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -118,6 +119,25 @@ class ReportExportTests(GitFixture, unittest.TestCase):
 
 
 class ValidationSetupTests(unittest.TestCase):
+    def test_schema_progress_uses_actual_pinned_byte_count_and_verifies_before_ready(self):
+        from tools import setup_validation
+        data = b'fixture schema bytes' * 4000
+        events = []
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / 'schema.json'
+            with patch.object(setup_validation, 'SCHEMA_PATH', target), \
+                    patch.object(setup_validation, 'SCHEMA_BYTES', len(data)), \
+                    patch.object(setup_validation, 'SCHEMA_SHA256', hashlib.sha256(data).hexdigest()), \
+                    patch.object(setup_validation.urllib.request, 'urlopen', return_value=io.BytesIO(data)):
+                setup_validation.setup_schema(progress=lambda percent, stage: events.append((percent, stage)))
+            self.assertEqual(target.read_bytes(), data)
+            self.assertEqual(events[-1], (100, 'Pinned schema ready'))
+            transfers = [stage for _, stage in events if 'expected bytes' in stage]
+            self.assertGreater(len(transfers), 1)
+            self.assertIn(f'{len(data)} / {len(data)} expected bytes', transfers[-1])
+            self.assertLess(next(i for i, event in enumerate(events) if event[1] == 'Verifying pinned schema checksum'),
+                            next(i for i, event in enumerate(events) if event[0] == 100))
+
     def test_wrong_schema_download_hash_never_creates_trusted_cache(self):
         from tools import setup_validation
         with tempfile.TemporaryDirectory() as directory:
