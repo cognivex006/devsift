@@ -43,7 +43,9 @@ def build(root, output):
     digest = hashlib.sha256(archive.read_bytes()).hexdigest()
     (output / 'devsift-install.zip.sha256').write_text(digest + '  devsift-install.zip\n')
     for name in ('install.ps1', 'update.ps1', 'install.sh', 'update.sh'):
-        shutil.copy2(root / 'scripts' / name, output / name)
+        # Windows checkouts may use CRLF; POSIX shells need LF script assets.
+        (output / name).write_text((root / 'scripts' / name).read_text(encoding='utf-8'),
+                                   encoding='utf-8', newline='\n')
     return archive
 
 
