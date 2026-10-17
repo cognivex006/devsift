@@ -57,7 +57,10 @@ class ArtifactSecurityTests(unittest.TestCase):
         source = self.root / 'consumer'
         source.mkdir()
         (source / 'value.py').write_text('value = 1\n')
-        for args in (('init', '-q'), ('add', '--all'), ('-c', 'user.name=Fixture',
+        # Background Git maintenance is unrelated to the archive inspection and
+        # must not race the exact source/Git metadata nonmutation snapshot.
+        for args in (('init', '-q'), ('config', 'maintenance.auto', 'false'),
+                     ('config', 'gc.auto', '0'), ('add', '--all'), ('-c', 'user.name=Fixture',
                      '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgSign=false', 'commit', '-qm', 'fixture')):
             subprocess.run(['git', '-C', str(source), *args], check=True, capture_output=True)
         marker = self.root / 'ARCHIVE_SOURCE_EXECUTED'

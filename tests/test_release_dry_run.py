@@ -35,6 +35,7 @@ class ReleaseDryRunTests(unittest.TestCase):
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / name, target)
         for args in (("init", "-q"), ("config", "core.autocrlf", "false"), ("config", "core.hooksPath", str(self.parent / "no-hooks")),
+                     ("config", "maintenance.auto", "false"), ("config", "gc.auto", "0"),
                      ("add", "--all"), ("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
                       "-c", "commit.gpgSign=false", "commit", "-qm", "four component dry run")):
             subprocess.run(["git", "-C", str(self.source), *args], check=True, capture_output=True)
