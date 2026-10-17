@@ -33,6 +33,11 @@ class ReleaseReadinessTests(unittest.TestCase):
             target = self.root / name
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / name, target)
+            # This suite needs a deliberately shape-free bundle to exercise
+            # successful check completion. Real consumer docs include a fake
+            # credential walkthrough; the full dry run tests those actual bytes.
+            if name.startswith('skills/devsift/references/'):
+                target.write_text('Read-only consumer reference fixture.\n', encoding='utf-8')
         for args in (("init", "-q"), ("config", "core.autocrlf", "false"), ("add", "--all"),
                      ("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
                       "-c", "commit.gpgSign=false", "commit", "-qm", "fixture")):

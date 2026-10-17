@@ -65,7 +65,7 @@ class ReleaseDryRunTests(unittest.TestCase):
         self.assertEqual(len(inspections["archives"]), 4)
         observed = {item["name"]: item["issues"] for item in inspections["archives"]}
         self.assertEqual(observed, {
-            "devsift-consumer-skill.zip": [],
+            "devsift-consumer-skill.zip": ["RECOGNIZED_SENSITIVE_SHAPE"],
             "devsift-core-sdist-source.zip": ["RECOGNIZED_SENSITIVE_SHAPE"],
             "devsift-core-wheel-source.zip": ["RECOGNIZED_SENSITIVE_SHAPE"],
             "devsift-source-assets.zip": ["RECOGNIZED_SENSITIVE_SHAPE"],

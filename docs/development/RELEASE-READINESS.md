@@ -69,8 +69,7 @@ an SBOM, select or approve a license, prove signatures or hosted CI, or authoriz
 publication. Source assets remain subject to every conservative inspection
 finding; no finding is suppressed to obtain a completed result.
 
-In the current release dry-run fixture, the consumer-skill archive has no reported issue;
-the core wheel source, core sdist source, and source-assets archives each report
+In the current release dry-run fixture, all four component archives report
 `RECOGNIZED_SENSITIVE_SHAPE`. Their digest-bound inspections ran, but these
 findings keep the aggregate readiness result incomplete and require review.
 The test asserts this observed per-archive distribution rather than masking it. The
@@ -78,6 +77,12 @@ separate installation tests established actual installation and explicit
 rollback for their tested implementation and fixtures; this release dry-run test adds no
 pip, native build, install, or rollback evidence. For an owner-selected future
 candidate or changed assets, obtain candidate-matched release evidence.
+
+The consumer guide includes an intentionally fake credential in its walkthrough.
+Manual inspection of the current source components also identifies constructor
+parameters named `token` and a SQL lambda parameter as bounded-detector matches.
+These observations do not disable the detector or turn its incomplete result
+into a clean scan; the release inventory retains the raw audit outcome.
 
 See [RELEASE-DRAFT.md](RELEASE-DRAFT.md) for non-final notes and
 [RELEASE-CHECKLIST.md](RELEASE-CHECKLIST.md) for separate candidate and release
