@@ -13,6 +13,8 @@
 | ตรวจ codebase เดิม | [MIGRATION](MIGRATION.md) |
 | ตั้งค่า native analyzers | [NATIVE-SETUP](NATIVE-SETUP.md) |
 | อ่าน report จากตัวอย่าง | [REPORT-WALKTHROUGH](cases/REPORT-WALKTHROUGH.md) |
+| แบบฟอร์มรายงานฉบับเต็มสำหรับผู้ใช้และ AI | [REPORT-TEMPLATE](REPORT-TEMPLATE.md) |
+| ดูรูปแบบรายงานเมื่อผลไม่ครบ | [REPORT-EXAMPLE](cases/REPORT-EXAMPLE.md) |
 
 ## รายละเอียดอ้างอิง
 

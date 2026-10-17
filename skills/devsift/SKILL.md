@@ -21,7 +21,7 @@ Read [the usage cookbook](references/USAGE.md) for the requested workflow; all c
 | Diagnose availability or explicit policy/cache | `devsift doctor`; see [Doctor](references/reference/DOCTOR.md) |
 | Use trusted native analyzers | Supply manifest and digest together; see [native setup](references/NATIVE-SETUP.md) |
 | Gate committed changes in CI | `devsift ci --changed --base TRUSTED_BASE_REF` plus manifest/digest; see [CI](references/reference/CI-GATE.md) |
-| Select or save reports | Read `data.reports`, select with `--report-format`; saving needs an explicit destination outside source |
+| Present, format or save reports | Read [report template](references/REPORT-TEMPLATE.md) and `data.reports`; select with `--report-format`; saving needs an explicit destination outside source |
 | Review a finding or prepare a proposal | Use the exact case and saved envelope as below |
 | Configure project policy | See [project policy](references/reference/PROJECT-POLICY.md) |
 | Explain a stored case / fetch latest report | Storage backend pending; explain the limit and use current scan reports |
@@ -36,6 +36,8 @@ Use `devsift scan --changed` for working changes, or `scan --all --legacy-mode r
 For an introduced-code quality gate use `ci --base <trusted-base-ref>` with the same manifest/digest pair and an explicit scope. CI includes committed PR changes as well as working changes. Missing tools, unresolved history and incomplete analysis remain exit 2; verified legacy security review is independent of quality thresholds.
 
 Inspect the command, scope, completion, errors, coverage and findings. Empty findings with incomplete analysis prove nothing. Preserve UNKNOWN and unresolved source; a changed file does not make every finding new. Full JSON, Markdown and SARIF reports are in `data.reports`; select formats with `--report-format`. Explain only verified locations/SHA and actual rule evidence, mask credentials, and state missing consumer/effect evidence.
+
+When the user requests a full report, use the bundled [report template](references/REPORT-TEMPLATE.md) with a summary/index and a full section for every returned case, including verified BEFORE, the actual proposal status, both impact directions, validation/rollback and review/proposal prompts. The CLI's rendered Markdown is already in `data.reports.markdown`; do not substitute invented evidence while formatting it. `--report-format markdown` still emits a JSON envelope, not a Markdown file. Missing source, proposals or test results stay explicitly unavailable/UNKNOWN. See the [illustrative report](references/cases/REPORT-EXAMPLE.md) for an incomplete result with no cases.
 
 Doctor optionally accepts `--policy <explicit-json>` and `--cache-path <explicit-directory>` for read-only diagnostics. It does not create or clean caches. Provider readiness is not proof of a clean source scan.
 
