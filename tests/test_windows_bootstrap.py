@@ -88,7 +88,7 @@ if ([System.Environment]::GetEnvironmentVariable('Path', 'User') -ne $actualUser
                 env = {key: value for key, value in env.items() if key.upper() != 'PSMODULEPATH'}
                 encoded = base64.b64encode(code.encode('utf-16-le')).decode()
                 run = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-ExecutionPolicy', 'Bypass',
-                                      '-EncodedCommand', encoded], env=env, capture_output=True,
+                                      '-EncodedCommand', encoded], env=env, cwd=tmp, capture_output=True,
                                      text=True, timeout=120 if bundle_bytes is not None else 45)
                 if tampered:
                     self.assertNotEqual(run.returncode, 0)
