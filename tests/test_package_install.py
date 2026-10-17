@@ -193,7 +193,7 @@ print(json.dumps(actual,sort_keys=True))
             integrity = next(item.sha256 for item in artifacts if item.name == "integrity.json")
             self.assertEqual(verify_bundle(bundle, expected_integrity_sha256=integrity, expected_source_sha=fixture_sha), artifacts)
             with zipfile.ZipFile(bundle / "devsift-consumer-skill.zip") as archive:
-                self.assertEqual(archive.namelist(), ["skills/devsift/CONSUMER-SCOPE.md", "skills/devsift/SKILL.md"])
+                self.assertEqual(archive.namelist(), manifest["components"]["consumer-skill"]["required"])
                 self.assertIn(b"CONSUMER-SCOPE.md", archive.read("skills/devsift/SKILL.md"))
             with zipfile.ZipFile(bundle / "devsift-source-assets.zip") as archive:
                 self.assertEqual(archive.namelist(), manifest["components"]["source-assets"]["required"])
