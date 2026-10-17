@@ -21,6 +21,7 @@ class PosixBootstrapTests(unittest.TestCase):
     def run_bootstrap(self, *, unknown=False, tampered=False, bundle=None):
         import pty
         import select
+        import termios
         import time
         with tempfile.TemporaryDirectory(prefix='devsift-posix-') as tmp:
             home = Path(tmp) / 'home'
@@ -55,6 +56,7 @@ class PosixBootstrapTests(unittest.TestCase):
             thread.start()
             process = None
             master, slave = pty.openpty()
+            termios.tcsetwinsize(slave, (24, 72))
             try:
                 script = Path(tmp) / 'install.sh'
                 script.write_text((ROOT / 'scripts/install.sh').read_text().replace(
@@ -83,6 +85,8 @@ class PosixBootstrapTests(unittest.TestCase):
                 output = b''.join(parts).decode()
                 self.assertIn('\r', output)
                 self.assertIn('% setup', output)
+                frames = [frame.split('\n', 1)[0] for frame in output.split('\r') if '% setup' in frame]
+                self.assertTrue(all(len(frame) <= 71 for frame in frames))
                 if unknown:
                     self.assertIn('size unknown', output)
                     self.assertNotRegex(output, r'Downloading DevSift \| \d+%')

@@ -1,5 +1,7 @@
 """Single-line setup UI and a private progress protocol for shell bootstraps."""
 import json
+import os
+import shutil
 import sys
 import threading
 import time
@@ -40,9 +42,16 @@ class Progress:
         elif self.interactive:
             self.tick += 1
             spinner = '|/-\\'[self.tick % 4]
-            filled = self.percent * 24 // 100
-            line = f'{spinner} [{"#" * filled}{"." * (24 - filled)}] {self.percent:3d}% setup | {self.stage} ({elapsed:.1f}s)'
-            self.stream.write('\r' + line.ljust(self.width))
+            try:
+                columns = os.get_terminal_size(self.stream.fileno()).columns
+            except (OSError, ValueError, AttributeError):
+                columns = shutil.get_terminal_size(fallback=(100, 24)).columns
+            columns = max(20, columns or 100)
+            bar_width = min(24, max(4, columns // 5))
+            filled = self.percent * bar_width // 100
+            line = f'{spinner} [{"#" * filled}{"." * (bar_width - filled)}] {self.percent:3d}% setup | {self.stage} ({elapsed:.1f}s)'
+            line = line[:columns - 1]
+            self.stream.write('\r' + line.ljust(min(self.width, columns - 1)))
             self.stream.flush()
             self.width = len(line)
 

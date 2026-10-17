@@ -22,9 +22,13 @@ def progress(percent, label):
     global width, stage
     stage = label
     if interactive:
-        filled = int(percent) * 24 // 100
-        line = '[{}{}] {:3d}% setup | {}'.format('#' * filled, '.' * (24 - filled), int(percent), label)
-        sys.stderr.write('\r' + line.ljust(width))
+        columns = os.get_terminal_size(sys.stderr.fileno()).columns or 100
+        columns = max(20, columns)
+        bar_width = min(24, max(4, columns // 5))
+        filled = int(percent) * bar_width // 100
+        line = '[{}{}] {:3d}% setup | {}'.format('#' * filled, '.' * (bar_width - filled), int(percent), label)
+        line = line[:columns - 1]
+        sys.stderr.write('\r' + line.ljust(min(width, columns - 1)))
         sys.stderr.flush()
         width = len(line)
 

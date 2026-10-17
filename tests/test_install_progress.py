@@ -2,7 +2,9 @@
 from contextlib import redirect_stdout
 import io
 import json
+import os
 import unittest
+from unittest.mock import patch
 
 from tools.install_progress import Progress
 
@@ -13,6 +15,16 @@ class Terminal(io.StringIO):
 
 
 class ProgressTests(unittest.TestCase):
+    def test_narrow_console_does_not_wrap_live_updates_into_scrolling_lines(self):
+        display = Terminal()
+        with patch('tools.install_progress.shutil.get_terminal_size', return_value=os.terminal_size((48, 24))), \
+                Progress(stream=display) as progress:
+            progress.update(25, 'Downloading a long filename | 50% (100000 / 200000 bytes)')
+            progress.update(60, 'Installing CLI')
+        frames = [frame for frame in display.getvalue().split('\r') if frame]
+        self.assertTrue(all(len(frame) <= 47 for frame in frames))
+        self.assertTrue(all('% setup' in frame for frame in frames))
+
     def test_console_reuses_one_line_and_emits_only_final_summary(self):
         display, output = Terminal(), io.StringIO()
         with redirect_stdout(output), Progress(stream=display) as progress:
