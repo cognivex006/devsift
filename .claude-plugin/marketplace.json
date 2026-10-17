@@ -1,0 +1,13 @@
+{
+  "name": "devsift",
+  "owner": {
+    "name": "orchex006"
+  },
+  "plugins": [
+    {
+      "name": "devsift",
+      "source": "./",
+      "description": "DevSift consumer skill"
+    }
+  ]
+}

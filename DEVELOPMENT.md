@@ -6,7 +6,7 @@ Use Python 3.12+. Install with `python -m pip install .`. Run `python -m unittes
 
 Use Conventional Commits, scoped branches and independently reviewed PRs. Update runtime docs and CHANGELOG.md for behavior changes. Releases require separate authorization. Do not copy specification plans, bootstrap tooling or maintainer skills here.
 
-The consumer entrypoint is skills/devsift/SKILL.md. It invokes installed `python -I -B -m devsift` from the target Git root. Keep commands consistent with CLI help, incomplete results and unavailable backends.
+The consumer entrypoint is skills/devsift/SKILL.md. It invokes installed `devsift` from the target Git root. Keep commands consistent with CLI help, incomplete results and unavailable backends.
 
 Create isolated jobs only inside this repository's ignored `worktrees/<job>`:
 
@@ -26,3 +26,5 @@ first, then run `DEVSIFT_TEST_PACKAGE=1` with `test_package_manifest.py` (set th
 environment variable using your shell's syntax). Its opt-in exercises actual
 wheel/sdist construction in disposable fixtures. Archive reproducibility and
 release readiness are separate checks; a passing scan does not publish anything.
+
+Start with [the developer documentation map](docs/development/README.md). Keep user guides in `docs/`, consumer contracts in `docs/reference/`, and implementation/testing/release details in `docs/development/`. Run `python tools/sync_skill_docs.py` after consumer-guide changes.

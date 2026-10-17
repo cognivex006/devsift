@@ -93,7 +93,7 @@
         "devsift/suppressions.py",
         "devsift/typescript_adapter.py",
         "devsift/verification_plan.py",
-        "docs/PACKAGING.md",
+        "docs/development/PACKAGING.md",
         "packaging/manifest.json",
         "pyproject.toml",
         "tools/package_manifest.py"
@@ -103,14 +103,34 @@
     "consumer-skill": {
       "required": [
         "skills/devsift/CONSUMER-SCOPE.md",
-        "skills/devsift/SKILL.md"
+        "skills/devsift/SKILL.md",
+        "skills/devsift/references/AGENT-INTEGRATIONS.md",
+        "skills/devsift/references/GETTING-STARTED.md",
+        "skills/devsift/references/INSTALL.md",
+        "skills/devsift/references/MIGRATION.md",
+        "skills/devsift/references/NATIVE-SETUP.md",
+        "skills/devsift/references/README.md",
+        "skills/devsift/references/TROUBLESHOOTING.md",
+        "skills/devsift/references/USAGE.md",
+        "skills/devsift/references/cases/REPORT-WALKTHROUGH.md",
+        "skills/devsift/references/reference/BASELINE.md",
+        "skills/devsift/references/reference/CASE-PROMPTS.md",
+        "skills/devsift/references/reference/CI-GATE.md",
+        "skills/devsift/references/reference/CLI.md",
+        "skills/devsift/references/reference/DOCTOR.md",
+        "skills/devsift/references/reference/PROJECT-POLICY.md",
+        "skills/devsift/references/reference/REPORT-CONTEXT.md",
+        "skills/devsift/references/reference/REPORT-DECISIONS.md",
+        "skills/devsift/references/reference/REPORT-EXPORT.md",
+        "skills/devsift/references/reference/SCAN-RESULTS.md",
+        "skills/devsift/references/reference/SECURITY-ANALYSIS.md"
       ],
       "optional": []
     },
     "source-assets": {
       "required": [
-        "docs/NATIVE-PROTOCOL.md",
         "docs/NATIVE-SETUP.md",
+        "docs/development/NATIVE-PROTOCOL.md",
         "native/dotnet/DevSift.Roslyn.csproj",
         "native/dotnet/Directory.Build.props",
         "native/dotnet/Directory.Build.targets",

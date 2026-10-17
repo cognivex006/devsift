@@ -1,7 +1,7 @@
 # เริ่มใช้งาน
 
-ติดตั้ง DevSift ตาม [INSTALL.md](INSTALL.md) และเก็บ interpreter ของ Python
-ที่ติดตั้งไว้ให้เรียกใช้ได้หลังเปลี่ยนไปยัง target repository คำสั่ง DevSift
+ติดตั้ง DevSift ตาม [INSTALL.md](INSTALL.md) และให้ `devsift` อยู่บน PATH
+ที่ terminal และ agent host เรียกใช้ได้หลังเปลี่ยนไปยัง target repository คำสั่ง DevSift
 ทำงานจาก Git root ของ target ไม่ต้องใช้ checkout ของ devsift-specs
 
 ## ตรวจครั้งแรกจาก terminal
@@ -9,27 +9,24 @@
 จาก Git root ของ target ให้ตรวจคำสั่งและ provider ก่อน แล้วจึงสั่ง scan:
 
 ```text
-python -I -B -m devsift --help
-python -I -B -m devsift doctor
-python -I -B -m devsift scan --changed
+devsift --help
+devsift doctor
+devsift scan --changed
 ```
 
 `--changed` เลือกไฟล์ staged, unstaged และ untracked ใน working tree หากต้องการ
 inventory ทั้ง repository อย่างชัดเจน ให้ใช้:
 
 ```text
-python -I -B -m devsift scan --all --legacy-mode recommend
+devsift scan --all --legacy-mode recommend
 ```
 
-ต้องใช้ interpreter ที่มี DevSift ติดตั้งอยู่ PowerShell ให้แทน `python` ด้วย
-ตัวแปร interpreter ที่เก็บไว้ (ตัวอย่างในคู่มือติดตั้งใช้ `& $DevSiftPython`)
-ส่วน Linux/macOS ใช้ `"$DEVSIFT_PYTHON"` หรือ activate environment ก่อน
-`-I -B` ป้องกันการ import module จาก consumer มาบัง DevSift และปิดการเขียน
-Python bytecode ระหว่างคำสั่ง
+เรียก `devsift` จาก PATH ที่ติดตั้งไว้ หากหาไม่พบให้เปิด terminal ใหม่แล้วตรวจ
+[การติดตั้ง](INSTALL.md) ก่อน
 
 ## ขอให้ agent host ช่วย
 
-ใน host ที่ติดตั้ง skill ทั้งสองไฟล์ด้วยตนเอง ให้เริ่ม conversation ใหม่ที่
+ใน host ที่ติดตั้ง DevSift skill แล้ว ให้เริ่ม conversation ใหม่ที่
 Git root ของ target แล้วขอ scope ที่ชัดเจน เช่น:
 
 > รัน DevSift กับการเปลี่ยนแปลง staged และ unstaged ของฉัน แสดงว่า analysis
@@ -40,9 +37,7 @@ Git root ของ target แล้วขอ scope ที่ชัดเจน �
 > ทำ inventory repository นี้ด้วย DevSift legacy recommendations โดยคง origin
 > และ impact ที่ยังไม่ทราบไว้ตามจริง และอย่าแก้ไฟล์
 
-agent host อาจต้องตั้งค่า environment/path ของตนเองให้เรียก interpreter ที่ติดตั้ง
-DevSift ได้ ให้ทำตามเอกสารของ host; DevSift ไม่ตั้งค่า host หรือ register skill
-ให้อัตโนมัติ
+ดูตำแหน่ง skill และวิธีเปิดใช้งาน plugin ใน [Agent integrations](AGENT-INTEGRATIONS.md)
 
 ## อ่านสถานะให้ครบก่อนอ่าน findings
 
@@ -68,7 +63,7 @@ Scan และ CI ใส่ JSON, Markdown และ SARIF ที่เลือ
 บันทึกไว้โดยชัดแจ้ง แล้วตรวจ source ซ้ำเพื่อสร้าง prompt เท่านั้น ความสำเร็จของ
 prompt ไม่ใช่ scan pass ส่วน persisted `report --latest` และ `explain` storage
 discovery ยัง unavailable ดู [วิธีแก้ปัญหา](TROUBLESHOOTING.md) และ
-[รายละเอียด CLI](CLI.md)
+[รายละเอียด CLI](reference/CLI.md)
 
 ## ใช้ native coverage เมื่อจำเป็น
 

@@ -4,7 +4,7 @@ These instructions govern work on the DevSift runtime repository itself. They
 are not consumer-project instructions. Invoking the installed DevSift skill or
 CLI against another repository does not adopt DevSift's branch, commit, review,
 release or task-management conventions. Follow that target's applicable
-instructions and the user's authorized scope. See [agent scope](docs/AGENT-SCOPE.md).
+instructions and the user's authorized scope. See [agent scope](docs/development/AGENT-SCOPE.md).
 
 This repo owns the consumer skill, Python CLI, native analyzers, schemas, runtime
 tests, build/CI and usage docs. Specifications, task cards, the single execution

@@ -1,41 +1,29 @@
-# เอกสาร DevSift
+# เอกสารผู้ใช้ DevSift
 
-DevSift อ่าน source ใน repository แล้วรายงานหลักฐานให้คนตรวจทาน หากเพิ่งเริ่มใช้
-ให้อ่านตามลำดับนี้:
+เอกสารส่วนนี้สำหรับผู้ใช้ CLI และ AI ที่ใช้ DevSift ตรวจโปรเจกต์ของผู้ใช้
+เริ่มจากติดตั้ง → ตรวจครั้งแรก → เลือก workflow
 
-1. [ติดตั้ง](INSTALL.md) CLI ใน Python environment ที่เชื่อถือได้ และถ้า agent host
-   รองรับ skill ให้ติดตั้งไฟล์ skill ทั้งสองไฟล์ตามตำแหน่งที่ host ระบุ
-2. [เริ่มใช้งาน](GETTING-STARTED.md) ด้วยคำสั่ง terminal หรือคำขอใน agent chat
-3. เปิด [วิธีแก้ปัญหา](TROUBLESHOOTING.md) เมื่อ provider ใช้ไม่ได้ ผลไม่ครบ
-   หรือไม่แน่ใจว่าผลหมายถึงอะไร
+| งาน | คู่มือ |
+| --- | --- |
+| ติดตั้งและอัปเดต CLI / skill | [INSTALL](INSTALL.md) |
+| ตรวจครั้งแรก | [GETTING-STARTED](GETTING-STARTED.md) |
+| คำสั่งใช้งานประจำวันและอ่านผล | [USAGE](USAGE.md) |
+| Codex / Claude / Gemini / Antigravity / Cursor | [AGENT-INTEGRATIONS](AGENT-INTEGRATIONS.md) |
+| แก้ปัญหาการติดตั้งและผลไม่ครบ | [TROUBLESHOOTING](TROUBLESHOOTING.md) |
+| ตรวจ codebase เดิม | [MIGRATION](MIGRATION.md) |
+| ตั้งค่า native analyzers | [NATIVE-SETUP](NATIVE-SETUP.md) |
+| อ่าน report จากตัวอย่าง | [REPORT-WALKTHROUGH](cases/REPORT-WALKTHROUGH.md) |
 
-## คู่มือผู้ใช้
+## รายละเอียดอ้างอิง
 
-- [ติดตั้ง](INSTALL.md): checkout ที่เชื่อถือได้, Python virtual environment,
-  ติดตั้ง skill ด้วยตนเอง และ native helper ที่เป็นทางเลือก
-- [เริ่มใช้งาน](GETTING-STARTED.md): ตรวจครั้งแรก เลือก scope และอ่านผล
-- [คู่มือคำสั่ง](USAGE.md): command cookbook และคำแนะนำการใช้งานเพิ่มเติม
-- [วิธีแก้ปัญหา](TROUBLESHOOTING.md): อาการจาก setup และผลวิเคราะห์ที่พบบ่อย
-- [นำไปใช้กับ codebase เดิม](MIGRATION.md): ค่อย ๆ ตรวจ legacy findings
-- [ตัวอย่าง report](cases/REPORT-WALKTHROUGH.md): source proof, redaction และ
-  กรณีที่ยังยืนยันไม่ได้ ผ่านตัวอย่างชั่วคราว
+[CLI](reference/CLI.md), [Doctor](reference/DOCTOR.md), [CI gate](reference/CI-GATE.md),
+[security](reference/SECURITY-ANALYSIS.md), [case prompts](reference/CASE-PROMPTS.md),
+[project policy configuration](reference/PROJECT-POLICY.md), [baseline](reference/BASELINE.md),
+[scan results](reference/SCAN-RESULTS.md), [report context](reference/REPORT-CONTEXT.md),
+[report decisions](reference/REPORT-DECISIONS.md) และ [report export](reference/REPORT-EXPORT.md)
 
-## คำสั่งและความสามารถ
+## พัฒนา DevSift
 
-- [คำสั่ง CLI, JSON envelope และ exit code](CLI.md)
-- [Doctor diagnostics](DOCTOR.md)
-- [ตั้งค่า native tools และ explicit trust](NATIVE-SETUP.md)
-- [CI gate](CI-GATE.md)
-- [ขอบเขต security analysis](SECURITY-ANALYSIS.md)
-- [case prompts และ approval](CASE-PROMPTS.md)
-- [report context](REPORT-CONTEXT.md)
-
-## เอกสารสำหรับผู้ดูแล
-
-[Development](../DEVELOPMENT.md), [packaging](PACKAGING.md) และเอกสารเทคนิคอื่น ๆ
-อธิบายการพัฒนาและดูแล DevSift แผนงานและ execution ledger กลางอยู่ใน
-[devsift-specs](https://github.com/orchex006/devsift-specs); ผู้ใช้ไม่ต้อง checkout
-repository นั้น ใช้ ledger หรือเตรียม maintainer tooling เพื่อใช้ DevSift
-
-เวอร์ชันใน package ตอนนี้คือ `0.0.0.dev0` ซึ่งเป็น placeholder สำหรับการพัฒนา
-ไม่ได้หมายความว่ามี release หรือมีการเลือก license ของโครงการแล้ว
+ผู้ดูแลและ agent ที่พัฒนา DevSift เริ่มที่ [เอกสารพัฒนา](development/README.md)
+ซึ่งแยก architecture, test strategy, repository rules และ release engineering
+ออกจากคู่มือผู้ใช้ ผู้ใช้ไม่ต้องอ่านเอกสารพัฒนาเพื่อตรวจโปรเจกต์ของตน
