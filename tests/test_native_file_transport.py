@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
+from devsift import native_host
 from devsift.inventory import SourceTarget
 from devsift.native_host import ToolDefinition, analyze_snapshot, file_digest, probe_tool
 from devsift.process_runner import ProcessSpec
@@ -105,6 +106,56 @@ print(json.dumps({"protocol_version":"1", "tool_id":"fixture", "tool_version":"1
                 analyze_snapshot(tool, self.target(), transports=('inline', 'files'))
         self.assertEqual(len(directories), 1)
         self.assertFalse(directories[0].exists())
+
+    def test_index_allocation_failure_opens_no_output_descriptor_and_next_file_runs(self):
+        tool, directories, read_descriptors = self.tool(), [], []
+        actual_report, actual_run, actual_open = native_host._file_report, native_host.run_process, os.open
+        class FailingIndex(str):
+            def split(self, *args, **kwargs):
+                raise MemoryError('simulated source index allocation failure')
+        def index_failure(tool, target, text, dialect, redactor, wait_for_completion):
+            return actual_report(tool, target, FailingIndex(text), dialect, redactor, wait_for_completion)
+        def record_directory(process, *, stdin, redactor):
+            if process.argv[-1] == '--analyze-files':
+                directories.append(Path(json.loads(stdin)['diagnostics_file']).parent)
+            return actual_run(process, stdin=stdin, redactor=redactor)
+        def record_open(path, flags, *args, **kwargs):
+            descriptor = actual_open(path, flags, *args, **kwargs)
+            if Path(path).name == 'diagnostics.jsonl' and not flags & os.O_CREAT:
+                read_descriptors.append(descriptor)
+            return descriptor
+        with patch('devsift.native_host._file_report', side_effect=index_failure), \
+                patch('devsift.native_host.run_process', side_effect=record_directory), \
+                patch('devsift.native_host.os.open', side_effect=record_open):
+            report = analyze_snapshot(tool, self.target(), transports=('inline', 'files'))
+        self.assertFalse(report.complete)
+        self.assertEqual(report.reason, 'ANALYSIS_FAILED')
+        self.assertFalse(read_descriptors)
+        self.assertEqual(len(directories), 1)
+        self.assertFalse(directories[0].exists())
+        self.assertTrue(analyze_snapshot(tool, self.target()).complete)
+
+    def test_buffer_allocation_failure_closes_owned_descriptor_and_private_files(self):
+        tool, descriptors, directories = self.tool(), [], []
+        actual_run = native_host.run_process
+        def record_directory(process, *, stdin, redactor):
+            if process.argv[-1] == '--analyze-files':
+                directories.append(Path(json.loads(stdin)['diagnostics_file']).parent)
+            return actual_run(process, stdin=stdin, redactor=redactor)
+        def buffer_failure(descriptor, *args, **kwargs):
+            self.assertIs(kwargs['closefd'], False)
+            descriptors.append(descriptor)
+            raise MemoryError('simulated buffered stream allocation failure')
+        with patch('devsift.native_host.os.fdopen', side_effect=buffer_failure), \
+                patch('devsift.native_host.run_process', side_effect=record_directory):
+            report = analyze_snapshot(tool, self.target(), transports=('inline', 'files'))
+        self.assertFalse(report.complete)
+        self.assertEqual(len(descriptors), 1)
+        with self.assertRaises(OSError):
+            os.fstat(descriptors[0])
+        self.assertEqual(len(directories), 1)
+        self.assertFalse(directories[0].exists())
+        self.assertTrue(analyze_snapshot(tool, self.target()).complete)
 
     def test_explicit_complete_run_outlives_configured_process_deadline(self):
         tool = self.tool('slow', timeout=2)

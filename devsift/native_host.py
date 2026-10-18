@@ -220,31 +220,37 @@ def _file_report(tool, target, text, dialect, redactor, wait_for_completion):
                  and stat.S_ISREG(info.st_mode) and not output.is_symlink()
                  and not (getattr(info, "st_file_attributes", 0) & 0x400))
         flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0)
-        descriptor = os.open(output, flags)
         diagnostics, seen = [], set()
         lines = text.split("\n")
         lengths = [len(line.removesuffix("\r")) for line in lines[:-1]]
         if lines[-1]:
             lengths.append(len(lines[-1]))
-        with os.fdopen(descriptor, "rb") as stream:
-            opened = os.fstat(stream.fileno())
-            _require(stat.S_ISREG(opened.st_mode) and (opened.st_dev, opened.st_ino) == (info.st_dev, info.st_ino))
-            while True:
-                line = stream.readline(16385)
-                if not line:
-                    break
-                _require(len(line) <= 16384 and line.endswith(b"\n"))
-                item = _json(line.decode("utf-8"))
-                _require(type(item) is dict and set(item) == {"rule_id", "region"}
-                         and type(item["rule_id"]) is str and item["rule_id"] in RULES)
-                region = Region.from_dict(item["region"])
-                _require(region.end_line <= len(lengths)
-                         and region.start_column <= lengths[region.start_line - 1] + 1
-                         and region.end_column <= lengths[region.end_line - 1] + 1)
-                identity = (item["rule_id"], region)
-                _require(identity not in seen)
-                seen.add(identity)
-                diagnostics.append(NativeDiagnostic(*identity))
+        # Allocate the source index before owning an output descriptor. Keep
+        # explicit ownership even if buffered-stream construction itself fails.
+        descriptor = os.open(output, flags)
+        try:
+            stream = os.fdopen(descriptor, "rb", closefd=False)
+            with stream:
+                opened = os.fstat(stream.fileno())
+                _require(stat.S_ISREG(opened.st_mode) and (opened.st_dev, opened.st_ino) == (info.st_dev, info.st_ino))
+                while True:
+                    line = stream.readline(16385)
+                    if not line:
+                        break
+                    _require(len(line) <= 16384 and line.endswith(b"\n"))
+                    item = _json(line.decode("utf-8"))
+                    _require(type(item) is dict and set(item) == {"rule_id", "region"}
+                             and type(item["rule_id"]) is str and item["rule_id"] in RULES)
+                    region = Region.from_dict(item["region"])
+                    _require(region.end_line <= len(lengths)
+                             and region.start_column <= lengths[region.start_line - 1] + 1
+                             and region.end_column <= lengths[region.end_line - 1] + 1)
+                    identity = (item["rule_id"], region)
+                    _require(identity not in seen)
+                    seen.add(identity)
+                    diagnostics.append(NativeDiagnostic(*identity))
+        finally:
+            os.close(descriptor)
         _require(len(diagnostics) == count)
         diagnostics.sort(key=lambda item: (item.region.start_line, item.region.start_column,
                                            item.region.end_line, item.region.end_column, item.rule_id))
@@ -275,7 +281,7 @@ def analyze_snapshot(tool, target, *, dialect=None, redactor=None, transports=No
         if executed.status != "completed" or executed.exit_code != 0:
             return NativeReport(False)
         return normalize_report(_json(executed.stdout), tool, text)
-    except (OSError, ValueError, TypeError, UnicodeError, RecursionError):
+    except (OSError, ValueError, TypeError, UnicodeError, RecursionError, MemoryError):
         return NativeReport(False)
 
 
