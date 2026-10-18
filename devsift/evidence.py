@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import codecs
 import hashlib
+import math
 import os
 from pathlib import Path
 import re
@@ -128,7 +129,8 @@ class SourceEvidence:
                 "before": self.before, "reason": self.reason, "lookup_plan": self.lookup_plan}
 
     @classmethod
-    def from_dict(cls, data, *, repo_root=None, redactor=None):
+    def from_dict(cls, data, *, repo_root=None, redactor=None, source_timeout_seconds=10):
+        _source_timeout(source_timeout_seconds)
         _fields(data, ("status", "location", "before", "reason", "lookup_plan"))
         if data["status"] == "SOURCE_UNRESOLVED":
             return cls(**data, redactor=redactor)
@@ -140,7 +142,8 @@ class SourceEvidence:
         _require(location.symbol is None)
         return verify_source(repo_root, location.repository, location.source_sha, location.path,
                              location.region, expected_before=data["before"], redactor=redactor,
-                             sensitive=data["before"] == '[REDACTED]')
+                             sensitive=data["before"] == '[REDACTED]',
+                             source_timeout_seconds=source_timeout_seconds)
 
 
 def _git(root, *args):
@@ -159,8 +162,12 @@ def _git_environment():
 
 
 _SMALL_SOURCE_BYTES = 2_000_000
-_SOURCE_STREAM_SECONDS = 10
 _SOURCE_CHUNK_BYTES = 65_536
+
+
+def _source_timeout(value):
+    _require(value is None or (type(value) in (int, float) and 0 < value <= 3600
+                              and math.isfinite(value)))
 
 
 def _reap_source_process(process):
@@ -172,7 +179,7 @@ def _reap_source_process(process):
     process.wait()
 
 
-def _stream_region(root, blob, byte_count, region):
+def _stream_region(root, blob, byte_count, region, *, timeout_seconds=10):
     """Prove a large immutable blob without retaining source or whole lines.
 
     Only host Git's raw object reader runs: no worktree/filter/textconv, pager,
@@ -185,16 +192,19 @@ def _stream_region(root, blob, byte_count, region):
     a whole-operation timeout on Windows. Every exit, including cancellation,
     kills/reaps the owned Git process and joins the reader before closing handles.
     No source bytes or subprocess diagnostics enter exceptions or logs.
+    Explicit timeout_seconds=None waits until completion or caller cancellation;
+    this changes no object/encoding/bounds proof and never affects metadata reads.
     """
     _require(type(byte_count) is int and byte_count > _SMALL_SOURCE_BYTES)
     _require(re.fullmatch(r'(?:[0-9a-f]{40}|[0-9a-f]{64})', blob) is not None)
+    _source_timeout(timeout_seconds)
     process = None
     try:
         process = subprocess.Popen(
             [git_executable(root), '--no-pager', '-C', str(root), 'cat-file', 'blob', blob],
             stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
             bufsize=0, env=_git_environment())
-        return _read_source_stream(process, blob, byte_count, region)
+        return _read_source_stream(process, blob, byte_count, region, timeout_seconds=timeout_seconds)
     finally:
         # Also cover cancellation/errors before the reader thread is constructed.
         if process is not None:
@@ -202,7 +212,7 @@ def _stream_region(root, blob, byte_count, region):
             process.stdout.close()
 
 
-def _read_source_stream(process, blob, byte_count, region):
+def _read_source_stream(process, blob, byte_count, region, *, timeout_seconds=10):
     finished = threading.Event()
     outcome = {'valid': False, 'failed': False}
 
@@ -251,14 +261,14 @@ def _read_source_stream(process, blob, byte_count, region):
     worker = threading.Thread(target=read, name='devsift-source-proof', daemon=True)
     started = False
     try:
-        deadline = time.monotonic() + _SOURCE_STREAM_SECONDS
+        deadline = None if timeout_seconds is None else time.monotonic() + timeout_seconds
         worker.start()
         started = True
         while not finished.wait(0.05):
-            if time.monotonic() >= deadline:
-                raise subprocess.TimeoutExpired('git source proof', _SOURCE_STREAM_SECONDS)
+            if deadline is not None and time.monotonic() >= deadline:
+                raise subprocess.TimeoutExpired('git source proof', timeout_seconds)
         _require(not outcome['failed'])
-        remaining = max(0.001, deadline - time.monotonic())
+        remaining = None if deadline is None else max(0.001, deadline - time.monotonic())
         _require(process.wait(timeout=remaining) == 0)
         return outcome['valid']
     finally:
@@ -279,18 +289,22 @@ def requires_source_mask(rule_id, source=None):
 
 
 def verify_source(repo_root, repository, source_sha, path, region, *, expected_before=None, redactor=None,
-                  sensitive=False):
+                  sensitive=False, source_timeout_seconds=10):
     """Verify/extract an immutable UTF-8 Git blob region, never follow symlinks.
 
     Invalid input raises a safe contract error. Missing objects, unsupported source
     modes/encoding, invalid source bounds, or mismatches return unresolved evidence.
     Working-tree content and runtime logs are never used to prove source locations.
+    source_timeout_seconds defaults to 10 (finite positive values up to 3600).
+    Explicit None waits for a large blob's full proof until cancellation. Git
+    metadata lookups retain their independent 10-second limits in either mode.
     """
     redactor = redactor or Redactor()
     _require(type(redactor) is Redactor)
     location = SourceLocation(repository, source_sha, path, region)
     _require(expected_before is None or type(expected_before) is str)
     _require(type(sensitive) is bool)
+    _source_timeout(source_timeout_seconds)
     if redactor.text(path) != path:
         return SourceEvidence(reason="SENSITIVE_LOCATION")
     location = SourceLocation(redactor.text(repository), location.source_sha, path, region)
@@ -311,7 +325,8 @@ def verify_source(repo_root, repository, source_sha, path, region, *, expected_b
             return SourceEvidence(reason="UNSUPPORTED_SOURCE")
         byte_count = int(_git(root, "cat-file", "-s", blob.decode("ascii")))
         if byte_count > _SMALL_SOURCE_BYTES:
-            if not _stream_region(root, blob.decode('ascii'), byte_count, region):
+            if not _stream_region(root, blob.decode('ascii'), byte_count, region,
+                                  timeout_seconds=source_timeout_seconds):
                 return SourceEvidence(reason="REGION_UNAVAILABLE")
             # Full-context secret matching is bounded for generic text. Large
             # source is proved, never partially inspected then shown as plaintext.

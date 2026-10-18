@@ -185,10 +185,11 @@ class LargeSourceEvidenceTests(unittest.TestCase):
             if cancelled:
                 patches.append(patch('devsift.evidence.time.monotonic', side_effect=[0, KeyboardInterrupt]))
             else:
-                patches.append(patch('devsift.evidence._SOURCE_STREAM_SECONDS', 0))
+                patches.append(patch('devsift.evidence.time.monotonic', side_effect=[0, 1]))
             with patches[0], patches[1]:
                 with self.assertRaises(KeyboardInterrupt if cancelled else subprocess.TimeoutExpired):
-                    evidence._stream_region(self.root, 'a' * 40, 2_100_000, Region(1, 1, 1, 2))
+                    evidence._stream_region(self.root, 'a' * 40, 2_100_000, Region(1, 1, 1, 2),
+                                            timeout_seconds=0.1)
             self.assertTrue(process.killed)
             self.assertTrue(process.waited)
             self.assertTrue(process.stdout.closed)
@@ -258,13 +259,53 @@ class LargeSourceEvidenceTests(unittest.TestCase):
             processes.append(process)
             return process
 
-        with patch('devsift.evidence.subprocess.Popen', side_effect=slow), \
-                patch('devsift.evidence.time.monotonic', side_effect=[0, KeyboardInterrupt]):
-            with self.assertRaises(KeyboardInterrupt):
-                evidence._stream_region(self.root, blob, 2_100_000, Region(1, 1, 1, 2))
+        import _thread
+        interrupt = threading.Timer(0.1, _thread.interrupt_main)
+        try:
+            with patch('devsift.evidence.subprocess.Popen', side_effect=slow):
+                interrupt.start()
+                with self.assertRaises(KeyboardInterrupt):
+                    evidence._stream_region(self.root, blob, 2_100_000, Region(1, 1, 1, 2),
+                                            timeout_seconds=None)
+        finally:
+            interrupt.cancel()
+            interrupt.join()
         self.assertTrue(processes)
         self.assertTrue(all(p.poll() is not None and p.stdout.stream.closed for p in processes))
         self.assertFalse(any(t.name == 'devsift-source-proof' for t in threading.enumerate()))
+
+    def test_explicit_wait_for_completion_proves_large_source_and_forwards_reproof(self):
+        sha = self.commit(b'x' * 2_100_000 + b'\nlate\n')
+        with patch('devsift.evidence.time.monotonic', side_effect=AssertionError('unexpected deadline')):
+            value = self.prove(sha, source_timeout_seconds=None)
+            again = SourceEvidence.from_dict(value.to_dict(), repo_root=self.root,
+                                             source_timeout_seconds=None)
+        self.assertEqual(value.status, 'VERIFIED')
+        self.assertEqual(again, value)
+        # A normal invocation still selects the finite ten-second default.
+        original = evidence._stream_region
+        with patch('devsift.evidence._stream_region', wraps=original) as streamed:
+            self.assertEqual(self.prove(sha).status, 'VERIFIED')
+        self.assertEqual(streamed.call_args.kwargs['timeout_seconds'], 10)
+
+    def test_source_timeout_contract_is_explicit_bounded_and_not_wire_controlled(self):
+        sha = self.commit(b'x' * 2_100_000)
+        value = self.prove(sha)
+        for invalid in (True, False, 0, -1, 3601, 10 ** 1000, float('nan'), float('inf'), '10', object()):
+            with self.subTest(type=type(invalid).__name__):
+                with self.assertRaises(evidence.EvidenceError):
+                    self.prove(sha, source_timeout_seconds=invalid)
+                with self.assertRaises(evidence.EvidenceError):
+                    SourceEvidence.from_dict(value.to_dict(), repo_root=self.root,
+                                             source_timeout_seconds=invalid)
+        wire = value.to_dict()
+        wire['source_timeout_seconds'] = None
+        with self.assertRaises(evidence.EvidenceError):
+            SourceEvidence.from_dict(wire, repo_root=self.root)
+        for valid in (0.1, 3600, None):
+            with self.subTest(timeout=valid), patch('devsift.evidence._stream_region', return_value=True) as streamed:
+                self.assertEqual(self.prove(sha, source_timeout_seconds=valid).status, 'VERIFIED')
+                self.assertEqual(streamed.call_args.kwargs['timeout_seconds'], valid)
 
 
 if __name__ == '__main__':
