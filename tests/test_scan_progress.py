@@ -58,6 +58,22 @@ class ScanProgressTests(unittest.TestCase):
         self.assertFalse(progress.thread.is_alive())
         self.assertTrue(terminal.getvalue().endswith('\x1b[?25h'))
 
+    def test_interruption_while_starting_renderer_restores_the_reserved_region(self):
+        class InterruptedTerminal(Terminal):
+            calls = 0
+
+            def write(self, value):
+                self.calls += 1
+                if self.calls == 2:
+                    raise KeyboardInterrupt
+                return super().write(value)
+
+        terminal = InterruptedTerminal()
+        with self.assertRaises(KeyboardInterrupt):
+            with ScanProgress(terminal):
+                self.fail('Startup cancellation must propagate before analysis')
+        self.assertTrue(terminal.getvalue().endswith('\x1b[?25h'))
+
     def test_native_console_width_resize_and_cancellation(self):
         code = '''import time
 from devsift.scan_progress import ScanProgress

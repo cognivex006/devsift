@@ -84,21 +84,31 @@ class ScanProgress:
                 self.frame()
                 self.thread = threading.Thread(target=self._heartbeat, daemon=True)
                 self.thread.start()
-            except (OSError, ValueError):
+            except BaseException as error:
                 self.__exit__()
                 self.active = False
+                if not isinstance(error, (OSError, ValueError, RuntimeError)):
+                    raise
         return self
 
     def __exit__(self, *_):
         if self.active:
             self.stopping.set()
-            if self.thread is not None:
-                self.thread.join()
             try:
-                self.stream.write('\r\x1b[2K\x1b[1A\r\x1b[2K\x1b[?25h')
-                self.stream.flush()
-            except (OSError, ValueError):
-                pass
+                if self.thread is not None and self.thread.ident is not None:
+                    self.thread.join()
+            finally:
+                try:
+                    self.stream.write('\r\x1b[2K\x1b[1A\r\x1b[2K\x1b[?25h')
+                    self.stream.flush()
+                except (OSError, ValueError):
+                    pass
+                finally:
+                    self._restore_console()
+        else:
+            self._restore_console()
+
+    def _restore_console(self):
         if self.console_mode is not None:
             import ctypes
             kernel, handle, mode = self.console_mode
