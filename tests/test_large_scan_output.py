@@ -19,6 +19,9 @@ from devsift.scanner import AdapterOutcome, ScanFinding, scan
 
 
 ROOT = Path(__file__).resolve().parents[1]
+# Hosted Windows spends substantial time creating/checkpointing the real 16k
+# filesystem fixture. This is a test-harness hang guard, not a product deadline.
+LARGE_FIXTURE_TIMEOUT = 900
 
 
 class LargeScanOutputTests(unittest.TestCase):
@@ -51,7 +54,7 @@ class LargeScanOutputTests(unittest.TestCase):
             environment = dict(os.environ, PYTHONPATH=str(ROOT), PYTHONDONTWRITEBYTECODE='1')
             completed = subprocess.run([sys.executable, '-B', '-m', 'devsift', 'scan', '--all'],
                                        cwd=root, env=environment, capture_output=True, text=True,
-                                       timeout=180)
+                                       timeout=LARGE_FIXTURE_TIMEOUT)
             self.assertEqual(completed.returncode, 2, completed.stderr)
             self.assertEqual(completed.stderr, '')
             record = json.loads(completed.stdout)
@@ -78,7 +81,8 @@ class LargeScanOutputTests(unittest.TestCase):
             ci = subprocess.run([sys.executable, '-B', '-m', 'devsift', 'ci', '--all',
                                  '--base', 'HEAD', '--native-manifest', str(fixture.manifest),
                                  '--native-manifest-digest', fixture.digest], cwd=root,
-                                env=environment, capture_output=True, text=True, timeout=180)
+                                env=environment, capture_output=True, text=True,
+                                timeout=LARGE_FIXTURE_TIMEOUT)
             self.assertEqual(ci.returncode, 0, ci.stderr)
             self.assertEqual(ci.stderr, '')
             ci_record = json.loads(ci.stdout)

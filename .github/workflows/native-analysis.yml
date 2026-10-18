@@ -13,7 +13,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    # Full real-filesystem and native regressions are slower on hosted Windows.
+    # Keep a CI hang guard without cutting off the large-project proof early.
+    timeout-minutes: 60
     env:
       DEVSIFT_TEST_NATIVE: '1'
       DEVSIFT_TEST_SCHEMA: '1'
