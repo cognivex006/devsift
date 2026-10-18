@@ -4,6 +4,9 @@
 เพียงวิธีเดียวต่อ host เพื่อลด skill ชื่อซ้ำ Plugin มีคู่มือออฟไลน์ แต่ไม่ได้ติดตั้ง
 CLI, native toolchains หรือเปลี่ยนโปรเจกต์เป้าหมายให้เอง
 
+การติดตั้งจาก repository อาจ cache checkout ทั้งหมดรวมเอกสารพัฒนาไว้ในเครื่อง
+แต่ consumer skill มีเฉพาะ workflow/คู่มือผู้ใช้ กฎพัฒนาใน cache ไม่ใช่กติกาของ target project
+
 Catalog ใน repository รองรับ marketplace จาก Git ไม่ต้องสร้าง local bundle
 ส่วนสองบรรทัดและ Copilot ในตัวติดตั้งอยู่ใน Unreleased สำหรับรุ่นถัดไป
 release assets ปัจจุบันยังเป็น 0.1.12 คำสั่งด้านล่างใช้ source บน main หลังรวมการเปลี่ยนแปลง

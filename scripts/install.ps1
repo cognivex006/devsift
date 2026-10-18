@@ -94,7 +94,7 @@ try {
             try { $event = $line | ConvertFrom-Json } catch { throw 'Installer returned an invalid status message.' }
             if ($line.Length -gt 16384) { throw 'Installer status message exceeded the size limit.' }
             if ($event.type -eq 'progress') {
-                if ($event.percent -isnot [ValueType] -or [double]::IsNaN([double]$event.percent) -or
+                if ($event.percent -isnot [ValueType] -or $event.percent -is [bool] -or [double]::IsNaN([double]$event.percent) -or
                     [double]$event.percent -lt 0 -or [double]$event.percent -gt 100 -or
                     $event.stage -isnot [string] -or $event.stage.Length -gt 2048) {
                     throw 'Installer returned an invalid progress event.'

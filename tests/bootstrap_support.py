@@ -43,6 +43,8 @@ class BootstrapCases:
                         source += 'raise SystemExit(7)\n'
                     elif failure == 'event':
                         source += 'print(json.dumps({"type":"progress","percent":"bad","stage":"invalid"}))\n'
+                    elif failure == 'event-bool':
+                        source += 'print(json.dumps({"type":"progress","percent":True,"stage":"invalid"}))\n'
                     else:
                         source += 'print(json.dumps({"type":"complete","state":{"version":"fixture","hosts":["codex","copilot"],"launcher":"fixture"}}))\n'
                     archive.writestr('install.py', source)
@@ -168,7 +170,7 @@ class BootstrapCases:
             self.run_bootstrap(operation, resize=True)
 
     def test_bad_event_child_failure_and_traversal(self):
-        for case in ('event', 'child', 'traversal'):
+        for case in ('event', 'event-bool', 'child', 'traversal'):
             self.run_bootstrap(failure=case)
 
     def test_cancellation_clears_both_variants(self):
