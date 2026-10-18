@@ -201,7 +201,8 @@ def run_doctor(*, native_manifest=None, native_manifest_digest=None, search_path
     native_tools, by_language = [], {}
     for entry in configured:
         original = entry.tool
-        process = replace(original.process, timeout_seconds=min(original.process.timeout_seconds, 5),
+        process = replace(original.process, timeout_seconds=(5 if original.process.timeout_seconds is None
+                                                            else min(original.process.timeout_seconds, 5)),
             max_stdout_bytes=min(original.process.max_stdout_bytes, 32768),
             max_stderr_bytes=min(original.process.max_stderr_bytes, 16384),
             max_stdin_bytes=1)
