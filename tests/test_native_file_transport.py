@@ -35,6 +35,7 @@ assert source.startswith(b'x')
 p=Path(r['diagnostics_file'])
 action=ACTION
 if action=='timeout': time.sleep(10)
+if action=='slow': time.sleep(.7)
 count=1201
 if action=='symlink':
  p.unlink(); p.symlink_to(r['source_file'])
@@ -103,6 +104,12 @@ print(json.dumps({"protocol_version":"1", "tool_id":"fixture", "tool_version":"1
                 analyze_snapshot(tool, self.target(), transports=('inline', 'files'))
         self.assertEqual(len(directories), 1)
         self.assertFalse(directories[0].exists())
+
+    def test_explicit_complete_run_outlives_configured_process_deadline(self):
+        tool = self.tool('slow', timeout=.3)
+        report = analyze_snapshot(tool, self.target(), transports=('inline', 'files'), wait_for_completion=True)
+        self.assertTrue(report.complete)
+        self.assertEqual(len(report.diagnostics), 1201)
 
     def test_invalid_transport_capabilities_are_rejected(self):
         tool = self.tool()

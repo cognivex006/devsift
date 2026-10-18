@@ -307,7 +307,8 @@ class NativeAdapter:
                 try:
                     source = verify_source(self.repo_root, self.repository, self.source_sha,
                                            target.path, diagnostic.region, redactor=self.redactor,
-                                           sensitive=requires_source_mask(diagnostic.rule_id))
+                                           sensitive=requires_source_mask(diagnostic.rule_id),
+                                           source_timeout_seconds=None if self.wait_for_completion else 10)
                     if not _snapshot_matches_commit(self.repo_root, source, target.content):
                         source = SourceEvidence(reason="SOURCE_MISMATCH")
                 except (OSError, ValueError, TypeError):
