@@ -266,27 +266,29 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
 
 def iter_scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (),
               policy=None, redactor: Redactor | None = None, max_bytes=None, should_scan=None):
-    """Yield one redacted envelope per target without retaining repository content.
+    """Yield current readiness, then per-target redacted scan envelopes.
 
     Duplicate case IDs across targets must be checked by the persistent consumer.
     Each target is snapshotted once before analysis and reread only to detect
-    mutation during execution. Closing this iterator closes the inventory.
+    mutation during execution. The first targetless control envelope always
+    validates current readiness, even when every source is skipped by resume.
+    It reads no source. Closing this iterator closes the inventory.
     """
     mode = 'all' if candidates is None else 'incremental'
     targets = iter_inventory(root, candidates, max_bytes=max_bytes)
-    emitted = False
     try:
+        preflight = _scan_snapshot(root, adapters=adapters, policy=policy, redactor=redactor,
+                                   snapshot=Inventory(mode, ()), max_bytes=max_bytes)
+        yield preflight
+        if any(error['code'] == 'INVALID_SCAN_INPUT' for error in preflight['errors']):
+            return
         for target in targets:
-            emitted = True
             if should_scan is not None and not should_scan(target):
                 del target
                 continue
             yield _scan_snapshot(root, adapters=adapters, policy=policy, redactor=redactor,
                                  snapshot=Inventory(mode, (target,)), max_bytes=max_bytes)
             del target
-        if not emitted:
-            yield _scan_snapshot(root, adapters=adapters, policy=policy, redactor=redactor,
-                                 snapshot=Inventory(mode, ()), max_bytes=max_bytes)
     except (ValueError, OSError):
         yield result('scan', complete=False, errors=[{
             'code': 'INVALID_SCAN_INPUT', 'message': 'Invalid scan input or configuration.'}],

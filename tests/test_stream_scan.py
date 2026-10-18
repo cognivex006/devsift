@@ -52,10 +52,10 @@ class StreamScanTests(unittest.TestCase):
         self.assertEqual(next(iter_inventory(self.root)).content, content)
         records = list(iter_scan(self.root, adapters=(CleanAdapter(),)))
         self.assertTrue(records[0]['complete'])
-        self.assertEqual(records[0]['data']['targets'][0]['byte_count'], len(content))
+        self.assertEqual(records[1]['data']['targets'][0]['byte_count'], len(content))
         capped = list(iter_scan(self.root, adapters=(CleanAdapter(),), max_bytes=1))
-        self.assertEqual(capped[0]['data']['targets'][0]['status'], 'too_large')
-        self.assertFalse(capped[0]['complete'])
+        self.assertEqual(capped[1]['data']['targets'][0]['status'], 'too_large')
+        self.assertFalse(capped[1]['complete'])
 
     def test_scan_one_target_at_a_time_and_retains_no_prior_source(self):
         for name in ('a.py', 'b.py', 'c.py'):
@@ -71,6 +71,9 @@ class StreamScanTests(unittest.TestCase):
 
         with patch('devsift.inventory._read_bytes', wraps=_read_bytes) as reader:
             stream = iter_scan(self.root, adapters=(TrackingAdapter(),))
+            control = next(stream)
+            self.assertEqual(control['data']['targets'], [])
+            self.assertEqual(reader.call_count, 0)
             first = next(stream)
             self.assertEqual(reader.call_count, 2)  # snapshot plus mutation check
             self.assertEqual(len(first['data']['targets']), 1)
@@ -98,8 +101,9 @@ class StreamScanTests(unittest.TestCase):
         candidates = ['a.py', 'b.py', 'c.txt', 'missing.py', 'node_modules']
         for adapters in ((), (CleanAdapter(),)):
             actual = list(iter_scan(self.root, candidates, adapters=adapters))
-            self.assertEqual(len(actual), len(candidates))
-            for name, record in zip(sorted(candidates), actual):
+            self.assertEqual(len(actual), len(candidates) + 1)
+            self.assertEqual(actual[0], scan(self.root, [], adapters=adapters))
+            for name, record in zip(sorted(candidates), actual[1:]):
                 self.assertEqual(record, scan(self.root, [name], adapters=adapters))
                 self.assertEqual(len(record['data']['targets']), 1)
 
@@ -115,7 +119,7 @@ class StreamScanTests(unittest.TestCase):
 
         records = list(iter_scan(self.root, adapters=(FindingsAdapter(),),
                                  redactor=Redactor(('private marker',))))
-        for record in records:
+        for record in records[1:]:
             self.assertEqual(len(record['findings']), 1)
             self.assertNotIn('private marker', json.dumps(record))
             self.assertEqual(record['data']['counts']['executed'], 1)
@@ -130,7 +134,7 @@ class StreamScanTests(unittest.TestCase):
                 list(iter_inventory(self.root, ['a.py', '../outside.py']))
             self.assertEqual(reader.call_count, 0)
             records = list(iter_scan(self.root, ['a.py', '../outside.py']))
-            self.assertEqual(records[0]['errors'][0]['code'], 'INVALID_SCAN_INPUT')
+            self.assertEqual(records[-1]['errors'][0]['code'], 'INVALID_SCAN_INPUT')
             self.assertEqual(reader.call_count, 0)
 
     def test_symlink_is_not_followed(self):
@@ -139,7 +143,7 @@ class StreamScanTests(unittest.TestCase):
             (self.root / 'link.py').symlink_to(self.root / 'a.py')
         except OSError:
             self.skipTest('Host cannot create symlinks')
-        record = list(iter_scan(self.root, ['link.py'], adapters=(CleanAdapter(),)))[0]
+        record = list(iter_scan(self.root, ['link.py'], adapters=(CleanAdapter(),)))[1]
         self.assertEqual(record['data']['targets'][0]['status'], 'unsafe')
         self.assertFalse(record['complete'])
 
@@ -158,7 +162,8 @@ class StreamScanTests(unittest.TestCase):
         with patch('devsift.scanner.iter_inventory', side_effect=tracking), patch(
                 'devsift.inventory._read_bytes', wraps=_read_bytes) as reader:
             stream = iter_scan(self.root, adapters=(CleanAdapter(),))
-            next(stream)
+            next(stream)  # readiness only
+            next(stream)  # first source
             stream.close()
             self.assertEqual(reader.call_count, 2)
             self.assertEqual(closed, [True, True])  # mutation check and outer stream
@@ -170,7 +175,7 @@ class StreamScanTests(unittest.TestCase):
             def analyze(self, target):
                 return AdapterOutcome(False, reason='INCOMPLETE_PARSE')
 
-        record = next(iter_scan(self.root, adapters=(Incomplete(),)))
+        record = list(iter_scan(self.root, adapters=(Incomplete(),)))[1]
         self.assertEqual(record['data']['targets'][0]['analysis_reason'], 'INCOMPLETE_PARSE')
         for reason in ('private reason', 'x', 1, 'A' * 129):
             with self.assertRaises(ValueError):
@@ -197,6 +202,7 @@ class StreamScanTests(unittest.TestCase):
                 raise KeyboardInterrupt
 
         stream = iter_scan(self.root, adapters=(Interrupted(),))
+        next(stream)  # readiness precedes source execution
         with self.assertRaises(KeyboardInterrupt):
             next(stream)
         self.assertIsNone(stream.gi_frame)

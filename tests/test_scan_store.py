@@ -53,6 +53,25 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(stored.summary()['data']['target_count'], 1)
         stored.close()
 
+    def test_cached_resume_rechecks_current_provider_availability_and_recovery(self):
+        (self.root / 'a.py').write_text('print(1)')
+        stored = self.run_scan()
+        self.assertEqual(stored.exit_code, 0)
+        stored.close()
+        self.adapter.calls.clear()
+        self.adapter.capability = AdapterCapability('clean', '1', ('python',), False)
+        stored = self.run_scan(resume=True)
+        self.assertEqual(self.adapter.calls, [])
+        self.assertEqual(stored.summary()['data']['target_count'], 1)
+        self.assertEqual(stored.exit_code, 2)
+        self.assertIn('NO_AVAILABLE_ANALYZER', [error['code'] for error in stored.summary()['errors']])
+        stored.close()
+        self.adapter.capability = AdapterCapability('clean', '1', ('python',), True)
+        stored = self.run_scan(resume=True)
+        self.assertEqual(stored.exit_code, 0)
+        self.assertEqual(self.adapter.calls, [])
+        stored.close()
+
     def test_changed_retry_and_deleted_data_is_removed(self):
         for name in ('a.py', 'b.py'):
             (self.root / name).write_text('print(1)')
@@ -64,7 +83,7 @@ class StoreTests(unittest.TestCase):
         stored = self.run_scan(resume=True)
         self.assertEqual(self.adapter.calls, ['a.py'])
         self.assertEqual(stored.summary()['data']['target_count'], 1)
-        self.assertEqual(stored.connection.execute('SELECT count(*) FROM targets').fetchone()[0], 1)
+        self.assertEqual(stored.connection.execute("SELECT count(*) FROM targets WHERE identity<>'empty-scope'").fetchone()[0], 1)
         stored.close()
 
     def test_interruption_retains_complete_work_and_resume(self):
@@ -74,7 +93,8 @@ class StoreTests(unittest.TestCase):
         def interrupted(callback):
             for record in iter_scan(self.root, adapters=(self.adapter,), should_scan=callback):
                 yield record
-                raise KeyboardInterrupt
+                if record['data'].get('targets'):
+                    raise KeyboardInterrupt
 
         with self.assertRaises(KeyboardInterrupt):
             run_streamed(self.root, interrupted, destination=self.destination)
