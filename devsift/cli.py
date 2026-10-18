@@ -45,6 +45,12 @@ def parser() -> Parser:
     ci.add_argument('--security', action='store_true', help='Enable the bounded built-in credential detector alongside native tools.')
     ci.add_argument('--report-format', action='append', choices=['json', 'markdown', 'sarif'],
                     help='Include selected full report formats in the JSON envelope; default includes all three.')
+    for execution in (scan, ci):
+        storage = execution.add_mutually_exclusive_group()
+        storage.add_argument('--report-dir', help='New absolute report/session directory outside source; enables resumable processing.')
+        storage.add_argument('--resume', help='Resume an owned session directory after revalidating source and configuration.')
+        execution.add_argument('--summary', action='store_true',
+                               help='Return compact counts and complete report index; full results remain in the session.')
     explain = commands.add_parser('explain', help='Explain a verified case (backend pending).')
     explain.add_argument('case_id', help='Exact case ID in a verified report.')
     report = commands.add_parser('report', help='Read a report (backend pending); writes no files.')
@@ -77,6 +83,70 @@ def _execution_reports(public_record, scan_record, **options):
                 'errors': [*public_record['errors'], *rendered['errors']],
                 'data': {**public_record['data'], 'reports': {}, 'report_status': 'unavailable'}}
     return rendered
+
+
+def _stored_execution(args, factory, *, policy=None, trusted_lifecycles=False):
+    """Keep full-run state outside source; do not grant trust to target config."""
+    import hashlib
+    import os
+    from pathlib import Path
+    import subprocess
+    import uuid
+    from .cli_scan import _git
+    from .redaction import Redactor
+    from .scan_progress import ScanProgress
+    from .scan_store import StoreError, run_streamed
+    root = Path.cwd().resolve()
+    identity = hashlib.sha256(os.path.normcase(str(root)).encode()).hexdigest()
+    destination = (Path(args.resume or args.report_dir) if args.resume or args.report_dir else
+                   Path.home() / '.local/share/devsift/scans' / identity / uuid.uuid4().hex)
+    try:
+        head = _git(root, 'rev-parse', '--verify', 'HEAD^{commit}').decode('ascii').strip()
+    except (OSError, ValueError, UnicodeError, subprocess.SubprocessError):
+        head = None
+    configuration = {'command': args.command, 'head': head, 'all_scope': args.all,
+                     'native_digest': args.native_manifest_digest, 'security': args.security,
+                     'formats': args.report_format, 'policy': policy,
+                     'legacy_mode': getattr(args, 'legacy_mode', None),
+                     'paths': getattr(args, 'paths', None)}
+    if getattr(args, 'base', None) is not None:
+        try:
+            configuration['base'] = _git(root, 'rev-parse', '--verify', '--end-of-options',
+                                          args.base + '^{commit}').decode('ascii').strip()
+        except (OSError, ValueError, UnicodeError, subprocess.SubprocessError):
+            configuration['base'] = 'unresolved'
+    try:
+        with ScanProgress() as progress:
+            def observed(hook):
+                def select(target):
+                    selected = hook(target)
+                    progress.update(('Analyzing ' if selected else 'Reusing verified result: ')
+                                    + Redactor().text(target.path))
+                    if not selected:
+                        progress.advance(1)
+                    return selected
+                iterator = iter(factory(select))
+                try:
+                    for record in iterator:
+                        progress.advance(len(record['data'].get('targets', [])), len(record['findings']))
+                        yield record
+                    progress.update('Writing complete report pages and verifying coverage')
+                finally:
+                    if hasattr(iterator, 'close'):
+                        iterator.close()
+            return run_streamed(root, observed, destination=destination, resume=bool(args.resume),
+                                configuration=configuration, policy=policy,
+                                trusted_lifecycles=trusted_lifecycles,
+                                formats=None if args.report_format is None else tuple(dict.fromkeys(args.report_format)))
+    except KeyboardInterrupt:
+        return result(args.command, complete=False, errors=[{
+            'code': 'SCAN_INTERRUPTED', 'message': 'Scan interrupted; owned session state is retained for resume.'}],
+            data={'scan_directory': Redactor().text(str(destination)), 'resume_available':
+                  destination.is_dir() and (destination / 'ownership.json').is_file()})
+    except (StoreError, OSError, ValueError):
+        return result(args.command, complete=False, errors=[{
+            'code': 'SCAN_STORAGE_UNAVAILABLE',
+            'message': 'Owned scan/report storage or resume configuration is unavailable.'}])
 
 
 def run(args: argparse.Namespace) -> dict:
@@ -116,14 +186,12 @@ def run(args: argparse.Namespace) -> dict:
                 or re.fullmatch('[0-9a-f]{64}', args.native_manifest_digest) is None):
             raise ArgumentError('CI requires an absolute manifest path and lowercase SHA256 digest.')
         config = GateConfig(args.minimum_severity)
-        execution = run_ci(Path.cwd(), native_manifest=args.native_manifest,
-                      native_manifest_digest=args.native_manifest_digest,
-                      base_ref=args.base, all_scope=args.all,
-                      paths=None if args.paths is None else tuple(args.paths), security=args.security,
-                      config=config)
-        return _execution_reports(execution.to_dict(), execution.scan_record(), repo_root=Path.cwd(),
-                              policy=config.policy(), trusted_lifecycles=True,
-                              formats=None if args.report_format is None else tuple(dict.fromkeys(args.report_format)))
+        return _stored_execution(args, lambda hook: run_ci(
+            Path.cwd(), native_manifest=args.native_manifest,
+            native_manifest_digest=args.native_manifest_digest, base_ref=args.base,
+            all_scope=args.all, paths=None if args.paths is None else tuple(args.paths),
+            security=args.security, config=config, stream=True, should_scan=hook),
+            policy=config.policy(), trusted_lifecycles=True)
     elif args.command == 'scan':
         from pathlib import Path
         import re
@@ -133,11 +201,10 @@ def run(args: argparse.Namespace) -> dict:
         if args.native_manifest is not None and (not Path(args.native_manifest).is_absolute()
                 or re.fullmatch('[0-9a-f]{64}', args.native_manifest_digest) is None):
             raise ArgumentError('Native manifest requires an absolute path and lowercase SHA256 digest.')
-        record = run_scan(Path.cwd(), all_scope=args.all, legacy_mode=args.legacy_mode,
-                          native_manifest=args.native_manifest, native_manifest_digest=args.native_manifest_digest,
-                          security=args.security)
-        return _execution_reports(record, record, repo_root=Path.cwd(),
-                              formats=None if args.report_format is None else tuple(dict.fromkeys(args.report_format)))
+        return _stored_execution(args, lambda hook: run_scan(
+            Path.cwd(), all_scope=args.all, legacy_mode=args.legacy_mode,
+            native_manifest=args.native_manifest, native_manifest_digest=args.native_manifest_digest,
+            security=args.security, stream=True, should_scan=hook))
     return result(args.command, complete=False, data=data,
                   errors=[{'code': 'CAPABILITY_UNAVAILABLE',
                            'message': 'The requested capability is unavailable in this invocation; '
@@ -146,10 +213,21 @@ def run(args: argparse.Namespace) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     try:
-        record = run(parser().parse_args(argv))
+        args = parser().parse_args(argv)
+        record = run(args)
     except ArgumentError as error:
         record = misuse(str(error))
         print(json.dumps(record, ensure_ascii=True, sort_keys=True), file=sys.stderr)
         return record['exit_code']
+    if type(record) is not dict:
+        try:
+            if args.summary:
+                summary = record.summary()
+                print(json.dumps(summary, ensure_ascii=True, sort_keys=True))
+                return summary['exit_code']
+            else:
+                return record.write_json(sys.stdout)
+        finally:
+            record.close()
     print(json.dumps(record, ensure_ascii=True, sort_keys=True))
     return record['exit_code']

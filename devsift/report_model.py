@@ -1,6 +1,7 @@
 """Bounded source-reproved report assembly; serialized findings are not authority."""
 from dataclasses import dataclass, field
 import json
+import math
 from pathlib import Path
 import re
 from urllib.parse import quote, urlsplit
@@ -123,6 +124,9 @@ def assemble_report(scan_record, *, repo_root, policy=None, redactor=None,
     """
     try:
         _require(type(trusted_lifecycles) is bool and (redactor is None or type(redactor) is Redactor))
+        _require(source_timeout_seconds is None or (
+            type(source_timeout_seconds) in (int, float) and math.isfinite(source_timeout_seconds)
+            and 0 < source_timeout_seconds <= 3600))
         redactor = redactor or Redactor()
         root = Path(repo_root).resolve(strict=True)
         _require(root.is_dir())

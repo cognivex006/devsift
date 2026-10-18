@@ -36,7 +36,14 @@ trusted manifest and its independently obtained SHA256 digest. `scan --security`
 adds the bounded built-in security detector, optionally composed with those tools.
 Scan and CI emit full source-reproved JSON, Markdown and SARIF under `data.reports`.
 Repeat `--report-format json|markdown|sarif` to select formats; the default includes
-all three. These are in-memory documents; CLI scans write no report files.
+all three. In the Unreleased complete-run workflow, scan/CI process one file at
+a time and create owned resumable sessions and report pages outside source.
+Small results retain inline `data.reports`; large results expose the complete
+`data.report_bundle` index. `--summary` returns compact counts and that index,
+not the full target/finding arrays. Use `data.finding_count` for the total.
+See [complete scans](../COMPLETE-SCANS.md) for `--report-dir`, `--resume`,
+artifact verification and every-case reading. These options require the
+Unreleased build after the published 0.1.14.
 Unconfigured language capabilities return an explicit incomplete result with exit 2;
 an empty findings array does **not** mean a clean scan. `doctor` reports the actual
 Python runtime and provider availability; it installs nothing, runs no source
@@ -55,7 +62,9 @@ reads only current working-tree bytes and does not run conversion callbacks.
 Successful help is text on stdout with exit 0. Other valid commands emit exactly
 one JSON object on stdout. Misuse emits one JSON object on stderr, no stdout,
 and exit 3. Argument errors avoid reflecting user input, which may contain secrets.
-No command writes source, config, reports, application caches or installs dependencies.
+No command writes consumer source/configuration or installs dependencies.
+Scan/CI write only their owned session/report directory outside source;
+Doctor and case-prompt commands do not create those sessions.
 Python can write the package initializer's bytecode before its code disables
 further bytecode writes. For a strict no-write run that also includes the Python
 installation/source package tree, use the managed installer launcher or set
@@ -87,8 +96,12 @@ JSON envelope version `1.0` always contains `schema_version`, `command`, `status
 Errors contain `code` and `message`; command-specific capability data lives in
 `data`. Misuse has `command: null` because parsing may not establish a command.
 This envelope is a command result, not the full source-aware finding/report schema;
-the full report formats live under `data.reports`, each generated from the same
-source-reproved model. `report --latest` and `explain` storage discovery remain pending. Case prompts use explicit scan input; no project report or approval is discovered automatically.
+small full report formats live under `data.reports`; complete paged formats
+live at `data.report_bundle`. Every page contains a bounded `scan.json` for
+case prompts. `reports_complete` means every requested case/page artifact is
+present and verified; `analysis_complete` remains independent and may be false.
+`report --latest` and `explain` automatic discovery remain pending. Case prompts
+use explicit scan input; no project report or approval is discovered automatically.
 
 ## Doctor provider diagnostics
 

@@ -15,7 +15,7 @@ coverage ไม่ใช่ดูแค่รายการ findings
 | ไม่พบ findings แต่ `complete` เป็น false | Analysis บางส่วนที่เลือกไว้ทำไม่สำเร็จ รายการ findings ว่างจึงไม่ใช่ผล clean | ตรวจ `errors` และ provider coverage คืน provider ที่ขาดหรือแก้ปัญหา source/history/configuration แล้วรันใหม่ คงสถานะ incomplete ไว้จน scope ที่ต้องการวิเคราะห์ครบ |
 | Scan/CI จบด้วย `2` และ origin/lifecycle เป็น `UNKNOWN` | อาจยืนยัน source ได้ แต่ Git history ยังบอกไม่ได้ว่า finding ใหม่หรือเป็น legacy | ตรวจ Git root, CI base ที่ระบุ และประวัติ commit ที่มีอยู่ สำหรับ CI ให้ส่ง `--base` ที่ต้องการ อย่าเปลี่ยน UNKNOWN เป็น label อื่นหรือถือว่า clean เพื่อให้ gate ผ่าน ดู [CI-GATE.md](reference/CI-GATE.md) |
 | `ci` จบด้วย `2` และแจ้ง base/history หรือ review ค้าง | CI ต้องใช้ source scope และ history ที่ระบุเพื่อจำแนก finding; critical security review เป็นข้อกำหนดอิสระ | ตรวจว่า base ref มีใน local repository และมี history ที่ต้องใช้ จัดการ review ที่แจ้งไว้ quality threshold ปกติลบล้าง critical security review ไม่ได้ |
-| `report --latest` หรือ `explain` ใช้ไม่ได้ | Persisted report storage/discovery backend ยัง pending | ใช้ report ปัจจุบันใน `data.reports` หากต้องการสร้าง case prompt ให้บันทึก scan envelope แยกจาก source แล้วส่ง path ด้วย `prompt --scan-input`; คำสั่งนี้ตรวจ source ซ้ำแต่ไม่ได้ scan ใหม่ |
+| `report --latest` หรือ `explain` ใช้ไม่ได้ | คำสั่งค้นหา latest/อธิบายแบบอัตโนมัติยัง pending | ใช้ `data.reports` ของผลขนาดเล็ก หรือ index ใน `data.report_bundle` และเลือก `scan.json` ของ page นั้นด้วย `prompt --scan-input`; คำสั่งนี้ตรวจ source ซ้ำแต่ไม่ได้ scan ใหม่ |
 | Prompt ขอ `--scan-input` หรือแจ้ง source unresolved | Prompt generation ต้องใช้ scan envelope ที่ระบุเองและ source proof ที่ตรงกับปัจจุบัน | บันทึก JSON scan command envelope นอก source tree ส่ง absolute path ด้วย `--scan-input` และใช้ case ID ที่ตรงกับ envelope อย่าใช้ rendered report เป็นหลักฐาน ความสำเร็จของ review คือ prompt generation ไม่ใช่ analysis |
 | `doctor` จบด้วย `2` | การตรวจ runtime/provider ขาด ไม่ถูกต้อง หรือไม่ครบ Doctor ไม่วิเคราะห์ target source และไม่ติดตั้ง tools | ทำตาม diagnostic action ที่ระบุแล้วรัน doctor ซ้ำ Doctor จะ probe native program เฉพาะเมื่อส่ง manifest/digest pair อย่างชัดเจน ดู [DOCTOR.md](reference/DOCTOR.md) |
 | CLI จบด้วย `3` | คำสั่งหรือ option ไม่ถูกต้อง หรือ argument pair ที่จำเป็นมีรูปแบบผิด | ตรวจ `devsift <command> --help` อีกครั้ง ตัวเลือกเข้มงวด และ manifest/digest ต้องส่งเป็นคู่ |
@@ -29,8 +29,8 @@ coverage ไม่ใช่ดูแค่รายการ findings
 [ตัวอย่าง report](cases/REPORT-WALKTHROUGH.md); ความหมายคำสั่งทั้งหมดอยู่ที่
 [รายละเอียด CLI](reference/CLI.md)
 
-If a fresh scan returns `REPORT_UNAVAILABLE`, inspect its retained `findings`,
-`data.targets`, `data.counts` and errors. `data.reports` is empty and
-`data.report_status` is `unavailable`; the scan remains incomplete (2).
-Formatted reports have a separate 1,000-case limit. Retained candidates are not
-a completed source-reproved report, and missing coverage must not be called clean.
+Unreleased complete runs create all report pages and an index; there is no
+aggregate 1,000-case cutoff. See [complete scans](COMPLETE-SCANS.md). An actual
+`REPORT_UNAVAILABLE` means a page is missing, changed or could not be rendered:
+keep the job incomplete, inspect stored coverage/cases, and resume after resolving
+the declared failure. Do not label partial raw candidates a complete report.

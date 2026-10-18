@@ -11,14 +11,16 @@ scope returns incomplete (2), never a fabricated clean result.
 Repository file count is not a cumulative redaction allowance: targets and
 findings are masked separately with the same defensive per-item limits. Inventory
 stays in `data.targets` and does not count toward formatted-report input size.
-Formatted reports have separate limits (including 1,000 cases). If a fresh CLI
-scan exceeds a report limit or rendering fails, its redacted findings, coverage,
-counts and existing errors remain available. The envelope is incomplete (2),
-adds `REPORT_UNAVAILABLE`, and has `data.reports: {}` plus
-`data.report_status: unavailable`. Do not interpret these scan candidates as a
-successfully source-reproved formatted report or the incomplete result as clean.
-The scanner retains snapshots/results in memory; file-count checks do not imply
-unlimited repository size, bounded RAM or equivalent native analyzer coverage.
+The aggregate embedded `scan()` API retains its compatibility snapshot model.
+The Unreleased CLI uses `iter_inventory`/`iter_scan` and disk-backed sessions,
+holding one source snapshot at a time. It emits current analyzer readiness even
+when every target is cached. Complete reports are split into adaptive pages;
+untrusted report-model/export limits apply per page, not to repository totals.
+Every finding is indexed, with artifact checksums and `reports_complete`
+separate from `analysis_complete`. Missing pages never mean a complete report.
+See [complete scans](../COMPLETE-SCANS.md). A per-file AST may still require
+memory proportional to its source; no AST-semantic equivalence is claimed for
+arbitrary byte chunks. Parser/resource failures remain visible per file.
 
 ```python
 from devsift.adapters import AdapterCapability

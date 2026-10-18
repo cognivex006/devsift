@@ -16,7 +16,7 @@ from .redaction import Redactor
 class ProcessSpec:
     executable: str = field(repr=False)
     argv: tuple[str, ...] = field(default=(), repr=False)
-    timeout_seconds: float = 10
+    timeout_seconds: float | None = 10
     max_stdout_bytes: int = 1_048_576
     max_stderr_bytes: int = 1_048_576
     max_stdin_bytes: int = 1_048_576
@@ -30,8 +30,9 @@ class ProcessSpec:
                  and all(type(arg) is str and '\0' not in arg for arg in self.argv)
                  and len(self.argv) <= 4096
                  and sum(len(arg) for arg in self.argv) <= 1_048_576
-                 and type(self.timeout_seconds) in (int, float)
-                 and math.isfinite(self.timeout_seconds) and 0 < self.timeout_seconds <= 3600
+                 and (self.timeout_seconds is None or (
+                     type(self.timeout_seconds) in (int, float)
+                     and math.isfinite(self.timeout_seconds) and 0 < self.timeout_seconds <= 3600))
                  and all(type(value) is int and 0 < value <= 2_000_000 for value in (
                      self.max_stdout_bytes, self.max_stderr_bytes, self.max_stdin_bytes))
                  and type(self.environment) is tuple and len(self.environment) <= 256)
@@ -235,7 +236,7 @@ def run_process(spec: ProcessSpec, *, stdin: bytes = b'', redactor: Redactor | N
             try:
                 if os.name == 'nt':
                     job = _WindowsJob()
-                deadline = time.monotonic() + spec.timeout_seconds
+                deadline = None if spec.timeout_seconds is None else time.monotonic() + spec.timeout_seconds
                 process = subprocess.Popen([spec.executable, *spec.argv], shell=False,
                                            cwd=directory, env=_environment(spec, directory),
                                            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -260,7 +261,7 @@ def run_process(spec: ProcessSpec, *, stdin: bytes = b'', redactor: Redactor | N
                     if exit_code is not None and all(not thread.is_alive() for thread in threads):
                         status, reason = ('completed', 'COMPLETED') if exit_code == 0 else ('failed', 'NONZERO_EXIT')
                         break
-                    if time.monotonic() >= deadline:
+                    if deadline is not None and time.monotonic() >= deadline:
                         status, reason = 'timeout', 'TIMEOUT'
                         break
                     time.sleep(0.005)

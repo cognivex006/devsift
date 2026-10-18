@@ -14,7 +14,8 @@ except ImportError:
     pyte = None
 
 
-def capture(argv, *, cwd, env, width=80, resize=False, cancel=False, timeout=120):
+def capture(argv, *, cwd, env, width=80, resize=False, cancel=False, timeout=120,
+            resize_trigger='Overall setup', cancel_trigger='Installing verified wheels'):
     """Run a real ConPTY on Windows, native PTY elsewhere; retain raw terminal bytes."""
     if os.name == 'nt':
         try:
@@ -94,12 +95,12 @@ def capture(argv, *, cwd, env, width=80, resize=False, cancel=False, timeout=120
             parts.append(chunk)
             if os.name == 'nt' and '\x1b[c' in chunk:
                 child.write('\x1b[?1;2c')  # ConPTY terminal capability negotiation
-            if resize and not changed and 'Overall setup' in ''.join(parts):
+            if resize and not changed and resize_trigger in ''.join(parts):
                 change()
                 # Test-only capture metadata: never written into the child terminal.
                 parts.append('\x1b]777;devsift-test-resize=40\x07')
                 changed = True
-            if cancel and not cancelled and 'Installing verified wheels' in ''.join(parts):
+            if cancel and not cancelled and cancel_trigger in ''.join(parts):
                 interrupt()
                 cancelled = True
         # pywinpty refreshes exitstatus on isalive().

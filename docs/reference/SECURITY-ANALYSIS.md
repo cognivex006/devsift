@@ -108,6 +108,13 @@ never a comprehensive secret inventory, language analysis or clean quality gate.
 Shared coordinator source/policy checks still own the final gate and independent
 critical-security escalation.
 
+Those are compatibility API/default inline budgets. The Unreleased complete-run
+CLI opts into `SecurityAdapter(complete_run=True)` and
+`python_contexts(..., complete_run=True)`: source byte count and candidate count
+do not truncate that run. Existing syntax/binding uncertainty, literal signatures,
+credential masking, immutable proof and review boundaries remain. Reports cover
+every returned case through [complete paged output](../COMPLETE-SCANS.md).
+
 ## Bounded AST security contexts
 
 `python_contexts(text)` in `security_context.py` returns a frozen `ContextReport`

@@ -22,7 +22,7 @@ _HTTP = frozenset({"get", "post", "put", "patch", "delete", "head", "options", "
 _UNKNOWN = ("unknown", False)
 
 
-def python_contexts(text):
+def python_contexts(text, *, complete_run=False):
     """Return only rule/region facts from explicit static binding contracts.
 
     Import names are not runtime module authentication. Unsupported control flow
@@ -30,7 +30,8 @@ def python_contexts(text):
     bindings. Credential signatures are shared with the bounded T031 detector.
     """
     try:
-        if type(text) is not str or len(text.encode()) > 2_000_000 or "\0" in text:
+        if (type(complete_run) is not bool or type(text) is not str
+                or (not complete_run and len(text.encode()) > 2_000_000) or "\0" in text):
             return ContextReport(False)
         from .security_adapter import _Literal, _candidate
         tree = ast.parse(text)
@@ -80,7 +81,7 @@ def python_contexts(text):
             nonlocal complete
             diagnostic = ContextDiagnostic(rule, span(node))
             if diagnostic in seen: return
-            if len(diagnostics) >= 1000: complete = False; return
+            if not complete_run and len(diagnostics) >= 1000: complete = False; return
             seen.add(diagnostic); diagnostics.append(diagnostic)
 
         def value(node, env, key=""):

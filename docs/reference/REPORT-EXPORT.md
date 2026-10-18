@@ -7,6 +7,11 @@ or remediation. Invalid/unsupported input and output over 16,000,000 UTF-8 bytes
 raise static ExportError, never a truncated document. Runtime package dependencies
 remain empty.
 
+These are individual document limits. The Unreleased CLI creates adaptive
+source-reproved pages plus a complete index/checksums instead of imposing these
+limits on the entire repository or finding collection. Each page also includes
+bounded `scan.json` for an explicit case prompt. See [complete scans](../COMPLETE-SCANS.md).
+
 JSON preserves the complete model, including every case, evidence, unknown risk,
 pending proposal, full prompts and execution errors. No re-masking of model
 constants or reconstruction from untrusted findings occurs. Existing whole-region

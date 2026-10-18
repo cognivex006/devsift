@@ -61,7 +61,8 @@ Skill มีคู่มือการใช้งานแนบไปด้�
 | ค้นหาคู่มือและเอกสารอ้างอิง | [เอกสารผู้ใช้](docs/README.md) |
 | พัฒนา DevSift / ให้ agent เรียนรู้ระบบ | [เอกสารพัฒนา](docs/development/README.md) |
 
-Scan และ CI ส่ง JSON envelope ซึ่งมี reports ใน `data.reports`; CLI ไม่บันทึกไฟล์ให้อัตโนมัติ
+Scan และ CI ส่ง JSON envelope รุ่น Unreleased หลัง 0.1.14 เพิ่มการตรวจต่อจนจบและ
+รายงานทุก case แบบหลายส่วน พร้อม session/resume นอก source ดู [COMPLETE-SCANS](docs/COMPLETE-SCANS.md)
 Exit `2` หมายถึงผลไม่ครบหรือยังมี review ค้าง แม้ findings ว่าง
 `report --latest` และ storage lookup ของ `explain` ยังไม่พร้อมใช้งาน
 

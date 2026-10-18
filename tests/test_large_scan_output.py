@@ -10,7 +10,7 @@ from unittest.mock import patch
 
 from devsift.adapters import AdapterCapability
 from devsift.ci_artifacts import attach_reports, build_reports
-from devsift.cli import _execution_reports, parser, run
+from devsift.cli import _execution_reports
 from devsift.evidence import SourceEvidence
 from devsift.inventory import Inventory, SourceTarget
 from devsift.redaction import Redactor
@@ -58,7 +58,10 @@ class LargeScanOutputTests(unittest.TestCase):
             self.assertGreater(len(completed.stdout), 4_000_000)
             self.assertEqual(len(record['data']['targets']), 16_000)
             self.assertEqual(record['data']['counts']['skipped'], 16_000)
-            self.assertEqual(set(record['data']['reports']), {'json', 'markdown', 'sarif'})
+            self.assertEqual(record['data']['reports'], {})
+            index = json.loads(Path(record['data']['report_bundle']['index']).read_text('utf-8'))
+            self.assertTrue(index['reports_complete'])
+            self.assertEqual(index['case_count'], 0)
             remaining = list(root.iterdir())
             self.assertEqual(len(remaining), 16_000)
             self.assertTrue(all(path.read_bytes() == b'unchanged\n' for path in remaining))
@@ -84,7 +87,8 @@ class LargeScanOutputTests(unittest.TestCase):
             self.assertEqual(len(ci_record['data']['targets']), 16_002)
             self.assertEqual(ci_record['data']['counts']['executed'], 1)
             self.assertEqual(ci_record['data']['counts']['skipped'], 16_001)
-            self.assertEqual(set(ci_record['data']['reports']), {'json', 'markdown', 'sarif'})
+            self.assertEqual(ci_record['data']['reports'], {})
+            self.assertTrue(ci_record['data']['report_bundle']['reports_complete'])
             self.assertEqual(fixture.git('status', '--porcelain=v1'), before_git)
             self.assertTrue(all(path.read_bytes() == b'unchanged\n' for path in remaining))
             self.assertEqual((root / 'code.py').read_bytes(), b'value = 1\n')
@@ -105,8 +109,7 @@ class LargeScanOutputTests(unittest.TestCase):
             original = json.dumps(record, sort_keys=True)
             # Dispatch through the real CLI scan integration, retaining only
             # the already-redacted scanner result at this explicit boundary.
-            with patch('devsift.cli_scan.run_scan', return_value=record):
-                rendered = run(parser().parse_args(['scan', '--all']))
+            rendered = _execution_reports(record, record, repo_root=root)
             self.assertEqual(len(rendered['findings']), 1200)
             self.assertNotIn('fixture-private-value', json.dumps(rendered))
             self.assertEqual(rendered['data']['targets'], record['data']['targets'])
