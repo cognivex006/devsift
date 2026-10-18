@@ -42,8 +42,8 @@ function Receive-DevSiftFile([string] $Url, [string] $Destination, [int] $Start,
         if ($response) { $response.Dispose() }
     }
 }
-New-Item -ItemType Directory -Path $devsiftTemp | Out-Null
 try {
+    New-Item -ItemType Directory -Path $devsiftTemp | Out-Null
     Show-DevSiftProgress 0 $setupStage
     $python = $null
     foreach ($candidate in @('python', 'python3', 'py')) {

@@ -14,7 +14,7 @@ except ImportError:
     pyte = None
 
 
-def capture(argv, *, cwd, env, width=80, resize=False, timeout=120):
+def capture(argv, *, cwd, env, width=80, resize=False, cancel=False, timeout=120):
     """Run a real ConPTY on Windows, native PTY elsewhere; retain raw terminal bytes."""
     if os.name == 'nt':
         try:
@@ -26,6 +26,7 @@ def capture(argv, *, cwd, env, width=80, resize=False, timeout=120):
         read = lambda: child.read(8192)
         running = child.isalive
         change = lambda: child.setwinsize(24, 40)
+        interrupt = lambda: child.write('\x03')
         def close():
             child.close(force=True)
             # pywinpty isalive() marks closed before close() frees its sockets.
@@ -39,7 +40,8 @@ def capture(argv, *, cwd, env, width=80, resize=False, timeout=120):
         import errno
         master, slave = pty.openpty()
         termios.tcsetwinsize(slave, (24, width))
-        child = subprocess.Popen(argv, cwd=cwd, env=env, stdin=subprocess.DEVNULL, stdout=slave, stderr=slave)
+        child = subprocess.Popen(argv, cwd=cwd, env=env, stdin=subprocess.DEVNULL, stdout=slave, stderr=slave,
+                                 start_new_session=True)
         os.close(slave)
         def read():
             try:
@@ -50,6 +52,9 @@ def capture(argv, *, cwd, env, width=80, resize=False, timeout=120):
                 raise
         running = lambda: child.poll() is None
         change = lambda: termios.tcsetwinsize(master, (24, 40))
+        def interrupt():
+            import signal
+            os.killpg(child.pid, signal.SIGINT)
         def close():
             if running():
                 child.kill()
@@ -72,7 +77,7 @@ def capture(argv, *, cwd, env, width=80, resize=False, timeout=120):
             messages.put(None)
     thread = threading.Thread(target=reader, daemon=True)
     thread.start()
-    parts, changed = [], False
+    parts, changed, cancelled = [], False, False
     deadline = time.monotonic() + timeout
     try:
         while True:
@@ -91,7 +96,12 @@ def capture(argv, *, cwd, env, width=80, resize=False, timeout=120):
                 child.write('\x1b[?1;2c')  # ConPTY terminal capability negotiation
             if resize and not changed and 'Overall setup' in ''.join(parts):
                 change()
+                # Test-only capture metadata: never written into the child terminal.
+                parts.append('\x1b]777;devsift-test-resize=40\x07')
                 changed = True
+            if cancel and not cancelled and 'Installing verified wheels' in ''.join(parts):
+                interrupt()
+                cancelled = True
         # pywinpty refreshes exitstatus on isalive().
         for _ in range(100):
             if not running():
@@ -112,8 +122,15 @@ def screens(raw, width=80):
     # Each renderer frame ends on the second row at column one.
     pattern = re.compile(r'\r\x1b\[1A\x1b\[2K[^\r]*\r+\n\x1b\[2K[^\r]*\r')
     offset, frames = 0, []
+    def feed(text):
+        position = 0
+        for marker in re.finditer(r'\x1b\]777;devsift-test-resize=(\d+)\x07', text):
+            stream.feed(text[position:marker.start()])
+            screen.resize(columns=int(marker[1]))
+            position = marker.end()
+        stream.feed(text[position:])
     for match in pattern.finditer(raw):
-        stream.feed(raw[offset:match.end()])
+        feed(raw[offset:match.end()])
         offset = match.end()
         lines = [line.rstrip() for line in screen.display]
         active = [(i, line) for i, line in enumerate(lines) if line.strip()]
@@ -122,8 +139,9 @@ def screens(raw, width=80):
         if active:
             frames.append({'lines': [line for _, line in active], 'rows': [i for i, _ in active],
                            'cursor': (screen.cursor.x, screen.cursor.y),
+                           'columns': screen.columns,
                            'history': len(screen.history.top)})
-    stream.feed(raw[offset:])
+    feed(raw[offset:])
     return frames, screen
 
 

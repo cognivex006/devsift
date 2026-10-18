@@ -23,7 +23,7 @@ class BootstrapCases:
     suffix = None
 
     def run_bootstrap(self, operation='install', *, width=80, unknown=False, failure=None, resize=False,
-                      redirected=False, bundle=None):
+                      redirected=False, bundle=None, broken_first=False):
         with tempfile.TemporaryDirectory(prefix='devsift-bootstrap-') as tmp:
             home = Path(tmp) / 'isolated home'
             home.mkdir()
@@ -85,6 +85,12 @@ class BootstrapCases:
                 bodies['/bootstrap.' + self.suffix] = script.encode()
                 env = {k: v for k, v in os.environ.items() if k.upper() != 'PSMODULEPATH'}
                 env.update(USERPROFILE=str(home), HOME=str(home), TERM='xterm-256color')
+                if broken_first:
+                    commands = Path(tmp) / 'commands'
+                    commands.mkdir()
+                    (commands / 'python.cmd').write_text('@echo off\nexit /b 1\n')
+                    (commands / 'python3.cmd').write_text('@echo off\n"' + sys.executable + '" %*\n')
+                    env['PATH'] = str(commands) + os.pathsep + env['PATH']
                 if self.suffix == 'ps1':
                     code = (
                         "$ErrorActionPreference='Stop'; "
@@ -103,7 +109,8 @@ class BootstrapCases:
                     self.assertLess(len(raw.splitlines()), 80)
                     frames = []
                 else:
-                    raw, status = capture(argv, cwd=tmp, env=env, width=width, resize=resize, timeout=150)
+                    raw, status = capture(argv, cwd=tmp, env=env, width=width, resize=resize,
+                                          cancel=failure == 'cancel', timeout=150)
                     save_evidence(f'raw-{self.suffix}-{operation}-{width}-{failure or "ok"}', raw, [])
                     frames = assert_two_rows(self, raw, width)
                     save_evidence(f'{self.suffix}-{operation}-{width}-{failure or ("unknown" if unknown else "ok")}' +
@@ -113,7 +120,7 @@ class BootstrapCases:
                         self.assertFalse(any(f['lines'][0].startswith('Downloading') and '%' in f['lines'][0] for f in frames))
                     else:
                         self.assertTrue(any(f['lines'][0].startswith('Downloading') and re.search(r'\b[1-9]\d?%',f['lines'][0]) for f in frames))
-                    self.assertTrue(all(len(f['lines'][0]) <= width - 1 for f in frames))
+                    self.assertTrue(all(len(f['lines'][0]) <= f['columns'] - 1 for f in frames))
                 self.assertNotIn('"type":', raw)
                 self.assertNotIn('Successfully installed', raw)
                 if failure:
@@ -163,6 +170,10 @@ class BootstrapCases:
     def test_bad_event_child_failure_and_traversal(self):
         for case in ('event', 'child', 'traversal'):
             self.run_bootstrap(failure=case)
+
+    def test_cancellation_clears_both_variants(self):
+        for operation in ('install', 'update'):
+            self.run_bootstrap(operation, failure='cancel')
 
     def test_redirected_install_and_update_are_sparse(self):
         for operation in ('install', 'update'):
