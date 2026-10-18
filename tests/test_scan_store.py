@@ -76,6 +76,44 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(emitted_exit, 0)
         self.assertEqual(stored.exit_code, 2)
 
+    def test_actual_ci_cached_security_escalation_preserves_independent_review_metadata(self):
+        from test_ci_gate import CiGateTests
+        from devsift.ci_gate import GateConfig, run_ci
+        fixture = CiGateTests()
+        fixture.setUp()
+        self.addCleanup(fixture.doCleanups)
+        fixture.source('apiKey=' + repr('gh' + 'p_' + 'a' * 36) + '\n')
+        destination = fixture.directory / 'reports'
+        policy = GateConfig().policy()
+        configuration = {'command': 'ci', 'head': fixture.git('rev-parse', 'HEAD'),
+                         'base': fixture.base, 'native_digest': fixture.digest, 'policy': policy}
+
+        def factory(callback):
+            return run_ci(fixture.root, native_manifest=fixture.manifest,
+                          native_manifest_digest=fixture.digest, base_ref=fixture.base,
+                          all_scope=True, stream=True, should_scan=callback)
+
+        for resume in (False, True):
+            stored = run_streamed(fixture.root, factory, destination=destination, resume=resume,
+                                  configuration=configuration, policy=policy, trusted_lifecycles=True)
+            try:
+                summary = stored.summary()
+                self.assertEqual(summary['exit_code'], 1)
+                self.assertEqual(summary['enforced_count'], 1)
+                self.assertTrue(summary['data']['quality_gate']['security_review_required'])
+                index = json.loads(Path(stored.bundle['index']).read_text())
+                self.assertTrue(index['quality_gate']['security_review_required'])
+                output = io.StringIO()
+                self.assertEqual(stored.write_json(output), 1)
+                complete = json.loads(output.getvalue())
+                self.assertTrue(complete['data']['quality_gate']['security_review_required'])
+                self.assertTrue(complete['findings'][0]['security_escalation'])
+                self.assertIn('json', complete['data']['reports'])
+                if resume:
+                    self.assertEqual(summary['data']['execution'], {'fresh_targets': 0, 'reused_targets': 3})
+            finally:
+                stored.close()
+
     def test_cached_resume_rechecks_current_provider_availability_and_recovery(self):
         (self.root / 'a.py').write_text('print(1)')
         stored = self.run_scan()

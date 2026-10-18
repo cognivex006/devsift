@@ -148,6 +148,7 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
                     'reports_complete': reports_rendered, 'analysis_complete': bool(all_complete),
                     'target_count': scan_summary['data']['target_count'], 'case_count': case_count,
                     'execution': scan_summary['data']['execution'],
+                    'quality_gate': scan_summary['data'].get('quality_gate', {}),
                     'page_count': page_number, 'formats': requested, 'errors': stored.errors()}
         stream.write(_dump(metadata)[:-1] + ',"pages":[')
         separator = ''

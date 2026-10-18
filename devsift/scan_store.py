@@ -169,17 +169,22 @@ class StoredResult:
     def summary(self):
         counts = dict(executed=0, skipped=0, unavailable=0, incomplete=0)
         target_count = finding_count = enforced = 0
+        security_review_required = False
         complete = self._meta('finished') == '1'
         for (raw,) in self.connection.execute('SELECT record FROM targets WHERE generation=?', (self.generation,)):
             record = json.loads(raw)
             target_count += len(record['data'].get('targets', []))
+            security_review_required = security_review_required or bool(
+                record['data'].get('quality_gate', {}).get('security_review_required', False))
 
             complete = complete and record['complete']
             for key in counts:
                 counts[key] += record['data'].get('counts', {}).get(key, 0)
         for _, payload in self.iter_findings():
             finding_count += 1
-            enforced += json.loads(payload)['enforcement'] == 'block'
+            finding = json.loads(payload)
+            enforced += finding['enforcement'] == 'block'
+            security_review_required = security_review_required or finding['security_escalation']
         errors = self.errors()
         complete = complete and not errors
         if self.bundle is not None:
@@ -197,6 +202,9 @@ class StoredResult:
         public_data = self.connection.execute("SELECT value FROM metadata WHERE key='public_data'").fetchone()
         if public_data:
             record['data'].update(json.loads(public_data[0]))
+        if security_review_required or 'quality_gate' in record['data']:
+            gate = record['data'].setdefault('quality_gate', {})
+            gate['security_review_required'] = bool(gate.get('security_review_required') or security_review_required)
         if self.bundle is not None:
             record['data']['report_bundle'] = {key: self.bundle[key] for key in
                                               ('index', 'markdown_index', 'page_count', 'case_count', 'reports_complete', 'analysis_complete')}
