@@ -63,6 +63,22 @@ def parser() -> Parser:
     return root
 
 
+def _execution_reports(public_record, scan_record, **options):
+    """Attach reports to fresh, already-redacted execution output only.
+
+    A bounded report renderer can fail independently of a successful scan. Keep
+    its safe findings and coverage available, while refusing a complete result.
+    Never use this helper for imported/untrusted scan documents.
+    """
+    from .ci_artifacts import attach_reports
+    rendered = attach_reports(public_record, scan_record, **options)
+    if any(error['code'] == 'REPORT_UNAVAILABLE' for error in rendered['errors']):
+        return {**public_record, 'complete': False, 'status': 'incomplete', 'exit_code': 2,
+                'errors': [*public_record['errors'], *rendered['errors']],
+                'data': {**public_record['data'], 'reports': {}, 'report_status': 'unavailable'}}
+    return rendered
+
+
 def run(args: argparse.Namespace) -> dict:
     if args.command == 'prompt':
         if args.mode == 'implement' and args.approved_case != args.case_id:
@@ -95,7 +111,6 @@ def run(args: argparse.Namespace) -> dict:
     elif args.command == 'ci':
         from pathlib import Path
         import re
-        from .ci_artifacts import attach_reports
         from .ci_gate import GateConfig, run_ci
         if (not Path(args.native_manifest).is_absolute()
                 or re.fullmatch('[0-9a-f]{64}', args.native_manifest_digest) is None):
@@ -106,13 +121,12 @@ def run(args: argparse.Namespace) -> dict:
                       base_ref=args.base, all_scope=args.all,
                       paths=None if args.paths is None else tuple(args.paths), security=args.security,
                       config=config)
-        return attach_reports(execution.to_dict(), execution.scan_record(), repo_root=Path.cwd(),
+        return _execution_reports(execution.to_dict(), execution.scan_record(), repo_root=Path.cwd(),
                               policy=config.policy(), trusted_lifecycles=True,
                               formats=None if args.report_format is None else tuple(dict.fromkeys(args.report_format)))
     elif args.command == 'scan':
         from pathlib import Path
         import re
-        from .ci_artifacts import attach_reports
         from .cli_scan import run_scan
         if (args.native_manifest is None) != (args.native_manifest_digest is None):
             raise ArgumentError('Native manifest and digest must be supplied together.')
@@ -122,7 +136,7 @@ def run(args: argparse.Namespace) -> dict:
         record = run_scan(Path.cwd(), all_scope=args.all, legacy_mode=args.legacy_mode,
                           native_manifest=args.native_manifest, native_manifest_digest=args.native_manifest_digest,
                           security=args.security)
-        return attach_reports(record, record, repo_root=Path.cwd(),
+        return _execution_reports(record, record, repo_root=Path.cwd(),
                               formats=None if args.report_format is None else tuple(dict.fromkeys(args.report_format)))
     return result(args.command, complete=False, data=data,
                   errors=[{'code': 'CAPABILITY_UNAVAILABLE',

@@ -6,12 +6,29 @@ Inventory completeness is never a quality-gate pass. The scan coordinator runs
 explicitly configured trusted adapters; no native analyzer is registered by
 default. See [native protocol](NATIVE-PROTOCOL.md) for execution boundaries.
 
-Generated scanner output uses a bounded200,000-node redaction profile, sufficient
-for large inventories containing many small entries. Generic/untrusted redaction
-retains its20,000-node default. Both profiles retain2,000,000 cumulative string
-characters, depth32, cycle/type checks, sensitive-key masking and key-collision
-refusal. No failed redaction returns raw data. Error categories are deduplicated
-in first-seen order while per-target statuses and exact outcome counts remain.
+Generated scanner output masks each target and finding independently, with a
+separate bounded envelope. Repository cardinality does not consume a cumulative
+redaction budget. Each item retains the generic 20,000-node, 2,000,000-character,
+depth 32, cycle/type, sensitive-key and key-collision checks. Failed individual
+redaction never returns raw data. Error categories are deduplicated in first-seen
+order while per-target statuses and exact outcome counts remain.
+
+Report assembly receives findings and outcome gates, without the inventory in
+`data`; the inventory remains in the public CLI envelope. Otherwise a report
+input-size guard would incorrectly become a repository-size limit. Report input
+and export bounds remain enforced, including the 1,000-case formatted-report
+limit. If a renderer refuses a fresh CLI execution, the CLI keeps its already
+redacted scan findings, coverage and enforcement count, adds `REPORT_UNAVAILABLE`,
+and returns incomplete (2), with empty `data.reports` and
+`data.report_status: unavailable`. These retained findings are not a substitute
+for the unavailable source-reproved formatted report. This recovery is limited
+to the fresh scanner/CI boundary; imported documents do not gain that trust.
+
+Scale checks cover a synthetic 100,000-target inventory and a real filesystem
+CLI scan with 16,000 long paths exceeding the former aggregate budgets. These
+checks exercise output retention and masking, not native analyzer capacity. The
+scanner still holds source snapshots and result lists in memory; it is not a
+streaming analyzer and does not promise unlimited repositories or bounded RAM.
 
 ```python
 from devsift.inventory import inventory

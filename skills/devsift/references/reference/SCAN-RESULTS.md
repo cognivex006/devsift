@@ -8,6 +8,18 @@ adapter, verifies findings and applies the accepted policy. No native analyzer i
 registered by default. Without an available registered analyzer, even an empty
 scope returns incomplete (2), never a fabricated clean result.
 
+Repository file count is not a cumulative redaction allowance: targets and
+findings are masked separately with the same defensive per-item limits. Inventory
+stays in `data.targets` and does not count toward formatted-report input size.
+Formatted reports have separate limits (including 1,000 cases). If a fresh CLI
+scan exceeds a report limit or rendering fails, its redacted findings, coverage,
+counts and existing errors remain available. The envelope is incomplete (2),
+adds `REPORT_UNAVAILABLE`, and has `data.reports: {}` plus
+`data.report_status: unavailable`. Do not interpret these scan candidates as a
+successfully source-reproved formatted report or the incomplete result as clean.
+The scanner retains snapshots/results in memory; file-count checks do not imply
+unlimited repository size, bounded RAM or equivalent native analyzer coverage.
+
 ```python
 from devsift.adapters import AdapterCapability
 from devsift.scanner import AdapterOutcome, scan

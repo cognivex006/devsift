@@ -4,6 +4,11 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+### Fixed
+- Mask scanner targets/findings independently so repository cardinality cannot exhaust one cumulative redaction budget; retain all per-item safety checks.
+- Exclude per-file inventory from formatted-report assembly input without removing it from CLI coverage output.
+- Preserve already-redacted scan findings, counts and errors when a fresh CLI report cannot render; return incomplete with `REPORT_UNAVAILABLE` instead of discarding the scan.
+
 ## [0.1.14] - 2026-10-18
 
 ### Fixed

@@ -47,7 +47,11 @@ def build_reports(scan_record, *, repo_root, policy=None, trusted_lifecycles=Fal
         _require(type(requested) is tuple and 0 < len(requested) <= 3
                  and all(type(name) is str and name in ('json', 'markdown', 'sarif') for name in requested)
                  and len(set(requested)) == len(requested))
-        report = assemble_report(scan_record, repo_root=repo_root, policy=policy,
+        # Reports consume findings and outcome gates, not the per-file inventory.
+        # Keep the bounded untrusted-report model independent of repository size.
+        _require(type(scan_record) is dict and type(scan_record.get('data')) is dict)
+        report_input = {**scan_record, 'data': {}}
+        report = assemble_report(report_input, repo_root=repo_root, policy=policy,
                                  trusted_lifecycles=trusted_lifecycles, repository_urls=repository_urls)
         documents = {}
         if 'json' in requested:

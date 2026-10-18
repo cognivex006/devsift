@@ -7,7 +7,7 @@ coverage ไม่ใช่ดูแค่รายการ findings
 | อาการ | ความหมาย | วิธีตรวจ/แก้ |
 | --- | --- | --- |
 | `devsift` not found / ไม่รู้จักคำสั่ง | PATH ของ terminal หรือ host ยังไม่เห็น launcher | เปิด terminal และ agent host ใหม่ ตรวจ `~/.local/bin` บน PATH หรือ activate environment ที่ติดตั้ง CLI ดู [INSTALL.md](INSTALL.md) |
-| `REDACTION_FAILED` บน repository ขนาดใหญ่ใน 0.1.13 | ผล inventory ชนเพดาน20,000 nodes ของตัวปิดบังข้อมูล ทำให้ coverage หายก่อนสร้างรายงาน | อัปเดตเป็น0.1.14 แล้วรันใหม่ รุ่นแก้ไขใช้ budget แบบจำกัดสำหรับผลสแกนและรวม error code ที่ซ้ำ โดยยังปิดบังข้อมูลและ fail-closed เมื่อเกินขอบเขตจริง หากยังเกิดให้เก็บเฉพาะ metadata/ขนาดเพื่อวิเคราะห์ ห้ามพิมพ์ข้อมูลที่ยังไม่ผ่าน redaction |
+| `REDACTION_FAILED` บน repository ขนาดใหญ่ใน 0.1.13–0.1.14 | ผล inventory ชนเพดานรวมของ redaction; 0.1.14 เพิ่มเพดาน nodes แต่ยังมีเพดานข้อความรวม | การแก้ใน Unreleased แยกตรวจทีละ target/finding และไม่นำ inventory ไปนับเป็นขนาด input ของรายงาน ข้อจำกัดของแต่ละรายการยังคงอยู่ ห้ามพิมพ์ข้อมูลที่ยังไม่ผ่าน redaction เพื่อหลบข้อผิดพลาด |
 | Tool host แสดง Failed แต่ stdout มี JSON และ exit code2 | คำสั่งคืนผล incomplete ที่ใช้งานรายงานได้ | Parse JSON แม้ exitไม่เป็น0 อ่าน counts, targets และ reports ก่อนสรุป ไม่ใช้ป้าย Failed ของ shell แทนสถานะภายในผล |
 | `No module named devsift` | Environment ที่ launcher อ้างถึงไม่สมบูรณ์ | ติดตั้งหรืออัปเดตใหม่ แล้วตรวจ `devsift --help` อย่าเพิ่ม source ของ target เข้า import path |
 | Doctor แจ้ง provider unavailable; scan จบด้วย `2` | Doctor รายงาน availability แต่ไม่ได้ scan source; native providers ที่ไม่ได้ตั้งค่าทำให้ analysis ที่เกี่ยวข้องไม่ครบ | ตรวจ provider diagnostics หากต้องใช้ native analysis ให้ทำ trusted setup ตาม [NATIVE-SETUP.md](NATIVE-SETUP.md) แล้วส่ง absolute manifest path พร้อม digest ที่เชื่อถือได้อย่างอิสระ |
@@ -28,3 +28,9 @@ coverage ไม่ใช่ดูแค่รายการ findings
 ดู source position, redaction และกรณี unresolved ให้อ่าน
 [ตัวอย่าง report](cases/REPORT-WALKTHROUGH.md); ความหมายคำสั่งทั้งหมดอยู่ที่
 [รายละเอียด CLI](reference/CLI.md)
+
+If a fresh scan returns `REPORT_UNAVAILABLE`, inspect its retained `findings`,
+`data.targets`, `data.counts` and errors. `data.reports` is empty and
+`data.report_status` is `unavailable`; the scan remains incomplete (2).
+Formatted reports have a separate 1,000-case limit. Retained candidates are not
+a completed source-reproved report, and missing coverage must not be called clean.

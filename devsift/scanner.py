@@ -15,7 +15,7 @@ from .evidence import SourceEvidence, requires_source_mask, verify_source
 from .inventory import SourceTarget, inventory
 from .output import result
 from .policy import decide, resolve_policy
-from .redaction import MAX_OUTPUT_NODES, Redactor
+from .redaction import Redactor
 from .registry import RULES
 
 _LIFECYCLES = frozenset({'NEW', 'MODIFIED_INTRODUCED', 'MODIFIED_PREEXISTING',
@@ -236,7 +236,15 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
         for finding in findings:
             for key in ('case_id', 'message', 'path'):
                 finding[key] = redactor.text(finding[key])
-        return Redactor().redact(record, max_nodes=MAX_OUTPUT_NODES)
+        # Inventory size is not the size of an untrusted object. Each generated
+        # target/finding is independently bounded and masked; never impose a
+        # cumulative secret-processing budget on the whole repository.
+        masker = Redactor()
+        safe = masker.redact({**record, 'findings': [],
+                              'data': {**record['data'], 'targets': []}})
+        safe['data']['targets'] = [masker.redact(target) for target in public_targets]
+        safe['findings'] = [masker.redact(finding) for finding in findings]
+        return safe
     except Exception:
         return result('scan', complete=False,
                       errors=[{'code': 'REDACTION_FAILED', 'message': 'Scan output could not be safely serialized.'}])
