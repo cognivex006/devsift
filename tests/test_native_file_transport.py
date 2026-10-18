@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from devsift.inventory import SourceTarget
 from devsift.native_host import ToolDefinition, analyze_snapshot, file_digest, probe_tool
@@ -83,6 +84,23 @@ print(json.dumps({"protocol_version":"1", "tool_id":"fixture", "tool_version":"1
         tool = self.tool()
         Path(tool.artifacts[0][0]).write_text('raise SystemExit(0)')
         self.assertFalse(analyze_snapshot(tool, self.target()).complete)
+
+    def test_interruption_propagates_and_removes_private_snapshot_files(self):
+        tool = self.tool()
+        directories = []
+        def interrupt(_process, *, stdin, redactor):
+            request = json.loads(stdin)
+            source = Path(request['source_file'])
+            directories.append(source.parent)
+            self.assertTrue(source.is_file())
+            self.assertTrue(Path(request['diagnostics_file']).is_file())
+            self.assertNotEqual(source.parent, self.root)
+            raise KeyboardInterrupt()
+        with patch('devsift.native_host.run_process', side_effect=interrupt):
+            with self.assertRaises(KeyboardInterrupt):
+                analyze_snapshot(tool, self.target(), transports=('inline', 'files'))
+        self.assertEqual(len(directories), 1)
+        self.assertFalse(directories[0].exists())
 
     def test_invalid_transport_capabilities_are_rejected(self):
         tool = self.tool()

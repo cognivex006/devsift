@@ -244,13 +244,17 @@ func main() {
 		}
 		return false
 	}
- lineStarts := []int{0}
- for index := range source { if source[index] == '\n' { lineStarts = append(lineStarts, index+1) } }
- coordinateAt := func(offset int) (int, int) {
-  line := sort.Search(len(lineStarts), func(index int) bool { return lineStarts[index] > offset }) - 1
-  return line+1, utf8.RuneCountInString(source[lineStarts[line]:offset])+1
- }
- var findings []diagnostic
+	lineStarts := []int{0}
+	for index := range source {
+		if source[index] == '\n' {
+			lineStarts = append(lineStarts, index+1)
+		}
+	}
+	coordinateAt := func(offset int) (int, int) {
+		line := sort.Search(len(lineStarts), func(index int) bool { return lineStarts[index] > offset }) - 1
+		return line + 1, utf8.RuneCountInString(source[lineStarts[line]:offset]) + 1
+	}
+	var findings []diagnostic
 	add := func(rule string, node ast.Node) {
 		if !fileTransport && len(findings) >= 1000 {
 			panic("limit")
@@ -313,4 +317,3 @@ func excludedPath(filename string) bool {
 	}
 	return false
 }
-
