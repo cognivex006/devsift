@@ -36,10 +36,28 @@ def _safe_path(path):
                      (stat.S_ISREG(metadata.st_mode) and metadata.st_nlink == 1))
 
 
+def _mkdir_private(directory):
+    """Create only missing owned ancestors with private POSIX permissions."""
+    missing = []
+    component = directory
+    while not component.exists():
+        missing.append(component)
+        component = component.parent
+    _safe_path(component)
+    for component in reversed(missing):
+        component.mkdir(mode=0o700)
+
+
+def _private_file(path, mode, **kwargs):
+    # The containing directory is already private before any source data exists.
+    # Windows inherits the user's existing ACL; no ACL/chmod changes are applied.
+    return open(path, mode, opener=lambda name, flags: os.open(name, flags, 0o600), **kwargs)
+
+
 def _lock(directory):
     path = directory / 'session.lock'
     _safe_path(path)
-    stream = path.open('a+b')
+    stream = _private_file(path, 'a+b')
     try:
         if not path.stat().st_size:
             stream.write(b'0')
@@ -104,10 +122,10 @@ def _owned_directory(root, destination, resume, configuration):
                  and marker['configuration'] == config and len(marker['owner']) == 32)
     else:
         _require(not directory.exists())
-        directory.mkdir(parents=True, exist_ok=False)
+        _mkdir_private(directory)
         marker = dict(schema=1, root=identity, configuration=config, owner=uuid.uuid4().hex)
         temporary = directory / 'ownership.pending'
-        with temporary.open('x', encoding='utf-8') as stream:
+        with _private_file(temporary, 'x', encoding='utf-8') as stream:
             stream.write(_json(marker))
             stream.flush()
             os.fsync(stream.fileno())
@@ -179,7 +197,8 @@ class StoredResult:
             record['data'].update(json.loads(public_data[0]))
         if self.bundle is not None:
             record['data']['report_bundle'] = {key: self.bundle[key] for key in
-                                              ('index', 'markdown_index', 'page_count', 'case_count')}
+                                              ('index', 'markdown_index', 'page_count', 'case_count', 'reports_complete', 'analysis_complete')}
+            record['data']['report_bundle']['reports_complete'] = bool(valid and self.bundle['reports_complete'])
         return record
 
     @property
@@ -244,6 +263,9 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
         if resume:
             _require(database.is_file())
             _verify_database(database, marker['owner'])
+        if not resume:
+            with _private_file(database, 'xb'):
+                pass
         connection = sqlite3.connect(database)
         connection.execute('PRAGMA foreign_keys=ON')
         connection.execute('PRAGMA journal_mode=WAL')

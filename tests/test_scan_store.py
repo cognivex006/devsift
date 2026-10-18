@@ -1,4 +1,6 @@
 import io
+import os
+import stat
 import json
 from pathlib import Path
 import tempfile
@@ -168,6 +170,18 @@ class StoreTests(unittest.TestCase):
         self.assertEqual(stored.summary()['data']['target_count'], 3)
         self.assertEqual(stored.summary()['data']['counts']['incomplete'], 3)
         self.assertTrue(stored.summary()['data']['quality_gate']['security_review_required'])
+
+    @unittest.skipUnless(os.name == 'posix', 'POSIX permission semantics required')
+    def test_owned_scan_artifacts_are_private_even_with_permissive_umask(self):
+        old_mask = os.umask(0)
+        try:
+            stored = self.run_scan()
+            self.addCleanup(stored.close)
+            for entry in (self.destination, *self.destination.rglob('*')):
+                mode = stat.S_IMODE(entry.stat().st_mode)
+                self.assertEqual(mode, 0o700 if entry.is_dir() else 0o600, str(entry))
+        finally:
+            os.umask(old_mask)
 
     def test_missing_page_downgrades_exit_and_never_inlines_unverified_data(self):
         stored = self.run_scan()

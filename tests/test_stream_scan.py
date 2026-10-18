@@ -176,6 +176,19 @@ class StreamScanTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 AdapterOutcome(False, reason=reason)
 
+    def test_streaming_source_proof_waits_for_completion_legacy_remains_bounded(self):
+        self.source('a.py')
+
+        class FindingAdapter(CleanAdapter):
+            def analyze(self, target):
+                return AdapterOutcome(True, (ScanFinding('case', 'HC001', SourceEvidence()),))
+
+        with patch('devsift.scanner._source', return_value=SourceEvidence()) as proof:
+            list(iter_scan(self.root, adapters=(FindingAdapter(),)))
+            self.assertIsNone(proof.call_args.kwargs['source_timeout_seconds'])
+            scan(self.root, adapters=(FindingAdapter(),))
+            self.assertEqual(proof.call_args.kwargs['source_timeout_seconds'], 10)
+
     def test_keyboard_interrupt_is_propagated_and_closes_source(self):
         self.source('a.py')
 

@@ -6,6 +6,7 @@ import uuid
 
 from .ci_artifacts import build_reports, ArtifactError
 from .output import result
+from .scan_store import _mkdir_private, _private_file
 
 _FORMAT_NAMES = {'json': 'findings.json', 'markdown': 'report.md', 'sarif': 'results.sarif'}
 
@@ -16,7 +17,7 @@ def _dump(value):
 
 def _write(directory, name, text):
     path = directory / name
-    with path.open('xb') as stream:
+    with _private_file(path, 'xb') as stream:
         stream.write(text.encode('utf-8'))
         stream.flush()
     return {'file': name, 'sha256': hashlib.sha256(text.encode('utf-8')).hexdigest(),
@@ -44,21 +45,25 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
         DELETE FROM report_cases;
     ''')
     directory = stored.directory / ('reports-' + uuid.uuid4().hex)
-    directory.mkdir()
+    _mkdir_private(directory)
     scan_summary = stored.summary()
     all_complete = scan_summary['complete']
+    reports_rendered = True
     page_number = 0
     case_count = 0
 
     def render(items):
-        nonlocal page_number, case_count, all_complete
+        nonlocal page_number, case_count, all_complete, reports_rendered
         findings = [json.loads(payload) for _, payload in items]
         record = result('scan', complete=scan_summary['complete'],
                         enforced_count=sum(item['enforcement'] == 'block' for item in findings),
                         findings=findings, errors=scan_summary['errors'])
         try:
             report, documents = build_reports(record, repo_root=stored.root, formats=requested,
-                                             policy=policy, trusted_lifecycles=trusted_lifecycles)
+                                             policy=policy, trusted_lifecycles=trusted_lifecycles,
+                                             source_timeout_seconds=None)
+            if set(documents) != set(requested):
+                raise ArtifactError('Report artifacts unavailable')
         except (ValueError, TypeError, OSError):
             if len(items) > 1:
                 midpoint = len(items) // 2
@@ -66,6 +71,7 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
                 render(items[midpoint:])
                 return
             all_complete = False
+            reports_rendered = False
             stored.error('REPORT_UNAVAILABLE')
             # A failed case is indexed explicitly and never represented as a rendered report.
             documents = {}
@@ -73,7 +79,7 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
         page_number += 1
         stem = f'page-{page_number:08d}'
         page_dir = directory / stem
-        page_dir.mkdir()
+        _mkdir_private(page_dir)
         files = []
         for name, document in documents.items():
             text = document if type(document) is str else _dump(document)
@@ -116,8 +122,9 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
         render(page)
     # Index arrays stream directly from the database, independent of case count.
     index = directory / 'index.json'
-    with index.open('x', encoding='utf-8', newline='\n') as stream:
+    with _private_file(index, 'x', encoding='utf-8', newline='\n') as stream:
         metadata = {'schema_version': '1', 'complete': bool(all_complete),
+                    'reports_complete': reports_rendered, 'analysis_complete': bool(all_complete),
                     'target_count': scan_summary['data']['target_count'], 'case_count': case_count,
                     'page_count': page_number, 'formats': requested, 'errors': stored.errors()}
         stream.write(_dump(metadata)[:-1] + ',"pages":[')
@@ -127,9 +134,10 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
             separator = ','
         stream.write(']}\n')
     markdown = directory / 'README.md'
-    with markdown.open('x', encoding='utf-8', newline='\n') as stream:
+    with _private_file(markdown, 'x', encoding='utf-8', newline='\n') as stream:
         stream.write('# DevSift complete report index\n\n'
-                     f'Status: {"complete" if all_complete else "incomplete"}. '
+                     f'Analysis: {"complete" if all_complete else "incomplete"}. '
+                     f'Report artifacts: {"complete" if reports_rendered else "incomplete"}. '
                      f'Cases: {case_count}. Pages: {page_number}.\n\n')
         for (payload,) in connection.execute('SELECT payload FROM report_pages ORDER BY id'):
             page = json.loads(payload)
@@ -138,11 +146,13 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
             stream.write('\n')
     bundle = {'index': str(index), 'markdown_index': str(markdown), 'page_count': page_number,
               'case_count': case_count, 'complete': bool(all_complete),
-              'index_sha256': _digest(index),
+              'reports_complete': reports_rendered, 'analysis_complete': bool(all_complete),
+              'formats': requested, 'index_sha256': _digest(index),
               'markdown_sha256': _digest(markdown)}
     if not verify_bundle(stored, bundle):
         stored.error('REPORT_UNAVAILABLE')
         bundle['complete'] = False
+        bundle['reports_complete'] = False
     return bundle
 
 
@@ -166,6 +176,8 @@ def verify_bundle(stored, bundle):
             page = json.loads(payload)
             page_count += 1
             if not page['rendered']:
+                return False
+            if {Path(item['file']).name for item in page['files']} != {_FORMAT_NAMES[name] for name in bundle['formats']}:
                 return False
             actual = connection.execute('SELECT count(*) FROM report_cases WHERE page=?', (page['page'],)).fetchone()[0]
             identities = [row[0] for row in connection.execute('SELECT f.case_id FROM findings f JOIN report_cases c ON c.finding=f.id WHERE c.page=? ORDER BY f.case_id', (page['page'],))]

@@ -96,7 +96,7 @@ def _snapshot_matches_commit(root, source, content):
         return False
 
 
-def _source(root, target, finding, redactor):
+def _source(root, target, finding, redactor, *, source_timeout_seconds=10):
     claimed = finding.source
     if (claimed.status != 'VERIFIED' or claimed.location is None
             or claimed.location.path != target.path):
@@ -104,7 +104,8 @@ def _source(root, target, finding, redactor):
     location = claimed.location
     verified = verify_source(root, location.repository, location.source_sha,
                              location.path, location.region, redactor=redactor,
-                             sensitive=requires_source_mask(finding.rule_id, claimed))
+                             sensitive=requires_source_mask(finding.rule_id, claimed),
+                             source_timeout_seconds=source_timeout_seconds)
     if not _snapshot_matches_commit(root, verified, target.content):
         return SourceEvidence(reason='SOURCE_MISMATCH')
     return verified
@@ -191,7 +192,8 @@ def _scan_snapshot(root: str | Path, candidates=None, *, adapters: tuple[Adapter
             for finding in outcome.findings:
                 ScanFinding(finding.case_id, finding.rule_id, finding.source,
                             finding.message, finding.lifecycle_class)
-                source = _source(root, target, finding, redactor)
+                source = _source(root, target, finding, redactor,
+                                 source_timeout_seconds=None if max_bytes is None else 10)
                 policy_decision = decide(finding.rule_id, finding.lifecycle_class,
                                          source_verified=source.status == 'VERIFIED', policy=resolved)
                 evaluated.append((finding, source, policy_decision))

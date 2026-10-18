@@ -48,6 +48,7 @@ class ReportBundleTests(unittest.TestCase):
         seen_page_sizes = []
 
         def actual_bounded_renderer(scan_record, **kwargs):
+            self.assertIsNone(kwargs['source_timeout_seconds'])
             seen_page_sizes.append(len(scan_record['findings']))
             return build_reports(scan_record, **kwargs)
 
@@ -57,6 +58,8 @@ class ReportBundleTests(unittest.TestCase):
         summary = stored.summary()
         self.assertEqual(summary['data']['finding_count'], 1205)
         self.assertEqual(stored.bundle['case_count'], 1205)
+        self.assertTrue(stored.bundle['reports_complete'])
+        self.assertFalse(stored.bundle['analysis_complete'])
         self.assertTrue(verify_bundle(stored, stored.bundle))
         self.assertLessEqual(max(seen_page_sizes), 32)
         manifest = json.loads(Path(stored.bundle['index']).read_text())
@@ -124,6 +127,7 @@ class ReportBundleTests(unittest.TestCase):
             stored = run_streamed(self.root, self.producer(2), destination=self.destination)
         self.addCleanup(stored.close)
         self.assertEqual(stored.bundle['case_count'], 2)
+        self.assertFalse(stored.bundle['reports_complete'])
         self.assertEqual(stored.exit_code, 2)
         manifest = json.loads(Path(stored.bundle['index']).read_text())
         self.assertEqual(sum(page['case_count'] for page in manifest['pages']), 2)
