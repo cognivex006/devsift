@@ -103,7 +103,7 @@ try {
             } elseif ($event.type -eq 'complete') {
                 $installState = $event.state
             } elseif ($event.type -eq 'error') {
-                throw "$($event.stage): $($event.message)"
+                throw ([DevSiftTerminalV2.Display]::Clip("$($event.stage): $($event.message)", 400))
             } else { throw 'Installer returned an unknown status message.' }
         }
         $process.WaitForExit()
@@ -129,7 +129,7 @@ try {
     Write-Host 'Next: open a new terminal and agent session, then run devsift --help.'
 } catch {
     $setupDisplay.Dispose()
-    Write-Host "DevSift setup failed during: $setupStage" -ForegroundColor Red
+    Write-Host ('DevSift setup failed during: ' + [DevSiftTerminalV2.Display]::Clip($setupStage, 160)) -ForegroundColor Red
     throw
 } finally {
     $setupDisplay.Dispose()

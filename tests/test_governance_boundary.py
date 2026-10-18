@@ -87,6 +87,9 @@ class InstalledGovernanceTests(unittest.TestCase):
             shutil.copy2(FIXTURES / name, self.target / name)
         (self.target / 'conversation.json').write_text(json.dumps(INPUTS), encoding='utf-8')
         for args in (('init', '-q'), ('config', 'core.autocrlf', 'false'),
+                     # Fixture commit must not race its own read-only snapshot
+                     # with Git 2.55 background maintenance.lock removal.
+                     ('config', 'maintenance.auto', 'false'), ('config', 'gc.auto', '0'),
                      ('config', 'core.hooksPath', str(self.parent / 'no-hooks')),
                      ('add', '--all'), ('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
                                       '-c', 'commit.gpgSign=false', 'commit', '-qm', 'consumer fixture')):

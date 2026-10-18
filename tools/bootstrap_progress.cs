@@ -28,9 +28,15 @@ public sealed class Display : IDisposable {
         if (interactive) interactive = SetConsoleMode(handle, oldMode | 4);
         if (interactive) timer = new Timer(_ => { lock(gate) { if(!closed) Draw(); } }, null, 200, 200);
     }
-    static string Clip(string text, int limit) {
+    public static string Clip(string text, int limit) {
+        text=text ?? "";
         var b = new StringBuilder(); int used = 0;
         for(int i=0; i<text.Length; i++) {
+            if(char.IsSurrogate(text[i]) && !(char.IsHighSurrogate(text[i]) &&
+                i+1<text.Length && char.IsLowSurrogate(text[i+1]))) {
+                if(used+1>limit) break;
+                b.Append(' '); used++; continue;
+            }
             int cp = char.ConvertToUtf32(text,i);
             var cat = CharUnicodeInfo.GetUnicodeCategory(text,i);
             string s = char.ConvertFromUtf32(cp);
