@@ -26,14 +26,25 @@ class CompleteExecutionTests(unittest.TestCase):
     def test_cancellation_without_deadline_reaps_owned_child_and_closes_pipes(self):
         children = []
         actual = subprocess.Popen
+        actual_sleep = runner.time.sleep
+        interrupted = False
 
         def launch(*args, **kwargs):
             child = actual(*args, **kwargs)
             children.append(child)
             return child
 
+        def interrupt_once(seconds):
+            # subprocess.wait(timeout) also uses time.sleep on POSIX. Inject one
+            # actual user cancellation, then allow owned-child cleanup to run.
+            nonlocal interrupted
+            if not interrupted:
+                interrupted = True
+                raise KeyboardInterrupt
+            actual_sleep(seconds)
+
         with patch.object(runner.subprocess, 'Popen', side_effect=launch), \
-                patch.object(runner.time, 'sleep', side_effect=KeyboardInterrupt):
+                patch.object(runner.time, 'sleep', side_effect=interrupt_once):
             with self.assertRaises(KeyboardInterrupt):
                 run_process(self.spec('import time; time.sleep(30)', None))
         self.assertEqual(len(children), 1)

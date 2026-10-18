@@ -127,7 +127,7 @@ class FrontendAcceptance(unittest.TestCase):
             self.assertTrue(finding["security_escalation"])
             self.assertNotIn(secret, json.dumps(record))
 
-    def test_real_bounded_ast_workload_and_excessive_input_is_incomplete(self):
+    def test_real_ast_workload_and_large_source_use_file_transport(self):
         source = "".join(f"export const row{index}: number = {index};\n" for index in range(3500))
         self.assertEqual(self.tool.process.timeout_seconds, 30)
         started = time.perf_counter()
@@ -137,9 +137,14 @@ class FrontendAcceptance(unittest.TestCase):
         self.assertTrue(report.complete)
         self.assertEqual(report.diagnostics, ())
         self.assertLess(elapsed, 90)  # Includes host contention; not a throughput benchmark.
-        excessive = self.report("//" + "x" * 2_000_001)
-        self.assertFalse(excessive.complete)
-        self.assertEqual(excessive.diagnostics, ())
+        large_source = "//" + "x" * 2_000_001
+        large = self.report(large_source)
+        self.assertTrue(large.complete)
+        self.assertEqual(large.diagnostics, ())
+        legacy = analyze_snapshot(self.tool, SourceTarget(
+            'fixture.ts', 'ready', 'typescript', large_source.encode(), ''), transports=('inline',))
+        self.assertFalse(legacy.complete)
+        self.assertEqual(legacy.diagnostics, ())
 
     def test_source_imports_and_customer_configs_are_not_executed(self):
         with tempfile.TemporaryDirectory() as directory:
