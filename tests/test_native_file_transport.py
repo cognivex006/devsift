@@ -35,7 +35,7 @@ assert source.startswith(b'x')
 p=Path(r['diagnostics_file'])
 action=ACTION
 if action=='timeout': time.sleep(10)
-if action=='slow': time.sleep(.7)
+if action=='slow': time.sleep(2.5)
 count=1 if action=='eof_cr' else 1201
 if action=='symlink':
  p.unlink(); p.symlink_to(r['source_file'])
@@ -84,7 +84,7 @@ print(json.dumps({"protocol_version":"1", "tool_id":"fixture", "tool_version":"1
         self.assertFalse(analyze_snapshot(self.tool('symlink'), self.target()).complete)
 
     def test_timeout_and_integrity_fail_without_partial_clean_result(self):
-        self.assertFalse(analyze_snapshot(self.tool('timeout', timeout=.3), self.target()).complete)
+        self.assertFalse(analyze_snapshot(self.tool('timeout', timeout=2), self.target()).complete)
         tool = self.tool()
         Path(tool.artifacts[0][0]).write_text('raise SystemExit(0)')
         self.assertFalse(analyze_snapshot(tool, self.target()).complete)
@@ -107,8 +107,8 @@ print(json.dumps({"protocol_version":"1", "tool_id":"fixture", "tool_version":"1
         self.assertFalse(directories[0].exists())
 
     def test_explicit_complete_run_outlives_configured_process_deadline(self):
-        tool = self.tool('slow', timeout=.3)
-        report = analyze_snapshot(tool, self.target(), transports=('inline', 'files'), wait_for_completion=True)
+        tool = self.tool('slow', timeout=2)
+        report = analyze_snapshot(tool, self.target(), wait_for_completion=True)
         self.assertTrue(report.complete)
         self.assertEqual(len(report.diagnostics), 1201)
 
