@@ -25,6 +25,9 @@ class BootstrapCases:
     def run_bootstrap(self, operation='install', *, width=80, unknown=False, failure=None, resize=False,
                       redirected=False, bundle=None, broken_first=False):
         with tempfile.TemporaryDirectory(prefix='devsift-bootstrap-') as tmp:
+            artifact_case = (failure or ('unknown' if unknown else 'ok')) + ('-actual-bundle' if bundle is not None else '-fixture')
+            if broken_first:
+                artifact_case += '-python-fallback'
             home = Path(tmp) / 'isolated home'
             home.mkdir()
             if bundle is None:
@@ -113,9 +116,9 @@ class BootstrapCases:
                 else:
                     raw, status = capture(argv, cwd=tmp, env=env, width=width, resize=resize,
                                           cancel=failure == 'cancel', timeout=150)
-                    save_evidence(f'raw-{self.suffix}-{operation}-{width}-{failure or "ok"}', raw, [])
+                    save_evidence(f'raw-{self.suffix}-{operation}-{width}-{artifact_case}', raw, [])
                     frames = assert_two_rows(self, raw, width)
-                    save_evidence(f'{self.suffix}-{operation}-{width}-{failure or ("unknown" if unknown else "ok")}' +
+                    save_evidence(f'{self.suffix}-{operation}-{width}-{artifact_case}' +
                                   ('-resize' if resize else ''), raw, frames)
                     if unknown:
                         self.assertTrue(any('size unknown' in f['lines'][0] for f in frames))
