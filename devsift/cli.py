@@ -89,6 +89,7 @@ def _stored_execution(args, factory, *, policy=None, trusted_lifecycles=False):
     """Keep full-run state outside source; do not grant trust to target config."""
     import hashlib
     import os
+    import sqlite3
     from pathlib import Path
     import subprocess
     import uuid
@@ -143,10 +144,16 @@ def _stored_execution(args, factory, *, policy=None, trusted_lifecycles=False):
             'code': 'SCAN_INTERRUPTED', 'message': 'Scan interrupted; owned session state is retained for resume.'}],
             data={'scan_directory': Redactor().text(str(destination)), 'resume_available':
                   destination.is_dir() and (destination / 'ownership.json').is_file()})
-    except (StoreError, OSError, ValueError):
+    except MemoryError:
+        return result(args.command, complete=False, errors=[{
+            'code': 'SCAN_RESOURCE_EXHAUSTED',
+            'message': 'Scan resource allocation failed; retained session state can be resumed.'}],
+            data={'scan_directory': Redactor().text(str(destination))})
+    except (StoreError, OSError, ValueError, sqlite3.Error):
         return result(args.command, complete=False, errors=[{
             'code': 'SCAN_STORAGE_UNAVAILABLE',
-            'message': 'Owned scan/report storage or resume configuration is unavailable.'}])
+            'message': 'Owned scan/report storage or resume configuration is unavailable.'}],
+            data={'scan_directory': Redactor().text(str(destination))})
 
 
 def run(args: argparse.Namespace) -> dict:

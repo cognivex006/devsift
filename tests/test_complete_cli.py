@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sqlite3
 import sys
 import tempfile
 import unittest
@@ -92,6 +93,26 @@ class CompleteCliTests(unittest.TestCase):
             self.assertEqual(stopped['errors'][0]['code'], 'SCAN_INTERRUPTED')
             self.assertTrue(stopped['data']['resume_available'])
             self.assertEqual(list(root.iterdir()), [])
+
+    def test_storage_failure_is_a_safe_result_without_traceback_or_private_error(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = Path(directory)
+            root = home / 'source'
+            root.mkdir()
+            destination = home / 'reports'
+            args = parser().parse_args(['scan', '--all', '--report-dir', str(destination)])
+            with patch('pathlib.Path.cwd', return_value=root), \
+                    patch('devsift.scan_store.sqlite3.connect', side_effect=sqlite3.OperationalError('private-fixture-error')):
+                failed = run(args)
+            self.assertEqual(failed['exit_code'], 2)
+            self.assertEqual(failed['errors'][0]['code'], 'SCAN_STORAGE_UNAVAILABLE')
+            self.assertNotIn('private-fixture-error', json.dumps(failed))
+            self.assertEqual(list(root.iterdir()), [])
+            # The failed initialization must release the session's exclusive
+            # lock, so a subsequent owner can inspect or recover retained state.
+            from devsift.scan_store import _lock, _unlock
+            handle = _lock(destination)
+            _unlock(handle)
 
 
 if __name__ == '__main__':
