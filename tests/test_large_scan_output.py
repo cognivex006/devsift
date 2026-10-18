@@ -62,6 +62,32 @@ class LargeScanOutputTests(unittest.TestCase):
             remaining = list(root.iterdir())
             self.assertEqual(len(remaining), 16_000)
             self.assertTrue(all(path.read_bytes() == b'unchanged\n' for path in remaining))
+            # Reuse the same real large filesystem for CI with an explicitly
+            # trusted fixture analyzer. No target code is built or executed.
+            from test_ci_gate import CiGateTests
+            fixture = CiGateTests()
+            fixture.setUp()
+            self.addCleanup(fixture.doCleanups)
+            fixture.root = root
+            fixture.git('init', '-q')
+            fixture.source('value = 1\n')
+            before_git = fixture.git('status', '--porcelain=v1')
+            ci = subprocess.run([sys.executable, '-B', '-m', 'devsift', 'ci', '--all',
+                                 '--base', 'HEAD', '--native-manifest', str(fixture.manifest),
+                                 '--native-manifest-digest', fixture.digest], cwd=root,
+                                env=environment, capture_output=True, text=True, timeout=180)
+            self.assertEqual(ci.returncode, 0, ci.stderr)
+            self.assertEqual(ci.stderr, '')
+            ci_record = json.loads(ci.stdout)
+            self.assertGreater(len(ci.stdout), 4_000_000)
+            self.assertTrue(ci_record['complete'])
+            self.assertEqual(len(ci_record['data']['targets']), 16_002)
+            self.assertEqual(ci_record['data']['counts']['executed'], 1)
+            self.assertEqual(ci_record['data']['counts']['skipped'], 16_001)
+            self.assertEqual(set(ci_record['data']['reports']), {'json', 'markdown', 'sarif'})
+            self.assertEqual(fixture.git('status', '--porcelain=v1'), before_git)
+            self.assertTrue(all(path.read_bytes() == b'unchanged\n' for path in remaining))
+            self.assertEqual((root / 'code.py').read_bytes(), b'value = 1\n')
 
     def test_many_actual_adapter_findings_survive_bounded_report_refusal(self):
         class ManyFindings:

@@ -84,10 +84,9 @@ class _ProvenanceAdapter:
 
 
 def _encode(value):
-    raw = json.dumps(value, sort_keys=True, ensure_ascii=True, allow_nan=False)
-    if len(raw) > 4_000_000:
-        raise CiError('CI result exceeds output limit')
-    return raw
+    # Only fresh, redacted coordinator results reach this immutable snapshot.
+    # An untrusted-document size allowance must not become a file-count limit.
+    return json.dumps(value, sort_keys=True, ensure_ascii=True, allow_nan=False)
 
 
 def run_ci(root, *, native_manifest, native_manifest_digest, base_ref=None,

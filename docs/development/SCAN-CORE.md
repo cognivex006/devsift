@@ -26,7 +26,10 @@ to the fresh scanner/CI boundary; imported documents do not gain that trust.
 
 Scale checks cover a synthetic 100,000-target inventory and a real filesystem
 CLI scan with 16,000 long paths exceeding the former aggregate budgets. These
-checks exercise output retention and masking, not native analyzer capacity. The
+checks also exercise the fresh CI envelope with one explicitly trusted fixture
+analysis among the same 16,000 skipped files. CI freezes only generated redacted
+results and does not impose an untrusted-document byte cap on that inventory.
+These checks exercise output retention and masking, not native analyzer capacity. The
 scanner still holds source snapshots and result lists in memory; it is not a
 streaming analyzer and does not promise unlimited repositories or bounded RAM.
 
