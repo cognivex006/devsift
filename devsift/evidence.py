@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 import codecs
 import hashlib
+import json
 import math
 import os
 from pathlib import Path
@@ -163,6 +164,23 @@ def _git_environment():
 
 _SMALL_SOURCE_BYTES = 2_000_000
 _SOURCE_CHUNK_BYTES = 65_536
+_BEFORE_MAX_BYTES = 262_144
+_BEFORE_MAX_JSON_CHARS = 1_000_000
+
+
+def _bounded_before(value):
+    """Withhold whole excerpts whose representation crowds out a full case.
+
+    Full-context masking and exact region validation happen first. ASCII JSON
+    can expand a small UTF-8 blob several-fold; bounded imported-report models
+    must still accommodate a single genuine case. Never truncate source or
+    create a partly exposed secret to fit: preserve proof and mask the region.
+    The initial character check also bounds temporary encoding allocations.
+    """
+    if (len(value) > _BEFORE_MAX_BYTES or len(value.encode('utf-8')) > _BEFORE_MAX_BYTES
+            or len(json.dumps(value, ensure_ascii=True)) > _BEFORE_MAX_JSON_CHARS):
+        return '[REDACTED]'
+    return value
 
 
 def _source_timeout(value):
@@ -365,6 +383,8 @@ def verify_source(repo_root, repository, source_sha, path, region, *, expected_b
             return SourceEvidence(reason="SOURCE_MISMATCH")
         if sensitive:
             before = '[REDACTED]'
+        else:
+            before = _bounded_before(before)
         return SourceEvidence("VERIFIED", location, before, None, None, _seal=_SEAL)
     except (OSError, ValueError, UnicodeError, subprocess.SubprocessError):
         return SourceEvidence(reason="SOURCE_UNAVAILABLE")

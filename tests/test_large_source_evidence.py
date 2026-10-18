@@ -307,6 +307,42 @@ class LargeSourceEvidenceTests(unittest.TestCase):
                 self.assertEqual(self.prove(sha, source_timeout_seconds=valid).status, 'VERIFIED')
                 self.assertEqual(streamed.call_args.kwargs['timeout_seconds'], valid)
 
+    def test_small_blob_with_large_unicode_excerpt_retains_full_case_capacity(self):
+        from devsift.ci_artifacts import build_reports
+        from devsift.output import result
+        # Exactly the existing small-blob byte allowance, but >6MB in ASCII JSON.
+        raw = ('à' * 1_000_000).encode('utf-8')
+        self.assertEqual(len(raw), 2_000_000)
+        sha = self.commit(raw)
+        before = self.snapshot()
+        source = self.prove(sha, Region(1, 1, 1, 1_000_001))
+        self.assertEqual(source.status, 'VERIFIED')
+        self.assertEqual(source.before, '[REDACTED]')
+        self.assertEqual(SourceEvidence.from_dict(source.to_dict(), repo_root=self.root), source)
+        record = result('scan', complete=False, findings=[{
+            'case_id': 'CASE-UNICODE', 'rule_id': 'HC001', 'message': 'bounded case',
+            'path': 'large.py', 'source': source.to_dict(), 'severity': 'Error',
+            'lifecycle_class': 'UNKNOWN', 'enforcement': 'incomplete', 'security_escalation': False}])
+        report, documents = build_reports(record, repo_root=self.root)
+        self.assertEqual(len(report.cases), 1)
+        self.assertEqual(set(documents), {'json', 'markdown', 'sarif'})
+        self.assertEqual(report.cases[0].to_dict()['source']['status'], 'VERIFIED')
+        self.assertEqual(report.cases[0].to_dict()['source']['before'], '[REDACTED]')
+        self.assertNotIn('à' * 64, json.dumps(documents, ensure_ascii=False))
+        self.assertEqual(self.snapshot(), before)
+
+    def test_json_expansion_masks_whole_region_and_wrong_expected_before_still_fails(self):
+        # Control characters can expand six-fold even while UTF-8 stays <256KiB.
+        sha = self.commit(b'\x01' * 200_000)
+        region = Region(1, 1, 1, 200_001)
+        source = self.prove(sha, region)
+        self.assertEqual(source.status, 'VERIFIED')
+        self.assertEqual(source.before, '[REDACTED]')
+        self.assertEqual(self.prove(sha, region, expected_before='incorrect').reason, 'SOURCE_MISMATCH')
+        self.assertEqual(self.prove(sha, region, expected_before='[REDACTED]', sensitive=True), source)
+        small_sha = self.commit(b'normal small source\n')
+        self.assertEqual(self.prove(small_sha, Region(1, 1, 1, 7)).before, 'normal')
+
 
 if __name__ == '__main__':
     unittest.main()
