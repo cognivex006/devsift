@@ -44,9 +44,11 @@ class ScanFinding:
 class AdapterOutcome:
     complete: bool
     findings: tuple[ScanFinding, ...] = ()
+    reason: str = ''
 
     def __post_init__(self):
-        if (type(self.complete) is not bool or type(self.findings) is not tuple
+        if (type(self.reason) is not str or (self.reason and re.fullmatch(r'[A-Z][A-Z0-9_]{0,127}', self.reason) is None)
+                or type(self.complete) is not bool or type(self.findings) is not tuple
                 or any(type(finding) is not ScanFinding for finding in self.findings)):
             raise ValueError('Outcome requires explicit boolean completeness and immutable findings')
 
@@ -178,7 +180,9 @@ def _scan_snapshot(root: str | Path, candidates=None, *, adapters: tuple[Adapter
             if type(outcome) is not AdapterOutcome:
                 raise ValueError('Invalid outcome contract')
             # Re-run value checks even for a frozen object forged by a caller.
-            AdapterOutcome(outcome.complete, outcome.findings)
+            AdapterOutcome(outcome.complete, outcome.findings, outcome.reason)
+            if outcome.reason:
+                public['analysis_reason'] = outcome.reason
             current = tuple(iter_inventory(root, (target.path,), max_bytes=max_bytes))
             if (len(current) != 1 or current[0].status != 'ready'
                     or current[0].content != target.content):
@@ -259,7 +263,7 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
 
 
 def iter_scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (),
-              policy=None, redactor: Redactor | None = None, max_bytes=None):
+              policy=None, redactor: Redactor | None = None, max_bytes=None, should_scan=None):
     """Yield one redacted envelope per target without retaining repository content.
 
     Duplicate case IDs across targets must be checked by the persistent consumer.
@@ -272,6 +276,9 @@ def iter_scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...
     try:
         for target in targets:
             emitted = True
+            if should_scan is not None and not should_scan(target):
+                del target
+                continue
             yield _scan_snapshot(root, adapters=adapters, policy=policy, redactor=redactor,
                                  snapshot=Inventory(mode, (target,)), max_bytes=max_bytes)
             del target

@@ -163,6 +163,19 @@ class StreamScanTests(unittest.TestCase):
             self.assertEqual(reader.call_count, 2)
             self.assertEqual(closed, [True, True])  # mutation check and outer stream
 
+    def test_analysis_reason_is_validated_and_exposed(self):
+        self.source('a.py')
+
+        class Incomplete(CleanAdapter):
+            def analyze(self, target):
+                return AdapterOutcome(False, reason='INCOMPLETE_PARSE')
+
+        record = next(iter_scan(self.root, adapters=(Incomplete(),)))
+        self.assertEqual(record['data']['targets'][0]['analysis_reason'], 'INCOMPLETE_PARSE')
+        for reason in ('private reason', 'x', 1, 'A' * 129):
+            with self.assertRaises(ValueError):
+                AdapterOutcome(False, reason=reason)
+
     def test_keyboard_interrupt_is_propagated_and_closes_source(self):
         self.source('a.py')
 

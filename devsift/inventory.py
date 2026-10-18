@@ -103,7 +103,7 @@ def iter_inventory(root: str | Path, candidates: Iterable[str] | None = None,
     """Yield one immutable snapshot at a time; never retain prior file contents.
 
     ``None`` removes the per-file byte cap for streaming consumers. Traversal is
-    deterministic; only the compatibility ``inventory`` API globally sorts rows.
+    streamed in filesystem order; the compatibility ``inventory`` API sorts rows.
 
     Candidate paths are validated in full before reading any candidate. Symlinks
     and junctions are never intentionally followed. No Git classification is
@@ -155,31 +155,30 @@ def iter_inventory(root: str | Path, candidates: Iterable[str] | None = None,
 
     def walk(directory: Path, prefix=''):
         try:
-            with os.scandir(directory) as scanner:
-                entries = sorted(scanner, key=lambda entry: entry.name)
+            # Streaming enumeration retains no directory-sized list. The legacy
+            # snapshot API sorts its resulting rows after traversal.
+            with os.scandir(directory) as entries:
+                for entry in entries:
+                    relative = f'{prefix}/{entry.name}' if prefix else entry.name
+                    try:
+                        _canonical(relative)
+                    except ValueError:
+                        yield record(prefix or '.', 'unsafe', 'Directory contains a noncanonical entry name')
+                        continue
+                    try:
+                        path = directory / entry.name
+                        if entry.name.lower() in EXCLUDED:
+                            yield record(relative, 'excluded', 'Excluded metadata, dependency or generated path')
+                        elif entry.is_symlink() or path.is_junction():
+                            yield record(relative, 'unsafe', 'Symbolic links and junctions are not followed')
+                        elif entry.is_dir(follow_symlinks=False):
+                            yield from walk(path, relative)
+                        else:
+                            yield from inspect(relative)
+                    except OSError:
+                        yield record(relative, 'unreadable', 'Directory entry could not be read')
         except OSError:
             yield record(prefix or '.', 'unreadable', 'Directory could not be enumerated')
-            return
-        for entry in entries:
-            relative = f'{prefix}/{entry.name}' if prefix else entry.name
-            try:
-                _canonical(relative)
-            except ValueError:
-                # Cannot safely expose a cross-platform canonical target path.
-                yield record(prefix or '.', 'unsafe', 'Directory contains a noncanonical entry name')
-                continue
-            try:
-                path = directory / entry.name
-                if entry.name.lower() in EXCLUDED:
-                    yield record(relative, 'excluded', 'Excluded metadata, dependency or generated path')
-                elif entry.is_symlink() or path.is_junction():
-                    yield record(relative, 'unsafe', 'Symbolic links and junctions are not followed')
-                elif entry.is_dir(follow_symlinks=False):
-                    yield from walk(path, relative)
-                else:
-                    yield from inspect(relative)
-            except OSError:
-                yield record(relative, 'unreadable', 'Directory entry could not be read')
 
     if paths is None:
         yield from walk(origin)
