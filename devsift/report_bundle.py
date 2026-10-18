@@ -126,6 +126,7 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
         metadata = {'schema_version': '1', 'complete': bool(all_complete),
                     'reports_complete': reports_rendered, 'analysis_complete': bool(all_complete),
                     'target_count': scan_summary['data']['target_count'], 'case_count': case_count,
+                    'execution': scan_summary['data']['execution'],
                     'page_count': page_number, 'formats': requested, 'errors': stored.errors()}
         stream.write(_dump(metadata)[:-1] + ',"pages":[')
         separator = ''

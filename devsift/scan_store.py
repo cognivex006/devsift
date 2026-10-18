@@ -191,7 +191,9 @@ class StoredResult:
         command = self._meta('command')
         record = result(command, complete=complete, enforced_count=enforced, errors=errors,
                         data={'counts': counts, 'target_count': target_count,
-                              'finding_count': finding_count, 'scan_directory': str(self.directory)})
+                              'finding_count': finding_count, 'scan_directory': str(self.directory),
+                              'execution': {'fresh_targets': int(self._meta('fresh_targets')),
+                                            'reused_targets': int(self._meta('reused_targets'))}})
         public_data = self.connection.execute("SELECT value FROM metadata WHERE key='public_data'").fetchone()
         if public_data:
             record['data'].update(json.loads(public_data[0]))
@@ -234,6 +236,7 @@ class StoredResult:
                 text_stream.write(separator + _json(target))
                 separator = ','
         text_stream.write(']}}\n')
+        return summary['exit_code']
 
     def close(self):
         try:
@@ -289,6 +292,8 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
             stored._set('owner', marker['owner'])
         with connection:
             stored._set('finished', 0)
+            stored._set('fresh_targets', 0)
+            stored._set('reused_targets', 0)
             stored._set('generation', generation)
             stored._set('command', configuration.get('command', 'scan') if type(configuration) is dict else 'scan')
             connection.execute('DELETE FROM session_errors')
@@ -314,6 +319,7 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
             with connection:
                 if previous and previous == (fingerprint, 1):
                     connection.execute('UPDATE targets SET generation=? WHERE identity=?', (generation, identity))
+                    stored._set('reused_targets', int(stored._meta('reused_targets')) + 1)
                     return False
                 connection.execute('DELETE FROM targets WHERE identity=?', (identity,))
             pending = (identity, fingerprint)
@@ -354,6 +360,8 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
             with connection:
                 connection.execute('INSERT OR REPLACE INTO targets VALUES (?,?,?,?,?)',
                                    (identity, fingerprint, generation, int(header['complete']), _json(header)))
+                if targets:
+                    stored._set('fresh_targets', int(stored._meta('fresh_targets')) + 1)
                 for finding in safe_findings:
                     connection.execute('INSERT INTO findings(target,case_id,payload) VALUES (?,?,?)',
                                        (identity, finding['case_id'], _json(finding)))

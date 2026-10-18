@@ -45,13 +45,36 @@ class StoreTests(unittest.TestCase):
         stored.write_json(output)
         record = json.loads(output.getvalue())
         self.assertEqual(record['data']['target_count'], 1)
+        self.assertEqual(record['data']['execution'], {'fresh_targets': 1, 'reused_targets': 0})
         self.assertEqual(set(record['data']['reports']), {'json', 'markdown', 'sarif'})
         stored.close()
         self.adapter.calls.clear()
         stored = self.run_scan(resume=True)
         self.assertEqual(self.adapter.calls, [])
+        self.assertEqual(stored.summary()['data']['execution'], {'fresh_targets': 0, 'reused_targets': 1})
         self.assertEqual(stored.summary()['data']['target_count'], 1)
         stored.close()
+
+    def test_streamed_exit_code_matches_emitted_snapshot_if_artifact_changes_during_write(self):
+        stored = self.run_scan()
+        self.addCleanup(stored.close)
+        page = json.loads(stored.connection.execute('SELECT payload FROM report_pages').fetchone()[0])
+        artifact = Path(stored.bundle['index']).parent / page['files'][0]['file']
+
+        class ChangingStream(io.StringIO):
+            def write(inner, value):
+                written = super().write(value)
+                # Remove an already-consumed artifact after the JSON snapshot's
+                # final frame; a later verification must fail independently.
+                if value == ']}}\n':
+                    artifact.unlink()
+                return written
+
+        output = ChangingStream()
+        emitted_exit = stored.write_json(output)
+        self.assertEqual(emitted_exit, json.loads(output.getvalue())['exit_code'])
+        self.assertEqual(emitted_exit, 0)
+        self.assertEqual(stored.exit_code, 2)
 
     def test_cached_resume_rechecks_current_provider_availability_and_recovery(self):
         (self.root / 'a.py').write_text('print(1)')
