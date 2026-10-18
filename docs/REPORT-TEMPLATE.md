@@ -2,7 +2,7 @@
 
 ใช้ template นี้เมื่อให้ AI จัดรายงานผลสแกน หรือเมื่อต้องการแบบฟอร์ม Markdown
 ที่เปิดอ่านและนำไปใช้ต่อได้ CLI มี renderer ของตนเอง ผลขนาดเล็กมี Markdown ใน
-`data.reports.markdown`; complete runs ใน Unreleased มีทุกส่วนบนดิสก์และดัชนีใน
+`data.reports.markdown`; complete runs ตั้งแต่รุ่น 0.1.15 มีทุกส่วนบนดิสก์และดัชนีใน
 `data.report_bundle` การเลือก `--report-format markdown` ยังคงคืน JSON envelope
 ดู [การอ่านรายงานครบทุก case](COMPLETE-SCANS.md) และ [USAGE](USAGE.md#อ่านผลและ-exit-code)
 และดู [ตัวอย่างรายงาน](cases/REPORT-EXAMPLE.md)

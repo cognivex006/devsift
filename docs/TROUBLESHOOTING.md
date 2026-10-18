@@ -7,7 +7,7 @@ coverage ไม่ใช่ดูแค่รายการ findings
 | อาการ | ความหมาย | วิธีตรวจ/แก้ |
 | --- | --- | --- |
 | `devsift` not found / ไม่รู้จักคำสั่ง | PATH ของ terminal หรือ host ยังไม่เห็น launcher | เปิด terminal และ agent host ใหม่ ตรวจ `~/.local/bin` บน PATH หรือ activate environment ที่ติดตั้ง CLI ดู [INSTALL.md](INSTALL.md) |
-| `REDACTION_FAILED` บน repository ขนาดใหญ่ใน 0.1.13–0.1.14 | ผล inventory ชนเพดานรวมของ redaction; 0.1.14 เพิ่มเพดาน nodes แต่ยังมีเพดานข้อความรวม | การแก้ใน Unreleased แยกตรวจทีละ target/finding และไม่นำ inventory ไปนับเป็นขนาด input ของรายงาน ข้อจำกัดของแต่ละรายการยังคงอยู่ ห้ามพิมพ์ข้อมูลที่ยังไม่ผ่าน redaction เพื่อหลบข้อผิดพลาด |
+| `REDACTION_FAILED` บน repository ขนาดใหญ่ใน 0.1.13–0.1.14 | ผล inventory ชนเพดานรวมของ redaction; 0.1.14 เพิ่มเพดาน nodes แต่ยังมีเพดานข้อความรวม | การแก้ใน 0.1.15 แยกตรวจทีละ target/finding และไม่นำ inventory ไปนับเป็นขนาด input ของรายงาน ข้อจำกัดของแต่ละรายการยังคงอยู่ ห้ามพิมพ์ข้อมูลที่ยังไม่ผ่าน redaction เพื่อหลบข้อผิดพลาด |
 | Tool host แสดง Failed แต่ stdout มี JSON และ exit code2 | คำสั่งคืนผล incomplete ที่ใช้งานรายงานได้ | Parse JSON แม้ exitไม่เป็น0 อ่าน counts, targets และ reports ก่อนสรุป ไม่ใช้ป้าย Failed ของ shell แทนสถานะภายในผล |
 | `No module named devsift` | Environment ที่ launcher อ้างถึงไม่สมบูรณ์ | ติดตั้งหรืออัปเดตใหม่ แล้วตรวจ `devsift --help` อย่าเพิ่ม source ของ target เข้า import path |
 | Doctor แจ้ง provider unavailable; scan จบด้วย `2` | Doctor รายงาน availability แต่ไม่ได้ scan source; native providers ที่ไม่ได้ตั้งค่าทำให้ analysis ที่เกี่ยวข้องไม่ครบ | ตรวจ provider diagnostics หากต้องใช้ native analysis ให้ทำ trusted setup ตาม [NATIVE-SETUP.md](NATIVE-SETUP.md) แล้วส่ง absolute manifest path พร้อม digest ที่เชื่อถือได้อย่างอิสระ |
@@ -29,7 +29,7 @@ coverage ไม่ใช่ดูแค่รายการ findings
 [ตัวอย่าง report](cases/REPORT-WALKTHROUGH.md); ความหมายคำสั่งทั้งหมดอยู่ที่
 [รายละเอียด CLI](reference/CLI.md)
 
-Unreleased complete runs create all report pages and an index; there is no
+Complete runs starting in 0.1.15 create all report pages and an index; there is no
 aggregate 1,000-case cutoff. See [complete scans](COMPLETE-SCANS.md). An actual
 `REPORT_UNAVAILABLE` means a page is missing, changed or could not be rendered:
 keep the job incomplete, inspect stored coverage/cases, and resume after resolving

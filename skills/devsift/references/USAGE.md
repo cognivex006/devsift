@@ -73,7 +73,7 @@ manifest อนุญาตเฉพาะโปรแกรมที่ระ�
 
 ## อ่านผลและ exit code
 
-workflow ตรวจต่อจนจบใน Unreleased หลัง 0.1.14 ใช้รายงานหลายส่วนพร้อมดัชนีครบทุก case
+workflow ตรวจต่อจนจบตั้งแต่รุ่น 0.1.15 ใช้รายงานหลายส่วนพร้อมดัชนีครบทุก case
 ดู [COMPLETE-SCANS](COMPLETE-SCANS.md) สำหรับ session, resume และ native file transport
 
 ```text

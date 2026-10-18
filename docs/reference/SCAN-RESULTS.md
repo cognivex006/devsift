@@ -12,7 +12,7 @@ Repository file count is not a cumulative redaction allowance: targets and
 findings are masked separately with the same defensive per-item limits. Inventory
 stays in `data.targets` and does not count toward formatted-report input size.
 The aggregate embedded `scan()` API retains its compatibility snapshot model.
-The Unreleased CLI uses `iter_inventory`/`iter_scan` and disk-backed sessions,
+The CLI starting in 0.1.15 uses `iter_inventory`/`iter_scan` and disk-backed sessions,
 holding one source snapshot at a time. It emits current analyzer readiness even
 when every target is cached. Complete reports are split into adaptive pages;
 untrusted report-model/export limits apply per page, not to repository totals.

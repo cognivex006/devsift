@@ -4,6 +4,8 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-10-18
+
 ### Added
 - Process CLI scans/CI one immutable source snapshot at a time, with private disk-backed sessions, cancellation/resume, current analyzer readiness checks and changed-source revalidation.
 - Produce every case across adaptive source-reproved report pages with complete indexes, checksums and separate report/analysis completion; add `--report-dir`, `--resume` and compact `--summary` output.

@@ -3,7 +3,7 @@
 The initial CLI requires Python 3.12 or later and has no runtime dependencies.
 Install locally with `python -m pip install .`, then run `devsift --help`.
 Installation/building can create packaging and interpreter files; installation is
-separate from read-only command execution. The current package version is `0.1.14`.
+separate from read-only command execution. The current package version is `0.1.15`.
 Installing the CLI does not imply that optional native analyzers are available.
 
 For first use, see the [getting-started guide](../GETTING-STARTED.md) and
@@ -34,16 +34,17 @@ target selections, not finding lifecycle classifications. Git/source evidence
 libraries are available to embedded adapters. Native analyzers require an explicit
 trusted manifest and its independently obtained SHA256 digest. `scan --security`
 adds the bounded built-in security detector, optionally composed with those tools.
-Scan and CI emit full source-reproved JSON, Markdown and SARIF under `data.reports`.
+Scan and CI produce full source-reproved JSON, Markdown and SARIF reports.
+Small runs include them under `data.reports`; complete report indexes cover large runs.
 Repeat `--report-format json|markdown|sarif` to select formats; the default includes
-all three. In the Unreleased complete-run workflow, scan/CI process one file at
+all three. In the 0.1.15 complete-run workflow, scan/CI process one file at
 a time and create owned resumable sessions and report pages outside source.
 Small results retain inline `data.reports`; large results expose the complete
 `data.report_bundle` index. `--summary` returns compact counts and that index,
 not the full target/finding arrays. Use `data.finding_count` for the total.
 See [complete scans](../COMPLETE-SCANS.md) for `--report-dir`, `--resume`,
 artifact verification and every-case reading. These options require the
-Unreleased build after the published 0.1.14.
+0.1.15 or later; the published 0.1.14 did not provide them.
 Unconfigured language capabilities return an explicit incomplete result with exit 2;
 an empty findings array does **not** mean a clean scan. `doctor` reports the actual
 Python runtime and provider availability; it installs nothing, runs no source

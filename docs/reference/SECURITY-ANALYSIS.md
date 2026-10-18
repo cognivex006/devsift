@@ -108,7 +108,7 @@ never a comprehensive secret inventory, language analysis or clean quality gate.
 Shared coordinator source/policy checks still own the final gate and independent
 critical-security escalation.
 
-Those are compatibility API/default inline budgets. The Unreleased complete-run
+Those are compatibility API/default inline budgets. The 0.1.15 complete-run
 CLI opts into `SecurityAdapter(complete_run=True)` and
 `python_contexts(..., complete_run=True)`: source byte count and candidate count
 do not truncate that run. Existing syntax/binding uncertainty, literal signatures,
