@@ -79,7 +79,7 @@ class NativeConformance(unittest.TestCase):
             self.assertFalse(report.complete)
             self.assertNotIn("private fixture", repr(report))
             if "delay" in configuration:
-                self.assertEqual(executions, ["timeout"])
+                self.assertEqual(executions, ["completed", "timeout"])
 
     def test_transport_analysis_never_writes_source_or_fixture_files(self):
         tool = self.tool()

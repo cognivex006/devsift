@@ -2,6 +2,9 @@
 from dataclasses import dataclass, field, replace
 import hashlib
 import json
+import os
+import stat
+import tempfile
 from pathlib import Path
 import re
 
@@ -77,6 +80,7 @@ class ToolDefinition:
 class ProbeResult:
     available: bool
     reason: str
+    transports: tuple[str, ...] = ("inline",)
 
 
 @dataclass(frozen=True)
@@ -123,14 +127,17 @@ def probe_tool(tool, *, redactor=None):
         return ProbeResult(False, "PROBE_UNAVAILABLE")
     try:
         data = _json(executed.stdout)
-        _require(type(data) is dict and set(data) == {
-            "protocol_version", "tool_id", "tool_version", "languages", "engine_versions"})
+        _require(type(data) is dict and set(data) in ({
+            "protocol_version", "tool_id", "tool_version", "languages", "engine_versions"}, {
+            "protocol_version", "tool_id", "tool_version", "languages", "engine_versions", "transports"}))
         _require(data["protocol_version"] == "1" and data["tool_id"] == tool.tool_id
                  and data["tool_version"] == tool.tool_version
                  and type(data["languages"]) is list and data["languages"] == list(tool.languages)
                  and type(data["engine_versions"]) is dict
                  and data["engine_versions"] == dict(tool.engine_versions))
-        return ProbeResult(True, "READY")
+        transports = data.get("transports", ["inline"])
+        _require(type(transports) is list and transports in (["inline"], ["inline", "files"]))
+        return ProbeResult(True, "READY", tuple(transports))
     except (ValueError, TypeError, RecursionError):
         return ProbeResult(False, "PROBE_PROTOCOL_OR_VERSION_MISMATCH")
 
@@ -149,7 +156,7 @@ def source_offsets(text, region):
             sum(map(len, lines[:region.end_line - 1])) + region.end_column - 1)
 
 
-def normalize_report(data, tool, text):
+def normalize_report(data, tool, text, *, file_transport=False):
     _require(type(data) is dict and set(data) == {
         "protocol_version", "tool_id", "tool_version", "complete", "diagnostics", "reason", "metadata"})
     _require(data["protocol_version"] == "1" and data["tool_id"] == tool.tool_id
@@ -175,19 +182,88 @@ def normalize_report(data, tool, text):
         if key == "dialect":
             _require(type(value) is str and value in {"tsql150", "tsql160"})
         else:
-            _require(type(value) is int and 0 <= value <= 1_000_000)
+            _require(type(value) is int and value >= 0 and (file_transport or value <= 1_000_000))
     diagnostics.sort(key=lambda item: (item.region.start_line, item.region.start_column,
                                         item.region.end_line, item.region.end_column, item.rule_id))
     return NativeReport(data["complete"], tuple(diagnostics), data["reason"], tuple(sorted(metadata.items())))
 
 
-def analyze_snapshot(tool, target, *, dialect=None, redactor=None):
-    _require(type(tool) is ToolDefinition and type(target) is SourceTarget)
+def _file_report(tool, target, text, dialect, redactor, wait_for_completion):
+    # Files are parent-owned and live outside the target repository. Stdout is
+    # only a bounded summary; the diagnostic stream has no aggregate byte cap.
+    with tempfile.TemporaryDirectory(prefix="devsift-native-") as directory:
+        root = Path(directory)
+        source, output = root / "source.utf8", root / "diagnostics.jsonl"
+        source.write_bytes(target.content)
+        output.touch(mode=0o600)
+        source.chmod(0o600)
+        payload = json.dumps({"protocol_version": "1", "path": target.path,
+                              "language": target.language, "source_file": str(source),
+                              "diagnostics_file": str(output), "dialect": dialect}).encode()
+        process = replace(tool.process, timeout_seconds=None) if wait_for_completion else tool.process
+        executed = run_process(replace(process, argv=tool.process.argv + ("--analyze-files",)),
+                               stdin=payload, redactor=redactor)
+        if executed.status != "completed" or executed.exit_code != 0:
+            return NativeReport(False)
+        summary = _json(executed.stdout)
+        _require(type(summary) is dict and set(summary) == {
+            "protocol_version", "tool_id", "tool_version", "complete", "reason", "metadata", "diagnostic_count"})
+        count = summary.pop("diagnostic_count")
+        _require(type(count) is int and count >= 0)
+        # Reuse all existing summary/metadata validation, but never feed an
+        # aggregate diagnostic array through the bounded inline protocol.
+        header = normalize_report(dict(summary, diagnostics=[]), tool, text, file_transport=True)
+        info = output.lstat()
+        _require(stat.S_ISREG(info.st_mode) and not output.is_symlink()
+                 and not (getattr(info, "st_file_attributes", 0) & 0x400))
+        flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0)
+        descriptor = os.open(output, flags)
+        diagnostics, seen = [], set()
+        lines = text.split("\n")
+        lengths = [len(line.removesuffix("\r")) for line in lines]
+        if text.endswith("\n"):
+            lengths.pop()
+        with os.fdopen(descriptor, "rb") as stream:
+            opened = os.fstat(stream.fileno())
+            _require(stat.S_ISREG(opened.st_mode) and (opened.st_dev, opened.st_ino) == (info.st_dev, info.st_ino))
+            while True:
+                line = stream.readline(16385)
+                if not line:
+                    break
+                _require(len(line) <= 16384 and line.endswith(b"\n"))
+                item = _json(line.decode("utf-8"))
+                _require(type(item) is dict and set(item) == {"rule_id", "region"}
+                         and type(item["rule_id"]) is str and item["rule_id"] in RULES)
+                region = Region.from_dict(item["region"])
+                _require(region.end_line <= len(lengths)
+                         and region.start_column <= lengths[region.start_line - 1] + 1
+                         and region.end_column <= lengths[region.end_line - 1] + 1)
+                identity = (item["rule_id"], region)
+                _require(identity not in seen)
+                seen.add(identity)
+                diagnostics.append(NativeDiagnostic(*identity))
+        _require(len(diagnostics) == count)
+        diagnostics.sort(key=lambda item: (item.region.start_line, item.region.start_column,
+                                           item.region.end_line, item.region.end_column, item.rule_id))
+        return replace(header, diagnostics=tuple(diagnostics))
+
+
+def analyze_snapshot(tool, target, *, dialect=None, redactor=None, transports=None,
+                     wait_for_completion=False):
+    _require(type(tool) is ToolDefinition and type(target) is SourceTarget
+             and type(wait_for_completion) is bool)
     if target.status != "ready" or target.language not in tool.languages or not _integrity(tool):
         return NativeReport(False, reason="UNSUPPORTED_SOURCE")
     try:
         text = target.content.decode("utf-8")
         _require(dialect is None or dialect in {"tsql150", "tsql160"})
+        if transports is None:
+            probe = probe_tool(tool, redactor=redactor)
+            if not probe.available:
+                return NativeReport(False)
+            transports = probe.transports
+        if "files" in transports:
+            return _file_report(tool, target, text, dialect, redactor, wait_for_completion)
         payload = json.dumps({"protocol_version": "1", "path": target.path,
                               "language": target.language, "source": text, "dialect": dialect},
                              ensure_ascii=False).encode("utf-8")
@@ -204,9 +280,11 @@ class NativeAdapter:
     """Trusted configured tool; default attribution is UNKNOWN, never guessed NEW."""
 
     def __init__(self, tool, *, repo_root=None, source_sha=None, repository="local",
-                 dialect=None, redactor=None):
+                 dialect=None, redactor=None, wait_for_completion=False):
         _require(type(tool) is ToolDefinition)
         _require(redactor is None or type(redactor) is Redactor)
+        _require(type(wait_for_completion) is bool)
+        self.wait_for_completion = wait_for_completion
         self.tool, self.repo_root, self.source_sha = tool, repo_root, source_sha
         self.repository, self.dialect = repository, dialect
         self.redactor = redactor or Redactor()
@@ -216,7 +294,9 @@ class NativeAdapter:
     def analyze(self, target):
         if not self.probe.available:
             return AdapterOutcome(False)
-        report = analyze_snapshot(self.tool, target, dialect=self.dialect, redactor=self.redactor)
+        report = analyze_snapshot(self.tool, target, dialect=self.dialect, redactor=self.redactor,
+                                  transports=self.probe.transports,
+                                  wait_for_completion=self.wait_for_completion)
         findings = []
         for diagnostic in report.diagnostics:
             source = SourceEvidence()
@@ -234,4 +314,4 @@ class NativeAdapter:
             case = "NATIVE-" + hashlib.sha256(identity).hexdigest()[:24]
             findings.append(ScanFinding(case, diagnostic.rule_id, source,
                                          RULES[diagnostic.rule_id].title))
-        return AdapterOutcome(report.complete, tuple(findings))
+        return AdapterOutcome(report.complete, tuple(findings), reason=report.reason)

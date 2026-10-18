@@ -7,6 +7,16 @@ namespace DevSift.Sql;
 
 public static class Program
 {
+    static bool FileTransport;
+    static string? DiagnosticsFile;
+    static string SnapshotPath(JsonElement request, string key)
+    {
+        string value = request.GetProperty(key).GetString() ?? throw new JsonException();
+        if (!Path.IsPathFullyQualified(value) || !File.Exists(value)
+            || (File.GetAttributes(value) & (FileAttributes.ReparsePoint | FileAttributes.Directory)) != 0)
+            throw new JsonException();
+        return value;
+    }
     public const string ToolVersion = "1.1.0";
     public const string ScriptDomVersion = "161.8901.0";
 
@@ -23,10 +33,11 @@ public static class Program
             if (args.Length == 1 && args[0] == "--probe")
             {
                 Write(new { protocol_version = "1", tool_id = "devsift-sql", tool_version = ToolVersion,
-                    languages = new[] { "sql" }, engine_versions = new { scriptdom = ScriptDomVersion } });
+                    languages = new[] { "sql" }, engine_versions = new { scriptdom = ScriptDomVersion }, transports = new[] { "inline", "files" } });
                 return 0;
             }
-            if (args.Length != 1 || args[0] != "--analyze")
+            FileTransport = args.Length == 1 && args[0] == "--analyze-files";
+            if (!FileTransport && (args.Length != 1 || args[0] != "--analyze"))
             {
                 Failure("ANALYSIS_FAILED");
                 return 0;
@@ -46,7 +57,8 @@ public static class Program
             var values = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
             foreach (var property in root.EnumerateObject())
                 if (!values.TryAdd(property.Name, property.Value)) throw new InvalidOperationException();
-            string[] fields = ["protocol_version", "path", "language", "source", "dialect"];
+            string[] fields = FileTransport ? ["protocol_version", "path", "language", "source_file", "diagnostics_file", "dialect"]
+                : ["protocol_version", "path", "language", "source", "dialect"];
             if (values.Count != fields.Length || fields.Any(field => !values.ContainsKey(field)))
                 throw new InvalidOperationException();
             string Required(string field) => values[field].ValueKind == JsonValueKind.String
@@ -57,8 +69,9 @@ public static class Program
             if (path.Length is 0 or > 4096 || path.Any(c => c < 32 || "\\:<>\"|?*".Contains(c))
                 || path.Split('/').Any(part => part is "" or "." or ".."))
                 throw new InvalidOperationException();
-            var source = Required("source");
-            if (source.Length > 2_000_000 || source.Contains('\0'))
+            if (FileTransport) DiagnosticsFile = SnapshotPath(root, "diagnostics_file");
+            var source = FileTransport ? new UTF8Encoding(false, true).GetString(File.ReadAllBytes(SnapshotPath(root, "source_file"))) : Required("source");
+            if (!FileTransport && source.Length > 2_000_000 || source.Contains('\0'))
             {
                 Failure("UNSUPPORTED_SOURCE");
                 return 0;
@@ -84,7 +97,7 @@ public static class Program
             }
             var facts = new MetadataVisitor();
             fragment.Accept(facts);
-            var rules = new DynamicSqlVisitor(parser, source);
+            var rules = new DynamicSqlVisitor(parser, source, FileTransport);
             fragment.Accept(rules);
             Write(new { protocol_version = "1", tool_id = "devsift-sql", tool_version = ToolVersion,
                 complete = rules.Complete, diagnostics = rules.Diagnostics,
@@ -101,14 +114,31 @@ public static class Program
         }
     }
 
-    static void Write(object value) => Console.WriteLine(JsonSerializer.Serialize(value));
+    static void Write(object value)
+    {
+        if (FileTransport && DiagnosticsFile is not null)
+        {
+            var report = JsonSerializer.SerializeToElement(value);
+            if (report.TryGetProperty("diagnostics", out var diagnostics))
+            {
+                long count = 0;
+                using (var output = new StreamWriter(DiagnosticsFile, false, new UTF8Encoding(false)))
+                    foreach (var item in diagnostics.EnumerateArray()) { output.WriteLine(item.GetRawText()); count++; }
+                Console.WriteLine(JsonSerializer.Serialize(new { protocol_version = "1", tool_id = "devsift-sql",
+                    tool_version = ToolVersion, complete = report.GetProperty("complete").GetBoolean(),
+                    diagnostic_count = count, reason = report.GetProperty("reason").GetString(), metadata = report.GetProperty("metadata") }));
+                return;
+            }
+        }
+        Console.WriteLine(JsonSerializer.Serialize(value));
+    }
     static void Failure(string reason) => Write(new { protocol_version = "1", tool_id = "devsift-sql",
         tool_version = ToolVersion, complete = false, diagnostics = Array.Empty<object>(), reason, metadata = new { } });
 }
 
 // This deliberately bounded flow domain tracks only local straight-line string
 // assembly into AST execution sinks. It is not a whole-program taint engine.
-public sealed class DynamicSqlVisitor(TSqlParser parser, string source) : TSqlFragmentVisitor
+public sealed class DynamicSqlVisitor(TSqlParser parser, string source, bool fileTransport = false) : TSqlFragmentVisitor
 {
     enum Kind { Literal, Input, QuotedIdentifier, Unknown }
     sealed record Part(Kind Kind, string Text = "");
@@ -312,7 +342,7 @@ public sealed class DynamicSqlVisitor(TSqlParser parser, string source) : TSqlFr
         if (!GroundedSql(value)) { Complete = false; return; }
         if (value.Any(part => part.Kind == Kind.Input))
         {
-            if (Diagnostics.Count >= 1000) { Complete = false; return; }
+            if (!fileTransport && Diagnostics.Count >= 1000) { Complete = false; return; }
             Diagnostics.Add(new { rule_id = "SEC003", region = SourceCoordinates.Region(source, node.StartOffset, node.FragmentLength) });
         }
         else if (!OnlyTableIdentifiers(value)) Complete = false;
@@ -389,6 +419,7 @@ public sealed class MetadataVisitor : TSqlFragmentVisitor
 
 public static class SourceCoordinates
 {
+    static readonly System.Runtime.CompilerServices.ConditionalWeakTable<string, int[]> Lines = new();
     public static object Region(string source, int start, int length)
     {
         if (start < 0 || length < 0 || start > source.Length - length)
@@ -397,13 +428,17 @@ public static class SourceCoordinates
         {
             if (offset > 0 && offset < source.Length && char.IsHighSurrogate(source[offset - 1]) && char.IsLowSurrogate(source[offset]))
                 throw new ArgumentOutOfRangeException();
-            int line = 1, column = 1;
-            for (int i = 0; i < offset; i++)
+            var starts = Lines.GetValue(source, text =>
             {
-                if (source[i] == '\n') { line++; column = 1; }
-                else if (!char.IsLowSurrogate(source[i])) column++;
-            }
-            return (line, column);
+                var lines = new List<int> { 0 };
+                for (int index = 0; index < text.Length; index++) if (text[index] == '\n') lines.Add(index + 1);
+                return lines.ToArray();
+            });
+            int line = Array.BinarySearch(starts, offset);
+            if (line < 0) line = ~line - 1;
+            int column = 1;
+            for (int i = starts[line]; i < offset; i++) if (!char.IsLowSurrogate(source[i])) column++;
+            return (line + 1, column);
         }
         var first = Position(start);
         var last = Position(start + length);

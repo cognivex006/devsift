@@ -7,6 +7,16 @@ using Microsoft.CodeAnalysis.Text;
 
 internal static class Program
 {
+    static bool FileTransport;
+    static string? DiagnosticsFile;
+    static string SnapshotPath(JsonElement request, string key)
+    {
+        string value = request.GetProperty(key).GetString() ?? throw new JsonException();
+        if (!Path.IsPathFullyQualified(value) || !File.Exists(value)
+            || (File.GetAttributes(value) & (FileAttributes.ReparsePoint | FileAttributes.Directory)) != 0)
+            throw new JsonException();
+        return value;
+    }
     const string ToolId = "devsift-roslyn";
     const string ToolVersion = "1.0.0";
     const string ExpectedEngine = "4.13.0.0";
@@ -28,11 +38,12 @@ internal static class Program
             Console.WriteLine(JsonSerializer.Serialize(new
             {
                 protocol_version = "1", tool_id = ToolId, tool_version = ToolVersion,
-                languages = new[] { "csharp" }, engine_versions = new { roslyn = engine }
+                languages = new[] { "csharp" }, engine_versions = new { roslyn = engine }, transports = new[] { "inline", "files" }
             }));
             return 0;
         }
-        if (!arguments.SequenceEqual(new[] { "--analyze" })) return 3;
+        FileTransport = arguments.SequenceEqual(new[] { "--analyze-files" });
+        if (!FileTransport && !arguments.SequenceEqual(new[] { "--analyze" })) return 3;
         try
         {
             if (engine != ExpectedEngine) return Report(false, [], "ANALYSIS_FAILED");
@@ -48,7 +59,9 @@ internal static class Program
             JsonElement request = document.RootElement;
             if (request.ValueKind != JsonValueKind.Object) return Report(false, [], "UNSUPPORTED_SOURCE");
             var properties = request.EnumerateObject().ToArray();
-            string[] required = ["protocol_version", "path", "language", "source", "dialect"];
+            string[] required = FileTransport
+                ? ["protocol_version", "path", "language", "source_file", "diagnostics_file", "dialect"]
+                : ["protocol_version", "path", "language", "source", "dialect"];
             if (properties.Length != required.Length || properties.Select(p => p.Name).Distinct().Count() != required.Length
                 || properties.Any(p => !required.Contains(p.Name))) return Report(false, [], "UNSUPPORTED_SOURCE");
             if (request.GetProperty("protocol_version").GetString() != "1"
@@ -56,7 +69,9 @@ internal static class Program
                 || request.GetProperty("dialect").ValueKind != JsonValueKind.Null)
                 return Report(false, [], "UNSUPPORTED_SOURCE");
             string path = request.GetProperty("path").GetString() ?? "";
-            string source = request.GetProperty("source").GetString() ?? throw new JsonException();
+            if (FileTransport) DiagnosticsFile = SnapshotPath(request, "diagnostics_file");
+            string source = FileTransport ? new UTF8Encoding(false, true).GetString(File.ReadAllBytes(SnapshotPath(request, "source_file")))
+                : request.GetProperty("source").GetString() ?? throw new JsonException();
             if (path.Length == 0 || source.Contains('\0')) return Report(false, [], "UNSUPPORTED_SOURCE");
             var tree = CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.CSharp13));
             if (tree.GetDiagnostics().Any(d => d.Severity == DiagnosticSeverity.Error))
@@ -71,7 +86,7 @@ internal static class Program
             var findings = new List<Finding>();
             void Add(string rule, TextSpan span)
             {
-                if (findings.Count >= 1000) throw new InvalidOperationException();
+                if (!FileTransport && findings.Count >= 1000) throw new InvalidOperationException();
                 var start = Coordinate(source, span.Start);
                 var end = Coordinate(source, span.End);
                 findings.Add(new Finding(rule, new Position(start.line, start.column, end.line, end.column)));
@@ -136,23 +151,37 @@ internal static class Program
         || parent is MethodDeclarationSyntax method && method.AttributeLists.SelectMany(a => a.Attributes)
             .Any(a => a.Name.ToString().Split('.').Last() is "Fact" or "Theory" or "Test" or "TestMethod"));
 
+    static readonly System.Runtime.CompilerServices.ConditionalWeakTable<string, int[]> Lines = new();
     static (int line, int column) Coordinate(string source, int offset)
     {
-        int line = 1, column = 1;
-        for (int index = 0; index < offset; index++)
+        var starts = Lines.GetValue(source, text =>
         {
-            char value = source[index];
-            if (value == '\n') { line++; column = 1; }
-            else if (char.IsHighSurrogate(value) && index + 1 < offset && char.IsLowSurrogate(source[index + 1]))
-            { index++; column++; }
-            else column++;
+            var lines = new List<int> { 0 };
+            for (int index = 0; index < text.Length; index++) if (text[index] == '\n') lines.Add(index + 1);
+            return lines.ToArray();
+        });
+        int line = Array.BinarySearch(starts, offset);
+        if (line < 0) line = ~line - 1;
+        int column = 1;
+        for (int index = starts[line]; index < offset; index++)
+        {
+            if (char.IsHighSurrogate(source[index]) && index + 1 < offset && char.IsLowSurrogate(source[index + 1])) index++;
+            column++;
         }
-        return (line, column);
+        return (line + 1, column);
     }
 
     static int Report(bool complete, IEnumerable<Finding> diagnostics, string reason)
     {
-        Console.WriteLine(JsonSerializer.Serialize(new
+        if (FileTransport && DiagnosticsFile is not null)
+        {
+            long count = 0;
+            using (var output = new StreamWriter(DiagnosticsFile, false, new UTF8Encoding(false)))
+                foreach (var item in diagnostics) { output.WriteLine(JsonSerializer.Serialize(item)); count++; }
+            Console.WriteLine(JsonSerializer.Serialize(new { protocol_version = "1", tool_id = ToolId,
+                tool_version = ToolVersion, complete, diagnostic_count = count, reason, metadata = new { } }));
+        }
+        else Console.WriteLine(JsonSerializer.Serialize(new
         {
             protocol_version = "1", tool_id = ToolId, tool_version = ToolVersion,
             complete, diagnostics, reason, metadata = new { }
