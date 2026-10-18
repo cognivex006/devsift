@@ -50,6 +50,8 @@ else:
   if action=='trailing': f.write(b'garbage')
   if action=='huge_line': f.write(b' '*16385+b'\\n')
   if action=='invalid_utf8': f.write(b'\\xff\\n')
+ if action=='replaced':
+  replacement=p.with_name('replacement'); replacement.write_bytes(p.read_bytes()); replacement.replace(p)
  if action=='bad_count': count+=1
 print(json.dumps({"protocol_version":"1", "tool_id":"fixture", "tool_version":"1",
  "complete":True,"reason":"COMPLETED","metadata":{},"diagnostic_count":count}))
@@ -71,7 +73,7 @@ print(json.dumps({"protocol_version":"1", "tool_id":"fixture", "tool_version":"1
         self.assertFalse((self.root / 'large.ts').exists())
 
     def test_invalid_file_records_counts_and_nonregular_output_fail_closed(self):
-        for action in ('duplicate', 'coordinate', 'bad_count', 'trailing', 'huge_line', 'invalid_utf8', 'directory'):
+        for action in ('duplicate', 'coordinate', 'bad_count', 'trailing', 'huge_line', 'invalid_utf8', 'directory', 'replaced'):
             with self.subTest(action=action):
                 self.assertFalse(analyze_snapshot(self.tool(action), self.target()).complete)
 

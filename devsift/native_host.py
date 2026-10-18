@@ -196,6 +196,7 @@ def _file_report(tool, target, text, dialect, redactor, wait_for_completion):
         source, output = root / "source.utf8", root / "diagnostics.jsonl"
         source.write_bytes(target.content)
         output.touch(mode=0o600)
+        expected_output = output.stat()
         source.chmod(0o600)
         payload = json.dumps({"protocol_version": "1", "path": target.path,
                               "language": target.language, "source_file": str(source),
@@ -214,7 +215,9 @@ def _file_report(tool, target, text, dialect, redactor, wait_for_completion):
         # aggregate diagnostic array through the bounded inline protocol.
         header = normalize_report(dict(summary, diagnostics=[]), tool, text, file_transport=True)
         info = output.lstat()
-        _require(stat.S_ISREG(info.st_mode) and not output.is_symlink()
+        _require((info.st_dev, info.st_ino) == (expected_output.st_dev, expected_output.st_ino)
+                 and info.st_nlink == 1
+                 and stat.S_ISREG(info.st_mode) and not output.is_symlink()
                  and not (getattr(info, "st_file_attributes", 0) & 0x400))
         flags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_BINARY", 0)
         descriptor = os.open(output, flags)
