@@ -36,7 +36,7 @@ p=Path(r['diagnostics_file'])
 action=ACTION
 if action=='timeout': time.sleep(10)
 if action=='slow': time.sleep(.7)
-count=1201
+count=1 if action=='eof_cr' else 1201
 if action=='symlink':
  p.unlink(); p.symlink_to(r['source_file'])
 elif action=='directory':
@@ -47,6 +47,7 @@ else:
    d={"rule_id":"LOG002","region":{"start_line":i+1,"start_column":1,"end_line":i+1,"end_column":2}}
    if action=='duplicate': d['region']['start_line']=d['region']['end_line']=1
    if action=='coordinate': d['region']['end_column']=999
+   if action=='eof_cr': d['region']['end_column']=3
    f.write((json.dumps(d)+'\\n').encode())
   if action=='trailing': f.write(b'garbage')
   if action=='huge_line': f.write(b' '*16385+b'\\n')
@@ -110,6 +111,12 @@ print(json.dumps({"protocol_version":"1", "tool_id":"fixture", "tool_version":"1
         report = analyze_snapshot(tool, self.target(), transports=('inline', 'files'), wait_for_completion=True)
         self.assertTrue(report.complete)
         self.assertEqual(len(report.diagnostics), 1201)
+
+    def test_unterminated_final_carriage_return_is_a_source_codepoint(self):
+        target = SourceTarget('last.ts', 'ready', 'typescript', b'x\r', 'fixture')
+        report = analyze_snapshot(self.tool('eof_cr'), target)
+        self.assertTrue(report.complete)
+        self.assertEqual(report.diagnostics[0].region.end_column, 3)
 
     def test_invalid_transport_capabilities_are_rejected(self):
         tool = self.tool()

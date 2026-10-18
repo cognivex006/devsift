@@ -223,9 +223,9 @@ def _file_report(tool, target, text, dialect, redactor, wait_for_completion):
         descriptor = os.open(output, flags)
         diagnostics, seen = [], set()
         lines = text.split("\n")
-        lengths = [len(line.removesuffix("\r")) for line in lines]
-        if text.endswith("\n"):
-            lengths.pop()
+        lengths = [len(line.removesuffix("\r")) for line in lines[:-1]]
+        if lines[-1]:
+            lengths.append(len(lines[-1]))
         with os.fdopen(descriptor, "rb") as stream:
             opened = os.fstat(stream.fileno())
             _require(stat.S_ISREG(opened.st_mode) and (opened.st_dev, opened.st_ino) == (info.st_dev, info.st_ino))
