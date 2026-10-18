@@ -37,7 +37,7 @@ def annotation_lines(report, *, limit=50):
 
 
 def build_reports(scan_record, *, repo_root, policy=None, trusted_lifecycles=False,
-                  formats=None, repository_urls=()):
+                  formats=None, repository_urls=(), source_timeout_seconds=10):
     """Render all requested formats in memory from one source-reproved model."""
     from .markdown_report import render_markdown
     from .report_export import render_json, render_sarif
@@ -52,7 +52,8 @@ def build_reports(scan_record, *, repo_root, policy=None, trusted_lifecycles=Fal
         _require(type(scan_record) is dict and type(scan_record.get('data')) is dict)
         report_input = {**scan_record, 'data': {}}
         report = assemble_report(report_input, repo_root=repo_root, policy=policy,
-                                 trusted_lifecycles=trusted_lifecycles, repository_urls=repository_urls)
+                                 trusted_lifecycles=trusted_lifecycles, repository_urls=repository_urls,
+                                 source_timeout_seconds=source_timeout_seconds)
         documents = {}
         if 'json' in requested:
             documents['json'] = _decode_json(render_json(report))

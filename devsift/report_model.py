@@ -96,22 +96,24 @@ def _repository_urls(mapping):
     return result
 
 
-def _source(item, root, redactor):
+def _source(item, root, redactor, source_timeout_seconds=10):
     try:
-        imported = SourceEvidence.from_dict(item['source'], repo_root=root, redactor=redactor)
+        imported = SourceEvidence.from_dict(item['source'], repo_root=root, redactor=redactor,
+                                           source_timeout_seconds=source_timeout_seconds)
         if imported.status != 'VERIFIED':
             return SourceEvidence(reason=imported.reason)
         location = imported.location
         if location.path != item['path']:
             return SourceEvidence(reason='SOURCE_MISMATCH')
         return verify_source(root, location.repository, location.source_sha, location.path, location.region,
-                             redactor=redactor, sensitive=requires_source_mask(item['rule_id'], imported))
+                             redactor=redactor, sensitive=requires_source_mask(item['rule_id'], imported),
+                             source_timeout_seconds=source_timeout_seconds)
     except (OSError, ValueError, TypeError, KeyError):
         return SourceEvidence(reason='SOURCE_UNAVAILABLE')
 
 
 def assemble_report(scan_record, *, repo_root, policy=None, redactor=None,
-                    trusted_lifecycles=False, repository_urls=()):
+                    trusted_lifecycles=False, repository_urls=(), source_timeout_seconds=10):
     """Reprove immutable source and recompute policy; never trust wire assertions.
 
     The caller supplies an actual scan result, not an authenticated certificate.
@@ -164,7 +166,7 @@ def assemble_report(scan_record, *, repo_root, policy=None, redactor=None,
                 _fields(item['source']['location'], ('repository', 'source_sha', 'path', 'region', 'symbol'))
                 _fields(item['source']['location']['region'], ('start_line', 'start_column', 'end_line', 'end_column'))
             original_blocks += item['enforcement'] == 'block'
-            source = _source(item, root, redactor)
+            source = _source(item, root, redactor, source_timeout_seconds)
             lifecycle = item['lifecycle_class'] if trusted_lifecycles and source.status == 'VERIFIED' else 'UNKNOWN'
             decision = decide(item['rule_id'], lifecycle, source_verified=source.status == 'VERIFIED', policy=policy)
             if source.status != 'VERIFIED' or decision.enforcement == 'incomplete':
