@@ -16,6 +16,21 @@ else:
     from sync_skill_docs import sync
 
 
+def render_script(root, name):
+    """Generate all four variants from two templates and one renderer per language."""
+    root = Path(root)
+    operation, suffix = name.split('.')
+    if operation not in {'install', 'update'} or suffix not in {'sh', 'ps1'}:
+        raise ValueError('Unknown installer variant')
+    text = (root / 'scripts' / ('install.' + suffix)).read_text(encoding='utf-8-sig')
+    text = text.replace('@DEVSIFT_OPERATION@', operation)
+    helper = 'install_progress.py' if suffix == 'sh' else 'bootstrap_progress.cs'
+    marker = '# @DEVSIFT_PROGRESS@'
+    if text.count(marker) != 1:
+        raise ValueError('Missing bootstrap renderer marker')
+    return text.replace(marker, (root / 'tools' / helper).read_text(encoding='utf-8-sig'))
+
+
 def build(root, output):
     root, output = Path(root).resolve(), Path(output).resolve()
     sync(root, check=True)
@@ -36,6 +51,7 @@ def build(root, output):
             (stage / name).mkdir()
             shutil.copy2(root / name / 'plugin.json', stage / name)
         shutil.copy2(root / 'gemini-extension.json', stage)
+        shutil.copy2(root / 'plugin.json', stage)
         archive = output / 'devsift-install.zip'
         with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as z:
             for p in sorted(stage.rglob('*')):
@@ -45,7 +61,7 @@ def build(root, output):
     (output / 'devsift-install.zip.sha256').write_text(digest + '  devsift-install.zip\n')
     for name in ('install.ps1', 'update.ps1', 'install.sh', 'update.sh'):
         # Windows checkouts may use CRLF; POSIX shells need LF script assets.
-        (output / name).write_text((root / 'scripts' / name).read_text(encoding='utf-8'),
+        (output / name).write_text(render_script(root, name),
                                    encoding='utf-8', newline='\n')
     return archive
 

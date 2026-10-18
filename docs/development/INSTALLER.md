@@ -28,15 +28,17 @@ multi-directory transaction; a filesystem failure during host directory replacem
 leave a partial host update while preserving the previous launcher. Re-run after correcting the error. Installer release
 checksums detect corruption but do not authenticate a publisher independently.
 
-Shell bootstraps own one overall setup bar. Download ranges reflect actual
-received bytes/Content-Length and expose a separate transfer percentage; unknown
-lengths show bytes and `size unknown`. The verified Python bootstrap emits a
-private JSON-lines progress protocol with stage/percent/elapsed events, a final
-state, or an error. Shells consume these records without showing them as logs.
-`tools/install_progress.py` also renders one-line progress for direct Python setup
-and keeps pip output captured. No timer increases a percentage: heartbeat updates
-only the spinner and elapsed time. Redirected human output contains a concise
-final summary; structured protocol output is for the shell relay.
+Shell bootstraps own exactly two in-place rows. The top row labels measured
+transfer percentage separately from overall setup milestones; the bottom row
+shows spinner/current stage and transfer bytes when available. The verified
+Python child emits the existing JSON-lines protocol and never writes UI frames.
+Non-TTY output uses sparse bounded stages plus a final outcome.
+
+Authoritative install templates and shared renderers are expanded by
+tools/build_installer.py into all four scripts, including update. Checked-in
+update templates are removed to prevent drift. See
+[terminal implementation and native PTY checks](TERMINAL-UX.md).
+No version bump or release is part of these Unreleased changes.
 
 The development download-feedback rule is in [AGENTS.md](../../AGENTS.md) and
 [DEVELOPMENT.md](../../DEVELOPMENT.md); it applies to schema and native setup too.

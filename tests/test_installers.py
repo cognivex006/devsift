@@ -32,6 +32,7 @@ class InstallerTests(unittest.TestCase):
             (self.bundle / name).mkdir()
             (self.bundle / name / 'plugin.json').write_text('{"name":"devsift"}')
         (self.bundle / 'gemini-extension.json').write_text('{"name":"devsift"}')
+        (self.bundle / 'plugin.json').write_text('{"name":"devsift"}')
         self.home = self.root / 'home with spaces'
         self.bin = self.home / '.local/bin'
         self.bin.mkdir(parents=True)
@@ -80,12 +81,22 @@ class InstallerTests(unittest.TestCase):
         self.assertEqual(self.launcher.read_text(), 'previous working launcher')
 
     def test_all_hosts_receive_offline_guides_and_selected_state(self):
+        if os.name == 'nt':
+            # Hosted Windows TEMP may already use an 8.3 alias. Exercise that
+            # spelling deliberately; installation records resolved paths.
+            import ctypes
+            buffer = ctypes.create_unicode_buffer(4096)
+            if ctypes.windll.kernel32.GetShortPathNameW(str(self.home), buffer, len(buffer)):
+                self.home = Path(buffer.value)
         def create(path, **kwargs):
             Path(path).mkdir(parents=True)
         with patch.object(installer.venv, 'create', side_effect=create), \
                 patch.object(installer.subprocess, 'run'):
             state = installer.install(self.bundle, self.home, self.bin, list(installer.HOST_PATHS))
         self.assertEqual(len(state['skills']), 6)
+        self.assertIn('copilot', state['hosts'])
+        shared = (self.home / '.agents/skills/devsift').resolve()
+        self.assertEqual(sum(Path(path).resolve() == shared for path in state['skills']), 1)
         for dest in state['skills']:
             self.assertEqual((Path(dest) / 'references/USAGE.md').read_text(), 'offline workflows')
             self.assertTrue((Path(dest) / '.devsift-managed').is_file())

@@ -34,7 +34,7 @@ class VerificationTests(unittest.TestCase):
 
     def git(self, *args):
         result = subprocess.run(["git", "-C", str(self.root), *args], check=True,
-                                capture_output=True)
+                                capture_output=True, stdin=subprocess.DEVNULL)
         return result.stdout.decode().strip()
 
     def commit(self):

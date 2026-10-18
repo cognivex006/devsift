@@ -24,10 +24,16 @@ percentages based on received bytes and a known total (server length or a truste
 expected size). This is a development rule for new and changed download code.
 When the total is unavailable, show an indeterminate bar/spinner, received bytes
 and "size unknown"; never invent a transfer percentage. Distinguish overall
-setup-stage progress from transfer progress. Update the same console indicator
+setup-stage progress from transfer progress. Interactive setup reserves exactly
+two live rows: a measured transfer/labelled overall bar, then spinner and actual
+stage. Repaint those rows, clip by display cells, and clear/restore cursor and
+console modes before summaries, errors or prompts. One renderer owns the region;
+bootstrap children emit JSON only. Update the same console indicator
 instead of printing periodic log lines, keep a concise completion/failure summary,
 and support structured/noninteractive output without terminal control noise.
-Test known-size, unknown-size, interruption and checksum-failure behavior. This
+Test known-size, unknown-size, interruption and checksum-failure behavior with
+independent screen-state assertions at 40, 48, 80 and 120 columns, native Windows
+ConPTY/POSIX PTYs, resize and spinner-only ticks. This
 rule does not authorize network activity during read-only scans.
 
 Scans and reviews are read-only. Native execution requires an explicitly trusted

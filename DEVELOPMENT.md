@@ -37,6 +37,14 @@ show an indeterminate transfer, bytes received and `size unknown`; timers must
 not manufacture percentages. Setup percentages may advance at completed stages,
 but must be labelled as overall setup progress, separate from transfer percent.
 
+Interactive setup has exactly two live rows: a transfer/overall bar above a
+spinner and real current stage. Reserve them once, repaint in place, clear old
+text and clip by display width without soft wrapping. Restore cursor/modes and
+stop/join the heartbeat before durable outcomes, errors or prompts. Suspend the
+renderer around confirmation input. One process owns this region at a time.
+See [terminal UX implementation](docs/development/TERMINAL-UX.md) for reusable
+maintainer guidance and the native-terminal verification matrix.
+
 Reuse `tools/install_progress.py` for Python setup progress. Shell bootstraps
 render download feedback before trusting/extracting the bundle, then relay the
 Python installer's structured progress into that same display. Long local work

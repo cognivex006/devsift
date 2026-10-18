@@ -22,7 +22,8 @@ curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/dow
 checksum ตรวจความเสียหายของไฟล์ ไม่ใช่ลายเซ็นรับรองผู้เผยแพร่
 ต้องเชื่อถือ repository และ release ที่เลือกติดตั้ง
 
-ระหว่างทำงานจะแสดงแถบความคืบหน้าเดียวพร้อมเปอร์เซ็นต์และขั้นตอนปัจจุบัน:
+Source installer (Unreleased) ใช้พื้นที่สองบรรทัดเดิม: bar พร้อมเปอร์เซ็นต์ด้านบน
+และ spinner/ขั้นตอนปัจจุบันด้านล่าง รุ่น release 0.1.12 ยังใช้รูปแบบเดิม:
 ตรวจ Python → ดาวน์โหลด → ตรวจ checksum → แตก bundle → เตรียม environment →
 ติดตั้ง CLI/skills → ตั้งค่า PATH ดาวน์โหลดแสดงเปอร์เซ็นต์จาก bytes จริง ส่วน
 ขั้นตอนในเครื่องแสดงความคืบหน้ารวมและเวลาที่ผ่านไป เมื่อไม่ทราบขนาดดาวน์โหลด
@@ -94,7 +95,7 @@ devsift --help
 ```
 
 เพิ่ม `~/.local/bin` เข้า PATH ถาวรใน shell หรือ user environment ของคุณสำหรับ source installation
-ใช้ `--hosts codex claude` เป็นต้น หากต้องการเฉพาะบาง host; ค่าเริ่มต้นติดตั้งครบทั้งห้า
+ใช้ `--hosts codex claude` เป็นต้น หากต้องการเฉพาะบาง host; ค่าเริ่มต้นติดตั้งครบทั้งหก host (รวม Copilot ใน source รุ่น Unreleased)
 ใช้ `--home <directory>` และ `--bin-dir <directory>` เมื่อต้องการ destination แยก
 ติดตั้งเฉพาะ CLI ลง environment ที่จัดการเองได้ด้วย `python -m pip install .`
 จากนั้น activate environment ก่อนเรียก `devsift`
