@@ -238,8 +238,8 @@ def _scan_snapshot(root: str | Path, candidates=None, *, adapters: tuple[Adapter
         # Mask untrusted values, preserving the protocol's fixed keys/statuses.
         # Fresh source evidence already used this redactor in full source context.
         for target in public_targets:
-            for key in ('path', 'adapter_id', 'adapter_version'):
-                if target[key] is not None:
+            for key in ('path', 'adapter_id', 'adapter_version', 'analysis_reason'):
+                if key in target and target[key] is not None:
                     target[key] = redactor.text(target[key])
         for finding in findings:
             for key in ('case_id', 'message', 'path'):

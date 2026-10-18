@@ -181,6 +181,23 @@ class StreamScanTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 AdapterOutcome(False, reason=reason)
 
+    def test_analysis_reason_uses_explicit_secret_mask_without_changing_protocol(self):
+        self.source('a.py')
+
+        class PrivateReason(CleanAdapter):
+            def analyze(self, target):
+                return AdapterOutcome(False, reason='PRIVATE_FIXTURE_SECRET')
+
+        records = list(iter_scan(self.root, adapters=(PrivateReason(),),
+                                 redactor=Redactor(('PRIVATE_FIXTURE_SECRET', 'incomplete', 'complete'))))
+        target_record = records[1]
+        self.assertNotIn('PRIVATE_FIXTURE_SECRET', json.dumps(records))
+        self.assertEqual(target_record['data']['targets'][0]['analysis_reason'], '[REDACTED]')
+        self.assertEqual(target_record['data']['targets'][0]['execution_status'], 'incomplete')
+        self.assertFalse(target_record['complete'])
+        self.assertEqual(target_record['status'], 'incomplete')
+        self.assertTrue(records[0]['complete'])
+
     def test_streaming_source_proof_waits_for_completion_legacy_remains_bounded(self):
         self.source('a.py')
 
