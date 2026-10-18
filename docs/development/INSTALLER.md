@@ -12,7 +12,7 @@ the installer; unrelated files under `skills/` are excluded.
 The manually dispatched `installer-assets.yml` workflow produces downloadable
 build artifacts. After release authorization and the existing release checks,
 attach all six generated files to the selected GitHub release. The public `/releases/latest/download/` commands use those release assets.
-The owner selected and authorized release `0.1.12`; the project license remains
+The owner selected and authorized release `0.1.13`; the project license remains
 unselected and no signature claim is made.
 
 `tools/install.py` creates a private venv, installs the wheel offline, verifies
@@ -38,7 +38,7 @@ Authoritative install templates and shared renderers are expanded by
 tools/build_installer.py into all four scripts, including update. Checked-in
 update templates are removed to prevent drift. See
 [terminal implementation and native PTY checks](TERMINAL-UX.md).
-No version bump or release is part of these Unreleased changes.
+The owner authorized version 0.1.13 and GitHub publication.
 
 The development download-feedback rule is in [AGENTS.md](../../AGENTS.md) and
 [DEVELOPMENT.md](../../DEVELOPMENT.md); it applies to schema and native setup too.

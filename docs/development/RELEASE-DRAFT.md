@@ -1,17 +1,18 @@
-# DevSift 0.1.12 release notes
+# DevSift 0.1.13 release notes
 
-Version `0.1.12` is selected and publication authorized by the project owner.
-The tag is `v0.1.12`. Package and agent plugin manifests use the same version.
+Version `0.1.13` is selected and publication authorized by the project owner.
+The tag is `v0.1.13`. Package and agent plugin manifests use the same version.
 
 ## Changes
 
-- Use `devsift --help`, `devsift doctor` and `devsift scan --changed` directly.
-- Add Windows PowerShell and macOS/Linux install and update scripts with a
-  checksum-verified bundle and a private Python environment.
-- Install consumer skills for Codex, Claude Code, Gemini CLI, Antigravity and
-  Cursor; bundle offline usage guides and host plugin/extension metadata.
-- Separate consumer guides, command reference and developer documentation.
-- Keep source analysis read-only and preserve incomplete/UNKNOWN results.
+- Render setup/install/update in exactly two live terminal rows, with actual
+  byte transfer percentages, truthful unknown-size state, spinner and real stages.
+- Generate all four scripts from authoritative templates; retain PowerShell5.1
+  and POSIX support, safe downloads/extraction and offline wheel installation.
+- Add repository marketplace catalogs including Copilot and remote host guides;
+  Codex/Copilot share a managed skill directory without duplicate copies.
+- Preserve offline usage/report templates and read-only CLI result semantics.
+- Validate native ConPTY/Linux/macOS PTY screens, resize, cancellation and failures.
 
 ## Distribution and limitations
 

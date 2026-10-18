@@ -3,7 +3,7 @@
 The initial CLI requires Python 3.12 or later and has no runtime dependencies.
 Install locally with `python -m pip install .`, then run `devsift --help`.
 Installation/building can create packaging and interpreter files; installation is
-separate from read-only command execution. The current package version is `0.1.12`.
+separate from read-only command execution. The current package version is `0.1.13`.
 Installing the CLI does not imply that optional native analyzers are available.
 
 For first use, see the [getting-started guide](../GETTING-STARTED.md) and

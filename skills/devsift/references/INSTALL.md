@@ -22,8 +22,8 @@ curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/dow
 checksum ตรวจความเสียหายของไฟล์ ไม่ใช่ลายเซ็นรับรองผู้เผยแพร่
 ต้องเชื่อถือ repository และ release ที่เลือกติดตั้ง
 
-Source installer (Unreleased) ใช้พื้นที่สองบรรทัดเดิม: bar พร้อมเปอร์เซ็นต์ด้านบน
-และ spinner/ขั้นตอนปัจจุบันด้านล่าง รุ่น release 0.1.12 ยังใช้รูปแบบเดิม:
+ตัวติดตั้งรุ่น 0.1.13 ใช้พื้นที่สองบรรทัดเดิม: bar พร้อมเปอร์เซ็นต์ด้านบน
+และ spinner/ขั้นตอนปัจจุบันด้านล่าง:
 ตรวจ Python → ดาวน์โหลด → ตรวจ checksum → แตก bundle → เตรียม environment →
 ติดตั้ง CLI/skills → ตั้งค่า PATH ดาวน์โหลดแสดงเปอร์เซ็นต์จาก bytes จริง ส่วน
 ขั้นตอนในเครื่องแสดงความคืบหน้ารวมและเวลาที่ผ่านไป เมื่อไม่ทราบขนาดดาวน์โหลด
@@ -32,7 +32,7 @@ Source installer (Unreleased) ใช้พื้นที่สองบรร�
 หน้าจอปกติไม่แสดง pip/build logs หลังเสร็จสรุปเฉพาะเวอร์ชัน ตำแหน่ง CLI,
 hosts ที่ติดตั้ง และคำสั่งถัดไป หากล้มเหลวจะบอกขั้นตอนและสาเหตุ ไม่แสดงสถานะ Ready
 
-Installer assets เผยแพร่พร้อม [v0.1.12](https://github.com/orchex006/devsift/releases/tag/v0.1.12)
+Installer assets เผยแพร่พร้อม [v0.1.13](https://github.com/orchex006/devsift/releases/tag/v0.1.13)
 หากดาวน์โหลดไม่ได้ให้ตรวจ network หรือใช้ source installation ด้านล่าง
 
 เปิด terminal ใหม่ แล้วตรวจจาก Git root ของ target:
@@ -95,7 +95,7 @@ devsift --help
 ```
 
 เพิ่ม `~/.local/bin` เข้า PATH ถาวรใน shell หรือ user environment ของคุณสำหรับ source installation
-ใช้ `--hosts codex claude` เป็นต้น หากต้องการเฉพาะบาง host; ค่าเริ่มต้นติดตั้งครบทั้งหก host (รวม Copilot ใน source รุ่น Unreleased)
+ใช้ `--hosts codex claude` เป็นต้น หากต้องการเฉพาะบาง host; ค่าเริ่มต้นติดตั้งครบทั้งหก host (รวม Copilot โดยใช้ skill ร่วมกับ Codex)
 ใช้ `--home <directory>` และ `--bin-dir <directory>` เมื่อต้องการ destination แยก
 ติดตั้งเฉพาะ CLI ลง environment ที่จัดการเองได้ด้วย `python -m pip install .`
 จากนั้น activate environment ก่อนเรียก `devsift`
