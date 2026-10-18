@@ -10,7 +10,7 @@ available.
 
 - [x] Select a release version and source commit through the authorized owner
   process under [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html);
-  current package/plugin version is `0.1.12`, as explicitly selected by the owner.
+  current package/plugin version is `0.1.13`, as explicitly selected by the owner.
 - [ ] Confirm the reviewed commit, clean selected package inputs, and exact
   component manifest using `packaging/manifest.json` and
   `tools/package_manifest.py`.
@@ -37,7 +37,7 @@ available.
   `native/go/go.mod`; and `native/frontend/package.json` plus
   `native/frontend/package-lock.json`. Derive versions and dependency scope from
   these files at release time; do not create a second version source here.
-- [ ] Record Python package version `0.1.12` and empty runtime dependency
+- [ ] Record Python package version `0.1.13` and empty runtime dependency
   list as current metadata, with setuptools `83.0.0` as the pinned build
   requirement. The build backend is not a Python runtime dependency.
 - [ ] Resolve license identifiers and notices for the actual shipped
@@ -84,7 +84,7 @@ remains incomplete.
 
 ## Owner-authorized distribution decision
 
-The owner explicitly authorized publication of `0.1.12`. This authorization
+The owner explicitly authorized publication of `0.1.13`. This authorization
 permits publishing the reviewed assets without another confirmation. It does
 not select a license or claim signing evidence. Record the unselected license
 as `NOASSERTION` and disclose unsigned checksums in the release notes. Unchecked

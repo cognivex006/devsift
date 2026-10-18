@@ -17,6 +17,7 @@ import zipfile
 from tools.package_manifest import PackageManifestError, inventory, load_manifest
 
 ROOT = Path(__file__).resolve().parents[1]
+PROJECT_VERSION = tomllib.loads((ROOT / 'pyproject.toml').read_text(encoding='utf-8'))['project']['version']
 MANIFEST = json.loads((ROOT / 'packaging/manifest.json').read_text(encoding='utf-8'))
 
 
@@ -135,7 +136,7 @@ class ManifestTests(unittest.TestCase):
         config = tomllib.loads((ROOT / 'pyproject.toml').read_text(encoding='utf-8'))
         self.assertEqual(config['build-system']['requires'], ['setuptools==83.0.0'])
         self.assertEqual(config['project']['dependencies'], [])
-        self.assertEqual(config['project']['version'], '0.1.12')
+        self.assertEqual(config['project']['version'], '0.1.13')
         settings = config['tool']['setuptools']
         self.assertEqual(settings['packages'], [])
         self.assertIs(settings['include-package-data'], False)
@@ -186,9 +187,9 @@ class ActualBuildTests(unittest.TestCase):
                 self.assertEqual(sources, set(MANIFEST['components']['core-wheel']['required']))
                 for name in wheel.namelist():
                     self.assertNotIn(b'PRIVATE_UNTRACKED_PACKAGE_CANARY', wheel.read(name), name)
-                metadata_bytes = wheel.read('devsift-0.1.12.dist-info/METADATA')
+                metadata_bytes = wheel.read(f'devsift-{PROJECT_VERSION}.dist-info/METADATA')
                 self.assertNotIn(b'Requires-Dist:', metadata_bytes)
-                self.assertIn(b'devsift = devsift.cli:main', wheel.read('devsift-0.1.12.dist-info/entry_points.txt'))
+                self.assertIn(b'devsift = devsift.cli:main', wheel.read(f'devsift-{PROJECT_VERSION}.dist-info/entry_points.txt'))
             wheel_path = next(outputs.glob('*.whl'))
             smoke = subprocess.run([sys.executable, '-I', '-B', '-c',
                                     'import sys; sys.path.insert(0,sys.argv[1]); from devsift.cli import main; main(["--help"])',

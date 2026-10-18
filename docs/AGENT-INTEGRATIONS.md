@@ -8,8 +8,8 @@ CLI, native toolchains หรือเปลี่ยนโปรเจกต์
 แต่ consumer skill มีเฉพาะ workflow/คู่มือผู้ใช้ กฎพัฒนาใน cache ไม่ใช่กติกาของ target project
 
 Catalog ใน repository รองรับ marketplace จาก Git ไม่ต้องสร้าง local bundle
-ส่วนสองบรรทัดและ Copilot ในตัวติดตั้งอยู่ใน Unreleased สำหรับรุ่นถัดไป
-release assets ปัจจุบันยังเป็น 0.1.12 คำสั่งด้านล่างใช้ source บน main หลังรวมการเปลี่ยนแปลง
+รุ่น 0.1.13 มี progress สองบรรทัดและตัวเลือก Copilot ในตัวติดตั้ง
+คำสั่ง marketplace ด้านล่างใช้ catalog จาก repository
 ไม่ได้หมายความว่า DevSift ผ่านการขึ้น official directory แล้ว
 
 ## Marketplace / repository installation
@@ -99,7 +99,7 @@ Public Cursor Marketplace ต้องส่ง repository ให้ Cursor ต�
 
 ## Standalone skill และ local import
 
-Source installer รองรับ user scope ต่อไปนี้; ตัวเลือก --hosts copilot อยู่ใน Unreleased
+ตัวติดตั้งรุ่น 0.1.13 รองรับ user scope ต่อไปนี้และตัวเลือก --hosts copilot
 ถ้าใช้ marketplace แล้วไม่ต้องติดตั้ง standalone ซ้ำใน host เดียวกัน
 
 | Host | ตำแหน่งที่ installer ใช้ |

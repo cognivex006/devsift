@@ -4,10 +4,11 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+## [0.1.13] - 2026-10-18
+
 ### Changed
 - Reserve two in-place terminal rows for installer/update/setup feedback, with a rotating spinner, measured download percentages and separately labelled overall milestones; keep redirected stages bounded and JSON transport clean.
 - Generate all four install/update variants from two templates and embedded renderer sources; test native ConPTY/POSIX screen states and narrow terminals.
-- Show a single installer/update progress display with measured transfer percentages, current setup stage and elapsed time; hide routine pip logs and retain concise completion/error state.
 - Require download feedback in repository development instructions and add it to schema/native setup workflows.
 
 ### Fixed
