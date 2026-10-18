@@ -113,6 +113,31 @@ class StoreTests(unittest.TestCase):
                     self.assertEqual(summary['data']['execution'], {'fresh_targets': 0, 'reused_targets': 3})
             finally:
                 stored.close()
+        original = (fixture.root / 'code.py').read_bytes()
+        (fixture.root / 'code.py').unlink()
+        deleted = run_streamed(fixture.root, factory, destination=destination, resume=True,
+                               configuration=configuration, policy=policy, trusted_lifecycles=True)
+        try:
+            summary = deleted.summary()
+            self.assertEqual(summary['exit_code'], 0)
+            self.assertEqual(summary['data']['finding_count'], 0)
+            self.assertFalse(summary['data']['quality_gate']['security_review_required'])
+            index = json.loads(Path(deleted.bundle['index']).read_text())
+            self.assertFalse(index['quality_gate']['security_review_required'])
+            self.assertEqual(summary['data']['execution'], {'fresh_targets': 0, 'reused_targets': 2})
+        finally:
+            deleted.close()
+        (fixture.root / 'code.py').write_bytes(original)
+        restored = run_streamed(fixture.root, factory, destination=destination, resume=True,
+                               configuration=configuration, policy=policy, trusted_lifecycles=True)
+        try:
+            summary = restored.summary()
+            self.assertEqual(summary['exit_code'], 1)
+            self.assertEqual(summary['data']['finding_count'], 1)
+            self.assertTrue(summary['data']['quality_gate']['security_review_required'])
+            self.assertEqual(summary['data']['execution'], {'fresh_targets': 1, 'reused_targets': 2})
+        finally:
+            restored.close()
 
     def test_cached_resume_rechecks_current_provider_availability_and_recovery(self):
         (self.root / 'a.py').write_text('print(1)')

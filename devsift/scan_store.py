@@ -204,7 +204,7 @@ class StoredResult:
             record['data'].update(json.loads(public_data[0]))
         if security_review_required or 'quality_gate' in record['data']:
             gate = record['data'].setdefault('quality_gate', {})
-            gate['security_review_required'] = bool(gate.get('security_review_required') or security_review_required)
+            gate['security_review_required'] = bool(security_review_required)
         if self.bundle is not None:
             record['data']['report_bundle'] = {key: self.bundle[key] for key in
                                               ('index', 'markdown_index', 'page_count', 'case_count', 'reports_complete', 'analysis_complete')}
@@ -354,6 +354,9 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
             header['data']['targets'] = [masker.redact(target) for target in targets]
             header['findings'] = [masker.redact(finding) for finding in record['findings']]
             public_data = {key: value for key, value in header['data'].items() if key not in ('targets', 'counts', 'reports', 'report_bundle')}
+            if type(public_data.get('quality_gate')) is dict:
+                # Session aggregation must not alter the per-target declaration.
+                public_data['quality_gate'] = dict(public_data['quality_gate'])
             if cached_public_data and type(public_data.get('quality_gate')) is dict:
                 previous_gate = cached_public_data.get('quality_gate', {})
                 public_data['quality_gate']['security_review_required'] = bool(
