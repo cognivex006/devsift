@@ -7,6 +7,18 @@ description: Run read-only code-quality and security checks through the DevSift 
 
 Follow [consumer scope](CONSUMER-SCOPE.md) and the target project's applicable instructions. Ordinary questions and scans do not create maintainer tasks, branches or releases.
 
+Resolve all bundled links relative to the directory containing this loaded
+`SKILL.md`. A marketplace plugin normally uses `skills/devsift/`, not its parent
+`skills/`. Do not switch to a hardcoded standalone installation when the loaded
+plugin already contains the references. If a read fails, correct that path first.
+
+A request to check a repository authorizes the read-only scan and presentation of
+its actual results. In an execution-capable session, proceed through the scan;
+do not stop after proposing a plan or ask permission again for the same scan.
+Host-enforced Plan mode still applies; never claim a planned scan has run.
+Use the requested report language, including Thai, without translating machine
+identifiers, paths or evidence into invented values.
+
 Use the installed `devsift` command from the target Git root. Resolve it from the trusted installation on PATH, never a project-local launcher. Start with `devsift --help` and `devsift doctor`; inspect subcommand help when selecting flags. The managed installer launcher handles Python isolation internally. If unavailable, explain the missing installation and follow [installation](references/INSTALL.md) only when installation is authorized. Never fall back to importing target code or invent results.
 
 ## Choose a workflow
@@ -36,6 +48,13 @@ Use `devsift scan --changed` for working changes, or `scan --all --legacy-mode r
 For an introduced-code quality gate use `ci --base <trusted-base-ref>` with the same manifest/digest pair and an explicit scope. CI includes committed PR changes as well as working changes. Missing tools, unresolved history and incomplete analysis remain exit 2; verified legacy security review is independent of quality thresholds.
 
 Inspect the command, scope, completion, errors, coverage and findings. Empty findings with incomplete analysis prove nothing. Preserve UNKNOWN and unresolved source; a changed file does not make every finding new. Full JSON, Markdown and SARIF reports are in `data.reports`; select formats with `--report-format`. Explain only verified locations/SHA and actual rule evidence, mask credentials, and state missing consumer/effect evidence.
+
+Exit2 is a valid incomplete JSON result, not an empty command failure. Capture
+large stdout in memory and parse the envelope before summarizing; avoid dumping
+the entire inventory into a truncated tool response. Read `data.counts`, group
+`data.targets` by language/execution status, and present a case index before case
+details. If no analyzer executed, state that explicitly and give the declared
+trusted-setup action; do not invent findings or silently install/enable providers.
 
 When the user requests a full report, use the bundled [report template](references/REPORT-TEMPLATE.md) with a summary/index and a full section for every returned case, including verified BEFORE, the actual proposal status, both impact directions, validation/rollback and review/proposal prompts. The CLI's rendered Markdown is already in `data.reports.markdown`; do not substitute invented evidence while formatting it. `--report-format markdown` still emits a JSON envelope, not a Markdown file. Missing source, proposals or test results stay explicitly unavailable/UNKNOWN. See the [illustrative report](references/cases/REPORT-EXAMPLE.md) for an incomplete result with no cases.
 

@@ -5,6 +5,29 @@ from devsift.redaction import RedactionError, Redactor
 
 
 class RedactionTests(unittest.TestCase):
+    def test_generated_output_budget_masks_values_and_keys_after_default_boundary(self):
+        secret = 'fixtureLatePrivateValue'
+        value = [None] * 21_000 + [{secret: secret, 'password': secret}]
+        with self.assertRaises(RedactionError):
+            Redactor((secret,)).redact(value)
+        masked = Redactor((secret,)).redact(value, max_nodes=200_000)
+        self.assertNotIn(secret, json.dumps(masked))
+        self.assertEqual(masked[-1], {'[REDACTED]': '[REDACTED]', 'password': '[REDACTED]'})
+        self.assertEqual(value[-1][secret], secret)
+
+    def test_output_budget_is_bounded_and_other_fail_closed_guards_remain(self):
+        for limit in (True, 0, -1, 200_001, 20_000.0, '200000'):
+            with self.subTest(limit=limit), self.assertRaises(RedactionError):
+                Redactor().redact([], max_nodes=limit)
+        cyclic = []; cyclic.append(cyclic)
+        deep = 'leaf'
+        for _ in range(34):
+            deep = [deep]
+        for value in ([None] * 200_000, 'x' * 2_000_001, cyclic, deep, {'one': 1, 'two': 2}):
+            with self.assertRaises(RedactionError) as error:
+                Redactor(('one', 'two')).redact(value, max_nodes=200_000)
+            self.assertEqual(str(error.exception), 'unsupported or excessive redaction input')
+
     def test_explicit_values_are_masked_across_nested_values_and_keys(self):
         secret = "fixture" + "PrivateValue"
         original = {"before": [secret, {secret: "proposal " + secret}], "password": "unknown-value"}
