@@ -4,6 +4,12 @@
 JSON record, auto-loads target configuration, builds target projects, installs
 dependencies or applies remediation. Setup is a separate trusted operation.
 
+The CLI starting in 0.1.15 uses the same resumable disk-backed execution and complete
+paged reports as [complete scans](../COMPLETE-SCANS.md), including `--summary`,
+`--report-dir` and `--resume`. Every resume rechecks current pinned-provider
+readiness before reusing byte-identical completed source. Report completeness
+does not override source attribution, security review or an incomplete gate.
+
 ```text
 devsift ci --all --base TRUSTED_BASE_REF --native-manifest ABSOLUTE_MANIFEST --native-manifest-digest TRUSTED_SHA256
 devsift ci --paths src/module.py --security --base TRUSTED_BASE_REF --native-manifest ABSOLUTE_MANIFEST --native-manifest-digest TRUSTED_SHA256

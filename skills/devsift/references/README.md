@@ -8,6 +8,7 @@
 | ติดตั้งและอัปเดต CLI / skill | [INSTALL](INSTALL.md) |
 | ตรวจครั้งแรก | [GETTING-STARTED](GETTING-STARTED.md) |
 | คำสั่งใช้งานประจำวันและอ่านผล | [USAGE](USAGE.md) |
+| ตรวจต่อจนจบและรายงานทุก case | [COMPLETE-SCANS](COMPLETE-SCANS.md) (0.1.15 ขึ้นไป) |
 | Codex / Claude / Gemini / Antigravity / Cursor | [AGENT-INTEGRATIONS](AGENT-INTEGRATIONS.md) |
 | แก้ปัญหาการติดตั้งและผลไม่ครบ | [TROUBLESHOOTING](TROUBLESHOOTING.md) |
 | ตรวจ codebase เดิม | [MIGRATION](MIGRATION.md) |

@@ -44,6 +44,14 @@ serialized input/output. Reports and cases cannot be directly constructed from
 wire claims. `to_dict` returns fresh independent trees; `find_case` exposes only
 an exact existing ID. No source, Git metadata, baseline or report file is written.
 
+These limits are per untrusted document/page. `report_bundle` feeds fresh scans
+through adaptive pages and writes every case plus exact coverage/checksum indexes
+outside source. It never widens imported-document authority. Complete-run source
+proof explicitly uses `source_timeout_seconds=None`; generic callers retain a
+validated finite default. Oversized verified BEFORE excerpts become a whole
+`[REDACTED]` marker after full-context masking/proof, so one legitimate excerpt
+cannot exceed the case document budget or cause a case to disappear.
+
 This task supplies assembly and schema. Markdown, SARIF/JSON export, substantive
 baseline/risk integration and CLI/report consumption are separate reviewed tasks.
 

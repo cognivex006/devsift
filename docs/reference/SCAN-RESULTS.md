@@ -8,6 +8,20 @@ adapter, verifies findings and applies the accepted policy. No native analyzer i
 registered by default. Without an available registered analyzer, even an empty
 scope returns incomplete (2), never a fabricated clean result.
 
+Repository file count is not a cumulative redaction allowance: targets and
+findings are masked separately with the same defensive per-item limits. Inventory
+stays in `data.targets` and does not count toward formatted-report input size.
+The aggregate embedded `scan()` API retains its compatibility snapshot model.
+The CLI starting in 0.1.15 uses `iter_inventory`/`iter_scan` and disk-backed sessions,
+holding one source snapshot at a time. It emits current analyzer readiness even
+when every target is cached. Complete reports are split into adaptive pages;
+untrusted report-model/export limits apply per page, not to repository totals.
+Every finding is indexed, with artifact checksums and `reports_complete`
+separate from `analysis_complete`. Missing pages never mean a complete report.
+See [complete scans](../COMPLETE-SCANS.md). A per-file AST may still require
+memory proportional to its source; no AST-semantic equivalence is claimed for
+arbitrary byte chunks. Parser/resource failures remain visible per file.
+
 ```python
 from devsift.adapters import AdapterCapability
 from devsift.scanner import AdapterOutcome, scan

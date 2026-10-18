@@ -23,7 +23,7 @@ curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/dow
 curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/update.sh | sh
 ```
 
-Release ปัจจุบันคือ [v0.1.14](https://github.com/orchex006/devsift/releases/tag/v0.1.14)
+Release ปัจจุบันคือ [v0.1.15](https://github.com/orchex006/devsift/releases/tag/v0.1.15)
 ดู [วิธีติดตั้งจาก source](docs/INSTALL.md#ติดตั้งจาก-source) หากต้องการ build เอง
 
 เปิด terminal และ agent session ใหม่ จาก Git root ของโปรเจกต์ที่ต้องการตรวจ:
@@ -61,8 +61,9 @@ Skill มีคู่มือการใช้งานแนบไปด้�
 | ค้นหาคู่มือและเอกสารอ้างอิง | [เอกสารผู้ใช้](docs/README.md) |
 | พัฒนา DevSift / ให้ agent เรียนรู้ระบบ | [เอกสารพัฒนา](docs/development/README.md) |
 
-Scan และ CI ส่ง JSON envelope ซึ่งมี reports ใน `data.reports`; CLI ไม่บันทึกไฟล์ให้อัตโนมัติ
+Scan และ CI ส่ง JSON envelope ตั้งแต่รุ่น 0.1.15 รองรับการตรวจต่อจนจบและ
+รายงานทุก case แบบหลายส่วน พร้อม session/resume นอก source ดู [COMPLETE-SCANS](docs/COMPLETE-SCANS.md)
 Exit `2` หมายถึงผลไม่ครบหรือยังมี review ค้าง แม้ findings ว่าง
 `report --latest` และ storage lookup ของ `explain` ยังไม่พร้อมใช้งาน
 
-Marketplace/repository plugin installation (รวม Copilot): ดู [agent integrations](docs/AGENT-INTEGRATIONS.md) สำหรับคำสั่งและสถานะของแต่ละ host สำหรับรุ่น 0.1.14
+Marketplace/repository plugin installation (รวม Copilot): ดู [agent integrations](docs/AGENT-INTEGRATIONS.md) สำหรับคำสั่งและสถานะของแต่ละ host สำหรับรุ่น 0.1.15

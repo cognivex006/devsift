@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path"
+	"path/filepath"
 	"runtime"
 	"sort"
 	"strconv"
@@ -33,9 +34,33 @@ type diagnostic struct {
 	Region region `json:"region"`
 }
 
+var fileTransport bool
+var diagnosticsFile string
+
 func report(complete bool, diagnostics []diagnostic, reason string) {
 	if diagnostics == nil {
 		diagnostics = []diagnostic{}
+	}
+	if fileTransport && diagnosticsFile != "" {
+		output, err := os.OpenFile(diagnosticsFile, os.O_WRONLY|os.O_TRUNC, 0600)
+		if err != nil {
+			os.Exit(3)
+		}
+		encoder := json.NewEncoder(output)
+		for _, item := range diagnostics {
+			if encoder.Encode(item) != nil {
+				output.Close()
+				os.Exit(3)
+			}
+		}
+		if output.Close() != nil {
+			os.Exit(3)
+		}
+		_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
+			"protocol_version": "1", "tool_id": toolID, "tool_version": toolVersion,
+			"complete": complete, "diagnostic_count": len(diagnostics), "reason": reason, "metadata": map[string]any{},
+		})
+		return
 	}
 	_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
 		"protocol_version": "1", "tool_id": toolID, "tool_version": toolVersion,
@@ -54,6 +79,11 @@ func request(body []byte) (string, string, bool) {
 	}
 	fields := map[string]json.RawMessage{}
 	allowed := map[string]bool{"protocol_version": true, "path": true, "language": true, "source": true, "dialect": true}
+	if fileTransport {
+		delete(allowed, "source")
+		allowed["source_file"] = true
+		allowed["diagnostics_file"] = true
+	}
 	for decoder.More() {
 		key, err := decoder.Token()
 		name, valid := key.(string)
@@ -69,12 +99,36 @@ func request(body []byte) (string, string, bool) {
 		}
 		fields[name] = value
 	}
-	if closing, err := decoder.Token(); err != nil || closing != json.Delim('}') || len(fields) != 5 {
+	if closing, err := decoder.Token(); err != nil || closing != json.Delim('}') || len(fields) != len(allowed) {
 		return "", "", false
 	}
 	var trailing any
 	if decoder.Decode(&trailing) != io.EOF {
 		return "", "", false
+	}
+	if fileTransport {
+		for _, key := range []string{"source_file", "diagnostics_file"} {
+			var value string
+			if json.Unmarshal(fields[key], &value) != nil || !filepath.IsAbs(value) {
+				return "", "", false
+			}
+			info, err := os.Lstat(value)
+			if err != nil || !info.Mode().IsRegular() {
+				return "", "", false
+			}
+			if key == "source_file" {
+				content, err := os.ReadFile(value)
+				if err != nil || !utf8.Valid(content) {
+					return "", "", false
+				}
+				fields["source"], err = json.Marshal(string(content))
+				if err != nil {
+					return "", "", false
+				}
+			} else {
+				diagnosticsFile = value
+			}
+		}
 	}
 	var protocol, language, source, filename string
 	if json.Unmarshal(fields["protocol_version"], &protocol) != nil || protocol != "1" ||
@@ -91,11 +145,12 @@ func main() {
 	if len(os.Args) == 2 && os.Args[1] == "--probe" {
 		_ = json.NewEncoder(os.Stdout).Encode(map[string]any{
 			"protocol_version": "1", "tool_id": toolID, "tool_version": toolVersion,
-			"languages": []string{"go"}, "engine_versions": map[string]string{"go": runtime.Version()},
+			"languages": []string{"go"}, "engine_versions": map[string]string{"go": runtime.Version()}, "transports": []string{"inline", "files"},
 		})
 		return
 	}
-	if len(os.Args) != 2 || os.Args[1] != "--analyze" {
+	fileTransport = len(os.Args) == 2 && os.Args[1] == "--analyze-files"
+	if !fileTransport && (len(os.Args) != 2 || os.Args[1] != "--analyze") {
 		os.Exit(3)
 	}
 	defer func() {
@@ -189,14 +244,24 @@ func main() {
 		}
 		return false
 	}
+	lineStarts := []int{0}
+	for index := range source {
+		if source[index] == '\n' {
+			lineStarts = append(lineStarts, index+1)
+		}
+	}
+	coordinateAt := func(offset int) (int, int) {
+		line := sort.Search(len(lineStarts), func(index int) bool { return lineStarts[index] > offset }) - 1
+		return line + 1, utf8.RuneCountInString(source[lineStarts[line]:offset]) + 1
+	}
 	var findings []diagnostic
 	add := func(rule string, node ast.Node) {
-		if len(findings) >= 1000 {
+		if !fileTransport && len(findings) >= 1000 {
 			panic("limit")
 		}
 		start, end := files.File(node.Pos()).Offset(node.Pos()), files.File(node.End()).Offset(node.End())
-		line, column := coordinate(source, start)
-		endLine, endColumn := coordinate(source, end)
+		line, column := coordinateAt(start)
+		endLine, endColumn := coordinateAt(end)
 		findings = append(findings, diagnostic{rule, region{line, column, endLine, endColumn}})
 	}
 	ast.Inspect(file, func(node ast.Node) bool {
@@ -251,17 +316,4 @@ func excludedPath(filename string) bool {
 		}
 	}
 	return false
-}
-
-func coordinate(source string, offset int) (int, int) {
-	line, column := 1, 1
-	for _, character := range source[:offset] {
-		if character == '\n' {
-			line++
-			column = 1
-		} else {
-			column++
-		}
-	}
-	return line, column
 }

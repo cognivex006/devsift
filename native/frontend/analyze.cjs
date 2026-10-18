@@ -13,18 +13,33 @@ const versions = {
 };
 const pinned = versions.eslint === '10.12.0' && versions.parser === '8.71.2' && versions.typescript === '6.0.3';
 const probe = { protocol_version: '1', tool_id: TOOL_ID, tool_version: TOOL_VERSION,
-  languages: ['typescript', 'javascript'], engine_versions: versions };
+  languages: ['typescript', 'javascript'], engine_versions: versions, transports: ['inline', 'files'] };
 
+let diagnosticsFile = null;
+const fileTransport = process.argv[2] === '--analyze-files';
 function output(complete, diagnostics = [], reason = 'ANALYSIS_FAILED') {
-  process.stdout.write(JSON.stringify({ protocol_version: '1', tool_id: TOOL_ID,
-    tool_version: TOOL_VERSION, complete, diagnostics, reason, metadata: {} }));
+  const result = { protocol_version: '1', tool_id: TOOL_ID, tool_version: TOOL_VERSION, complete, reason, metadata: {} };
+  if (fileTransport && diagnosticsFile) {
+    const fd = fs.openSync(diagnosticsFile, 'w');
+    try { for (const diagnostic of diagnostics) fs.writeSync(fd, JSON.stringify(diagnostic) + '\n'); }
+    finally { fs.closeSync(fd); }
+    result.diagnostic_count = diagnostics.length;
+  } else result.diagnostics = diagnostics;
+  process.stdout.write(JSON.stringify(result));
 }
 
+let coordinateSource = null, lineStarts = [];
 function position(source, offset) {
-  const prefix = source.slice(0, offset);
-  const line = prefix.split('\n').length;
-  const start = prefix.lastIndexOf('\n') + 1;
-  return [line, Array.from(source.slice(start, offset)).length + 1];
+  if (coordinateSource !== source) {
+    coordinateSource = source; lineStarts = [0];
+    for (let index = 0; index < source.length; index++) if (source[index] === '\n') lineStarts.push(index + 1);
+  }
+  let low = 0, high = lineStarts.length;
+  while (low + 1 < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (lineStarts[middle] <= offset) low = middle; else high = middle;
+  }
+  return [low + 1, Array.from(source.slice(lineStarts[low], offset)).length + 1];
 }
 
 function region(source, node) {
@@ -58,18 +73,29 @@ if (process.argv[2] === '--probe') {
   process.stdout.write(JSON.stringify(probe));
 } else {
   try {
-    if (process.argv[2] !== '--analyze' || !pinned) throw new Error('unsupported');
+    if (!['--analyze', '--analyze-files'].includes(process.argv[2]) || !pinned) throw new Error('unsupported');
     const bytes = fs.readFileSync(0);
     if (bytes.length > 2000000) throw new Error('unsupported');
     const request = strictRequest(bytes);
-    const keys = ['dialect', 'language', 'path', 'protocol_version', 'source'];
+    const keys = fileTransport ? ['diagnostics_file', 'dialect', 'language', 'path', 'protocol_version', 'source_file']
+      : ['dialect', 'language', 'path', 'protocol_version', 'source'];
+    if (fileTransport) {
+      const path = require('node:path');
+      for (const key of ['source_file', 'diagnostics_file']) {
+        if (typeof request[key] !== 'string' || !path.isAbsolute(request[key])
+          || !fs.lstatSync(request[key]).isFile() || fs.lstatSync(request[key]).isSymbolicLink()) throw new Error('unsupported');
+      }
+      diagnosticsFile = request.diagnostics_file;
+    }
     if (!request || typeof request !== 'object' || Array.isArray(request)
       || JSON.stringify(Object.keys(request).sort()) !== JSON.stringify(keys)
       || request.protocol_version !== '1' || request.dialect !== null
       || !['typescript', 'javascript'].includes(request.language)
-      || typeof request.source !== 'string' || request.source.includes('\0')
+      || !fileTransport && (typeof request.source !== 'string' || request.source.includes('\0'))
       || typeof request.path !== 'string' || /[\\:\x00-\x1f]/.test(request.path)
       || request.path.split('/').some(part => ['', '.', '..', '.git'].includes(part))) throw new Error('unsupported');
+    if (fileTransport) request.source = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(fs.readFileSync(request.source_file));
+    if (request.source.includes('\0')) throw new Error('unsupported');
     const extension = request.path.split('.').pop().toLowerCase();
     const typescript = ['ts', 'tsx', 'mts', 'cts'].includes(extension);
     const javascript = ['js', 'jsx', 'mjs', 'cjs'].includes(extension);
@@ -309,7 +335,7 @@ if (process.argv[2] === '--probe') {
       }], { filename: request.path, allowInlineConfig: false });
       const parseFailure = messages.some(message => message.fatal);
       if (parseFailure) output(false, [], 'PARSE_ERROR');
-      else if (diagnostics.length > 1000) output(false, diagnostics.slice(0, 1000));
+      else if (!fileTransport && diagnostics.length > 1000) output(false, diagnostics.slice(0, 1000));
       else if (securityIncomplete) output(false, diagnostics);
       else output(true, diagnostics, 'COMPLETED');
     }

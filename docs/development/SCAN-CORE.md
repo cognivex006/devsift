@@ -6,12 +6,49 @@ Inventory completeness is never a quality-gate pass. The scan coordinator runs
 explicitly configured trusted adapters; no native analyzer is registered by
 default. See [native protocol](NATIVE-PROTOCOL.md) for execution boundaries.
 
-Generated scanner output uses a bounded200,000-node redaction profile, sufficient
-for large inventories containing many small entries. Generic/untrusted redaction
-retains its20,000-node default. Both profiles retain2,000,000 cumulative string
-characters, depth32, cycle/type checks, sensitive-key masking and key-collision
-refusal. No failed redaction returns raw data. Error categories are deduplicated
-in first-seen order while per-target statuses and exact outcome counts remain.
+Generated scanner output masks each target and finding independently, with a
+separate bounded envelope. Repository cardinality does not consume a cumulative
+redaction budget. Each item retains the generic 20,000-node, 2,000,000-character,
+depth 32, cycle/type, sensitive-key and key-collision checks. Failed individual
+redaction never returns raw data. Error categories are deduplicated in first-seen
+order while per-target statuses and exact outcome counts remain.
+
+The CLI uses `iter_inventory` / `iter_scan` and the `scan_store` SQLite session,
+not the aggregate compatibility API. Each iterator first emits a targetless
+current-readiness control envelope; cached results cannot hide current provider
+failure. Sources are read one at a time, without a repository-sized content list
+or sorted directory materialization. One target's AST/content and diagnostics may
+still require per-file memory. Generic `inventory` / `scan` retain their embedded
+compatibility snapshot contracts.
+
+The session is outside source, privately created, and locked for one writer.
+Only safe records plus hashed raw path/snapshot identities are persisted. A new
+generation revalidates root/configuration/current source, retries incomplete or
+changed targets, and removes deleted-target coverage only after enumeration.
+Cross-target duplicate case IDs remain explicit errors. Per-target transactions
+survive cancellation; cached and fresh target counts are separate. Raw source
+snapshots are never persisted by this journal.
+
+`report_bundle` consumes safe findings in adaptive pages through the unchanged
+bounded untrusted report model/exporters. There is no aggregate case or report
+size cap. Every page has requested rendered formats and a bounded `scan.json`
+for case prompts; SQLite tracks exact page/case coverage and checksums. Missing
+or unrendered artifacts make `reports_complete` false independently of analysis
+status. Public JSON arrays stream from SQLite, and the exit code is the exact
+one encoded in that output snapshot. `--summary` emits compact counts/index.
+
+Completion-mode file transport and source proof have no source-processing wall
+deadline; cancellation, contained-child cleanup and fixed-shape validation remain.
+Full source proof retains byte-exact Git identity, strict UTF-8, physical LF/CRLF
+coordinates and full-context masks. Huge excerpts become a whole mask, never a
+partially truncated credential or a missing case. Generic imported documents
+retain finite validation budgets and do not inherit fresh execution authority.
+
+Verification includes synthetic 100,000-target output, real 16,000-path CLI/CI,
+all four native helpers above 2 MB / 1,000 diagnostics, 1,205 actual templated
+cases across all formats, cancellation/resume/revalidation, provider loss on
+all-cache resume, ownership and terminal screen-state checks. These verify
+cardinality/retention and explicit rules, not comprehensive language semantics.
 
 ```python
 from devsift.inventory import inventory
@@ -91,4 +128,6 @@ and analyzer integrity belong to later adapter-host work. Source reads reject
 links and junctions, use no-follow/nonblocking opens where the platform provides
 them, and reject nonregular files. This is a stable-repository read contract,
 not protection against an attacker concurrently replacing ancestor directories.
-No command writes files, accesses a database, or transfers source over a network.
+These inventory/capability APIs do not write files, access a database or transfer
+source over a network. CLI session/report I/O is the separate owned storage layer
+described above.

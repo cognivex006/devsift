@@ -35,6 +35,16 @@ def snapshot(root):
             for p in root.rglob('*')}
 
 
+def checkout_snapshot(root):
+    # Ignored live sessions/build caches belong to concurrent validation, not
+    # archive inspection. Include tracked and untracked authoring inputs; Git
+    # index and HEAD are checked independently below.
+    paths = subprocess.check_output(
+        ['git', '-C', str(root), 'ls-files', '--cached', '--others', '--exclude-standard', '-z'])
+    return {name: hashlib.sha256((root / os.fsdecode(name)).read_bytes()).hexdigest()
+            for name in paths.split(b'\0') if name}
+
+
 class ArtifactSecurityTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='devsift-artifact-assurance-')
@@ -65,7 +75,7 @@ class ArtifactSecurityTests(unittest.TestCase):
             subprocess.run(['git', '-C', str(source), *args], check=True, capture_output=True)
         marker = self.root / 'ARCHIVE_SOURCE_EXECUTED'
         code = 'from pathlib import Path\nPath(' + repr(str(marker)) + ').write_text("executed")\n'
-        before_source, before_checkout = snapshot(source), snapshot(ROOT)
+        before_source, before_checkout = snapshot(source), checkout_snapshot(ROOT)
         index = Path(subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', '--path-format=absolute', '--git-path', 'index'], text=True).strip())
         before_index = index.read_bytes()
         before_head = subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD'])
@@ -77,7 +87,7 @@ class ArtifactSecurityTests(unittest.TestCase):
         self.assertEqual(record['inspected_text_members'], 3)
         self.assertFalse(marker.exists())
         self.assertEqual(snapshot(source), before_source)
-        self.assertEqual(snapshot(ROOT), before_checkout)
+        self.assertEqual(checkout_snapshot(ROOT), before_checkout)
         self.assertEqual(index.read_bytes(), before_index)
         self.assertEqual(subprocess.check_output(['git', '-C', str(ROOT), 'rev-parse', 'HEAD']), before_head)
 

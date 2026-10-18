@@ -36,7 +36,7 @@ class NativeConformance(unittest.TestCase):
         self.helper.write_text(source, encoding="utf-8")
         return ToolDefinition("fixture", "1.0.0", ("typescript",),
                               ProcessSpec(str(Path(sys.executable).resolve()), (str(self.helper),),
-                                          timeout_seconds=0.5 if delay else 10),
+                                          timeout_seconds=2 if delay else 10),
                               file_digest(sys.executable), ((str(self.helper), file_digest(self.helper)),))
 
     def test_portable_paths_do_not_become_output_controlled_locations(self):
@@ -79,7 +79,7 @@ class NativeConformance(unittest.TestCase):
             self.assertFalse(report.complete)
             self.assertNotIn("private fixture", repr(report))
             if "delay" in configuration:
-                self.assertEqual(executions, ["timeout"])
+                self.assertEqual(executions, ["completed", "timeout"])
 
     def test_transport_analysis_never_writes_source_or_fixture_files(self):
         tool = self.tool()

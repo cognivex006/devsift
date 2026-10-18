@@ -1,3 +1,4 @@
+from dataclasses import replace
 import copy
 import hashlib
 import json
@@ -134,16 +135,18 @@ class DoctorDiscoveryTests(unittest.TestCase):
         self.assertEqual(before, self.snapshot())
 
     def test_doctor_caps_trusted_process_limits_without_altering_original(self):
-        tool = self.tool()
-        path, digest = self.manifest((tool,))
-        with patch('devsift.doctor.probe_tool', return_value=ProbeResult(False, 'PROBE_UNAVAILABLE')) as probe:
-            record = run_doctor(native_manifest=path, native_manifest_digest=digest, search_path='')
-        process = probe.call_args.args[0].process
-        self.assertLessEqual(process.timeout_seconds, 5)
-        self.assertLessEqual(process.max_stdout_bytes, 32768)
-        self.assertLessEqual(process.max_stderr_bytes, 16384)
-        self.assertEqual(tool.process.timeout_seconds, 100)
-        self.assertEqual(record['exit_code'], 2)
+        original = self.tool()
+        for timeout in (100, None):
+            tool = replace(original, process=replace(original.process, timeout_seconds=timeout))
+            path, digest = self.manifest((tool,))
+            with patch('devsift.doctor.probe_tool', return_value=ProbeResult(False, 'PROBE_UNAVAILABLE')) as probe:
+                record = run_doctor(native_manifest=path, native_manifest_digest=digest, search_path='')
+            process = probe.call_args.args[0].process
+            self.assertLessEqual(process.timeout_seconds, 5)
+            self.assertLessEqual(process.max_stdout_bytes, 32768)
+            self.assertLessEqual(process.max_stderr_bytes, 16384)
+            self.assertEqual(tool.process.timeout_seconds, timeout)
+            self.assertEqual(record['exit_code'], 2)
 
     def test_unsupported_python_is_explicitly_incomplete(self):
         with patch('devsift.doctor.sys.version_info', (3, 11, 9)):

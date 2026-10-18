@@ -1,9 +1,10 @@
 # DevSift report template
 
 ใช้ template นี้เมื่อให้ AI จัดรายงานผลสแกน หรือเมื่อต้องการแบบฟอร์ม Markdown
-ที่เปิดอ่านและนำไปใช้ต่อได้ CLI มี renderer ของตนเอง และส่ง Markdown ที่ประกอบแล้ว
-ใน `data.reports.markdown`; การเลือก `--report-format markdown` ยังคืน JSON envelope
-ไม่ใช่ไฟล์ Markdown บนดิสก์ ดูวิธีอ่านและบันทึกใน [USAGE](USAGE.md#อ่านผลและ-exit-code)
+ที่เปิดอ่านและนำไปใช้ต่อได้ CLI มี renderer ของตนเอง ผลขนาดเล็กมี Markdown ใน
+`data.reports.markdown`; complete runs ตั้งแต่รุ่น 0.1.15 มีทุกส่วนบนดิสก์และดัชนีใน
+`data.report_bundle` การเลือก `--report-format markdown` ยังคงคืน JSON envelope
+ดู [การอ่านรายงานครบทุก case](COMPLETE-SCANS.md) และ [USAGE](USAGE.md#อ่านผลและ-exit-code)
 และดู [ตัวอย่างรายงาน](cases/REPORT-EXAMPLE.md)
 
 กรอก `{{...}}` จากผล scan จริงเท่านั้น ข้อมูลที่ไม่มีหลักฐานให้ใช้ `UNKNOWN`,

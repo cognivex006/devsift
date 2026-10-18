@@ -170,7 +170,7 @@ print(json.dumps(actual,sort_keys=True))
         self.assertEqual(metadata.version("setuptools"), "83.0.0", "Provision the pinned backend explicitly before opt-in")
         source_sha, manifest, data = self.commit_inputs()
         current = {name: data[name] for name in manifest["components"]["core-wheel"]["required"]}
-        self.assertEqual(len(current), 42)
+        self.assertEqual(len(current), 45)
         self.assertTrue(all(name.startswith("devsift/") and name.endswith(".py") for name in current))
         original = self.snapshot(ROOT, sorted(data))
         index = Path(self.git(ROOT, "rev-parse", "--path-format=absolute", "--git-path", "index").decode().strip())

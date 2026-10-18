@@ -12,10 +12,10 @@ from typing import Protocol
 from .git_runtime import git_executable
 from .adapters import AdapterCapability, negotiate
 from .evidence import SourceEvidence, requires_source_mask, verify_source
-from .inventory import SourceTarget, inventory
+from .inventory import Inventory, SourceTarget, inventory, iter_inventory
 from .output import result
 from .policy import decide, resolve_policy
-from .redaction import MAX_OUTPUT_NODES, Redactor
+from .redaction import Redactor
 from .registry import RULES
 
 _LIFECYCLES = frozenset({'NEW', 'MODIFIED_INTRODUCED', 'MODIFIED_PREEXISTING',
@@ -44,9 +44,11 @@ class ScanFinding:
 class AdapterOutcome:
     complete: bool
     findings: tuple[ScanFinding, ...] = ()
+    reason: str = ''
 
     def __post_init__(self):
-        if (type(self.complete) is not bool or type(self.findings) is not tuple
+        if (type(self.reason) is not str or (self.reason and re.fullmatch(r'[A-Z][A-Z0-9_]{0,127}', self.reason) is None)
+                or type(self.complete) is not bool or type(self.findings) is not tuple
                 or any(type(finding) is not ScanFinding for finding in self.findings)):
             raise ValueError('Outcome requires explicit boolean completeness and immutable findings')
 
@@ -94,7 +96,7 @@ def _snapshot_matches_commit(root, source, content):
         return False
 
 
-def _source(root, target, finding, redactor):
+def _source(root, target, finding, redactor, *, source_timeout_seconds=10):
     claimed = finding.source
     if (claimed.status != 'VERIFIED' or claimed.location is None
             or claimed.location.path != target.path):
@@ -102,14 +104,16 @@ def _source(root, target, finding, redactor):
     location = claimed.location
     verified = verify_source(root, location.repository, location.source_sha,
                              location.path, location.region, redactor=redactor,
-                             sensitive=requires_source_mask(finding.rule_id, claimed))
+                             sensitive=requires_source_mask(finding.rule_id, claimed),
+                             source_timeout_seconds=source_timeout_seconds)
     if not _snapshot_matches_commit(root, verified, target.content):
         return SourceEvidence(reason='SOURCE_MISMATCH')
     return verified
 
 
-def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (),
-         policy=None, redactor: Redactor | None = None) -> dict:
+def _scan_snapshot(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (),
+                   policy=None, redactor: Redactor | None = None, snapshot=None,
+                   max_bytes=4 * 1024 * 1024) -> dict:
     """Execute one selected trusted adapter per eligible target; return JSON data.
 
     Lifecycle values are trusted upstream attribution, never inferred from a
@@ -145,7 +149,8 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
                 raise ValueError('Invalid adapter contract')
             bindings[capability.adapter_id] = (capability, adapter)
         capabilities = tuple(pair[0] for _, pair in sorted(bindings.items()))
-        snapshot = inventory(root, candidates)
+        if snapshot is None:
+            snapshot = inventory(root, candidates)
     except Exception:
         return result('scan', complete=False,
                       errors=[{'code': 'INVALID_SCAN_INPUT', 'message': 'Invalid scan input or configuration.'}],
@@ -176,8 +181,10 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
             if type(outcome) is not AdapterOutcome:
                 raise ValueError('Invalid outcome contract')
             # Re-run value checks even for a frozen object forged by a caller.
-            AdapterOutcome(outcome.complete, outcome.findings)
-            current = inventory(root, (target.path,)).targets
+            AdapterOutcome(outcome.complete, outcome.findings, outcome.reason)
+            if outcome.reason:
+                public['analysis_reason'] = outcome.reason
+            current = tuple(iter_inventory(root, (target.path,), max_bytes=max_bytes))
             if (len(current) != 1 or current[0].status != 'ready'
                     or current[0].content != target.content):
                 raise ValueError('Source changed during adapter execution')
@@ -185,7 +192,8 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
             for finding in outcome.findings:
                 ScanFinding(finding.case_id, finding.rule_id, finding.source,
                             finding.message, finding.lifecycle_class)
-                source = _source(root, target, finding, redactor)
+                source = _source(root, target, finding, redactor,
+                                 source_timeout_seconds=None if max_bytes is None else 10)
                 policy_decision = decide(finding.rule_id, finding.lifecycle_class,
                                          source_verified=source.status == 'VERIFIED', policy=resolved)
                 evaluated.append((finding, source, policy_decision))
@@ -230,13 +238,61 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
         # Mask untrusted values, preserving the protocol's fixed keys/statuses.
         # Fresh source evidence already used this redactor in full source context.
         for target in public_targets:
-            for key in ('path', 'adapter_id', 'adapter_version'):
-                if target[key] is not None:
+            for key in ('path', 'adapter_id', 'adapter_version', 'analysis_reason'):
+                if key in target and target[key] is not None:
                     target[key] = redactor.text(target[key])
         for finding in findings:
             for key in ('case_id', 'message', 'path'):
                 finding[key] = redactor.text(finding[key])
-        return Redactor().redact(record, max_nodes=MAX_OUTPUT_NODES)
+        # Inventory size is not the size of an untrusted object. Each generated
+        # target/finding is independently bounded and masked; never impose a
+        # cumulative secret-processing budget on the whole repository.
+        masker = Redactor()
+        safe = masker.redact({**record, 'findings': [],
+                              'data': {**record['data'], 'targets': []}})
+        safe['data']['targets'] = [masker.redact(target) for target in public_targets]
+        safe['findings'] = [masker.redact(finding) for finding in findings]
+        return safe
     except Exception:
         return result('scan', complete=False,
                       errors=[{'code': 'REDACTION_FAILED', 'message': 'Scan output could not be safely serialized.'}])
+
+
+def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (),
+         policy=None, redactor: Redactor | None = None) -> dict:
+    """Compatibility aggregate scan over an immutable repository snapshot."""
+    return _scan_snapshot(root, candidates, adapters=adapters, policy=policy, redactor=redactor)
+
+
+def iter_scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (),
+              policy=None, redactor: Redactor | None = None, max_bytes=None, should_scan=None):
+    """Yield current readiness, then per-target redacted scan envelopes.
+
+    Duplicate case IDs across targets must be checked by the persistent consumer.
+    Each target is snapshotted once before analysis and reread only to detect
+    mutation during execution. The first targetless control envelope always
+    validates current readiness, even when every source is skipped by resume.
+    It reads no source. Closing this iterator closes the inventory.
+    """
+    mode = 'all' if candidates is None else 'incremental'
+    targets = iter_inventory(root, candidates, max_bytes=max_bytes)
+    try:
+        preflight = _scan_snapshot(root, adapters=adapters, policy=policy, redactor=redactor,
+                                   snapshot=Inventory(mode, ()), max_bytes=max_bytes)
+        yield preflight
+        if any(error['code'] == 'INVALID_SCAN_INPUT' for error in preflight['errors']):
+            return
+        for target in targets:
+            if should_scan is not None and not should_scan(target):
+                del target
+                continue
+            yield _scan_snapshot(root, adapters=adapters, policy=policy, redactor=redactor,
+                                 snapshot=Inventory(mode, (target,)), max_bytes=max_bytes)
+            del target
+    except (ValueError, OSError):
+        yield result('scan', complete=False, errors=[{
+            'code': 'INVALID_SCAN_INPUT', 'message': 'Invalid scan input or configuration.'}],
+            data={'mode': mode, 'targets': [], 'counts': {
+                name: 0 for name in ('executed', 'skipped', 'unavailable', 'incomplete')}})
+    finally:
+        targets.close()

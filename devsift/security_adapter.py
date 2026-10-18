@@ -236,9 +236,13 @@ def _region(text, start, end):
 
 class SecurityAdapter:
     """One composed capability, with canonical messages and conservative proof."""
-    def __init__(self, delegate=None, *, repo_root=None, source_sha=None, repository="local", config_paths=(), redactor=None):
+    def __init__(self, delegate=None, *, repo_root=None, source_sha=None, repository="local", config_paths=(), redactor=None,
+                 complete_run=False):
         try:
-            if type(config_paths) is not tuple or len(config_paths) > 1000 or len(set(config_paths)) != len(config_paths): raise ValueError()
+            if (type(complete_run) is not bool or type(config_paths) is not tuple
+                    or (not complete_run and len(config_paths) > 1000)
+                    or len(set(config_paths)) != len(config_paths)): raise ValueError()
+            self.complete_run = complete_run
             paths = frozenset(_canonical(path) for path in config_paths)
             if redactor is not None and type(redactor) is not Redactor: raise ValueError()
             if delegate is None:
@@ -263,7 +267,8 @@ class SecurityAdapter:
         if self.repo_root is None or self.source_sha is None: return SourceEvidence()
         try:
             source = verify_source(self.repo_root, self.repository, self.source_sha, target.path, region,
-                                   redactor=self.redactor, sensitive=sensitive)
+                                   redactor=self.redactor, sensitive=sensitive,
+                                   source_timeout_seconds=None if self.complete_run else 10)
             if source.status != "VERIFIED" or not _snapshot_matches_commit(self.repo_root, source, target.content):
                 return SourceEvidence(reason="SOURCE_MISMATCH")
             return source
@@ -272,15 +277,17 @@ class SecurityAdapter:
 
     def analyze(self, target):
         if (type(target) is not SourceTarget or target.status != "ready" or target.language not in self.capability.languages
-                or type(target.content) is not bytes or len(target.content) > 2_000_000):
+                or type(target.content) is not bytes
+                or (not self.complete_run and len(target.content) > 2_000_000)):
             return AdapterOutcome(False)
         try:
             text = target.content.decode("utf-8")
             if "\x00" in text: return AdapterOutcome(False)
             literals, complete = _python_literals(text) if target.language == "python" else _quoted_literals(text, target.language)
             candidates = [literal for literal in literals if _candidate(literal)]
-            if len(candidates) > 1000: return AdapterOutcome(False)
+            if not self.complete_run and len(candidates) > 1000: return AdapterOutcome(False)
             findings, identities = [], set()
+            reason = ''
             spans = [(literal.start, literal.end) for literal in candidates]
 
             def add(rule_id, region, source, unresolved_id=None):
@@ -298,7 +305,7 @@ class SecurityAdapter:
                 add(rule_id, region, self._proof(target, region, True))
             if target.language == "python":
                 from .security_context import python_contexts
-                contexts = python_contexts(text)
+                contexts = python_contexts(text, complete_run=self.complete_run)
                 complete = complete and contexts.complete
                 for diagnostic in contexts.diagnostics:
                     start, end = source_offsets(text, diagnostic.region)
@@ -310,8 +317,10 @@ class SecurityAdapter:
                     with redirect_stdout(_Discard()), redirect_stderr(_Discard()):
                         delegated = self.delegate.analyze(target)
                     if type(delegated) is not AdapterOutcome: raise ValueError()
-                    AdapterOutcome(delegated.complete, delegated.findings)
+                    AdapterOutcome(delegated.complete, delegated.findings, reason=delegated.reason)
                     complete = complete and delegated.complete and self._delegate_available
+                    if not delegated.complete:
+                        reason = delegated.reason
                     seen_cases = {}
                     for finding in delegated.findings:
                         ScanFinding(finding.case_id, finding.rule_id, finding.source, finding.message, finding.lifecycle_class)
@@ -335,6 +344,8 @@ class SecurityAdapter:
                 except Exception:
                     complete = False
             findings.sort(key=lambda finding: (finding.rule_id, finding.case_id))
-            return AdapterOutcome(complete, tuple(findings))
+            return AdapterOutcome(complete, tuple(findings), reason=(
+                reason or ('COMPLETED' if complete else 'SECURITY_ANALYSIS_INCOMPLETE')
+            ) if self.complete_run else '')
         except Exception:
             return AdapterOutcome(False)

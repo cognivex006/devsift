@@ -8,9 +8,11 @@ available.
 
 ## Candidate and source identity
 
-- [x] Select a release version and source commit through the authorized owner
+- [x] Select a release version through the authorized owner
   process under [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html);
-  current package/plugin version is `0.1.14`, as explicitly selected by the owner.
+  current package/plugin version is `0.1.15`, selected as the next patch by the
+  maintainer under the owner's continuing publication instruction. The final
+  reviewed source SHA must be recorded with candidate-specific evidence below.
 - [ ] Confirm the reviewed commit, clean selected package inputs, and exact
   component manifest using `packaging/manifest.json` and
   `tools/package_manifest.py`.
@@ -37,7 +39,7 @@ available.
   `native/go/go.mod`; and `native/frontend/package.json` plus
   `native/frontend/package-lock.json`. Derive versions and dependency scope from
   these files at release time; do not create a second version source here.
-- [ ] Record Python package version `0.1.14` and empty runtime dependency
+- [ ] Record Python package version `0.1.15` and empty runtime dependency
   list as current metadata, with setuptools `83.0.0` as the pinned build
   requirement. The build backend is not a Python runtime dependency.
 - [ ] Resolve license identifiers and notices for the actual shipped
@@ -84,8 +86,10 @@ remains incomplete.
 
 ## Owner-authorized distribution decision
 
-The owner explicitly authorized publication of `0.1.14`. This authorization
-permits publishing the reviewed assets without another confirmation. It does
+The owner's continuing instruction is “ดำเนินการ released ขึ้น github เลยทันที”.
+The maintainer selected `0.1.15` as the next patch for these fixes; the owner did
+not explicitly select that exact number. This authorization permits publishing
+the reviewed assets without another confirmation. It does
 not select a license or claim signing evidence. Record the unselected license
 as `NOASSERTION` and disclose unsigned checksums in the release notes. Unchecked
 historical checklist items must not be represented as completed evidence.

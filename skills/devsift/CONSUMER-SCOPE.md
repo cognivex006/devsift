@@ -1,7 +1,10 @@
 # Consumer scope
 
 Use the installed DevSift skill and CLI under the user's requested scope and
-the selected target project's applicable instructions. A scan is read-only.
+the selected target project's applicable instructions. A scan leaves consumer
+source/configuration read-only. Complete-run CLI sessions and full report pages
+are stored only in owned directories outside source; see the bundled complete
+scan guide. This does not authorize target builds, dependency changes or repairs.
 Consumer work does not require DevSift maintainer branches, commit conventions,
 PR/release procedures, task cards, planning tools, ledgers or a specs checkout.
 Do not load DevSift maintainer instructions as prerequisites for product use.

@@ -4,6 +4,20 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+## [0.1.15] - 2026-10-18
+
+### Added
+- Process CLI scans/CI one immutable source snapshot at a time, with private disk-backed sessions, cancellation/resume, current analyzer readiness checks and changed-source revalidation.
+- Produce every case across adaptive source-reproved report pages with complete indexes, checksums and separate report/analysis completion; add `--report-dir`, `--resume` and compact `--summary` output.
+- Support private native source/diagnostic file transport for all four helpers without aggregate inline size or finding-count caps, plus explicit wait-until-completion execution.
+- Stream large immutable source proof with exact UTF-8, region and Git blob checks; preserve whole-excerpt masking and source/target read-only boundaries.
+- Display full-run stages in two in-place stderr rows with elapsed time and cancellation cleanup; retain clean redirected JSON.
+
+### Fixed
+- Mask scanner targets/findings independently so repository cardinality cannot exhaust one cumulative redaction budget; retain all per-item safety checks.
+- Exclude per-file inventory from formatted-report assembly input without removing it from CLI coverage output.
+- Preserve already-redacted scan findings, counts and errors when a fresh CLI report cannot render; return incomplete with `REPORT_UNAVAILABLE` instead of discarding the scan.
+
 ## [0.1.14] - 2026-10-18
 
 ### Fixed

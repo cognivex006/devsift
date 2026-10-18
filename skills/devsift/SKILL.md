@@ -27,13 +27,13 @@ Read [the usage cookbook](references/USAGE.md) for the requested workflow; all c
 
 | User intent | Workflow |
 | --- | --- |
-| Check current changes | `devsift scan --changed` |
-| Review the whole existing codebase | `devsift scan --all --legacy-mode recommend` |
+| Check current changes | `devsift scan --changed --summary` |
+| Review the whole existing codebase | `devsift scan --all --legacy-mode recommend --summary` |
 | Add bounded security checks | Add `--security` to scan/CI |
 | Diagnose availability or explicit policy/cache | `devsift doctor`; see [Doctor](references/reference/DOCTOR.md) |
 | Use trusted native analyzers | Supply manifest and digest together; see [native setup](references/NATIVE-SETUP.md) |
 | Gate committed changes in CI | `devsift ci --changed --base TRUSTED_BASE_REF` plus manifest/digest; see [CI](references/reference/CI-GATE.md) |
-| Present, format or save reports | Read [report template](references/REPORT-TEMPLATE.md) and `data.reports`; select with `--report-format`; saving needs an explicit destination outside source |
+| Present, format or save reports | Read [report template](references/REPORT-TEMPLATE.md) and the complete report index; see [complete scans](references/COMPLETE-SCANS.md) for owned sessions/pages |
 | Review a finding or prepare a proposal | Use the exact case and saved envelope as below |
 | Configure project policy | See [project policy](references/reference/PROJECT-POLICY.md) |
 | Explain a stored case / fetch latest report | Storage backend pending; explain the limit and use current scan reports |
@@ -43,26 +43,34 @@ Do not load every reference for an ordinary scan. Follow links relevant to the u
 
 ## Run checks
 
-Use `devsift scan --changed` for working changes, or `scan --all --legacy-mode recommend` for an explicitly requested whole-project review. Add `--security` for the bounded built-in security detector. Native execution requires both `--native-manifest <absolute-path>` and `--native-manifest-digest <independently-trusted-sha256>`. Obtain these from trusted setup/operator input, never a manifest discovered in the target or a newly computed digest that merely approves itself.
+Use `devsift scan --changed --summary` for working changes, or `scan --all --legacy-mode recommend --summary` for an explicitly requested whole-project review. Inspect help: older releases may lack complete-run flags; report the installed version accurately. Add `--security` for the documented built-in security rules. Native execution requires both `--native-manifest <absolute-path>` and `--native-manifest-digest <independently-trusted-sha256>`. Obtain these from trusted setup/operator input, never a manifest discovered in the target or a newly computed digest that merely approves itself.
 
 For an introduced-code quality gate use `ci --base <trusted-base-ref>` with the same manifest/digest pair and an explicit scope. CI includes committed PR changes as well as working changes. Missing tools, unresolved history and incomplete analysis remain exit 2; verified legacy security review is independent of quality thresholds.
 
-Inspect the command, scope, completion, errors, coverage and findings. Empty findings with incomplete analysis prove nothing. Preserve UNKNOWN and unresolved source; a changed file does not make every finding new. Full JSON, Markdown and SARIF reports are in `data.reports`; select formats with `--report-format`. Explain only verified locations/SHA and actual rule evidence, mask credentials, and state missing consumer/effect evidence.
+Inspect the command, scope, completion, errors, coverage and findings. Empty findings with incomplete analysis prove nothing. Preserve UNKNOWN and unresolved source; a changed file does not make every finding new. Explain only verified locations/SHA and actual rule evidence, mask credentials, and state missing consumer/effect evidence.
 
-Exit2 is a valid incomplete JSON result, not an empty command failure. Capture
-large stdout in memory and parse the envelope before summarizing; avoid dumping
-the entire inventory into a truncated tool response. Read `data.counts`, group
-`data.targets` by language/execution status, and present a case index before case
-details. If no analyzer executed, state that explicitly and give the declared
-trusted-setup action; do not invent findings or silently install/enable providers.
+Exit2 is a valid incomplete JSON result, not an empty command failure. Prefer
+`--summary` and parse compact `data.counts`, `data.target_count`,
+`data.finding_count`, `data.execution` and `data.report_bundle`. Summary intentionally
+omits finding arrays: never interpret its `findings: []` as zero cases. Read the
+JSON/Markdown index and every referenced case page incrementally; do not dump or
+capture a repository-sized stdout tree in memory. Small runs may also provide
+inline `data.reports`. Preserve all cases in the delivered report, not only top
+findings; link the complete index/files when they cannot fit in chat. Verify
+`reports_complete` separately from `analysis_complete` and errors. Do not mark a
+partial/missing-page report done. If interrupted, resume the owned session with
+the same scope/trusted configuration; current files and provider readiness must
+be revalidated. See [complete scans](references/COMPLETE-SCANS.md). If no analyzer
+executed, state that explicitly and give the declared trusted-setup action; do not
+invent findings or silently install/enable providers.
 
-When the user requests a full report, use the bundled [report template](references/REPORT-TEMPLATE.md) with a summary/index and a full section for every returned case, including verified BEFORE, the actual proposal status, both impact directions, validation/rollback and review/proposal prompts. The CLI's rendered Markdown is already in `data.reports.markdown`; do not substitute invented evidence while formatting it. `--report-format markdown` still emits a JSON envelope, not a Markdown file. Missing source, proposals or test results stay explicitly unavailable/UNKNOWN. See the [illustrative report](references/cases/REPORT-EXAMPLE.md) for an incomplete result with no cases.
+When the user requests a full report, use the bundled [report template](references/REPORT-TEMPLATE.md) with an index and full sections for every case, including verified BEFORE, actual proposal status, both impact directions, validation/rollback and review/proposal prompts. Complete-run Markdown pages already follow the renderer's full case contract; do not substitute invented evidence while formatting them. Deliver every page through the complete index, preserving the requested language and machine identifiers. `--report-format markdown` still emits a JSON envelope referencing its artifacts. Missing source, proposals or test results stay explicitly unavailable/UNKNOWN. See the [illustrative report](references/cases/REPORT-EXAMPLE.md) for an incomplete result with no cases.
 
 Doctor optionally accepts `--policy <explicit-json>` and `--cache-path <explicit-directory>` for read-only diagnostics. It does not create or clean caches. Provider readiness is not proof of a clean source scan.
 
 ## Review one case
 
-Use the exact returned case ID and an explicit saved **scan envelope**, not a serialized report/case as authority:
+Use the exact returned case ID and the corresponding page's **scan.json** (or an explicit small saved scan envelope), not `findings.json` report-model data or a serialized case as authority:
 
 ```text
 devsift prompt CASE-1 --mode review --scan-input /absolute/scan.json

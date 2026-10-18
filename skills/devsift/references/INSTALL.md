@@ -22,7 +22,7 @@ curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/dow
 checksum ตรวจความเสียหายของไฟล์ ไม่ใช่ลายเซ็นรับรองผู้เผยแพร่
 ต้องเชื่อถือ repository และ release ที่เลือกติดตั้ง
 
-ตัวติดตั้งรุ่น 0.1.14 ใช้พื้นที่สองบรรทัดเดิม: bar พร้อมเปอร์เซ็นต์ด้านบน
+ตัวติดตั้งรุ่น 0.1.15 ใช้พื้นที่สองบรรทัดเดิม: bar พร้อมเปอร์เซ็นต์ด้านบน
 และ spinner/ขั้นตอนปัจจุบันด้านล่าง:
 ตรวจ Python → ดาวน์โหลด → ตรวจ checksum → แตก bundle → เตรียม environment →
 ติดตั้ง CLI/skills → ตั้งค่า PATH ดาวน์โหลดแสดงเปอร์เซ็นต์จาก bytes จริง ส่วน
@@ -32,7 +32,7 @@ checksum ตรวจความเสียหายของไฟล์ ไ�
 หน้าจอปกติไม่แสดง pip/build logs หลังเสร็จสรุปเฉพาะเวอร์ชัน ตำแหน่ง CLI,
 hosts ที่ติดตั้ง และคำสั่งถัดไป หากล้มเหลวจะบอกขั้นตอนและสาเหตุ ไม่แสดงสถานะ Ready
 
-Installer assets เผยแพร่พร้อม [v0.1.14](https://github.com/orchex006/devsift/releases/tag/v0.1.14)
+Installer assets เผยแพร่พร้อม [v0.1.15](https://github.com/orchex006/devsift/releases/tag/v0.1.15)
 หากดาวน์โหลดไม่ได้ให้ตรวจ network หรือใช้ source installation ด้านล่าง
 
 เปิด terminal ใหม่ แล้วตรวจจาก Git root ของ target:

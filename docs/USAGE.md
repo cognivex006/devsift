@@ -73,40 +73,35 @@ manifest อนุญาตเฉพาะโปรแกรมที่ระ�
 
 ## อ่านผลและ exit code
 
-ใช้ [Report template](REPORT-TEMPLATE.md) เป็นแบบฟอร์มรายงานฉบับเต็มสำหรับ AI
-พร้อม [ตัวอย่างรายงาน](cases/REPORT-EXAMPLE.md) Skill ที่ติดตั้งมีทั้งสองไฟล์แนบไปด้วย
-ใน `references/` ให้รายงานทุก case พร้อมหลักฐานและข้อจำกัด ไม่สร้างข้อเสนอหรือผลทดสอบที่ยังไม่มี
-
-คำสั่ง `--help` แสดงข้อความช่วยเหลือบน stdout และคืน exit code `0` ส่วนคำสั่งอื่นที่ใช้
-argument ถูกต้องจะส่ง JSON envelope แม้ผลจะ incomplete; misuse ส่ง JSON บน stderr และคืน
-exit code `3` scan และ CI วางเอกสาร JSON, Markdown และ SARIF
-ที่ประกอบจากข้อมูล source-reproved ไว้ใน `data.reports` โดยค่าเริ่มต้น CLI ไม่เขียนไฟล์
-การบันทึกด้วย shell redirection เป็นการเขียนที่ผู้ใช้สั่งเอง ควรเลือกปลายทางนอก source
-และดูแลข้อมูลอ่อนไหวใน report
-
-เลือก format ที่ต้องการได้ด้วยการระบุซ้ำ เช่น `--report-format markdown` หรือ
-`--report-format json --report-format markdown`:
+workflow ตรวจต่อจนจบตั้งแต่รุ่น 0.1.15 ใช้รายงานหลายส่วนพร้อมดัชนีครบทุก case
+ดู [COMPLETE-SCANS](COMPLETE-SCANS.md) สำหรับ session, resume และ native file transport
 
 ```text
-devsift scan --changed --report-format markdown
+devsift scan --all --summary
 ```
 
-คำสั่งนี้ยังส่ง **JSON envelope**; Markdown ที่จัดรูปแบบแล้วอยู่ที่
-`data.reports.markdown` หากต้องการบันทึกเป็น `.md` ให้เลือก path นอก source tree
-อย่างชัดเจนและใช้ UTF-8 ตัวอย่าง PowerShell โดยแทน path ปลายทางก่อนรัน:
+อ่าน `data.finding_count`, `data.target_count`, `data.counts` และ `data.execution`
+จาก summary แล้วเปิด `data.report_bundle.markdown_index` หรือ JSON `index` เพื่ออ่านทุกส่วน
+summary ไม่ใส่ inventory/findings ยาว ๆ; `findings: []` ในนั้นไม่ได้แปลว่าไม่มี findings
+`reports_complete` กับ `analysis_complete` เป็นคนละสถานะ ต้องตรวจทั้งคู่
+
+ผลขนาดเล็กยังมีเอกสาร JSON, Markdown และ SARIF ใน `data.reports` ตาม formats ที่เลือก
+ผลขนาดใหญ่ไม่ตัด cases เพื่อบีบลงเอกสารก้อนเดียว ใช้ index ของรายงานทุกส่วนแทน
+ทุก page มี `scan.json` สำหรับ case prompts และ SHA-256 สำหรับตรวจความครบถ้วน
+
+ตัวอย่าง PowerShell สำหรับเก็บสถานะและหาดัชนี โดยไม่ dump inventory ทั้งหมด:
 
 ```powershell
-$result = devsift scan --changed --report-format markdown | ConvertFrom-Json
+$result = devsift scan --all --summary | ConvertFrom-Json
 $scanExitCode = $LASTEXITCODE
-$result.data.reports.markdown | Set-Content -LiteralPath 'C:/Reports/devsift-report.md' -Encoding UTF8
+$result.data.report_bundle.markdown_index
 ```
 
-`C:/Reports` ต้องมีอยู่ก่อน รักษา `$scanExitCode` และสถานะ complete ไว้ในการสรุปผล
-การเขียนไฟล์สำเร็จไม่ได้แปลว่าผล scan ผ่าน ตัวอย่างนี้บันทึกเฉพาะ rendered Markdown;
-case prompts ต้องใช้ scan envelope เต็มที่บันทึกแยกไว้ ไม่ใช่ไฟล์ `.md`
-
-รายละเอียดการใช้ Python environment เดียวกับที่ติดตั้ง DevSift บน PowerShell และ POSIX
-shell อยู่ใน [คู่มือติดตั้ง](INSTALL.md) และ [เริ่มต้นใช้งาน](GETTING-STARTED.md)
+CLI ยังคงส่ง JSON envelope สร้าง session/report ของตนเองภายนอก source โดยอัตโนมัติ
+หรือใช้ `--report-dir ABSOLUTE_NEW_DIRECTORY` เพื่อเลือกที่เก็บ และ
+`--resume ABSOLUTE_EXISTING_SESSION_DIRECTORY` เพื่อทำต่อด้วย options เดิม
+ห้ามใช้ `data.reports.markdown` ที่ว่างของผลแบบหลายส่วนไปเขียนทับไฟล์รายงานของผู้ใช้
+การบันทึกรายงานครบไม่ได้แปลว่า analysis ผ่านหรือให้สิทธิ์แก้ source
 
 | Exit code | ความหมาย |
 | --- | --- |
@@ -131,8 +126,8 @@ devsift doctor --policy /absolute/policy.json --cache-path /absolute/cache
 
 ## ทบทวน finding รายกรณี
 
-บันทึก scan envelope จาก stdout ด้วยวิธีที่เหมาะกับ shell ของคุณไปยังไฟล์นอก source
-แล้วเลือก `CASE-ID` ที่มีอยู่จริงในผลลัพธ์:
+เลือก `scan.json` ของ page ที่มี case นั้นจาก report index (หรือบันทึก scan envelope
+ขนาดเล็กจาก stdout ไปนอก source) แล้วเลือก `CASE-ID` ที่มีอยู่จริงในผลลัพธ์:
 
 ```sh
 devsift prompt CASE-1 --mode review --scan-input /absolute/scan.json
