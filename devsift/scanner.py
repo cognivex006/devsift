@@ -12,7 +12,7 @@ from typing import Protocol
 from .git_runtime import git_executable
 from .adapters import AdapterCapability, negotiate
 from .evidence import SourceEvidence, requires_source_mask, verify_source
-from .inventory import SourceTarget, inventory
+from .inventory import Inventory, SourceTarget, inventory, iter_inventory
 from .output import result
 from .policy import decide, resolve_policy
 from .redaction import Redactor
@@ -108,8 +108,9 @@ def _source(root, target, finding, redactor):
     return verified
 
 
-def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (),
-         policy=None, redactor: Redactor | None = None) -> dict:
+def _scan_snapshot(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (),
+                   policy=None, redactor: Redactor | None = None, snapshot=None,
+                   max_bytes=4 * 1024 * 1024) -> dict:
     """Execute one selected trusted adapter per eligible target; return JSON data.
 
     Lifecycle values are trusted upstream attribution, never inferred from a
@@ -145,7 +146,8 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
                 raise ValueError('Invalid adapter contract')
             bindings[capability.adapter_id] = (capability, adapter)
         capabilities = tuple(pair[0] for _, pair in sorted(bindings.items()))
-        snapshot = inventory(root, candidates)
+        if snapshot is None:
+            snapshot = inventory(root, candidates)
     except Exception:
         return result('scan', complete=False,
                       errors=[{'code': 'INVALID_SCAN_INPUT', 'message': 'Invalid scan input or configuration.'}],
@@ -177,7 +179,7 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
                 raise ValueError('Invalid outcome contract')
             # Re-run value checks even for a frozen object forged by a caller.
             AdapterOutcome(outcome.complete, outcome.findings)
-            current = inventory(root, (target.path,)).targets
+            current = tuple(iter_inventory(root, (target.path,), max_bytes=max_bytes))
             if (len(current) != 1 or current[0].status != 'ready'
                     or current[0].content != target.content):
                 raise ValueError('Source changed during adapter execution')
@@ -248,3 +250,38 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
     except Exception:
         return result('scan', complete=False,
                       errors=[{'code': 'REDACTION_FAILED', 'message': 'Scan output could not be safely serialized.'}])
+
+
+def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (),
+         policy=None, redactor: Redactor | None = None) -> dict:
+    """Compatibility aggregate scan over an immutable repository snapshot."""
+    return _scan_snapshot(root, candidates, adapters=adapters, policy=policy, redactor=redactor)
+
+
+def iter_scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (),
+              policy=None, redactor: Redactor | None = None, max_bytes=None):
+    """Yield one redacted envelope per target without retaining repository content.
+
+    Duplicate case IDs across targets must be checked by the persistent consumer.
+    Each target is snapshotted once before analysis and reread only to detect
+    mutation during execution. Closing this iterator closes the inventory.
+    """
+    mode = 'all' if candidates is None else 'incremental'
+    targets = iter_inventory(root, candidates, max_bytes=max_bytes)
+    emitted = False
+    try:
+        for target in targets:
+            emitted = True
+            yield _scan_snapshot(root, adapters=adapters, policy=policy, redactor=redactor,
+                                 snapshot=Inventory(mode, (target,)), max_bytes=max_bytes)
+            del target
+        if not emitted:
+            yield _scan_snapshot(root, adapters=adapters, policy=policy, redactor=redactor,
+                                 snapshot=Inventory(mode, ()), max_bytes=max_bytes)
+    except (ValueError, OSError):
+        yield result('scan', complete=False, errors=[{
+            'code': 'INVALID_SCAN_INPUT', 'message': 'Invalid scan input or configuration.'}],
+            data={'mode': mode, 'targets': [], 'counts': {
+                name: 0 for name in ('executed', 'skipped', 'unavailable', 'incomplete')}})
+    finally:
+        targets.close()
