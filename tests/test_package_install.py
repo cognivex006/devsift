@@ -12,10 +12,12 @@ import subprocess
 import sys
 import tarfile
 import tempfile
+import tomllib
 import unittest
 import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
+PROJECT_VERSION = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))["project"]["version"]
 
 
 @unittest.skipUnless(os.environ.get("DEVSIFT_TEST_PACKAGE_INSTALL") == "1", "explicit actual offline install/rollback opt-in")
@@ -116,7 +118,7 @@ class PackageInstallTests(unittest.TestCase):
             info = next(name.split("/")[0] for name in archive.namelist() if name.endswith(".dist-info/METADATA"))
             headers = BytesParser().parsebytes(archive.read(info + "/METADATA"))
             self.assertEqual(headers["Name"], "devsift")
-            self.assertEqual(headers["Version"], "0.1.12")
+            self.assertEqual(headers["Version"], PROJECT_VERSION)
             self.assertNotIn(b"Requires-Dist:", archive.read(info + "/METADATA"))
             self.assertIn(b"Wheel-Version: 1.0", archive.read(info + "/WHEEL"))
             self.assertIn(b"devsift = devsift.cli:main", archive.read(info + "/entry_points.txt"))
@@ -211,7 +213,7 @@ print(json.dumps(actual,sort_keys=True))
                 tar_modules = {}
                 for member in members:
                     parts = PurePosixPath(member.name).parts
-                    self.assertTrue(parts and parts[0] == "devsift-0.1.12")
+                    self.assertTrue(parts and parts[0] == f"devsift-{PROJECT_VERSION}")
                     self.assertNotIn("..", parts)
                     self.assertNotIn("\\", member.name)
                     self.assertNotIn(":", member.name)
