@@ -2,8 +2,16 @@
 
 These producer interfaces enumerate source and negotiate capabilities. They do
 not run analyzers, classify Git changes, render findings, or connect to the CLI.
-Inventory completeness is never a quality-gate pass. Native analyzers and their
-isolation remain future work; no native analyzer is registered by default.
+Inventory completeness is never a quality-gate pass. The scan coordinator runs
+explicitly configured trusted adapters; no native analyzer is registered by
+default. See [native protocol](NATIVE-PROTOCOL.md) for execution boundaries.
+
+Generated scanner output uses a bounded200,000-node redaction profile, sufficient
+for large inventories containing many small entries. Generic/untrusted redaction
+retains its20,000-node default. Both profiles retain2,000,000 cumulative string
+characters, depth32, cycle/type checks, sensitive-key masking and key-collision
+refusal. No failed redaction returns raw data. Error categories are deduplicated
+in first-seen order while per-target statuses and exact outcome counts remain.
 
 ```python
 from devsift.inventory import inventory

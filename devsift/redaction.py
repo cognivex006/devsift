@@ -6,6 +6,8 @@ import re
 
 MASK = "[REDACTED]"
 _LIMIT = 2_000_000
+_DEFAULT_NODES = 20_000
+MAX_OUTPUT_NODES = 200_000
 _SENSITIVE = re.compile(r"^(?:password|passwd|secret|token|api[_-]?key|authorization|credential)s?$", re.I)
 _PATTERNS = (
     (re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"), MASK),
@@ -92,12 +94,17 @@ class Redactor:
             _fail()
         return self.slice(value, 0, len(value))
 
-    def redact(self, value):
+    def redact(self, value, *, max_nodes=_DEFAULT_NODES):
         """Return a fresh JSON-compatible tree, including masked dictionary keys.
 
         Sensitive key values are masked wholesale. Reject cycles, excessive
         depth/size, unsupported objects and key collisions instead of repr/logging.
         """
+        # Generated inventories contain many small, fixed-shape entries. Callers
+        # may select a larger bounded tree budget without relaxing string/depth,
+        # cycle, type or key-collision protection. Untrusted inputs keep default.
+        if type(max_nodes) is not int or not 1 <= max_nodes <= MAX_OUTPUT_NODES:
+            _fail()
         active = set()
         count = 0
         size = 0
@@ -105,7 +112,7 @@ class Redactor:
         def visit(item, depth):
             nonlocal count, size
             count += 1
-            if depth > 32 or count > 20_000:
+            if depth > 32 or count > max_nodes:
                 _fail()
             if type(item) is str:
                 size += len(item)

@@ -27,7 +27,7 @@ this readiness check does not generate either. Preserve `NOASSERTION` for a
 license value that has not been determined in an SBOM format that supports it.
 That value reports uncertainty and does not constitute approval.
 
-The current package and plugin version is `0.1.13`, selected by the owner.
+The current package and plugin version is `0.1.14`, selected by the owner.
 Python runtime dependencies remain empty and setuptools `83.0.0` is the build
 requirement. Native dependency metadata stays in its checked-in project/lock
 files. Publication is explicitly authorized by the owner; the bounded checker

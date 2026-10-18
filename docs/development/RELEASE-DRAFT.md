@@ -1,18 +1,17 @@
-# DevSift 0.1.13 release notes
+# DevSift 0.1.14 release notes
 
-Version `0.1.13` is selected and publication authorized by the project owner.
-The tag is `v0.1.13`. Package and agent plugin manifests use the same version.
+Version `0.1.14` is selected and publication authorized by the project owner.
+The tag is `v0.1.14`. Package and agent plugin manifests use the same version.
 
 ## Changes
 
-- Render setup/install/update in exactly two live terminal rows, with actual
-  byte transfer percentages, truthful unknown-size state, spinner and real stages.
-- Generate all four scripts from authoritative templates; retain PowerShell5.1
-  and POSIX support, safe downloads/extraction and offline wheel installation.
-- Add repository marketplace catalogs including Copilot and remote host guides;
-  Codex/Copilot share a managed skill directory without duplicate copies.
-- Preserve offline usage/report templates and read-only CLI result semantics.
-- Validate native ConPTY/Linux/macOS PTY screens, resize, cancellation and failures.
+- Fix REDACTION_FAILED on large scan inventories while preserving bounded masking
+  and fail-closed serialization. Generic/untrusted redaction keeps its default.
+- Retain all per-file coverage/counts and deduplicate fixed error categories.
+- Keep incomplete results usable for reports; no analyzer availability or source
+  verification is fabricated and no target code is built or modified.
+- Fix skill reference resolution and clarify direct read-only execution, actual
+  exit2 envelopes, report language and large-output handling.
 
 ## Distribution and limitations
 

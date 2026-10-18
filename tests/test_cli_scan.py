@@ -13,6 +13,26 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class CliScanTests(unittest.TestCase):
+    def test_large_repository_keeps_coverage_errors_and_full_reports(self):
+        # More than20k tree nodes and1000 unavailable files: neither the generic
+        # redaction budget nor repeated errors may discard the whole report.
+        for index in range(1400):
+            (self.root / f'source-{index:04d}.cs').write_text('class Sample {}', encoding='utf-8')
+        for index in range(200):
+            (self.root / f'notes-{index:04d}.txt').write_text('documentation', encoding='utf-8')
+        before = self.snapshot()
+        record = self.invoke('--all', '--legacy-mode', 'recommend')
+        self.assertEqual(record['exit_code'], 2)
+        self.assertFalse(record['complete'])
+        self.assertEqual(len(record['data']['targets']), 1600)
+        self.assertEqual(record['data']['counts']['unavailable'], 1400)
+        self.assertEqual(record['data']['counts']['skipped'], 200)
+        self.assertEqual({e['code'] for e in record['errors']}, {'NO_AVAILABLE_ANALYZER', 'ANALYZER_UNAVAILABLE'})
+        self.assertEqual(len(record['errors']), 2)
+        self.assertEqual(set(record['data']['reports']), {'json', 'markdown', 'sarif'})
+        self.assertIn('ANALYZER', record['data']['reports']['markdown'])
+        self.assertEqual(self.snapshot(), before)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

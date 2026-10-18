@@ -15,7 +15,7 @@ from .evidence import SourceEvidence, requires_source_mask, verify_source
 from .inventory import SourceTarget, inventory
 from .output import result
 from .policy import decide, resolve_policy
-from .redaction import Redactor
+from .redaction import MAX_OUTPUT_NODES, Redactor
 from .registry import RULES
 
 _LIFECYCLES = frozenset({'NEW', 'MODIFIED_INTRODUCED', 'MODIFIED_PREEXISTING',
@@ -127,7 +127,11 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
     counts = {name: 0 for name in ('executed', 'skipped', 'unavailable', 'incomplete')}
 
     def error(code):
-        errors.append({'code': code, 'message': 'Scan work is incomplete; inspect declared capabilities and source evidence.'})
+        # Errors describe categories; individual outcomes remain in targets and
+        # counts. Repeating one missing-provider error per file can otherwise
+        # exhaust the bounded report model before any coverage is presented.
+        if not any(item['code'] == code for item in errors):
+            errors.append({'code': code, 'message': 'Scan work is incomplete; inspect declared capabilities and source evidence.'})
 
     try:
         resolved = resolve_policy(policy)
@@ -232,7 +236,7 @@ def scan(root: str | Path, candidates=None, *, adapters: tuple[Adapter, ...] = (
         for finding in findings:
             for key in ('case_id', 'message', 'path'):
                 finding[key] = redactor.text(finding[key])
-        return Redactor().redact(record)
+        return Redactor().redact(record, max_nodes=MAX_OUTPUT_NODES)
     except Exception:
         return result('scan', complete=False,
                       errors=[{'code': 'REDACTION_FAILED', 'message': 'Scan output could not be safely serialized.'}])

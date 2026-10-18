@@ -4,6 +4,13 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+## [0.1.14] - 2026-10-18
+
+### Fixed
+- Preserve large repository scan coverage and reports by using a bounded generated-output redaction budget; keep generic input limits, secret masking, cycles and collision checks intact.
+- Deduplicate fixed scanner error categories without dropping per-file outcomes or counts, avoiding report rejection on many unavailable files.
+- Resolve consumer skill references from the loaded plugin/skill directory and report actual incomplete JSON results instead of stopping at an execution plan or dumping a truncated inventory.
+
 ## [0.1.13] - 2026-10-18
 
 ### Changed
