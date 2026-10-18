@@ -1,0 +1,10 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "devsift",
+  "version": "0.1.12",
+  "description": "Read-only code quality and security review using the separately installed DevSift CLI.",
+  "author": {
+    "name": "orchex006"
+  },
+  "repository": "https://github.com/orchex006/devsift"
+}

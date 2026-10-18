@@ -7,7 +7,10 @@
     {
       "name": "devsift",
       "source": "./",
-      "description": "DevSift consumer skill"
+      "description": "Code quality and security review with DevSift"
     }
-  ]
+  ],
+  "metadata": {
+    "description": "DevSift code quality and security review skills"
+  }
 }

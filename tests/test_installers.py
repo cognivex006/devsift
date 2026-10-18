@@ -32,6 +32,7 @@ class InstallerTests(unittest.TestCase):
             (self.bundle / name).mkdir()
             (self.bundle / name / 'plugin.json').write_text('{"name":"devsift"}')
         (self.bundle / 'gemini-extension.json').write_text('{"name":"devsift"}')
+        (self.bundle / 'plugin.json').write_text('{"name":"devsift"}')
         self.home = self.root / 'home with spaces'
         self.bin = self.home / '.local/bin'
         self.bin.mkdir(parents=True)
@@ -86,6 +87,8 @@ class InstallerTests(unittest.TestCase):
                 patch.object(installer.subprocess, 'run'):
             state = installer.install(self.bundle, self.home, self.bin, list(installer.HOST_PATHS))
         self.assertEqual(len(state['skills']), 6)
+        self.assertIn('copilot', state['hosts'])
+        self.assertEqual(state['skills'].count(str(self.home / '.agents/skills/devsift')), 1)
         for dest in state['skills']:
             self.assertEqual((Path(dest) / 'references/USAGE.md').read_text(), 'offline workflows')
             self.assertTrue((Path(dest) / '.devsift-managed').is_file())

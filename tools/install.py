@@ -24,6 +24,8 @@ HOST_PATHS = {
     'gemini': ('.gemini/skills',),
     'antigravity': ('.gemini/config/skills', '.gemini/antigravity-cli/skills'),
     'cursor': ('.cursor/skills',),
+    # Copilot officially discovers .agents/skills too; share Codex's copy.
+    'copilot': ('.agents/skills',),
 }
 
 
@@ -53,7 +55,7 @@ def install(bundle, home, bin_dir, hosts, *, progress=None):
     wheels = list((bundle / 'wheels').glob('devsift-*.whl'))
     if len(wheels) != 1 or not (bundle / 'skills/devsift/SKILL.md').is_file():
         raise RuntimeError('Expected one DevSift wheel and its consumer skill.')
-    destinations = [home / path / 'devsift' for host in hosts for path in HOST_PATHS[host]]
+    destinations = list(dict.fromkeys(home / path / 'devsift' for host in hosts for path in HOST_PATHS[host]))
     plugin = home / '.local/share/devsift/plugin'
     for dest in [*destinations, plugin]:
         if dest.is_symlink() or dest.is_junction() or (dest.exists() and not (dest / '.devsift-managed').is_file()):
@@ -86,7 +88,7 @@ def install(bundle, home, bin_dir, hosts, *, progress=None):
     pending.write_text(content, encoding='utf-8', newline='')
     pending.chmod(0o755)
     for index, dest in enumerate(destinations):
-        report(70 + index * 12 // len(destinations), f'Installing agent skills ({index + 1}/{len(destinations)})')
+        report(70 + index * 12 // len(destinations), f'Installing skill: {dest.parent.relative_to(home)} ({index + 1}/{len(destinations)})')
         replace_managed_tree(bundle / 'skills/devsift', dest)
     report(84, 'Preparing plugin bundle')
     with tempfile.TemporaryDirectory(prefix='devsift-plugin-') as tmp:
@@ -95,6 +97,7 @@ def install(bundle, home, bin_dir, hosts, *, progress=None):
         for name in ('.codex-plugin', '.claude-plugin', '.cursor-plugin'):
             shutil.copytree(bundle / name, staged_plugin / name)
         shutil.copy2(bundle / 'gemini-extension.json', staged_plugin)
+        shutil.copy2(bundle / 'plugin.json', staged_plugin)
         replace_managed_tree(staged_plugin, plugin)
     report(92, 'Activating verified CLI launcher')
     pending.replace(launcher)
@@ -124,6 +127,9 @@ def main():
                 error = RuntimeError(f'CLI installation check failed (exit {error.returncode}).')
             progress.fail(error)
             return 1
+        except KeyboardInterrupt:
+            progress.fail('Cancelled.')
+            return 130
 
 
 if __name__ == '__main__':

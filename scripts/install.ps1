@@ -4,13 +4,16 @@ $ProgressPreference = 'SilentlyContinue'
 $base = 'https://github.com/orchex006/devsift/releases/latest/download'
 $devsiftTemp = Join-Path ([IO.Path]::GetTempPath()) ('devsift-' + [guid]::NewGuid())
 $setupStage = 'Checking Python 3.12+'
-$showSetupProgress = -not [Console]::IsErrorRedirected
+$operation = '@DEVSIFT_OPERATION@'
+if (-not ('DevSiftTerminalV2.Display' -as [type])) {
+    Add-Type -TypeDefinition @'
+# @DEVSIFT_PROGRESS@
+'@
+}
+$setupDisplay = New-Object DevSiftTerminalV2.Display($operation)
 function Show-DevSiftProgress([int] $Percent, [string] $Stage) {
     $script:setupStage = $Stage
-    if ($showSetupProgress) {
-        $ProgressPreference = 'Continue'
-        Write-Progress -Id 71 -Activity 'DevSift setup' -Status "$Percent% setup | $Stage" -PercentComplete $Percent
-    }
+    $setupDisplay.Update($Percent, $Stage)
 }
 function Receive-DevSiftFile([string] $Url, [string] $Destination, [int] $Start, [int] $End, [string] $Label) {
     Show-DevSiftProgress $Start "$Label (connecting)"
@@ -25,17 +28,11 @@ function Receive-DevSiftFile([string] $Url, [string] $Destination, [int] $Start,
         $buffer = New-Object byte[] 32768
         [long] $received = 0
         [long] $total = $response.ContentLength
-        if ($total -gt 0) { Show-DevSiftProgress $Start "$Label | 0% (0 / $total bytes)" }
+        $setupDisplay.Transfer(0, $total, $Label)
         while (($count = $inputStream.Read($buffer, 0, $buffer.Length)) -gt 0) {
             $outputStream.Write($buffer, 0, $count)
             $received += $count
-            if ($total -gt 0) {
-                $transferPercent = [Math]::Min(100, [Math]::Floor(100 * $received / $total))
-                $overall = $Start + [int](($End - $Start) * $transferPercent / 100)
-                Show-DevSiftProgress $overall "$Label | $transferPercent% ($received / $total bytes)"
-            } else {
-                Show-DevSiftProgress $Start "$Label | size unknown ($received bytes received)"
-            }
+            $setupDisplay.Transfer($received, $total, $Label)
         }
         if ($total -ge 0 -and $received -ne $total) { throw 'Download ended before all declared bytes arrived.' }
         Show-DevSiftProgress $End "$Label complete ($received bytes)"
@@ -61,9 +58,9 @@ try {
     if (-not $python) { throw 'Install Python 3.12 or later, then run this installer again.' }
     Show-DevSiftProgress 8 'Python ready'
     $archive = Join-Path $devsiftTemp 'devsift-install.zip'
-    Receive-DevSiftFile "$base/devsift-install.zip" $archive 8 40 'Downloading DevSift'
+    Receive-DevSiftFile "$base/devsift-install.zip" $archive 8 40 'devsift-install.zip'
     $checksumPath = Join-Path $devsiftTemp 'devsift-install.zip.sha256'
-    Receive-DevSiftFile "$base/devsift-install.zip.sha256" $checksumPath 40 44 'Downloading checksum'
+    Receive-DevSiftFile "$base/devsift-install.zip.sha256" $checksumPath 40 44 'devsift-install.zip.sha256'
     Show-DevSiftProgress 45 'Verifying SHA256'
     $checksum = [IO.File]::ReadAllText($checksumPath)
     if ($checksum -notmatch '^([a-f0-9]{64})  devsift-install\.zip\s*$') { throw 'Invalid release checksum file.' }
@@ -72,8 +69,15 @@ try {
     }
     Show-DevSiftProgress 50 'Extracting verified bundle'
     $bundle = Join-Path $devsiftTemp 'bundle'
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $zip = [IO.Compression.ZipFile]::OpenRead($archive)
+    try {
+        foreach ($entry in $zip.Entries) {
+            if ($entry.FullName -match '(^[/\\]|(^|[/\\])\.\.([/\\]|$)|:|\\)') { throw 'Unsafe release archive path.' }
+        }
+    } finally { $zip.Dispose() }
     Expand-Archive -LiteralPath $archive -DestinationPath $bundle
-    Show-DevSiftProgress 55 'Starting installation'
+    Show-DevSiftProgress 55 "Starting $operation"
     $process = New-Object Diagnostics.Process
     $processStarted = $false
     try {
@@ -88,8 +92,14 @@ try {
         $installState = $null
         while ($null -ne ($line = $process.StandardOutput.ReadLine())) {
             try { $event = $line | ConvertFrom-Json } catch { throw 'Installer returned an invalid status message.' }
+            if ($line.Length -gt 16384) { throw 'Installer status message exceeded the size limit.' }
             if ($event.type -eq 'progress') {
-                Show-DevSiftProgress (55 + [int](39 * [Math]::Min(100, [Math]::Max(0, $event.percent)) / 100)) "$($event.stage) | $($event.elapsed)s"
+                if ($event.percent -isnot [ValueType] -or [double]::IsNaN([double]$event.percent) -or
+                    [double]$event.percent -lt 0 -or [double]$event.percent -gt 100 -or
+                    $event.stage -isnot [string] -or $event.stage.Length -gt 2048) {
+                    throw 'Installer returned an invalid progress event.'
+                }
+                Show-DevSiftProgress (55 + [int](39 * [Math]::Min(100, [Math]::Max(0, $event.percent)) / 100)) $event.stage
             } elseif ($event.type -eq 'complete') {
                 $installState = $event.state
             } elseif ($event.type -eq 'error') {
@@ -98,7 +108,8 @@ try {
         }
         $process.WaitForExit()
         $null = $errors.Result
-        if ($process.ExitCode -ne 0 -or -not $installState) { throw 'DevSift installation did not complete.' }
+        if ($process.ExitCode -ne 0) { throw "DevSift installer failed (exit $($process.ExitCode))." }
+        if (-not $installState -or -not $installState.version -or -not $installState.hosts) { throw 'DevSift installation did not complete.' }
     } finally {
         if ($processStarted -and -not $process.HasExited) { $process.Kill(); $process.WaitForExit() }
         $process.Dispose()
@@ -111,18 +122,17 @@ try {
     }
     if ($bin -notin ($env:Path -split ';')) { $env:Path = "$bin;$env:Path" }
     Show-DevSiftProgress 100 'Ready'
+    $setupDisplay.Dispose()
     Write-Host "DevSift $($installState.version) ready."
     Write-Host "CLI: $bin"
     Write-Host "Skills: $($installState.hosts -join ', ')"
     Write-Host 'Next: open a new terminal and agent session, then run devsift --help.'
 } catch {
+    $setupDisplay.Dispose()
     Write-Host "DevSift setup failed during: $setupStage" -ForegroundColor Red
     throw
 } finally {
-    if ($showSetupProgress) {
-        $ProgressPreference = 'Continue'
-        Write-Progress -Id 71 -Activity 'DevSift setup' -Completed
-    }
+    $setupDisplay.Dispose()
     $ProgressPreference = $previousProgressPreference
     $resolvedTemp = [IO.Path]::GetFullPath($devsiftTemp)
     $tempRoot = [IO.Path]::GetFullPath([IO.Path]::GetTempPath()).TrimEnd('\') + '\'

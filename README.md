@@ -64,3 +64,5 @@ Skill มีคู่มือการใช้งานแนบไปด้�
 Scan และ CI ส่ง JSON envelope ซึ่งมี reports ใน `data.reports`; CLI ไม่บันทึกไฟล์ให้อัตโนมัติ
 Exit `2` หมายถึงผลไม่ครบหรือยังมี review ค้าง แม้ findings ว่าง
 `report --latest` และ storage lookup ของ `explain` ยังไม่พร้อมใช้งาน
+
+Marketplace/repository plugin installation (รวม Copilot): ดู [agent integrations](docs/AGENT-INTEGRATIONS.md) สำหรับคำสั่งและสถานะของแต่ละ host ส่วนรุ่นถัดไปอยู่ใน Unreleased

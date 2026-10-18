@@ -13,24 +13,17 @@ import tempfile
 import urllib.request
 import zipfile
 
-interactive = sys.stderr.isatty()
-width = 0
+# @DEVSIFT_PROGRESS@
+
+ui = Progress(operation='@DEVSIFT_OPERATION@')
+ui.__enter__()
 stage = 'Checking Python 3.12+'
 
 
 def progress(percent, label):
-    global width, stage
+    global stage
     stage = label
-    if interactive:
-        columns = os.get_terminal_size(sys.stderr.fileno()).columns or 100
-        columns = max(20, columns)
-        bar_width = min(24, max(4, columns // 5))
-        filled = int(percent) * bar_width // 100
-        line = '[{}{}] {:3d}% setup | {}'.format('#' * filled, '.' * (bar_width - filled), int(percent), label)
-        line = line[:columns - 1]
-        sys.stderr.write('\r' + line.ljust(min(width, columns - 1)))
-        sys.stderr.flush()
-        width = len(line)
+    ui.update(percent, label)
 
 
 def download(url, destination, start, end, label):
@@ -38,20 +31,14 @@ def download(url, destination, start, end, label):
     with urllib.request.urlopen(url, timeout=60) as response, destination.open('wb') as output:
         total = int(response.headers.get('Content-Length') or 0)
         received = 0
-        if total > 0:
-            progress(start, f'{label} | 0% (0 / {total} bytes)')
+        ui.transfer(0, total, label)
         while True:
             chunk = response.read(32768)
             if not chunk:
                 break
             output.write(chunk)
             received += len(chunk)
-            if total > 0:
-                transfer = min(100, received * 100 // total)
-                progress(start + (end - start) * transfer // 100,
-                         f'{label} | {transfer}% ({received} / {total} bytes)')
-            else:
-                progress(start, f'{label} | size unknown ({received} bytes received)')
+            ui.transfer(received, total, label)
         if total > 0 and received != total:
             raise RuntimeError('Download ended before all declared bytes arrived.')
     progress(end, f'{label} complete ({received} bytes)')
@@ -64,9 +51,9 @@ def setup():
     base = 'https://github.com/orchex006/devsift/releases/latest/download/'
     with tempfile.TemporaryDirectory(prefix='devsift-') as tmp:
         archive = Path(tmp) / 'devsift-install.zip'
-        download(base + archive.name, archive, 8, 40, 'Downloading DevSift')
+        download(base + archive.name, archive, 8, 40, 'devsift-install.zip')
         checksum_path = Path(tmp) / 'devsift-install.zip.sha256'
-        download(base + checksum_path.name, checksum_path, 40, 44, 'Downloading checksum')
+        download(base + checksum_path.name, checksum_path, 40, 44, 'devsift-install.zip.sha256')
         progress(45, 'Verifying SHA256')
         checksum = checksum_path.read_text(encoding='utf-8')
         match = re.fullmatch(r'([a-f0-9]{64})  devsift-install\.zip\s*', checksum)
@@ -79,24 +66,35 @@ def setup():
                 if '\\' in name or name.startswith('/') or '..' in Path(name).parts:
                     raise RuntimeError('Unsafe release archive path.')
             z.extractall(bundle)
-        progress(55, 'Starting installation')
+        progress(55, 'Starting @DEVSIFT_OPERATION@')
         state = None
         with tempfile.TemporaryFile(mode='w+t') as errors:
             process = subprocess.Popen([sys.executable, '-I', '-B', str(bundle / 'install.py'), '--progress', 'json'],
                                        stdout=subprocess.PIPE, stderr=errors, stdin=subprocess.DEVNULL, text=True)
             try:
-                for line in process.stdout:
+                while True:
+                    line = process.stdout.readline(16385)
+                    if not line:
+                        break
+                    if len(line) > 16384:
+                        raise RuntimeError('Installer status message exceeded the size limit.')
                     event = json.loads(line)
                     if event['type'] == 'progress':
+                        if (type(event.get('percent')) not in (int, float) or not 0 <= event['percent'] <= 100
+                                or not isinstance(event.get('stage'), str) or len(event['stage']) > 2048):
+                            raise RuntimeError('Installer returned an invalid progress event.')
                         percent = 55 + 39 * max(0, min(100, int(event['percent']))) // 100
-                        progress(percent, f"{event['stage']} | {event['elapsed']}s")
+                        progress(percent, event['stage'])
                     elif event['type'] == 'complete':
                         state = event['state']
                     elif event['type'] == 'error':
                         raise RuntimeError(f"{event['stage']}: {event['message']}")
                     else:
                         raise RuntimeError('Installer returned an unknown status message.')
-                if process.wait() != 0 or state is None:
+                status = process.wait()
+                if status:
+                    raise RuntimeError(f'DevSift installer failed (exit {status}).')
+                if not isinstance(state, dict) or not state.get('version') or not state.get('hosts'):
                     raise RuntimeError('DevSift installation did not complete.')
             finally:
                 if process.poll() is None:
@@ -113,17 +111,19 @@ def setup():
             with profile.open('a') as stream:
                 stream.write(path_line)
     progress(100, 'Ready')
-    if interactive:
-        sys.stderr.write('\n')
+    ui.close()
     print(f"DevSift {state['version']} ready.\nCLI: {state['launcher']}\nSkills: {', '.join(state['hosts'])}\n"
           'Next: restart your terminal and agent, then run devsift --help.')
 
 
 try:
     setup()
-except (OSError, ValueError, KeyError, RuntimeError, subprocess.SubprocessError) as error:
-    if interactive:
-        sys.stderr.write('\n')
-    print(f'DevSift setup failed while {stage}: {error}', file=sys.stderr)
+except KeyboardInterrupt:
+    ui.fail('Cancelled.')
+    raise SystemExit(130)
+except (OSError, ValueError, KeyError, TypeError, RuntimeError, subprocess.SubprocessError) as error:
+    ui.fail(error)
     raise SystemExit(1)
+finally:
+    ui.close()
 PY

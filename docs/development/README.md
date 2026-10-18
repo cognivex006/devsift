@@ -22,7 +22,7 @@
 
 - [Backend tests](BACKEND-TESTS.md), [frontend tests](FRONTEND-TESTS.md), [SQL tests](SQL-TESTS.md)
 - [End-to-end](E2E.md), [observability tests](OBSERVABILITY-TESTS.md), [case prompt evaluation](CASE-PROMPT-EVAL.md)
-- [CI workflow](CI-WORKFLOW.md), [packaging](PACKAGING.md), [installer assets](INSTALLER.md)
+- [CI workflow](CI-WORKFLOW.md), [packaging](PACKAGING.md), [installer assets](INSTALLER.md), [terminal UX](TERMINAL-UX.md)
 - [Release readiness](RELEASE-READINESS.md), [release checklist](RELEASE-CHECKLIST.md), [release draft](RELEASE-DRAFT.md)
 
 ## การเขียนเอกสาร
