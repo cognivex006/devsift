@@ -6,6 +6,7 @@ import uuid
 
 from .ci_artifacts import build_reports, ArtifactError
 from .output import result
+from .evidence import SourceEvidence
 from .scan_store import _mkdir_private, _private_file
 
 _FORMAT_NAMES = {'json': 'findings.json', 'markdown': 'report.md', 'sarif': 'results.sarif'}
@@ -64,6 +65,19 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
                                              source_timeout_seconds=None)
             if set(documents) != set(requested):
                 raise ArtifactError('Report artifacts unavailable')
+            by_case = {case.case_id: case.to_dict() for case in report.cases}
+            aligned = []
+            for original in findings:
+                reproved = by_case[original['case_id']]
+                updated = dict(original)
+                for key in ('source', 'severity', 'lifecycle_class', 'enforcement', 'security_escalation'):
+                    updated[key] = reproved[key]
+                aligned.append(updated)
+            page_record = result('scan', complete=report.complete,
+                                 enforced_count=sum(item['enforcement'] == 'block' for item in aligned),
+                                 findings=aligned, errors=scan_summary['errors'])
+            if len(_dump(page_record)) > 4_000_000:
+                raise ArtifactError('Report artifacts unavailable')
         except (ValueError, TypeError, OSError):
             if len(items) > 1:
                 midpoint = len(items) // 2
@@ -76,11 +90,22 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
             # A failed case is indexed explicitly and never represented as a rendered report.
             documents = {}
             report = None
+            fallback = [{**item, 'source': SourceEvidence(reason='SOURCE_UNAVAILABLE').to_dict(),
+                         'lifecycle_class': 'UNKNOWN', 'enforcement': 'incomplete'} for item in findings]
+            page_record = result('scan', complete=False, findings=fallback, errors=stored.errors())
+            if len(_dump(page_record)) > 4_000_000:
+                # A failed proof never exports oversized source or a made-up location.
+                for item in fallback:
+                    item['path'] = '[UNAVAILABLE]'
+            if len(_dump(page_record)) > 4_000_000:
+                raise ArtifactError('Report artifacts unavailable')
         page_number += 1
         stem = f'page-{page_number:08d}'
         page_dir = directory / stem
         _mkdir_private(page_dir)
-        files = []
+        scan_descriptor = _write(page_dir, 'scan.json', _dump(page_record))
+        scan_descriptor['file'] = stem + '/' + scan_descriptor['file']
+        files = [scan_descriptor]
         for name, document in documents.items():
             text = document if type(document) is str else _dump(document)
             descriptor = _write(page_dir, _FORMAT_NAMES[name], text)
@@ -94,13 +119,9 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False)
             all_complete = all_complete and report.complete
             # Keep public finding assertions aligned with the re-proved report.
             with connection:
-                by_case = {case.case_id: case.to_dict() for case in report.cases}
-                for (identity, _), original in zip(items, findings):
-                    reproved = by_case[original['case_id']]
-                    updated = dict(original)
-                    for key in ('source', 'severity', 'lifecycle_class', 'enforcement', 'security_escalation'):
-                        updated[key] = reproved[key]
+                for (identity, _), updated in zip(items, aligned):
                     connection.execute('UPDATE findings SET payload=? WHERE id=?', (_dump(updated), identity))
+                    reproved = updated
                     if reproved['enforcement'] == 'incomplete' or reproved['source']['status'] != 'VERIFIED':
                         connection.execute('UPDATE targets SET complete=0 WHERE identity=(SELECT target FROM findings WHERE id=?)', (identity,))
         page = {'page': page_number, 'case_count': len(items),
@@ -178,7 +199,7 @@ def verify_bundle(stored, bundle):
             page_count += 1
             if not page['rendered']:
                 return False
-            if {Path(item['file']).name for item in page['files']} != {_FORMAT_NAMES[name] for name in bundle['formats']}:
+            if {Path(item['file']).name for item in page['files']} != ({_FORMAT_NAMES[name] for name in bundle['formats']} | {'scan.json'}):
                 return False
             actual = connection.execute('SELECT count(*) FROM report_cases WHERE page=?', (page['page'],)).fetchone()[0]
             identities = [row[0] for row in connection.execute('SELECT f.case_id FROM findings f JOIN report_cases c ON c.finding=f.id WHERE c.page=? ORDER BY f.case_id', (page['page'],))]

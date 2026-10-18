@@ -6,6 +6,7 @@ import unittest
 from unittest.mock import patch
 
 from devsift.ci_artifacts import build_reports, ArtifactError
+from devsift.case_command import run_case_command
 from devsift.evidence import SourceEvidence
 from devsift.inventory import SourceTarget
 from devsift.output import result
@@ -67,11 +68,23 @@ class ReportBundleTests(unittest.TestCase):
         identities = []
         for page in manifest['pages']:
             self.assertTrue(page['rendered'])
-            self.assertEqual({Path(item['file']).name for item in page['files']}, {'findings.json', 'report.md', 'results.sarif'})
+            self.assertEqual({Path(item['file']).name for item in page['files']}, {'findings.json', 'report.md', 'results.sarif', 'scan.json'})
             identities.extend(page['case_ids'])
             markdown = Path(stored.bundle['index']).parent / next(item['file'] for item in page['files'] if item['file'].endswith('.md'))
             self.assertIn('AFTER (PROPOSAL)', markdown.read_text())
         self.assertEqual(len(set(identities)), 1205)
+        final_page = manifest['pages'][-1]
+        scan_path = Path(stored.bundle['index']).parent / next(
+            item['file'] for item in final_page['files'] if item['file'].endswith('/scan.json'))
+        page_envelope = json.loads(scan_path.read_text())
+        self.assertEqual(page_envelope['schema_version'], '1.0')
+        self.assertLessEqual(scan_path.stat().st_size, 4_000_000)
+        selected = final_page['case_ids'][-1]
+        prompted = run_case_command(selected, mode='review', scan_input=scan_path, repo_root=self.root)
+        self.assertNotIn('CASE_INPUT_UNAVAILABLE', [error['code'] for error in prompted['errors']])
+        self.assertEqual(prompted['data']['prompt']['case_id'], selected)
+        self.assertIsNone(prompted['data']['approval'])
+
         self.assertNotIn(b'latePrivateSecret', (self.destination / 'scan.sqlite3').read_bytes())
         output = io.StringIO()
         stored.write_json(output)
