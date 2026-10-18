@@ -1,10 +1,14 @@
 """Immutable, source-verified evidence and separately labeled proposals."""
 from dataclasses import dataclass, field
 from datetime import datetime
+import codecs
+import hashlib
 import os
 from pathlib import Path
 import re
 import subprocess
+import threading
+import time
 
 from .git_runtime import git_executable
 from .redaction import Redactor
@@ -140,14 +144,127 @@ class SourceEvidence:
 
 
 def _git(root, *args):
-    environment = os.environ.copy()
-    environment.update(GIT_NO_REPLACE_OBJECTS="1", GIT_LITERAL_PATHSPECS="1",
-                       GIT_OPTIONAL_LOCKS="0", GIT_TERMINAL_PROMPT="0", GIT_NO_LAZY_FETCH="1")
     process = subprocess.run([git_executable(root), "-C", str(root), *args], capture_output=True,
-                             timeout=10, env=environment)
+                             timeout=10, env=_git_environment())
     if process.returncode:
         raise EvidenceError("source lookup unavailable")
     return process.stdout
+
+
+def _git_environment():
+    environment = os.environ.copy()
+    environment.update(GIT_NO_REPLACE_OBJECTS="1", GIT_LITERAL_PATHSPECS="1",
+                       GIT_OPTIONAL_LOCKS="0", GIT_TERMINAL_PROMPT="0", GIT_NO_LAZY_FETCH="1")
+    return environment
+
+
+_SMALL_SOURCE_BYTES = 2_000_000
+_SOURCE_STREAM_SECONDS = 10
+_SOURCE_CHUNK_BYTES = 65_536
+
+
+def _reap_source_process(process):
+    if process.poll() is None:
+        try:
+            process.kill()
+        except ProcessLookupError:
+            pass
+    process.wait()
+
+
+def _stream_region(root, blob, byte_count, region):
+    """Prove a large immutable blob without retaining source or whole lines.
+
+    Only host Git's raw object reader runs: no worktree/filter/textconv, pager,
+    network/lazy fetch or target code. The reader retains one bounded byte/text
+    chunk and line counters, verifies strict UTF-8/NUL exclusion over *all* bytes,
+    and independently checks the raw Git object digest and declared byte count.
+    LF defines lines; a CR is removed from the column bound only before LF.
+
+    A worker drains the pipe because blocking pipe reads cannot otherwise honor
+    a whole-operation timeout on Windows. Every exit, including cancellation,
+    kills/reaps the owned Git process and joins the reader before closing handles.
+    No source bytes or subprocess diagnostics enter exceptions or logs.
+    """
+    _require(type(byte_count) is int and byte_count > _SMALL_SOURCE_BYTES)
+    _require(re.fullmatch(r'(?:[0-9a-f]{40}|[0-9a-f]{64})', blob) is not None)
+    process = None
+    try:
+        process = subprocess.Popen(
+            [git_executable(root), '--no-pager', '-C', str(root), 'cat-file', 'blob', blob],
+            stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            bufsize=0, env=_git_environment())
+        return _read_source_stream(process, blob, byte_count, region)
+    finally:
+        # Also cover cancellation/errors before the reader thread is constructed.
+        if process is not None:
+            _reap_source_process(process)
+            process.stdout.close()
+
+
+def _read_source_stream(process, blob, byte_count, region):
+    finished = threading.Event()
+    outcome = {'valid': False, 'failed': False}
+
+    def read():
+        try:
+            decoder = codecs.getincrementaldecoder('utf-8')('strict')
+            digest = (hashlib.sha1(usedforsecurity=False) if len(blob) == 40 else hashlib.sha256())
+            digest.update(b'blob ' + str(byte_count).encode('ascii') + b'\0')
+            received, line_number, line_length, tail = 0, 1, 0, ''
+            start_valid = end_valid = False
+
+            def decoded(text, *, final=False):
+                nonlocal line_number, line_length, tail, start_valid, end_valid
+                _require('\x00' not in text)
+                pieces = text.split('\n')  # only the bounded decoded chunk
+                for index, piece in enumerate(pieces):
+                    line_length += len(piece)
+                    if piece:
+                        tail = piece[-1]
+                    ended = index < len(pieces) - 1
+                    if ended or (final and line_length):
+                        body_length = line_length - (1 if ended and tail == '\r' else 0)
+                        if line_number == region.start_line:
+                            start_valid = region.start_column <= body_length + 1
+                        if line_number == region.end_line:
+                            end_valid = region.end_column <= body_length + 1
+                        line_number += 1
+                        line_length, tail = 0, ''
+
+            while True:
+                chunk = process.stdout.read(_SOURCE_CHUNK_BYTES)
+                if not chunk:
+                    break
+                received += len(chunk)
+                _require(received <= byte_count)
+                digest.update(chunk)
+                decoded(decoder.decode(chunk))
+            decoded(decoder.decode(b'', final=True), final=True)
+            _require(received == byte_count and digest.hexdigest() == blob)
+            outcome['valid'] = start_valid and end_valid
+        except (OSError, ValueError, UnicodeError):
+            outcome['failed'] = True
+        finally:
+            finished.set()
+
+    worker = threading.Thread(target=read, name='devsift-source-proof', daemon=True)
+    started = False
+    try:
+        deadline = time.monotonic() + _SOURCE_STREAM_SECONDS
+        worker.start()
+        started = True
+        while not finished.wait(0.05):
+            if time.monotonic() >= deadline:
+                raise subprocess.TimeoutExpired('git source proof', _SOURCE_STREAM_SECONDS)
+        _require(not outcome['failed'])
+        remaining = max(0.001, deadline - time.monotonic())
+        _require(process.wait(timeout=remaining) == 0)
+        return outcome['valid']
+    finally:
+        _reap_source_process(process)
+        if started:
+            worker.join()
 
 
 def requires_source_mask(rule_id, source=None):
@@ -192,8 +309,16 @@ def verify_source(repo_root, repository, source_sha, path, region, *, expected_b
         mode, kind, blob = metadata.split(b" ")
         if recorded_path.decode("utf-8") != path or mode not in (b"100644", b"100755") or kind != b"blob":
             return SourceEvidence(reason="UNSUPPORTED_SOURCE")
-        if int(_git(root, "cat-file", "-s", blob.decode("ascii"))) > 2_000_000:
-            return SourceEvidence(reason="UNSUPPORTED_SOURCE")
+        byte_count = int(_git(root, "cat-file", "-s", blob.decode("ascii")))
+        if byte_count > _SMALL_SOURCE_BYTES:
+            if not _stream_region(root, blob.decode('ascii'), byte_count, region):
+                return SourceEvidence(reason="REGION_UNAVAILABLE")
+            # Full-context secret matching is bounded for generic text. Large
+            # source is proved, never partially inspected then shown as plaintext.
+            # An imported plaintext excerpt cannot be certified by this path.
+            if expected_before is not None and expected_before != '[REDACTED]':
+                return SourceEvidence(reason="SOURCE_MISMATCH")
+            return SourceEvidence("VERIFIED", location, '[REDACTED]', None, None, _seal=_SEAL)
         content = _git(root, "cat-file", "blob", blob.decode("ascii")).decode("utf-8")
         if "\x00" in content:
             return SourceEvidence(reason="UNSUPPORTED_SOURCE")
