@@ -4,14 +4,125 @@
   "title": "DevSift native protocol v1 (runtime also validates pins and source bounds)",
   "type": "object",
   "additionalProperties": false,
-  "required": ["protocol_version", "tool_id", "tool_version", "complete", "diagnostics", "reason", "metadata"],
+  "required": [
+    "protocol_version",
+    "tool_id",
+    "tool_version",
+    "complete",
+    "reason",
+    "metadata"
+  ],
   "properties": {
-    "protocol_version": {"const": "1"},
-    "tool_id": {"type": "string"},
-    "tool_version": {"type": "string"},
-    "complete": {"type": "boolean"},
-    "diagnostics": {"type": "array", "maxItems": 1000, "items": {"type": "object", "additionalProperties": false, "required": ["rule_id", "region"], "properties": {"rule_id": {"type": "string"}, "region": {"$ref": "evidence.schema.json#/$defs/region"}}}},
-    "reason": {"enum": ["COMPLETED", "PARSE_ERROR", "UNSUPPORTED_DIALECT", "ANALYSIS_FAILED", "UNSUPPORTED_SOURCE"]},
-    "metadata": {"type": "object", "additionalProperties": false, "properties": {"dialect": {"enum": ["tsql150", "tsql160"]}, "unqualified_references": {"type": "integer", "minimum": 0, "maximum": 1000000}, "ddl_statements": {"type": "integer", "minimum": 0, "maximum": 1000000}}}
+    "protocol_version": {
+      "const": "1"
+    },
+    "tool_id": {
+      "type": "string"
+    },
+    "tool_version": {
+      "type": "string"
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "diagnostics": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    },
+    "reason": {
+      "enum": [
+        "COMPLETED",
+        "PARSE_ERROR",
+        "UNSUPPORTED_DIALECT",
+        "ANALYSIS_FAILED",
+        "UNSUPPORTED_SOURCE"
+      ]
+    },
+    "metadata": {
+      "$ref": "#/$defs/metadata"
+    },
+    "diagnostic_count": {
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "description": "Response schemas for legacy inline output and file-transport summary. JSONL records use $defs/diagnostic; runtime independently bounds each encoded record, verifies pins, source coordinates, unique diagnostics and exact final count. Schema validation alone establishes none of those proofs.",
+  "oneOf": [
+    {
+      "title": "Legacy inline response",
+      "required": [
+        "diagnostics"
+      ],
+      "not": {
+        "required": [
+          "diagnostic_count"
+        ]
+      },
+      "properties": {
+        "metadata": {
+          "properties": {
+            "unqualified_references": {
+              "maximum": 1000000
+            },
+            "ddl_statements": {
+              "maximum": 1000000
+            }
+          }
+        }
+      }
+    },
+    {
+      "title": "File transport summary",
+      "required": [
+        "diagnostic_count"
+      ],
+      "not": {
+        "required": [
+          "diagnostics"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dialect": {
+          "enum": [
+            "tsql150",
+            "tsql160"
+          ]
+        },
+        "unqualified_references": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "ddl_statements": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "diagnostic": {
+      "description": "One diagnostic JSONL item. Runtime additionally limits each serialized UTF-8 line to 16 KiB and checks canonical rule identity, ordered source bounds and duplicates.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_id",
+        "region"
+      ],
+      "properties": {
+        "rule_id": {
+          "type": "string"
+        },
+        "region": {
+          "$ref": "evidence.schema.json#/$defs/region"
+        }
+      }
+    }
   }
 }
