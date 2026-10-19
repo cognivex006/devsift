@@ -68,16 +68,130 @@ def _numbered(before, region):
     return '\n'.join(numbered) + ('\n' if trailing_newline else '')
 
 
-def render_markdown(report: Report) -> str:
+_GUIDANCE = {
+    'LOG002': ('ตัวตรวจรายงานเส้นทางจัดการ exception ที่อาจกลืนข้อผิดพลาด', 'ตรวจเจตนาของ catch และ caller ก่อนเลือกส่งต่อข้อผิดพลาด คืนผลล้มเหลว หรือบันทึกอย่างเหมาะสม; ต้องคงพฤติกรรมที่ผู้เรียกพึ่งพา'),
+    'LOG001': ('ตัวตรวจรายงานคำสั่งพิมพ์ debug ในเส้นทาง runtime', 'ตรวจว่าข้อความจำเป็นใน production หรือไม่ แล้วเลือก logger และระดับ log ที่เหมาะสมโดยไม่บันทึกข้อมูลลับ'),
+    'HC001': ('ตัวตรวจรายงาน URL/IP/hostname ที่เขียนเป็นค่าคงที่ในโค้ด runtime', 'ตรวจว่าค่านี้เปลี่ยนตาม environment หรือเป็นค่าคงที่ที่อนุมัติแล้ว; ถ้าต้องเปลี่ยน ให้ใช้ configuration ที่ตรวจสอบค่าและส่งผ่าน dependency ที่เหมาะสม'),
+    'HC002': ('ตัวตรวจรายงานค่าที่มีลักษณะ credential/API key/token', 'อย่าคัดลอกค่าลับลงรายงาน; ตรวจผู้ใช้ค่าและประวัติการเปิดเผย หากยืนยันว่าเป็นค่าจริงให้ผู้มีอำนาจดำเนินการเปลี่ยนหรือเพิกถอน แล้วใช้ secret provider'),
+    'HC003': ('ตัวตรวจรายงานการแยกพฤติกรรมตาม environment ใน domain logic', 'ตรวจเงื่อนไขและผู้เรียก แล้วพิจารณาย้ายการเลือก environment ไปยัง configuration หรือ composition boundary'),
+    'HC004': ('ตัวตรวจรายงานค่าตัวเลขที่อาจเป็น business threshold โดยไม่มีชื่อ', 'ยืนยันความหมายและหน่วยของค่ากับผู้เกี่ยวข้องก่อนตั้งชื่อหรือย้ายเป็น configuration; อย่าเปลี่ยนค่าตัวเลขโดยเดา'),
+    'HC005': ('ตัวตรวจรายงาน filesystem path ที่ผูกกับเครื่อง', 'ตรวจว่าเป็น runtime path จริงหรือ fixture แล้วเลือก configuration หรือ path ที่อิง application data directory ตามสัญญาการใช้งาน'),
+    'CFG001': ('ตัวตรวจรายงาน configuration ที่อาจขาด validation/schema', 'ตรวจขอบเขตการโหลดค่าและผลเมื่อค่าหายหรือผิดรูปแบบ ก่อนเพิ่ม validation และข้อความล้มเหลวที่ไม่เปิดเผยค่าลับ'),
+    'CFG002': ('ตัวตรวจรายงาน configuration key ซ้ำหรือไม่มีผู้ใช้ที่ยืนยันได้', 'ตรวจผู้ใช้ทุกทางและลำดับ override ก่อนรวม ลบ หรือเปลี่ยนชื่อ key'),
+    'CFG003': ('ตัวตรวจรายงาน secret ใน configuration หรือ fallback ที่อาจไม่ปลอดภัย', 'ตรวจว่าเป็นข้อมูลจริงหรือ fixture และตรวจแหล่ง secret ที่อนุมัติ; ห้ามแสดงค่าลับหรือเพิ่ม fallback ที่ปกปิดการตั้งค่าผิด'),
+    'SEC001': ('ตัวตรวจรายงานข้อมูลลับหรือข้อมูลส่วนบุคคลใน log', 'ตรวจเส้นทางข้อมูลจริงและระบบรับ log; เลือกตัดข้อมูลหรือ masking ตามสัญญา โดยคงหลักฐานที่จำเป็นต่อการวิเคราะห์เหตุขัดข้อง'),
+    'SEC002': ('ตัวตรวจรายงานการปิดหรือข้าม TLS certificate validation', 'ตรวจ client และ endpoint จริง แล้วใช้ trust configuration ที่ถูกต้อง; อย่าแก้ด้วยการปิด validation เพิ่ม'),
+    'SEC003': ('ตัวตรวจรายงาน dynamic SQL ที่อาจรับข้อมูลที่ยังไม่พิสูจน์ความปลอดภัย', 'แยกข้อมูลกับคำสั่งด้วย parameter ตามชนิดข้อมูล; identifier ต้องผ่าน allowlist/การ quote ที่พิสูจน์ได้ ตรวจ caller และข้อจำกัด engine ก่อนเสนอ patch'),
+    'ARC001': ('ตัวตรวจรายงาน import ที่อาจข้ามขอบเขต layer', 'ตรวจสัญญา dependency และผู้ใช้ก่อนย้าย boundary หรือเพิ่ม interface'),
+    'ARC002': ('ตัวตรวจรายงาน business logic ที่อาจซ้ำกัน', 'เปรียบเทียบ semantics และผู้ใช้ก่อนรวมโค้ด; ชื่อหรือรูปแบบคล้ายกันไม่พิสูจน์ว่าพฤติกรรมเท่ากัน'),
+    'ARC003': ('ตัวตรวจรายงาน dependency ที่ยังไม่มีหลักฐานอนุมัติ', 'ตรวจ owner นโยบายและเหตุผลการใช้งานก่อนเปลี่ยน dependency หรือขออนุมัติ'),
+    'API001': ('ตัวตรวจรายงานการเปลี่ยน API/schema ที่อาจกระทบผู้ใช้', 'ตรวจผู้ใช้และสัญญารุ่นเดิมก่อนออกแบบ migration หรือ compatibility; ไม่สมมติว่าผู้ใช้ทั้งหมดอัปเกรดพร้อมกัน'),
+    'API002': ('ตัวตรวจรายงานค่า retry/timeout ฝังใน application flow', 'ตรวจ deadline, idempotency และภาระต่อระบบก่อนตั้งชื่อหรือย้าย configuration; ไม่เดาค่า timeout ที่เหมาะสม'),
+    'COM001': ('ตัวตรวจรายงานส่วน comment ที่มีลักษณะ executable code', 'ตรวจว่าเป็นตัวอย่างเอกสารหรือโค้ด runtime ที่เลิกใช้ ก่อนลบหรือย้ายไปเอกสารที่เหมาะสม'),
+    'COM002': ('ตัวตรวจรายงาน TODO/FIXME/HACK ที่ยังไม่มีหลักฐานติดตาม', 'ตรวจ owner เหตุผลและงานติดตามก่อนกำหนดกำหนดเสร็จหรือลบ marker'),
+    'COM003': ('ตัวตรวจรายงาน comment ที่อาจซ้ำกับความหมายของโค้ด', 'ตรวจว่ามีเหตุผลทางธุรกิจหรือข้อควรระวังที่ต้องรักษา แล้วปรับ comment ให้อธิบายเหตุผล'),
+    'TST001': ('ตัวตรวจรายงานพฤติกรรมที่เปลี่ยนโดยยังไม่มีหลักฐาน test ที่เหมาะสม', 'ตรวจ trigger, expected behavior และผู้ใช้จริงก่อนเลือก regression test ที่พิสูจน์ผลกระทบ'),
+    'TST002': ('ตัวตรวจรายงาน test ที่ถูกข้ามโดยยังไม่มีเหตุผลหรืองานติดตามที่ยืนยันได้', 'ตรวจสาเหตุการ skip, owner และเงื่อนไขเปิดกลับ; อย่าสมมติว่า test ผ่าน'),
+}
+
+
+def rule_guidance(rule_id, language='en'):
+    """Catalog-level review directions, never a claim about unproved source."""
+    from .registry import RULES
+    if language == 'th':
+        return _GUIDANCE.get(rule_id, ('ตัวตรวจรายงานกรณีที่ต้องทบทวน', 'ยืนยัน source และผู้ใช้ก่อนเสนอการเปลี่ยนแปลงเฉพาะกรณี'))
+    return ('The detector reported: ' + RULES[rule_id].title,
+            'Inspect the verified region, rule exceptions and actual callers before proposing one bounded change; tests and effects remain unverified.')
+
+
+_THAI_HEADINGS = {
+    '# DevSift report': '# รายงาน DevSift',
+    '## Summary': '## สรุปกรณีที่ตรวจพบ',
+    '## Execution errors': '## ข้อผิดพลาดและขอบเขตการตรวจ',
+    '### Identity and gate': '### ข้อมูลกรณีและผลต่อ quality gate',
+    '### Source evidence': '### หลักฐาน source',
+    '### BEFORE': '### BEFORE — โค้ดที่ยืนยันแล้ว',
+    '### AFTER (PROPOSAL)': '### AFTER (PROPOSAL) — ข้อเสนอที่ยังไม่อนุมัติ',
+    '### Detector explanation': '### เหตุผลที่ตัวตรวจรายงาน',
+    '### Alternatives': '### ทางเลือกที่ต้องพิจารณา',
+    '### Impact if unchanged': '### ผลกระทบหากยังไม่แก้',
+    '### Risk if changed': '### ความเสี่ยงหากปรับแก้',
+    '### Affected scope and evidence': '### ขอบเขตที่ได้รับผลและหลักฐาน',
+    '### Verification and rollback': '### การตรวจยืนยันและการย้อนกลับ',
+    '### Review prompt': '### คำสั่งสำหรับทบทวน',
+    '### Implement prompt': '### คำสั่งสำหรับเสนอการแก้เฉพาะกรณี',
+    '## Contextual recommendations': '## ข้อเสนอจากบริบทเพิ่มเติม',
+    '| Case | Rule | Severity | Lifecycle | Enforcement | Source |': '| กรณี | กฎ | ความรุนแรง | Lifecycle | Enforcement | Source |',
+    'No cases supplied. The run status above determines whether analysis completed.': 'ไม่มีกรณีในรายงานนี้ ต้องอ่านสถานะและ coverage ก่อนสรุปว่าการตรวจเสร็จหรือโค้ดผ่าน',
+    'SOURCE_UNRESOLVED: no verified BEFORE snippet.': 'SOURCE_UNRESOLVED: ยังไม่มี BEFORE ที่ยืนยันได้ ห้ามเดาพิกัดหรือโค้ด',
+    'No verified proposal is available. Inspect source and consumers before proposing a bounded change.': 'ยังไม่มี patch ที่ยืนยันแล้ว ต้องตรวจ source และผู้ใช้ก่อนเสนอการเปลี่ยนแปลงเฉพาะกรณี',
+    'No proven source path, region or navigation is available.': 'ยังไม่มี path/พิกัด/link ของ source ที่พิสูจน์ได้',
+    'Unknown impact, source or coverage is not evidence of safety. Security-review flags require independent follow-up.': 'UNKNOWN ของผลกระทบ source หรือ coverage ไม่ใช่หลักฐานว่าปลอดภัย ต้องทบทวน security flags แยกต่างหาก',
+    'None supplied.': 'ไม่มีข้อมูลที่ให้มา',
+    'None supplied by this report model.': 'ไม่มีข้อมูลเพิ่มเติมใน report model นี้',
+    'Evidence: none supplied.': 'หลักฐาน: ไม่มีข้อมูลที่ให้มา',
+    'Related locations:': 'ตำแหน่งที่เกี่ยวข้อง:',
+    'Runtime evidence:': 'หลักฐาน runtime:',
+    'Consumers:': 'ผู้ใช้ที่ได้รับผล:',
+    'Tests:': 'หลักฐาน test:',
+    'No consumer evidence supplied; consumers remain unknown.': 'ยังไม่มีหลักฐานผู้ใช้ที่ได้รับผล จึงคง UNKNOWN',
+    'No test evidence supplied.': 'ยังไม่มีหลักฐาน test ห้ามอ้างว่าทดสอบผ่าน',
+    'Navigation: unavailable; no trusted repository link supplied.': 'ยังไม่มีลิงก์ repository ที่เชื่อถือได้ ใช้ path และ Git SHA ที่ยืนยันประกอบ',
+    'Verified selected/highlighted region, not full file lines. Numbers identify physical LF lines; all displayed content belongs to the highlighted finding region.': 'BEFORE แสดงเฉพาะช่วงที่ตรวจยืนยัน เลขบรรทัดอิง LF จริง ไม่อ้างว่าเป็นเนื้อหาเต็มทุกบรรทัดของไฟล์',
+    'The entire selected region is redacted; no per-line content is inferred.': 'ปิดบังช่วงที่เลือกทั้งช่วง ไม่เดาเนื้อหาของแต่ละบรรทัด',
+    'Verified zero-width region; no source characters are selected.': 'ยืนยันพิกัดแบบ zero-width จึงไม่มีตัวอักษร source ที่เลือก',
+    'Unverified proposal; not an asserted correct or applied patch.': 'ข้อเสนอยังไม่ผ่านการยืนยัน ไม่อ้างว่า patch ถูกต้องหรือถูกนำไปใช้แล้ว',
+
+}
+
+
+_THAI_MODEL_PROSE = {
+    'The configured detector reported this rule at the supplied region; inspect its documented limits.': 'ตัวตรวจที่ตั้งค่ารายงานกฎนี้ในพิกัดที่ให้มา ต้องตรวจข้อจำกัดและเงื่อนไขของตัวตรวจประกอบ',
+    'Unknown until the exact detector context and counterexamples are checked.': 'UNKNOWN จนกว่าจะตรวจบริบทจริงและกรณียกเว้นที่ทำให้ข้อสรุปของตัวตรวจใช้ไม่ได้',
+    'Leave behavior unchanged while collecting evidence.': 'คงพฤติกรรมเดิมระหว่างเก็บหลักฐาน',
+    'Propose one bounded change after review.': 'เสนอการเปลี่ยนแปลงเฉพาะกรณีหลังทบทวน',
+    'Production frequency, exploitability and consumers are unmeasured.': 'ยังไม่มีหลักฐานความถี่ที่เกิดจริง ช่องทางนำไปใช้โจมตี หรือผู้ใช้ที่ได้รับผล จึงคง UNKNOWN',
+    'Functional, contract, logging, security, performance and deployment effects are unverified.': 'ยังไม่ยืนยันผลต่อพฤติกรรม สัญญา log ความปลอดภัย ประสิทธิภาพ หรือ deployment จึงคง UNKNOWN',
+    'Inspect the immutable source and actual consumers; select relevant regression checks before editing.': 'ตรวจ source ที่ผูกกับ Git SHA และผู้ใช้จริง แล้วเลือก regression checks ที่เกี่ยวข้องก่อนแก้',
+    'No source change has been applied. Define a scoped rollback before implementation.': 'ยังไม่มีการแก้ source ต้องกำหนดวิธีย้อนกลับเฉพาะส่วนก่อนลงมือแก้',
+    'pending source and consumer inspection': 'รอตรวจ source และผู้ใช้จริง',
+}
+
+
+def _thai_label(value):
+    if value in _THAI_HEADINGS:
+        return _THAI_HEADINGS[value]
+    for prefix, translated in (
+            ('## Case ', '## กรณี '), ('Report schema: ', 'Schema รายงาน: '),
+            ('Status: ', 'สถานะ: '), ('Source status: ', 'สถานะ source: '),
+            ('Repository: ', 'Repository: '), ('Immutable SHA: ', 'Git SHA ที่ยืนยัน: '),
+            ('Path: ', 'ไฟล์: '), ('Region: ', 'พิกัด: '), ('Symbol: ', 'Symbol: '),
+            ('Reason: ', 'เหตุผล: '), ('Lookup plan: ', 'แนวทางค้นหาหลักฐาน: '),
+            ('Security escalation: ', 'ต้องทบทวน security: '),
+            ('Approval: ', 'สถานะอนุมัติ: '), ('Confidence: ', 'ความมั่นใจ: '),
+            ('Proposal confidence: ', 'ความมั่นใจของข้อเสนอ: '), ('Rollback: ', 'การย้อนกลับ: '),
+            ('Level: ', 'ระดับ: '), ('Scope: ', 'ขอบเขต: '), ('Why detector fired: ', 'เหตุที่ตัวตรวจรายงาน: '),
+            ('Invalidating exception: ', 'กรณียกเว้นที่ต้องตรวจ: ')):
+        if value.startswith(prefix):
+            return translated + value[len(prefix):]
+    return value
+
+
+def render_markdown(report: Report, *, language='en') -> str:
     """Render every field/case; never truncate, re-mask, execute or discover URLs."""
-    _require(type(report) is Report)
+    _require(type(report) is Report and language in ('en', 'th'))
     try:
         wire = report.to_dict()
         _require(wire['contextual_recommendations'] == [])  # T041 integration is separate.
         chunks, size = [], 0
 
+        def text(value):
+            return _text(_THAI_MODEL_PROSE.get(value, value) if language == 'th' else value)
+
         def add(value=''):
             nonlocal size
+            if language == 'th':
+                value = _thai_label(value)
             size += len(value.encode('utf-8')) + 1
             _require(size <= MAX_OUTPUT_BYTES)
             chunks.append(value + '\n')
@@ -87,7 +201,7 @@ def render_markdown(report: Report) -> str:
                 add(empty)
             for value in values:
                 if type(value) is str:
-                    add('- ' + _text(value))
+                    add('- ' + text(value))
                 else:
                     add(_code(json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2)))
 
@@ -112,30 +226,36 @@ def render_markdown(report: Report) -> str:
             add('| --- | --- | --- | --- | --- | --- |')
             for ordinal, stored in enumerate(report.cases, 1):
                 case = report.find_case(stored.case_id).to_dict()
-                add(f'| [{_text(case["case_id"])}](#case-{ordinal:04}) | {case["rule_id"]} | {case["severity"]} | {case["lifecycle_class"]} | {case["enforcement"]} | {case["source"]["status"]} |')
+                add(f'| [{text(case["case_id"])}](#case-{ordinal:04}) | {case["rule_id"]} | {case["severity"]} | {case["lifecycle_class"]} | {case["enforcement"]} | {case["source"]["status"]} |')
         add()
         add('## Execution errors')
         add()
         if not wire['errors']:
             add('None supplied.')
         for error in wire['errors']:
-            add('- ' + _text(error['code']) + ': ' + _text(error['message']))
+            add('- ' + text(error['code']) + ': ' + text(error['message']))
         add()
         for ordinal, stored in enumerate(report.cases, 1):
             case = report.find_case(stored.case_id).to_dict()
             anchor = f'case-{ordinal:04}'
             add(f'<a id="{anchor}"></a>')
-            add(f'## Case {_text(case["case_id"])}: {_text(case["title"])}')
+            add(f'## Case {text(case["case_id"])}: {text(case["title"])}')
             add()
             add(f'[Review prompt](#{anchor}-review) · [Implement prompt](#{anchor}-implement)')
             add()
+            if language == 'th':
+                explanation, action = rule_guidance(case['rule_id'], language)
+                add(text(explanation))
+                add('แนวทางตรวจแก้: ' + text(action))
+                add('นี่เป็นแนวทางทบทวน ไม่ใช่ patch ที่ตรวจยืนยันแล้วหรือสิทธิ์ให้แก้ source อัตโนมัติ')
+                add()
             add('### Identity and gate')
             add()
             add(f'Rule: {case["rule_id"]}; severity: {case["severity"]}; lifecycle: {case["lifecycle_class"]}; enforcement: {case["enforcement"]}.')
             add(f'Confidence: {case["confidence"]}')
             add(f'Security escalation: {str(case["security_escalation"]).lower()}')
             add(f'Approval: {case["approval_status"]}; automatic fix: {str(case["automatic_fix"]).lower()}')
-            add('Fingerprint: ' + (_text(case['fingerprint']) if case['fingerprint'] else 'unavailable'))
+            add('Fingerprint: ' + (text(case['fingerprint']) if case['fingerprint'] else 'unavailable'))
             add()
             add('### Source evidence')
             add()
@@ -144,19 +264,19 @@ def render_markdown(report: Report) -> str:
             location = source['location']
             if source['status'] == 'VERIFIED':
                 region = location['region']
-                add('Repository: ' + _text(location['repository']))
-                add('Immutable SHA: ' + _text(location['source_sha']))
-                add('Path: ' + _text(location['path']))
+                add('Repository: ' + text(location['repository']))
+                add('Immutable SHA: ' + text(location['source_sha']))
+                add('Path: ' + text(location['path']))
                 add(f'Region: {region["start_line"]}:{region["start_column"]}–{region["end_line"]}:{region["end_column"]} (one-based code points; end exclusive).')
-                add('Symbol: ' + (_text(location['symbol']) if location['symbol'] else 'unknown (not proven).'))
+                add('Symbol: ' + (text(location['symbol']) if location['symbol'] else 'unknown (not proven).'))
                 if case['navigation'] is not None:
                     # The sealed model supplies this source-proven, encoded URL.
                     add('[Immutable source](' + case['navigation'] + ')')
                 else:
                     add('Navigation: unavailable; no trusted repository link supplied.')
             else:
-                add('Reason: ' + _text(source['reason']))
-                add('Lookup plan: ' + _text(source['lookup_plan']))
+                add('Reason: ' + text(source['reason']))
+                add('Lookup plan: ' + text(source['lookup_plan']))
                 add('No proven source path, region or navigation is available.')
             add('Related locations:')
             evidence(case['related_locations'])
@@ -177,7 +297,7 @@ def render_markdown(report: Report) -> str:
             add('### AFTER (PROPOSAL)')
             add()
             proposal = case['after_proposal']
-            add('Status: ' + _text(proposal['status']))
+            add('Status: ' + text(proposal['status']))
             add('Proposal confidence: ' + proposal['confidence'])
             if proposal['code'] is None:
                 add('No verified proposal is available. Inspect source and consumers before proposing a bounded change.')
@@ -187,9 +307,9 @@ def render_markdown(report: Report) -> str:
             add()
             add('### Detector explanation')
             add()
-            add(_text(case['human_explanation']))
-            add('Why detector fired: ' + _text(case['why_detector_fired']))
-            add('Invalidating exception: ' + _text(case['invalidating_exception']))
+            add(text(case['human_explanation']))
+            add('Why detector fired: ' + text(case['why_detector_fired']))
+            add('Invalidating exception: ' + text(case['invalidating_exception']))
             add()
             add('### Alternatives')
             add()
@@ -199,7 +319,7 @@ def render_markdown(report: Report) -> str:
                 add('### ' + title)
                 add()
                 add('Level: ' + case[key]['level'])
-                add('Reason: ' + _text(case[key]['reason']))
+                add('Reason: ' + text(case[key]['reason']))
                 evidence(case[key]['evidence'])
             add()
             add('### Affected scope and evidence')
@@ -213,7 +333,7 @@ def render_markdown(report: Report) -> str:
             add('### Verification and rollback')
             add()
             bullets(case['verification'])
-            add('Rollback: ' + _text(case['rollback']))
+            add('Rollback: ' + text(case['rollback']))
             add()
             for title, key, suffix in (('Review prompt', 'review_prompt', 'review'),
                                         ('Implement prompt', 'implement_prompt', 'implement')):
