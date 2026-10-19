@@ -19,7 +19,7 @@ class ActionableMarkdownTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
-        self.base = Path(self.temporary.name)
+        self.base = Path(self.temporary.name).resolve()
         self.root = self.base / 'source[project]'
         self.root.mkdir()
         self.destination = self.base / 'session'
@@ -70,7 +70,7 @@ class ActionableMarkdownTests(unittest.TestCase):
         self.assertNotIn('[source[project]]', report)
         self.assertEqual(hashlib.sha256(Path(stored.bundle['report']).read_bytes()).hexdigest(), stored.bundle['report_sha256'])
         self.assertTrue(verify_bundle(stored, stored.bundle))
-        self.assertEqual(Path(stored.bundle['report']), self.destination / 'REPORT.md')
+        self.assertTrue(Path(stored.bundle['report']).samefile(self.destination / 'REPORT.md'))
         self.assertIn('](reports-', report)
         self.assertEqual(subprocess.run(['git', '-C', str(self.root), 'status', '--porcelain'], check=True, capture_output=True, text=True).stdout, '')
         self.assertNotIn('id="case-0001"', report)
@@ -118,8 +118,9 @@ class ActionableMarkdownTests(unittest.TestCase):
         stored = self.run_language(factory)
         stored.close()
         resumed = self.run_language(factory, resume=True)
+        self.addCleanup(resumed.close)
         self.assertTrue(verify_bundle(resumed, resumed.bundle))
-        self.assertEqual(Path(resumed.bundle['report']), self.destination / 'REPORT.md')
+        self.assertTrue(Path(resumed.bundle['report']).samefile(self.destination / 'REPORT.md'))
         resumed.close()
         self.assertTrue((self.destination / 'REPORT.md').read_text('utf-8').startswith('# รายงาน DevSift'))
         report = self.destination / 'REPORT.md'
