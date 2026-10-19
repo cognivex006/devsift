@@ -4,6 +4,10 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+### Changed
+- Route ordinary AI project reviews to full-repository lint, use registered user analyzer trust, and deliver analyzer coverage, actionable next steps and the direct human report link.
+- Document one-time `setup` registration/status, verified platform companion installation and language-specific full `REPORT.md` delivery as unreleased capabilities; keep scanning free of automatic downloads or builds.
+
 ## [0.1.15] - 2026-10-18
 
 ### Added

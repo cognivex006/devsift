@@ -4,6 +4,11 @@
 JSON record, auto-loads target configuration, builds target projects, installs
 dependencies or applies remediation. Setup is a separate trusted operation.
 
+Source CLI user-registration and report language are Unreleased. After authorized
+installation or one-time `devsift setup`, CI uses that user-level manifest/digest
+without requiring native flags again. No project manifest is discovered. Check
+installed help when using releases through 0.1.15, which still require the pair.
+
 The CLI starting in 0.1.15 uses the same resumable disk-backed execution and complete
 paged reports as [complete scans](../COMPLETE-SCANS.md), including `--summary`,
 `--report-dir` and `--resume`. Every resume rechecks current pinned-provider
@@ -11,12 +16,14 @@ readiness before reusing byte-identical completed source. Report completeness
 does not override source attribution, security review or an incomplete gate.
 
 ```text
-devsift ci --all --base TRUSTED_BASE_REF --native-manifest ABSOLUTE_MANIFEST --native-manifest-digest TRUSTED_SHA256
-devsift ci --paths src/module.py --security --base TRUSTED_BASE_REF --native-manifest ABSOLUTE_MANIFEST --native-manifest-digest TRUSTED_SHA256
+devsift ci --all --base TRUSTED_BASE_REF --summary --report-language th
+devsift ci --paths src/module.py --security --base TRUSTED_BASE_REF --summary --report-language en
 ```
 
-The manifest/digest pair is required and explicitly authorizes its pinned native
-programs. Every entry validates before any probe. A missing or changed configured
+User registration supplies the trusted native pair by default; explicit paired
+flags override it for that invocation and validate before execution.
+An invalid explicit pair is rejected, never silently replaced with other trust.
+Every entry validates before any probe. A missing or changed configured
 tool keeps CI incomplete even if no selected file uses that language. `--security`
 opts into the bounded built-in credential detector and composes it with native
 providers; otherwise unregistered languages are not silently analyzed. Coverage

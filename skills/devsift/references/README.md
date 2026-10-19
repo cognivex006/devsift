@@ -1,15 +1,17 @@
 # เอกสารผู้ใช้ DevSift
 
 เอกสารส่วนนี้สำหรับผู้ใช้ CLI และ AI ที่ใช้ DevSift ตรวจโปรเจกต์ของผู้ใช้
-เริ่มจากติดตั้ง → ตรวจครั้งแรก → เลือก workflow
+เริ่มจากติดตั้ง → ตรวจ readiness → lint → เปิดรายงานฉบับเต็ม
+ทะเบียน analyzer และรายงาน `REPORT.md` ตามภาษาเป็น workflow ใหม่ใน source (Unreleased)
+ตรวจ `devsift setup --help` และ `devsift scan --help` ก่อนใช้กับ CLI รุ่นเก่า
 
 | งาน | คู่มือ |
 | --- | --- |
 | ติดตั้งและอัปเดต CLI / skill | [INSTALL](INSTALL.md) |
-| ตรวจครั้งแรก | [GETTING-STARTED](GETTING-STARTED.md) |
+| ตรวจโปรเจกต์ครั้งแรกและรับลิงก์รายงาน | [GETTING-STARTED](GETTING-STARTED.md) |
 | คำสั่งใช้งานประจำวันและอ่านผล | [USAGE](USAGE.md) |
 | ตรวจต่อจนจบและรายงานทุก case | [COMPLETE-SCANS](COMPLETE-SCANS.md) (0.1.15 ขึ้นไป) |
-| Codex / Claude / Gemini / Antigravity / Cursor | [AGENT-INTEGRATIONS](AGENT-INTEGRATIONS.md) |
+| Codex / Claude / Gemini / Antigravity / Cursor / Copilot | [AGENT-INTEGRATIONS](AGENT-INTEGRATIONS.md) |
 | แก้ปัญหาการติดตั้งและผลไม่ครบ | [TROUBLESHOOTING](TROUBLESHOOTING.md) |
 | ตรวจ codebase เดิม | [MIGRATION](MIGRATION.md) |
 | ตั้งค่า native analyzers | [NATIVE-SETUP](NATIVE-SETUP.md) |

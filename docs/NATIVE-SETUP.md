@@ -1,76 +1,103 @@
-# Explicit native setup and CLI authorization
+# เตรียม analyzer ครั้งเดียว แล้วใช้ DevSift lint ได้ตามปกติ
 
-`python tools/build_native.py` is a separate trusted setup operation. It requires
-the pinned .NET SDK, Go and Node/npm installations, builds only DevSift's own
-trusted helpers and installs the frontend's locked dependencies with scripts
-disabled. It is never called by scanning or target project configuration.
+ทะเบียนผู้ใช้และ companion ในหน้านี้เป็น **Unreleased** ตรวจ `devsift setup --help`
+ของ CLI ที่ติดตั้ง รุ่น 0.1.15 และเก่ากว่ายังใช้ manifest/digest แบบระบุทุกคำสั่ง
+ไม่มีการประกาศ release หรือรับรองว่า assets ใหม่เผยแพร่แล้วจากเอกสารนี้
 
-After setup the builder uses the accepted factories to record runtime/helper
-hashes, versions, languages and process limits in ignored local files:
+## ติดตั้งปกติ
 
-```text
-.devsift/local/native-manifest.json
-.devsift/local/native-manifest.sha256
-```
+ตัวติดตั้งใหม่เตรียม verified platform companion พร้อม CLI และลงทะเบียน analyzer
+ใน user scope ดู [INSTALL](INSTALL.md) ไม่ต้องมี .NET/Go/Node SDK เพื่อใช้ชุด binary นี้
+การตรวจ source/Git evidence ยังต้องมี Git ที่ติดตั้งและเชื่อถือได้ กับ target Git root
+Helper สี่ตัวให้ coverage ตามกฎที่รองรับ ไม่ได้แปลว่าตรวจทุกภาษา ทุก rule หรือ business impact
+ชุดนี้ครอบคลุม C#, SQL, Go และ TypeScript/JavaScript ตาม provider ไม่มี Python quality
+analyzer ใหม่ใน workflow นี้ `analysis_ready` หมายถึง configured native providers พร้อม
+Doctor ยังอาจ exit 2 เพราะภาษาอื่นเช่น Python ไม่ครอบคลุม ให้ตรวจราย provider แล้วรัน
+scope ที่รองรับต่อได้ ไม่ตีความว่าไม่มี analyzer ทั้งหมดจาก overall exit เพียงตัวเดียว
 
-SQL setup selects explicit `tsql160`; `tsql150` can be chosen in an independently
-reviewed manifest. There is no inferred SQL dialect. The SHA256 covers the exact
-manifest bytes; retain it independently after reviewing the configured programs
-and arguments. Regenerating this manifest is an explicit setup/trust update,
-never an automatic response to changed executable hashes.
-
-To authorize those programs for one CLI scan, supply both arguments:
+ตรวจ readiness แยกจากการสแกน:
 
 ```text
-devsift scan --all --native-manifest ABSOLUTE_MANIFEST_PATH --native-manifest-digest TRUSTED_LOWERCASE_SHA256
+devsift setup --status
+devsift doctor
 ```
 
-`--changed` is also supported. Without this pair the existing inventory-only
-behavior remains unchanged; scans do not search for manifests, install/build
-dependencies, invoke source-project hooks or silently enable tools. A missing
-partner, relative manifest path or malformed digest is CLI misuse (3). Invalid
-manifest bytes/schema, unavailable source proof or a failed tool probe is
-incomplete (2), never clean. If one configured tool cannot probe, the overall scan
-remains incomplete even when no target currently uses that language.
+`setup --status` อ่านสถานะทะเบียน ไม่ดาวน์โหลด ไม่ลงทะเบียนใหม่ และไม่วิเคราะห์ source
+Doctor ตรวจ runtime/provider และ probe เฉพาะโปรแกรมที่ได้รับ trust แล้ว ไม่มีการ build
+หาก registry หายหรือ provider ใช้ไม่ได้ อย่าอ้างว่า lint ผ่านจากการทำ inventory อย่างเดียว
 
-The manifest is executable configuration. Supplying its trusted digest explicitly
-authorizes native program execution; it is not an OS filesystem/network sandbox.
-Trusting an attacker-provided manifest *and* attacker-provided digest does not
-authenticate its programs. No arbitrary manifest values, commands or tool stderr
-are echoed in public validation failures. See the process-runner and native
-protocol contracts for bounded execution and the stable-host trust boundary.
+## ลงทะเบียน manifest ที่ทบทวนแล้ว
 
-Manifest schema `1` has exact keys `schema_version` and `tools`. Each tool entry
-has `definition` and `dialect`. The definition records all accepted ToolDefinition
-fields: identity/version/languages, complete ProcessSpec, executable SHA256,
-artifact path/hash pairs and engine-version pairs. ProcessSpec records executable,
-argv, timeout, each stream/stdin byte limit and explicit environment pairs.
-Paths must be absolute; SQL requires `tsql150`/`tsql160`, other languages require
-null. Identities are unique and tool language sets cannot overlap. Duplicate JSON
-keys, unknown fields, wrong types, non-finite limits and oversized manifests are
-rejected. The whole bounded manifest is validated before the first native probe.
+เมื่อมี native setup เดิมที่เชื่อถือได้ ลงทะเบียนครั้งเดียว:
 
-Loading preserves every stored expected hash. It does **not** regenerate hashes
-from executables or artifacts found on disk; the native host compares those files
-with the stored pins immediately before execution. Setup serialization and loading
-do not themselves probe programs. `native_manifest.manifest_bytes` supports an
-explicit trusted setup workflow, and `load_manifest` returns frozen ConfiguredTool
-records sorted by tool identity.
+```text
+devsift setup --native-manifest ABSOLUTE_MANIFEST --native-manifest-digest TRUSTED_SHA256
+devsift setup --status
+devsift doctor
+```
 
-With native tools enabled, the CLI requires the actual Git root and full immutable
-HEAD commit, using the existing read-only Git query path. It passes that root/SHA
-to the shared NativeAdapter. Findings are source-verified but retain default
-UNKNOWN lifecycle until a separate proven classifier attribution is integrated.
-They therefore remain incomplete, not automatically NEW or blocking. Verified
-critical security findings preserve `security_escalation: true` alongside that
-incomplete gate. A truly completed configured parser with no findings can return
-0; parser completion does not claim comprehensive language quality coverage.
+แทน placeholders ด้วย absolute path และ SHA256 ของ manifest bytes ที่ได้รับมาจาก
+แหล่ง trust ที่ตรวจทานแล้ว การคำนวณ digest ของ manifest ที่พบใน target แล้วใช้อนุมัติ
+ตัวเองไม่สร้างความน่าเชื่อถือ Manifest เป็น executable configuration; ต้องทบทวน
+โปรแกรม, arguments, runtime/helper pins และ SQL dialect ก่อนลงทะเบียน
 
-Tests in `test_native_manifest.py` cover paired CLI misuse, strict/digest-bound
-loading, preservation of expected pins, malformed later entries before *any*
-execution, changed artifacts and real CLI invocations. The opt-in real tests need
-`DEVSIFT_TEST_NATIVE=1` plus built Go/SQL artifacts (standard absolute overrides
-`DEVSIFT_GO_ARTIFACT` and `DEVSIFT_SQL_ARTIFACT_DIR` are supported). A committed
-clean Go snapshot completes; a verified SQL security finding stays UNKNOWN and
-incomplete while retaining its security flag. Source and `.git` snapshots remain
-unchanged by these scans.
+ทะเบียนอยู่ที่ `~/.local/share/devsift/analyzers.json` นอก target ใช้โดย `scan`, `doctor`
+และ `ci` โดยปริยาย จึงไม่ต้องป้อน path/digest ซ้ำ การลงทะเบียนต้องเป็น explicit setup
+และไม่เกิดจากการอ่าน project configuration หรือค้นหาไฟล์ใน target
+
+```text
+devsift scan --all --legacy-mode recommend --summary --report-language th
+devsift ci --changed --base TRUSTED_BASE_REF --summary
+```
+
+การระบุ `--native-manifest` และ `--native-manifest-digest` เป็นคู่ในคำสั่งใดคำสั่งหนึ่ง
+ใช้แทน registry สำหรับคำสั่งนั้น ไม่แก้ทะเบียน ถ้าคู่ explicit ผิด ไม่ fallback ไป trust
+อีกชุดเพื่อซ่อนข้อผิดพลาด การส่งมาเพียงตัวเดียวไม่ครบเป็น misuse
+
+## ติดตั้ง companion แบบ offline
+
+สำหรับ operator ที่ได้รับ ZIP และ digest จากแหล่งที่เชื่อถือได้:
+
+```text
+devsift setup --analyzer-bundle ABSOLUTE_ZIP --bundle-digest TRUSTED_SHA256
+devsift setup --status
+```
+
+ชื่อ release asset ใช้รูปแบบ `devsift-analyzers-PLATFORM-ARCH.zip` และ `.zip.sha256`
+โดย platform เป็น windows/linux/macos และ arch เป็น x64/arm64 เฉพาะคู่ที่มี asset
+และผ่าน validation จริงเท่านั้น ไม่อนุมานว่ามีครบทุกคู่ ถ้า platform ไม่รองรับให้รายงาน
+availability ตามจริง ไม่ติดตั้ง companion คนละระบบหรือ build target เพื่อทดแทน
+Checksum เป็น integrity record ไม่ใช่ลายเซ็น ต้องเชื่อถือผู้เผยแพร่/ช่องทางที่เลือกด้วย
+
+Installer/setup แตก companion เฉพาะพื้นที่ที่เป็นเจ้าของ ตรวจ expected pins และปรับ
+ตำแหน่งให้ตรงกับการติดตั้งนั้น การปรับ path ไม่ใช่การ repin โปรแกรมที่เปลี่ยน bytes
+ไม่มีการรับ manifest จาก target หรือแก้ hash ให้ตรงกับ executable ที่ยังไม่ผ่าน trust
+
+## ขอบเขต trust และข้อจำกัด
+
+ทั้ง manifest ต้องผ่าน schema/digest validation ก่อน probe ใด ๆ ทุก execution ตรวจ
+expected executable/helper hashes เดิม ไม่คำนวณ pins ใหม่เพื่ออนุมัติไฟล์ที่ถูกเปลี่ยน
+Manifest schema 1 ใช้ `schema_version` และ `tools`; แต่ละ entry มี definition/dialect
+พร้อม identity/version/languages, process contract, absolute paths และ expected hashes
+SQL เลือก `tsql150`/`tsql160` ชัดเจน ไม่เดา dialect จากโปรเจกต์
+
+Duplicate keys/identities, unknown fields, overlapping tool languages, malformed limits
+และ digest mismatch ถูกปฏิเสธ ไม่สะท้อน commands หรือ raw tool stderr ใน error สาธารณะ
+Trust นี้อนุญาตให้รัน helper ที่เลือก ไม่ใช่ OS filesystem/network sandbox ของโปรแกรมนั้น
+
+การสแกนไม่ดาวน์โหลด ไม่ติดตั้ง dependencies ไม่ build helpers หรือรันแอปของ target
+Provider readiness ไม่ใช่ source analysis, clean scan หรือครอบคลุมทุก semantic rule
+ผลที่ missing/failed/unresolved ต้องคง incomplete แม้ findings ว่าง รายงาน UNKNOWN ตามจริง
+
+## Advanced source setup สำหรับผู้ดูแล
+
+หากเลือกสร้าง helper เอง ใช้ DevSift checkout ที่ทบทวนแล้วและ toolchain ตาม
+`python tools/build_native.py` ขั้นตอนนี้ต้องมี SDK/runtime ที่ pin ไว้ และอาจดาวน์โหลด
+dependencies ของ DevSift เอง จึงเป็น setup ที่ได้รับอนุญาตแยกจาก ordinary scan
+ไม่ใช่ขั้นตอนบังคับของผู้ใช้ companion installer
+
+Builder เก็บ manifest และ digest ใน `.devsift/local/native-manifest.json` กับ
+`.devsift/local/native-manifest.sha256` ของ checkout ที่ใช้ setup ให้ตรวจโปรแกรม/pins
+และเก็บ digest จากขั้นตอนที่เชื่อถือได้ก่อนลงทะเบียนด้วย `devsift setup` ด้านบน
+การ build, เปลี่ยน runtime หรือ update helper เป็นการเปลี่ยน trust โดยชัดแจ้ง
+ห้ามเรียก builder อัตโนมัติเพียงเพราะ scan พบว่า provider ยังไม่พร้อม

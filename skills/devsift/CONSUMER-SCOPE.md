@@ -9,9 +9,19 @@ Consumer work does not require DevSift maintainer branches, commit conventions,
 PR/release procedures, task cards, planning tools, ledgers or a specs checkout.
 Do not load DevSift maintainer instructions as prerequisites for product use.
 
-Installation of the runtime/skill and trusted native setup are separate explicit
-actions. Report unavailable tools or incomplete coverage honestly; never turn a
-scan request into target builds, dependency installation or source edits.
+Installation/setup is an explicit action. An authorized installer can deploy its
+verified platform analyzer companion and register that reviewed user-level trust.
+Ordinary scans, Doctor and CI reuse that registration without repeated native
+flags; they do not discover trust from target configuration, download tools or
+build dependencies. An explicit manifest/digest pair overrides the registration.
+Report missing setup as missing readiness, not as a completed native lint.
+
+Ordinary project-check requests select the whole repository; changed-file scans
+require that scope to be requested. Deliver actual analyzer coverage, findings,
+incomplete causes, a useful next action and the direct human REPORT.md link.
+Reports keep all cases, proof limitations and UNKNOWN values. Registration and
+report-language support must match the installed CLI's help; do not invent flags
+for an older release. None of this authorizes source edits or host-policy changes.
 Report prompts, pending approval labels and proposed changes are guidance.
 Implement a consumer repair only within the user's authorization and that
 project's governance. An ordinary conversation or scan does not create a

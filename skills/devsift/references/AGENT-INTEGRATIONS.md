@@ -139,10 +139,21 @@ Installer ไม่เพิ่ม marketplace หรือเรียก host 
 
 ## ขอให้ AI ทำงาน
 
-> ใช้ DevSift ตรวจ working changes พร้อม security checks แล้วสรุป scope,
-> completion, coverage, findings และสิ่งที่ยัง UNKNOWN
+> ใช้ DevSift ตรวจโปรเจกต์นี้ทั้ง repository พร้อม security checks ส่งรายงานฉบับเต็มภาษาไทย
+> และลิงก์ REPORT.md บอกว่า analyzer ตรวจจริงเท่าไร พบอะไร ยังไม่ครบเพราะอะไร และทำอะไรต่อ
 
 > ใช้ DevSift ทบทวน codebase เดิมแบบ legacy recommend โดยยังไม่แก้ไฟล์
 
 Agent อ่าน [USAGE](USAGE.md) เลือก workflow และตรวจ subcommand help
 การใช้ skill ไม่ได้อนุมัติการแก้ source ติดตั้ง dependencies หรือ build target
+
+Source skill ใหม่ (Unreleased) แปลคำขอ project review ทั่วไปเป็น
+`scan --all --legacy-mode recommend --summary --report-language th` เมื่อขอภาษาไทย
+ใช้ changed scope เฉพาะที่ระบุ และเคารพ actual host Plan mode ใน session ที่ execute ได้
+ให้รันจริงต่อจนส่งรายงาน ไม่หยุดเพียงแผน หากมี user registration อยู่ไม่ต้องส่ง native
+flags ซ้ำ ถ้าไม่มีให้รายงาน setup missing แยกจาก analysis; ordinary scan ไม่อนุมัติ network setup
+
+หลังตรวจ อ่านทุก page/case แล้วส่ง direct link จาก `data.report_bundle.report` พร้อม
+coverage/findings/incomplete causes/next action ไม่โยนให้ผู้ใช้ค้นหาใน cache folder
+การลงทะเบียน plugin กับ host ไม่เท่ากับการลงทะเบียน native analyzer และการ update
+DevSift ไม่ได้อนุญาตให้แก้ host preferences, เปิด skill สำเนาที่ปิดไว้ หรือสร้างสำเนาซ้ำ
