@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import sqlite3
 import uuid
+from urllib.parse import quote
 
 from .output import result
 import stat
@@ -90,7 +91,11 @@ def _unlock(stream):
 def _verify_database(path, owner):
     probe = None
     try:
-        probe = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True, timeout=0)
+        # pathlib serializes the Windows extended-path '?' as a URI authority.
+        # SQLite instead needs that absolute native filename percent-encoded.
+        uri = ('file:' + quote(str(path), safe='/:') if os.name == 'nt'
+               else path.as_uri())
+        probe = sqlite3.connect(uri + '?mode=ro', uri=True, timeout=0)
         row = probe.execute("SELECT value FROM metadata WHERE key='owner'").fetchone()
         _require(row is not None and row[0] == owner)
     except sqlite3.Error:
@@ -110,9 +115,21 @@ def _owned_directory(root, destination, resume, configuration):
     directory = (Path.home() / '.local/share/devsift/scans' / identity / uuid.uuid4().hex
                  if destination is None else Path(destination))
     _require(directory.is_absolute())
+    # Reports add several owned descendants. Use Win32's extended namespace
+    # before any filesystem access when a session could exceed MAX_PATH; this
+    # does not require changing the user's system-wide long-path policy.
+    extended = os.name == 'nt' and len(str(directory)) >= 128
+    def native(path):
+        value = str(path)
+        if value.startswith('\\\\?\\'):
+            return path
+        return Path('\\\\?\\UNC\\' + value[2:] if value.startswith('\\\\')
+                    else '\\\\?\\' + value)
+    if extended:
+        directory = native(directory)
     _safe_path(directory)
     directory = directory.resolve()
-    _require(not directory.is_relative_to(source))
+    _require(not directory.is_relative_to(native(source) if extended else source))
     if resume:
         _require(directory.is_dir())
         _safe_path(directory / 'ownership.json')

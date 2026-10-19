@@ -37,6 +37,20 @@ class StoreTests(unittest.TestCase):
             self.root, adapters=(self.adapter,), should_scan=callback),
             destination=self.destination, **kwargs)
 
+    @unittest.skipUnless(os.name == 'nt', 'Windows extended storage paths')
+    def test_long_storage_path_creates_report_and_resumes_without_registry_changes(self):
+        # tempfile's cleanup must use the same Windows namespace as storage.
+        self.temporary.name = '\\\\?\\' + self.temporary.name
+        self.destination = self.base / ('owned-' + 'x' * 90) / ('session-' + 'y' * 100)
+        stored = self.run_scan()
+        self.assertTrue(stored.bundle['reports_complete'])
+        self.assertTrue(Path(stored.bundle['report']).is_file())
+        self.assertGreater(len(stored.bundle['report']), 260)
+        stored.close()
+        resumed = self.run_scan(resume=True)
+        self.addCleanup(resumed.close)
+        self.assertTrue(resumed.bundle['reports_complete'])
+
     def test_result_streaming_inline_reports_and_resume_skip(self):
         (self.root / 'a.py').write_text('print(1)')
         stored = self.run_scan()

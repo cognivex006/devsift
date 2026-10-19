@@ -19,7 +19,10 @@ class ReadyInstallationTests(unittest.TestCase):
         archive = Path(os.environ['DEVSIFT_TEST_INSTALLER_BUNDLE']).resolve()
         git = shutil.which('git')
         self.assertTrue(git, 'Git required for immutable source proof')
-        with tempfile.TemporaryDirectory(prefix='devsift-ready-install-') as temporary:
+        temporary_directory = tempfile.TemporaryDirectory(prefix='devsift-ready-install-')
+        with temporary_directory as temporary:
+            if os.name == 'nt':
+                temporary_directory.name = '\\\\?\\' + temporary
             root = Path(temporary)
             home, bundle, source = root / 'new user', root / 'bundle', root / 'project'
             home.mkdir(); bundle.mkdir(); source.mkdir()
