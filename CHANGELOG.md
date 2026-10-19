@@ -4,9 +4,11 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+## [0.1.16] - 2026-10-19
+
 ### Changed
 - Route ordinary AI project reviews to full-repository lint, use registered user analyzer trust, and deliver analyzer coverage, actionable next steps and the direct human report link.
-- Document one-time `setup` registration/status, verified platform companion installation and language-specific full `REPORT.md` delivery as unreleased capabilities; keep scanning free of automatic downloads or builds.
+- Document one-time `setup` registration/status, verified platform companion installation and language-specific full `REPORT.md` delivery for version 0.1.16; keep scanning free of automatic downloads or builds.
 - Install and verify the platform's self-contained C#, SQL, Go and JavaScript/TypeScript analyzers before activating a normal installation; persist operator-approved analyzer pins for plain `scan` and `ci` commands.
 
 ### Fixed

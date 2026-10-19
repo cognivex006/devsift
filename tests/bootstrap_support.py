@@ -33,10 +33,12 @@ class BootstrapCases:
             if bundle is None:
                 stream = io.BytesIO()
                 with zipfile.ZipFile(stream, 'w') as archive:
+                    transfers = ([(0, None), (25, None), (60, None), (120, None)] if unknown
+                                 else [(0, 100), (25, 100), (60, None), (120, None)])
                     source = (
                         'import json,time\nfrom pathlib import Path\n'
                         '(Path.home()/"bootstrap-reached").touch()\n'
-                        'for received,total in [(0,100),(25,100),(60,None),(120,None)]:\n'
+                        f'for received,total in {transfers!r}:\n'
                         ' print(json.dumps({"type":"progress","percent":0,"stage":"Downloading analyzer companion",'
                         '"elapsed":0.2,"kind":"transfer","received":received,"total":total}),flush=True)\n'
                         ' time.sleep(.08)\n'

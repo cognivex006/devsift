@@ -43,6 +43,27 @@ manifests and Python bootstrap in `devsift-install.zip`. It also emits a SHA256
 file and Windows/POSIX install and update scripts. It does not publish anything.
 Use a trusted checkout and provision `setuptools==83.0.0` and `wheel` first.
 The consumer guides must be synchronized and all selected inputs tracked in Git.
+
+## Physical paths and interrupted report ownership
+
+Canonicalize trusted temporary staging roots and every manifest path slot before
+checking companion containment. macOS `/var` aliases and Windows 8.3 temporary
+names can otherwise make a physically contained executable appear external after
+`ProcessSpec` resolves its path. Retain the physical inside-payload check and
+frozen hashes; accepting lexical prefixes or weakening the check is unsafe.
+Companion smoke checks must still execute all four helpers and verify exact AST
+rules and source spans. Keep bounded, masked build diagnostics for failed CI jobs.
+
+Windows report storage can exceed MAX_PATH even for an ordinary user home. Use
+the extended filesystem namespace for deep owned sessions, normalize both source
+and destination namespaces for containment, and encode native SQLite filenames
+correctly in read-only URIs. Never enable system-wide policy or allow a short
+explicit `\\?\` destination to bypass the source read-only boundary.
+
+Commit the old/new human-report ownership journal before replacing `REPORT.md`.
+Recovery may adopt only its exact known hashes on a regular single-link file;
+foreign edits, symlinks and hardlinks remain errors. Test interruption on both
+sides of journal creation, replacement and final metadata publication.
 Only the explicit consumer-skill allowlist and named plugin manifest files enter
 the installer; unrelated files under `skills/` are excluded.
 

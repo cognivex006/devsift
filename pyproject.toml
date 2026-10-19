@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "devsift"
-version = "0.1.15"
+version = "0.1.16"
 description = "Read-only quality analysis CLI with explicitly trusted native analyzers"
 requires-python = ">=3.12"
 dependencies = []

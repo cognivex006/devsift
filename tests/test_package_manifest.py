@@ -136,7 +136,7 @@ class ManifestTests(unittest.TestCase):
         config = tomllib.loads((ROOT / 'pyproject.toml').read_text(encoding='utf-8'))
         self.assertEqual(config['build-system']['requires'], ['setuptools==83.0.0'])
         self.assertEqual(config['project']['dependencies'], [])
-        self.assertEqual(config['project']['version'], '0.1.15')
+        self.assertEqual(config['project']['version'], '0.1.16')
         settings = config['tool']['setuptools']
         self.assertEqual(settings['packages'], [])
         self.assertIs(settings['include-package-data'], False)
