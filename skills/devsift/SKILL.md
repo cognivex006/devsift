@@ -20,9 +20,8 @@ still applies. Never describe a planned command or readiness check as an execute
 Use trusted installed `devsift` on PATH from the selected target Git root, never a
 target-local launcher or imported target code. Check `devsift --help` and relevant
 subcommand help for the installed contract. Registration, report language and
-the combined human report target release candidate 0.1.16. Final platform/release
-gates remain pending; do not claim an older published CLI supports these flags
-or that the candidate has already been published.
+the combined human report require DevSift 0.1.16 or later. Do not invent flags for
+an older installed CLI; explain the required update if those capabilities are missing.
 
 Check `devsift setup --status` and `devsift doctor` for registered analyzer readiness.
 Scan/Doctor/CI use the user-registered trusted manifest by default; do not make the

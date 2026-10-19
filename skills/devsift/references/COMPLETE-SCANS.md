@@ -1,9 +1,8 @@
 # Lint จนจบและส่งรายงานครบทุก case
 
-DevSift ตั้งแต่ 0.1.15 เก็บ session และ paged reports นอก source ทะเบียนผู้ใช้,
-`--report-language` และ combined `REPORT.md` ในหน้านี้อยู่ใน **candidate 0.1.16**
-ตรวจ installed help ก่อนใช้; final platform/release checks ยังไม่ครบ ไม่อ้างว่า
-public release เก่ามี flags ใหม่แล้ว
+DevSift เก็บ session และ paged reports นอก source Workflow ทะเบียนผู้ใช้,
+`--report-language` และ combined `REPORT.md` ในหน้านี้ใช้ **0.1.16 ขึ้นไป**
+หาก installed help ไม่มี flags เหล่านี้ ให้อัปเดต CLI ก่อนใช้
 
 เมื่อ setup ที่เชื่อถือได้ลงทะเบียนไว้ ให้รันจาก target Git root:
 

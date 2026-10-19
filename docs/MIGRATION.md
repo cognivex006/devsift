@@ -15,7 +15,7 @@ devsift scan --all --legacy-mode recommend --summary --report-language en
 
 This selects current source and requests the supported legacy mode. It does not prove that findings are legacy. Verify tool coverage, source evidence and lifecycle attribution before using the result. Unconfigured providers, unknown origin and unresolved source remain incomplete. Keep UNKNOWN in the report; do not convert unknown findings into a clean baseline to make a gate green.
 
-Report language and registered user analyzers target candidate 0.1.16;
+Report language and registered user analyzers require DevSift 0.1.16 or later;
 check installed help. The new installer/setup registers trusted analyzers once,
 so ordinary scans do not need repeated native flags. Explicit paired overrides
 remain supported. Open the direct `REPORT.md` from `data.report_bundle.report`

@@ -7,8 +7,8 @@
 [เริ่มต้นใช้งาน](GETTING-STARTED.md) ก่อน หากต้องการแก้ปัญหาให้ดู
 [การแก้ปัญหา](TROUBLESHOOTING.md)
 
-ทะเบียน analyzer, `setup` และ combined `REPORT.md` ตามภาษาในหน้านี้เป็น **candidate 0.1.16**
-ตรวจ installed help รุ่น public 0.1.15 ยังไม่มี flags ใหม่ และ candidate ยังรอ final release gates
+ทะเบียน analyzer, `setup` และ combined `REPORT.md` ตามภาษาในหน้านี้ใช้ **0.1.16 ขึ้นไป**
+ตรวจ installed help เมื่อใช้ CLI เก่า; 0.1.15 ยังไม่มี flags เหล่านี้
 
 ## พร้อมแล้ว lint ได้ตรง ๆ
 

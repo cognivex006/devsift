@@ -1,6 +1,6 @@
 # DevSift report template
 
-Combined human report ของ candidate 0.1.16 อยู่ที่ `REPORT.md`
+Combined human report ตั้งแต่ 0.1.16 อยู่ที่ `REPORT.md`
 ใน session root ตาม `data.report_bundle.report` เลือก `--report-language th` หรือ `en`
 Agent ส่งลิงก์ไฟล์นี้โดยตรง พร้อม actual analyzer coverage, findings, สาเหตุ incomplete
 และ next action ที่มีหลักฐาน ไม่จบที่ storage folder หรือ JSON การมีรายงานไม่แทนการ lint
@@ -17,10 +17,9 @@ Agent ส่งลิงก์ไฟล์นี้โดยตรง พร้�
 paths, SHA, BEFORE ที่ตรวจยืนยันแล้ว และ machine states ตามจริง ไม่แต่ง AFTER/ผล tests
 เพื่อให้ดู actionable หากหลักฐานยังขาด ให้ next action เป็นการตรวจ proof/consumer ที่ขาด
 
-Candidate ตรวจ integrity ของ human report ร่วมกับ artifact index และเก็บ ownership
-journal ก่อน publish ไฟล์รายงาน การขาด/เปลี่ยนไฟล์หรือ interrupted publication ต้องไม่
-กลายเป็นรายงาน complete ภาษาไม่เปลี่ยน source proof, gate หรือ UNKNOWN states
-Final platform/release gates ยังค้างอยู่ ไม่อ้างว่ารุ่น public เก่ามี human report นี้แล้ว
+Human report ตรวจ integrity ร่วมกับ artifact index หากไฟล์ขาด/เปลี่ยนหรือการเขียน
+รายงานถูกขัดจังหวะ ให้แก้สาเหตุและ resume session โดยคงสถานะ incomplete ตามจริง
+ภาษาไม่เปลี่ยน source proof, gate หรือ UNKNOWN states
 
 กรอก `{{...}}` จากผล scan จริงเท่านั้น ข้อมูลที่ไม่มีหลักฐานให้ใช้ `UNKNOWN`,
 `not supplied` หรือ `SOURCE_UNRESOLVED` ตามชนิดข้อมูล ไม่เดา path, SHA, line,

@@ -2,8 +2,8 @@
 
 เอกสารส่วนนี้สำหรับผู้ใช้ CLI และ AI ที่ใช้ DevSift ตรวจโปรเจกต์ของผู้ใช้
 เริ่มจากติดตั้ง → ตรวจ readiness → lint → เปิดรายงานฉบับเต็ม
-ทะเบียน analyzer และรายงาน `REPORT.md` ตามภาษาเป็น workflow ของ candidate 0.1.16
-ยังต้องผ่าน platform/release gates ก่อนเผยแพร่ รุ่น public 0.1.15 ยังไม่มีส่วนนี้
+ทะเบียน analyzer และรายงาน `REPORT.md` ตามภาษาใช้ DevSift 0.1.16 ขึ้นไป
+หากใช้ 0.1.15 ให้อัปเดตก่อนใช้ workflow นี้
 ตรวจ `devsift setup --help` และ `devsift scan --help` ก่อนใช้กับ CLI รุ่นเก่า
 
 | งาน | คู่มือ |
@@ -11,7 +11,7 @@
 | ติดตั้งและอัปเดต CLI / skill | [INSTALL](INSTALL.md) |
 | ตรวจโปรเจกต์ครั้งแรกและรับลิงก์รายงาน | [GETTING-STARTED](GETTING-STARTED.md) |
 | คำสั่งใช้งานประจำวันและอ่านผล | [USAGE](USAGE.md) |
-| ตรวจต่อจนจบและรายงานทุก case | [COMPLETE-SCANS](COMPLETE-SCANS.md) (0.1.15 ขึ้นไป) |
+| ตรวจต่อจนจบและรายงานทุก case | [COMPLETE-SCANS](COMPLETE-SCANS.md) (0.1.16 ขึ้นไป) |
 | Codex / Claude / Gemini / Antigravity / Cursor / Copilot | [AGENT-INTEGRATIONS](AGENT-INTEGRATIONS.md) |
 | แก้ปัญหาการติดตั้งและผลไม่ครบ | [TROUBLESHOOTING](TROUBLESHOOTING.md) |
 | ตรวจ codebase เดิม | [MIGRATION](MIGRATION.md) |

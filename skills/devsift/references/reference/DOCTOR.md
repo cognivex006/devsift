@@ -2,7 +2,7 @@
 
 `devsift.doctor.run_doctor` provides read-only provider discovery and optional
 cache/config diagnostics.
-The CLI calls it through `devsift doctor`. Candidate 0.1.16 user-registration
+The CLI calls it through `devsift doctor`. DevSift 0.1.16 user-registration
 resolution uses explicit flags to override registered trust, otherwise
 the CLI resolves `~/.local/share/devsift/analyzers.json` before calling this library.
 `devsift setup --status` reads that registration's readiness separately from lint;

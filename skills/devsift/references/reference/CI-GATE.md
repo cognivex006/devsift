@@ -4,7 +4,7 @@
 JSON record, auto-loads target configuration, builds target projects, installs
 dependencies or applies remediation. Setup is a separate trusted operation.
 
-Candidate 0.1.16 adds CLI user-registration and report language. After authorized
+DevSift 0.1.16 adds CLI user-registration and report language. After authorized
 installation or one-time `devsift setup`, CI uses that user-level manifest/digest
 without requiring native flags again. No project manifest is discovered. Check
 installed help when using releases through 0.1.15, which still require the pair.

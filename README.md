@@ -4,7 +4,7 @@ DevSift ช่วยตรวจคุณภาพและความปลอ
 และ AI agent ผลระบุหลักฐาน ขอบเขตที่ตรวจได้ และสิ่งที่ยังยืนยันไม่ได้อย่างชัดเจน
 รองรับ native analyzers สำหรับ .NET, TypeScript, Go และ SQL เมื่อตั้งค่าเครื่องมือที่เชื่อถือได้
 
-## Workflow ของ release candidate 0.1.16
+## ติดตั้งแล้ว lint โปรเจกต์ได้ตรง ๆ
 
 ตัวติดตั้งใหม่เตรียม analyzer companion ที่ตรวจสอบแล้วและลงทะเบียนใน user scope
 ตรวจ readiness ครั้งแรก แล้วสั่ง lint ทั้งโปรเจกต์ได้โดยไม่ต้องส่ง native flags ซ้ำ:
@@ -20,10 +20,8 @@ AI ต้องส่งลิงก์ไฟล์นี้พร้อมจ�
 การมีเพียง inventory หรือ JSON/folder ไม่ใช่การส่งมอบ lint ที่ใช้งานได้
 ใช้ `--changed` เฉพาะเมื่อขอตรวจการเปลี่ยนแปลง ดู [เริ่มตรวจ](docs/GETTING-STARTED.md)
 
-`setup`, registry, analyzer companion และ `--report-language` เป็นความสามารถของ
-candidate 0.1.16 ตรวจ help ของ CLI ที่ติดตั้ง; 0.1.15 ยังต้องตั้ง native แยกและไม่มี flags นี้
-Fresh ordinary installation บน Windows ตรวจจริงครบสี่ภาษาและสร้าง Thai REPORT.md แล้ว
-แต่ platform/release gates และการตรวจ assets รอบสุดท้ายยังค้างอยู่ จึงยังไม่ใช่ public release ใหม่
+Workflow นี้ใช้ DevSift 0.1.16 ขึ้นไป ตรวจ help ของ CLI ที่ติดตั้ง; 0.1.15 ยังต้องตั้ง native
+แยกและไม่มี `setup` หรือ `--report-language` อัปเดต installation เดิมก่อนใช้ workflow นี้
 
 ## ติดตั้งและอัปเดต
 
@@ -44,21 +42,22 @@ curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/dow
 curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/update.sh | sh
 ```
 
-Public release ปัจจุบันคือ [v0.1.15](https://github.com/orchex006/devsift/releases/tag/v0.1.15)
-candidate ถัดไปคือ 0.1.16 คำสั่ง latest ด้านบนยังชี้ release ปัจจุบันจนกว่าจะผ่าน gates และเผยแพร่
+Release ปัจจุบันคือ [v0.1.16](https://github.com/orchex006/devsift/releases/tag/v0.1.16)
 ดู [วิธีติดตั้งจาก source](docs/INSTALL.md#ติดตั้งจาก-source) หากต้องการ build เอง
 
 เปิด terminal และ agent session ใหม่ จาก Git root ของโปรเจกต์ที่ต้องการตรวจ:
 
 ```sh
 devsift --help
+devsift setup --status
 devsift doctor
-devsift scan --all --legacy-mode recommend --summary
+devsift scan --all --legacy-mode recommend --summary --report-language th
 ```
 
 ตัวติดตั้งใช้ Python environment ส่วนตัวและ launcher ที่แยก import path จากโปรเจกต์เป้าหมาย
-Native analyzers เป็น [ขั้นตอนตั้งค่าแยก](docs/NATIVE-SETUP.md); การไม่มี analyzer
-หมายถึงตรวจไม่ครบ ไม่ใช่ผล clean
+ตัวติดตั้งปกติเตรียม native analyzers และลงทะเบียนให้โดยอัตโนมัติในขั้น installation
+Wheel-only หรือการตั้งค่าเองใช้ [Native setup](docs/NATIVE-SETUP.md) การไม่มี analyzer
+หมายถึงตรวจไม่ครบ ไม่ใช่ผล clean; coverage ยังจำกัดตามภาษาและ rules ที่รองรับ
 
 ## ใช้ผ่าน AI
 
@@ -84,8 +83,8 @@ Skill มีคู่มือการใช้งานแนบไปด้�
 | ค้นหาคู่มือและเอกสารอ้างอิง | [เอกสารผู้ใช้](docs/README.md) |
 | พัฒนา DevSift / ให้ agent เรียนรู้ระบบ | [เอกสารพัฒนา](docs/development/README.md) |
 
-Scan และ CI ส่ง JSON envelope ตั้งแต่รุ่น 0.1.15 รองรับการตรวจต่อจนจบและ
-รายงานทุก case แบบหลายส่วน พร้อม session/resume นอก source ดู [COMPLETE-SCANS](docs/COMPLETE-SCANS.md)
+Scan และ CI ส่ง JSON envelope พร้อม direct human report และรายงานทุก case แบบหลายส่วน
+เก็บ session/resume นอก source ดู [COMPLETE-SCANS](docs/COMPLETE-SCANS.md)
 Exit `2` หมายถึงผลไม่ครบหรือยังมี review ค้าง แม้ findings ว่าง
 `report --latest` และ storage lookup ของ `explain` ยังไม่พร้อมใช้งาน
 
