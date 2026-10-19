@@ -332,6 +332,46 @@ def _copy_human_page(source, output, page_number):
             output.write(line)
 
 
+
+def _recover_frontdoor(stored, report_path):
+    """Resolve only a committed old/new hash journal; never adopt foreign bytes."""
+    _safe_path(report_path)
+    connection = stored.connection
+    row = connection.execute("SELECT value FROM metadata WHERE key='human_report_pending'").fetchone()
+    if row is None:
+        return
+    journal = json.loads(row[0])
+    valid_hash = lambda value: type(value) is str and re.fullmatch(r'[0-9a-f]{64}', value) is not None
+    if (type(journal) is not dict or set(journal) != {'previous', 'next'}
+            or not valid_hash(journal['next'])
+            or (journal['previous'] is not None and not valid_hash(journal['previous']))):
+        raise ArtifactError('Report artifacts unavailable')
+    committed = connection.execute("SELECT value FROM metadata WHERE key='human_report_sha256'").fetchone()
+    known = {journal['previous'], journal['next']}
+    if (None if committed is None else committed[0]) not in known:
+        raise ArtifactError('Report artifacts unavailable')
+    current = _digest(report_path) if report_path.exists() else None
+    if current is not None and current not in known:
+        raise ArtifactError('Report artifacts unavailable')
+    with connection:
+        if current is not None:
+            stored._set('human_report_sha256', current)
+        connection.execute("DELETE FROM metadata WHERE key='human_report_pending'")
+
+
+
+def _check_frontdoor_destination(path, original, previous):
+    _safe_path(path)
+    if original is None:
+        if path.exists():
+            raise ArtifactError('Report artifacts unavailable')
+    else:
+        observed = path.stat(follow_symlinks=False)
+        if ((observed.st_dev, observed.st_ino) != (original.st_dev, original.st_ino)
+                or _digest(path) != previous[0]):
+            raise ArtifactError('Report artifacts unavailable')
+
+
 def _write_frontdoor(stored, bundle, language):
     """Stream the full human report and atomically replace only our prior artifact."""
     thai = language == 'th'
@@ -354,7 +394,7 @@ def _write_frontdoor(stored, bundle, language):
         connection.execute('INSERT INTO report_frontdoor_pages VALUES (?,?)', (identity, int(valid)))
     connection.commit()
     report_path = stored.directory / 'REPORT.md'
-    _safe_path(report_path)
+    _recover_frontdoor(stored, report_path)
     previous = connection.execute("SELECT value FROM metadata WHERE key='human_report_sha256'").fetchone()
     if report_path.exists() and (previous is None or _digest(report_path) != previous[0]):
         raise ArtifactError('Report artifacts unavailable')
@@ -475,18 +515,19 @@ def _write_frontdoor(stored, bundle, language):
                 add()
             output.flush()
             os.fsync(output.fileno())
-        _safe_path(report_path)
-        if original is not None:
-            observed = report_path.stat(follow_symlinks=False)
-            if (observed.st_dev, observed.st_ino) != (original.st_dev, original.st_ino) or _digest(report_path) != previous[0]:
-                raise ArtifactError('Report artifacts unavailable')
-        elif report_path.exists():
-            raise ArtifactError('Report artifacts unavailable')
+        _check_frontdoor_destination(report_path, original, previous)
         _safe_path(temporary)
         digest = _digest(temporary)
+        # Commit ownership of both possible atomic-replace outcomes before the
+        # filesystem changes. Cancellation at any later point is recoverable.
+        with connection:
+            stored._set('human_report_pending', _dump({
+                'previous': None if previous is None else previous[0], 'next': digest}))
+        _check_frontdoor_destination(report_path, original, previous)
         os.replace(temporary, report_path)
         with connection:
             stored._set('human_report_sha256', digest)
+            connection.execute("DELETE FROM metadata WHERE key='human_report_pending'")
         return {'report': str(report_path), 'report_sha256': digest}
     finally:
         if created is not None:

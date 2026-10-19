@@ -84,6 +84,10 @@ class ActionableMarkdownTests(unittest.TestCase):
         self.assertIn('ยังไม่มีการเรียก analyzer จริง', report)
         self.assertIn('devsift setup --status', report)
         self.assertIn('--native-manifest-digest TRUSTED_SHA256', report)
+        self.assertIn('devsift scan --all', report)
+        self.assertEqual(stored.exit_code, 2)
+        self.assertTrue(stored.bundle['reports_complete'])
+        self.assertFalse(stored.bundle['analysis_complete'])
 
     def test_sensitive_root_is_redacted_before_navigation_urls_are_created(self):
         self.root.rmdir()
@@ -93,13 +97,9 @@ class ActionableMarkdownTests(unittest.TestCase):
         self.addCleanup(stored.close)
         report = Path(stored.bundle['report']).read_text(encoding='utf-8')
         self.assertNotIn('syntheticSecretForLink', report)
-        self.assertIn('a.py:3', report)
+        self.assertIn(r'a\.py:3', report)
         self.assertIn('3 | except:', report)
         self.assertTrue(verify_bundle(stored, stored.bundle))
-        self.assertIn('devsift scan --all', report)
-        self.assertEqual(stored.exit_code, 2)
-        self.assertTrue(stored.bundle['reports_complete'])
-        self.assertFalse(stored.bundle['analysis_complete'])
 
     def test_human_frontdoor_exists_without_markdown_format_and_tampering_fails(self):
         stored = self.run_language(self.two_cases(), formats=('json',))
@@ -161,6 +161,123 @@ class ActionableMarkdownTests(unittest.TestCase):
                 self.run_language(lambda callback: iter_scan(self.root, [], should_scan=callback))
         self.assertEqual(len(collision), 1)
         self.assertEqual(collision[0].read_bytes(), b'foreign temporary file')
+
+    def test_report_journal_recovers_all_publish_interruption_boundaries(self):
+        import devsift.report_bundle as bundle_module
+        from devsift.scan_store import StoredResult
+        factory = lambda callback: iter_scan(self.root, [], should_scan=callback)
+        original_set, original_replace = StoredResult._set, bundle_module.os.replace
+        for have_previous in (False, True):
+            for phase in ('before_pending', 'after_pending', 'before_replace', 'after_replace',
+                          'before_final', 'after_final'):
+                with self.subTest(previous=have_previous, phase=phase):
+                    self.destination = self.base / f'session-{have_previous}-{phase}'
+                    if have_previous:
+                        prior = self.run_language(factory)
+                        prior.close()
+                    fired = []
+
+                    def interrupted_set(stored, key, value):
+                        target = 'human_report_pending' if phase.endswith('pending') else 'human_report_sha256'
+                        if not fired and key == target and phase.startswith('before'):
+                            fired.append(True)
+                            raise KeyboardInterrupt
+                        original_set(stored, key, value)
+                        if not fired and key == target and phase.startswith('after'):
+                            fired.append(True)
+                            raise KeyboardInterrupt
+
+                    def interrupted_replace(source, destination):
+                        if Path(destination).name == 'REPORT.md' and phase == 'before_replace':
+                            fired.append(True)
+                            raise KeyboardInterrupt
+                        result = original_replace(source, destination)
+                        if Path(destination).name == 'REPORT.md' and phase == 'after_replace':
+                            fired.append(True)
+                            raise KeyboardInterrupt
+                        return result
+
+                    # Replace-boundary phases should not interrupt metadata.
+                    setter = interrupted_set if not phase.endswith('replace') else original_set
+                    with patch.object(StoredResult, '_set', setter), \
+                            patch.object(bundle_module.os, 'replace', side_effect=interrupted_replace):
+                        with self.assertRaises(KeyboardInterrupt):
+                            self.run_language(factory, resume=have_previous)
+                    self.assertTrue(fired)
+                    recovered = self.run_language(factory, resume=True)
+                    try:
+                        self.assertTrue(verify_bundle(recovered, recovered.bundle))
+                        self.assertTrue(recovered.bundle['reports_complete'])
+                        self.assertIsNone(recovered.connection.execute(
+                            "SELECT value FROM metadata WHERE key='human_report_pending'").fetchone())
+                        self.assertEqual(recovered._meta('human_report_sha256'), recovered.bundle['report_sha256'])
+                    finally:
+                        recovered.close()
+                    self.assertFalse(list(self.destination.glob('REPORT-*.pending')))
+
+    def test_interrupted_report_journal_never_adopts_foreign_bytes(self):
+        import devsift.report_bundle as bundle_module
+        original_replace = bundle_module.os.replace
+        factory = lambda callback: iter_scan(self.root, [], should_scan=callback)
+
+        def after_replace(source, destination):
+            result = original_replace(source, destination)
+            if Path(destination).name == 'REPORT.md':
+                raise KeyboardInterrupt
+            return result
+
+        with patch.object(bundle_module.os, 'replace', side_effect=after_replace):
+            with self.assertRaises(KeyboardInterrupt):
+                self.run_language(factory)
+        path = self.destination / 'REPORT.md'
+        path.write_bytes(b'operator replacement after interruption')
+        with self.assertRaises(ValueError):
+            self.run_language(factory, resume=True)
+        self.assertEqual(path.read_bytes(), b'operator replacement after interruption')
+
+    def test_foreign_edit_during_journal_commit_is_not_overwritten(self):
+        from devsift.scan_store import StoredResult
+        factory = lambda callback: iter_scan(self.root, [], should_scan=callback)
+        stored = self.run_language(factory)
+        stored.close()
+        actual = StoredResult._set
+        report = self.destination / 'REPORT.md'
+
+        def foreign_edit(stored, key, value):
+            actual(stored, key, value)
+            if key == 'human_report_pending':
+                report.write_bytes(b'foreign edit while journal commits')
+
+        with patch.object(StoredResult, '_set', foreign_edit):
+            with self.assertRaises(ValueError):
+                self.run_language(factory, resume=True)
+        self.assertEqual(report.read_bytes(), b'foreign edit while journal commits')
+
+    def test_pending_journal_does_not_bypass_hardlink_protection(self):
+        import devsift.report_bundle as bundle_module
+        original_replace = bundle_module.os.replace
+        factory = lambda callback: iter_scan(self.root, [], should_scan=callback)
+
+        def after_replace(source, destination):
+            result = original_replace(source, destination)
+            if Path(destination).name == 'REPORT.md':
+                raise KeyboardInterrupt
+            return result
+
+        with patch.object(bundle_module.os, 'replace', side_effect=after_replace):
+            with self.assertRaises(KeyboardInterrupt):
+                self.run_language(factory)
+        report = self.destination / 'REPORT.md'
+        other = self.base / 'interrupted-report-link'
+        try:
+            os.link(report, other)
+        except OSError:
+            self.skipTest('Hardlinks unavailable')
+        original = other.read_bytes()
+        with self.assertRaises(ValueError):
+            self.run_language(factory, resume=True)
+        self.assertEqual(other.read_bytes(), original)
+        self.assertEqual(report.read_bytes(), original)
 
     def test_every_case_across_1205_pages_is_streamed_in_thai_without_aggregate_cap(self):
         from test_report_bundle import ReportBundleTests
