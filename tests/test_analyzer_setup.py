@@ -120,6 +120,29 @@ class AnalyzerSetupTests(unittest.TestCase):
             deploy(archive, 'a' * 64, home=self.home)
         self.assertFalse(registry_path(self.home).exists())
 
+    def test_status_without_registration_creates_no_files(self):
+        value = self.invoke('setup', '--status')
+        self.assertEqual(value['exit_code'], 2)
+        self.assertFalse(value['data']['analysis_ready'])
+        self.assertEqual(list(self.home.iterdir()), [])
+
+    def test_hardlinked_registry_is_never_followed_or_replaced(self):
+        self.configure()
+        registry = registry_path(self.home)
+        alias = self.fixture.directory / 'held-registry'
+        try:
+            os.link(registry, alias)
+        except OSError:
+            self.skipTest('Hardlinks unavailable on fixture filesystem')
+        before = alias.read_bytes()
+        status = self.invoke('setup', '--status')
+        self.assertEqual(status['exit_code'], 2)
+        refused = self.invoke('setup', '--native-manifest', str(self.fixture.manifest),
+                              '--native-manifest-digest', self.fixture.digest)
+        self.assertEqual(refused['exit_code'], 2)
+        self.assertEqual(registry.read_bytes(), before)
+        self.assertEqual(alias.read_bytes(), before)
+
     def test_malformed_portable_argv_returns_safe_cli_error_and_keeps_registration(self):
         self.configure()
         original = registry_path(self.home).read_bytes()

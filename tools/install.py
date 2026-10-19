@@ -100,12 +100,24 @@ def _analyzers(python, bundle, home, version, report, transfer):
         match = re.fullmatch(r'([a-f0-9]{64})  ' + re.escape(name) + r'\s*', raw)
         if not match:
             raise RuntimeError('Invalid analyzer release checksum.')
-        report(68, 'Verifying and registering code analyzers')
+        report(68, 'Extracting and checking code analyzers')
         run = subprocess.run([str(python), '-I', '-B', '-m', 'devsift', 'setup',
             '--analyzer-bundle', str(archive), '--bundle-digest', match[1], '--home', str(home)],
-            cwd=python.parent, check=True, capture_output=True, text=True)
+            cwd=python.parent, check=False, capture_output=True, text=True)
         try:
             state = json.loads(run.stdout)
+            if type(state) is not dict or type(state.get('data')) is not dict:
+                raise ValueError('Invalid setup result')
+            if run.returncode:
+                probes = state.get('data', {}).get('probes', [])
+                if (type(probes) is not list or any(type(item) is not dict or
+                        type(item.get('tool_id')) is not str or type(item.get('reason')) is not str
+                        for item in probes)):
+                    raise ValueError('Invalid setup result')
+                failed = ', '.join(item['tool_id'] + ': ' + item['reason']
+                                   for item in probes if item.get('available') is False)
+                raise RuntimeError('Code analyzer setup failed' + (': ' + failed if failed else '')
+                                   + '. Existing CLI launcher was preserved.')
             ready = state['data']['analysis_ready']
             tools = set(state['data']['registered_tools'])
         except (ValueError, KeyError, TypeError):

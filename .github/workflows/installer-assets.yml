@@ -65,6 +65,11 @@ jobs:
           DEVSIFT_TEST_TERMINAL_ARTIFACTS: ${{ github.workspace }}/dist/terminal-evidence
           TERM: xterm-256color
         run: python -B -m unittest discover -s tests -p test_install_progress.py -v
+      - name: Fresh installation must lint without manifest flags or SDK PATH
+        env:
+          DEVSIFT_TEST_INSTALLER_BUNDLE: ${{ github.workspace }}/dist/installer/devsift-install.zip
+          DEVSIFT_TEST_READY_RECEIPT: ${{ github.workspace }}/dist/ready-installation-receipt.json
+        run: python -B -m unittest discover -s tests -p test_ready_installation.py -v
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: devsift-installer-assets-${{ runner.os }}
@@ -75,3 +80,8 @@ jobs:
         with:
           name: devsift-terminal-evidence-${{ runner.os }}
           path: dist/terminal-evidence/*
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: devsift-ready-installation-${{ runner.os }}
+          path: dist/ready-installation-receipt.json

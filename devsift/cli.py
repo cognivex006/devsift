@@ -197,6 +197,10 @@ def run(args: argparse.Namespace) -> dict:
             state = (deploy(args.analyzer_bundle, args.bundle_digest, home=home) if bundle else
                      register(args.native_manifest, args.native_manifest_digest, home=home))
             return result('setup', complete=True, data=state)
+        except SetupError as error:
+            return result('setup', complete=False, errors=[{'code': 'ANALYZER_SETUP_UNAVAILABLE',
+                'message': str(error)}],
+                data={'analysis_performed': False, 'analysis_ready': False, 'probes': error.probes})
         except (OSError, ValueError, TypeError, KeyError, RecursionError,
                 zipfile.BadZipFile, zlib.error, EOFError, NotImplementedError):
             return result('setup', complete=False, errors=[{'code': 'ANALYZER_SETUP_UNAVAILABLE',

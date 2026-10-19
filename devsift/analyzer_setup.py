@@ -20,6 +20,10 @@ from .native_host import probe_tool
 class SetupError(ValueError):
     """Safe setup/configuration failure, without executable arguments or source."""
 
+    def __init__(self, message, probes=None):
+        super().__init__(message)
+        self.probes = [] if probes is None else probes
+
 
 def _require(value):
     if not value:
@@ -113,7 +117,15 @@ def register(manifest, digest, *, home=None):
     _require(Path(manifest).is_absolute())
     path = _safe(manifest)
     entries = load_manifest(path, digest)
-    _require(entries and all(ready(entry.tool) for entry in entries))
+    _require(entries)
+    from .redaction import Redactor
+    probes = []
+    for entry in entries:
+        checked = _probe(entry.tool, 30)
+        probes.append({'tool_id': Redactor().text(entry.tool.tool_id),
+                       'available': checked.available, 'reason': checked.reason})
+    if not all(probe['available'] for probe in probes):
+        raise SetupError('Code analyzer readiness checks failed.', probes)
     value = {'schema_version': '1', 'manifest': str(path), 'digest': digest}
     _atomic(registry_path(home), (json.dumps(value, sort_keys=True) + '\n').encode('utf-8'))
     return {'analysis_performed': False, 'analysis_ready': True,
@@ -121,11 +133,15 @@ def register(manifest, digest, *, home=None):
             'languages': sorted({language for entry in entries for language in entry.tool.languages})}
 
 
-def ready(tool):
+def _probe(tool, limit):
     """Metadata probes are finite even when source analysis has no wall deadline."""
     timeout = tool.process.timeout_seconds
-    bounded = replace(tool, process=replace(tool.process, timeout_seconds=5 if timeout is None else min(timeout, 5)))
-    return probe_tool(bounded).available
+    bounded = replace(tool, process=replace(tool.process, timeout_seconds=limit if timeout is None else min(timeout, limit)))
+    return probe_tool(bounded)
+
+
+def ready(tool):
+    return _probe(tool, 5).available
 
 
 def platform_id():
