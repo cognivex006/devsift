@@ -129,7 +129,8 @@ def _owned_directory(root, destination, resume, configuration):
         directory = native(directory)
     _safe_path(directory)
     directory = directory.resolve()
-    _require(not directory.is_relative_to(native(source) if extended else source))
+    _require(not (native(directory).is_relative_to(native(source)) if os.name == 'nt'
+                  else directory.is_relative_to(source)))
     if resume:
         _require(directory.is_dir())
         _safe_path(directory / 'ownership.json')

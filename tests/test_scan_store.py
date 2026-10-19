@@ -38,6 +38,19 @@ class StoreTests(unittest.TestCase):
             destination=self.destination, **kwargs)
 
     @unittest.skipUnless(os.name == 'nt', 'Windows extended storage paths')
+    def test_explicit_windows_namespace_cannot_bypass_source_containment(self):
+        for source_prefixed, destination_prefixed in ((False, True), (True, False), (True, True)):
+            with self.subTest(source=source_prefixed, destination=destination_prefixed):
+                root = Path('\\\\?\\' + str(self.root)) if source_prefixed else self.root
+                destination = self.root / 'forbidden-session'
+                if destination_prefixed:
+                    destination = Path('\\\\?\\' + str(destination))
+                with self.assertRaises(StoreError):
+                    run_streamed(root, lambda callback: iter_scan(root, [], should_scan=callback),
+                                 destination=destination)
+                self.assertFalse(destination.exists())
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows extended storage paths')
     def test_long_storage_path_creates_report_and_resumes_without_registry_changes(self):
         # tempfile's cleanup must use the same Windows namespace as storage.
         self.temporary.name = '\\\\?\\' + self.temporary.name
