@@ -4,7 +4,7 @@ DevSift ช่วยตรวจคุณภาพและความปลอ
 และ AI agent ผลระบุหลักฐาน ขอบเขตที่ตรวจได้ และสิ่งที่ยังยืนยันไม่ได้อย่างชัดเจน
 รองรับ native analyzers สำหรับ .NET, TypeScript, Go และ SQL เมื่อตั้งค่าเครื่องมือที่เชื่อถือได้
 
-## Workflow ใหม่ใน source (Unreleased)
+## Workflow ของ release candidate 0.1.16
 
 ตัวติดตั้งใหม่เตรียม analyzer companion ที่ตรวจสอบแล้วและลงทะเบียนใน user scope
 ตรวจ readiness ครั้งแรก แล้วสั่ง lint ทั้งโปรเจกต์ได้โดยไม่ต้องส่ง native flags ซ้ำ:
@@ -20,9 +20,10 @@ AI ต้องส่งลิงก์ไฟล์นี้พร้อมจ�
 การมีเพียง inventory หรือ JSON/folder ไม่ใช่การส่งมอบ lint ที่ใช้งานได้
 ใช้ `--changed` เฉพาะเมื่อขอตรวจการเปลี่ยนแปลง ดู [เริ่มตรวจ](docs/GETTING-STARTED.md)
 
-`setup`, registry, analyzer companion และ `--report-language` ใน workflow นี้ยังเป็น
-Unreleased; ตรวจ help ของ CLI ที่ติดตั้ง รุ่นที่เผยแพร่ก่อนหน้ายังต้องทำ native setup
-แยกและไม่มี flags เหล่านี้ งานนี้ไม่ประกาศ version ใหม่หรือเปลี่ยน public release
+`setup`, registry, analyzer companion และ `--report-language` เป็นความสามารถของ
+candidate 0.1.16 ตรวจ help ของ CLI ที่ติดตั้ง; 0.1.15 ยังต้องตั้ง native แยกและไม่มี flags นี้
+Fresh ordinary installation บน Windows ตรวจจริงครบสี่ภาษาและสร้าง Thai REPORT.md แล้ว
+แต่ platform/release gates และการตรวจ assets รอบสุดท้ายยังค้างอยู่ จึงยังไม่ใช่ public release ใหม่
 
 ## ติดตั้งและอัปเดต
 
@@ -43,7 +44,8 @@ curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/dow
 curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/update.sh | sh
 ```
 
-Release ปัจจุบันคือ [v0.1.15](https://github.com/orchex006/devsift/releases/tag/v0.1.15)
+Public release ปัจจุบันคือ [v0.1.15](https://github.com/orchex006/devsift/releases/tag/v0.1.15)
+candidate ถัดไปคือ 0.1.16 คำสั่ง latest ด้านบนยังชี้ release ปัจจุบันจนกว่าจะผ่าน gates และเผยแพร่
 ดู [วิธีติดตั้งจาก source](docs/INSTALL.md#ติดตั้งจาก-source) หากต้องการ build เอง
 
 เปิด terminal และ agent session ใหม่ จาก Git root ของโปรเจกต์ที่ต้องการตรวจ:
@@ -87,4 +89,4 @@ Scan และ CI ส่ง JSON envelope ตั้งแต่รุ่น 0.1.
 Exit `2` หมายถึงผลไม่ครบหรือยังมี review ค้าง แม้ findings ว่าง
 `report --latest` และ storage lookup ของ `explain` ยังไม่พร้อมใช้งาน
 
-Marketplace/repository plugin installation (รวม Copilot): ดู [agent integrations](docs/AGENT-INTEGRATIONS.md) สำหรับคำสั่งและสถานะของแต่ละ host สำหรับรุ่น 0.1.15
+Marketplace/repository plugin installation (รวม Copilot): ดู [agent integrations](docs/AGENT-INTEGRATIONS.md) สำหรับคำสั่งและสถานะของแต่ละ host

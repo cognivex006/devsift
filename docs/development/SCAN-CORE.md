@@ -9,7 +9,7 @@ installer/setup actions create that registration; no scan discovers target
 manifests or performs network setup. See [native protocol](NATIVE-PROTOCOL.md)
 for execution boundaries.
 
-Registry resolution and human report language are Unreleased. Ordinary skill
+Registry resolution and human report language target candidate 0.1.16. Ordinary skill
 project-check intent selects full scope, while changed scope requires an explicit
 changes request. Output must distinguish readiness, actual analyzed coverage and
 human report delivery: zero executed files is not a completed lint. Sessions keep

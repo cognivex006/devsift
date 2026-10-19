@@ -10,7 +10,7 @@ available.
 
 - [x] Select a release version through the authorized owner
   process under [Semantic Versioning 2.0.0](https://semver.org/spec/v2.0.0.html);
-  current package/plugin version is `0.1.15`, selected as the next patch by the
+  candidate package/plugin target is `0.1.16`, selected as the next patch by the
   maintainer under the owner's continuing publication instruction. The final
   reviewed source SHA must be recorded with candidate-specific evidence below.
 - [ ] Confirm the reviewed commit, clean selected package inputs, and exact
@@ -39,7 +39,7 @@ available.
   `native/go/go.mod`; and `native/frontend/package.json` plus
   `native/frontend/package-lock.json`. Derive versions and dependency scope from
   these files at release time; do not create a second version source here.
-- [ ] Record Python package version `0.1.15` and empty runtime dependency
+- [ ] Verify Python/package/plugin metadata agrees on `0.1.16` and empty runtime dependency
   list as current metadata, with setuptools `83.0.0` as the pinned build
   requirement. The build backend is not a Python runtime dependency.
 - [ ] Resolve license identifiers and notices for the actual shipped
@@ -53,6 +53,31 @@ available.
 - [ ] Obtain owner-selected project license and approval before adding license
   declarations or treating a license review as complete. `license-files = []`
   does not select a license or grant rights.
+
+## Native companion and normal-install gates for 0.1.16
+
+- [x] Exercise the reviewed baseline in a fresh Windows home: ordinary installer,
+  four real self-contained helper executions, four VERIFIED cases, complete Thai
+  report, no SDK PATH/native scan flags and unchanged target. This 89.102-second
+  run is baseline evidence, not completion of the final candidate matrix.
+- [ ] Bind final version/source to all six ZIP/checksum pairs:
+  `windows-x64`, `windows-arm64`, `linux-x64`, `linux-arm64`, `macos-x64`,
+  `macos-arm64`, using `devsift-analyzers-PLATFORM-ARCH.zip` names.
+- [ ] Validate each immutable archive, platform/runtime identity, strict four-tool
+  manifest rebasing, retained expected hashes, permissions and readiness checks.
+  Distinguish actual native execution from cross-build/static validation; do not
+  infer an untested architecture from another host's pass.
+- [ ] Complete the final full-suite, installed CLI, setup/bootstrap, normal
+  installation/update/rollback and applicable platform execution gates. Registry
+  corruption, invalid ZIPs or failed native preflight must preserve old activation.
+- [ ] Verify that ordinary scan/Doctor/CI resolve registered trust without target
+  discovery, while explicit overrides validate first; no scan performs downloads.
+- [ ] Verify direct human report delivery in both languages, every case/page,
+  checksum/ownership-journal handling, resume and deep Windows containment. Keep
+  analysis completeness separate from report completeness and unsupported languages.
+- [ ] Include actual runtime/dependency and license/notice inputs for companion
+  payloads in release inventory/SBOM review. Core-only source ZIP checks do not
+  constitute inspection or certification of these binary assets.
 
 ## Artifact and release verification
 
@@ -87,7 +112,7 @@ remains incomplete.
 ## Owner-authorized distribution decision
 
 The owner's continuing instruction is “ดำเนินการ released ขึ้น github เลยทันที”.
-The maintainer selected `0.1.15` as the next patch for these fixes; the owner did
+The maintainer selected `0.1.16` as the next patch for these fixes; the owner did
 not explicitly select that exact number. This authorization permits publishing
 the reviewed assets without another confirmation. It does
 not select a license or claim signing evidence. Record the unselected license

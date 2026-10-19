@@ -2,7 +2,8 @@
 
 เอกสารส่วนนี้สำหรับผู้ใช้ CLI และ AI ที่ใช้ DevSift ตรวจโปรเจกต์ของผู้ใช้
 เริ่มจากติดตั้ง → ตรวจ readiness → lint → เปิดรายงานฉบับเต็ม
-ทะเบียน analyzer และรายงาน `REPORT.md` ตามภาษาเป็น workflow ใหม่ใน source (Unreleased)
+ทะเบียน analyzer และรายงาน `REPORT.md` ตามภาษาเป็น workflow ของ candidate 0.1.16
+ยังต้องผ่าน platform/release gates ก่อนเผยแพร่ รุ่น public 0.1.15 ยังไม่มีส่วนนี้
 ตรวจ `devsift setup --help` และ `devsift scan --help` ก่อนใช้กับ CLI รุ่นเก่า
 
 | งาน | คู่มือ |

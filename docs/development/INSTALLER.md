@@ -1,6 +1,6 @@
 # Installer assets
 
-## Lint-ready setup contract (Unreleased)
+## Lint-ready setup contract (0.1.16 candidate)
 
 The new normal installer is responsible for deploying a verified version/platform
 analyzer companion and registering user-level native trust before declaring
@@ -26,8 +26,16 @@ updates remain separate from target analysis and never authorize target builds.
 Human report generation adds `--report-language en|th` and the direct
 `data.report_bundle.report` path to session-root `REPORT.md`. Keep every case and
 all proof/UNKNOWN states; a folder or JSON alone is not the user-facing lint
-deliverable. These are source changes only; they do not declare a new version or
-authorize publication. Historical release metadata below describes 0.1.15.
+deliverable. Candidate metadata targets 0.1.16; it does not itself authorize
+publication or assert that pending platform/release gates passed. See the
+[candidate notes](RELEASE-DRAFT.md) and [release checklist](RELEASE-CHECKLIST.md).
+
+The platform release plan includes Windows/Linux/macOS x64 and arm64 ZIPs and
+checksums. Only actually built/validated assets may be published as supported;
+record cross-build versus native-run evidence separately. The fresh normal
+Windows installation acceptance passed real four-language analysis and full Thai
+report delivery without SDK PATH entries or repeated native flags. It does not
+stand in for the pending final platform matrix and candidate artifact audit.
 
 `tools/build_installer.py --output dist/installer` builds a wheel using the declared
 build backend, then packages the consumer skill, its offline references, host
@@ -41,13 +49,15 @@ the installer; unrelated files under `skills/` are excluded.
 The manually dispatched `installer-assets.yml` workflow produces downloadable
 build artifacts. After release authorization and the existing release checks,
 attach all six generated files to the selected GitHub release. The public `/releases/latest/download/` commands use those release assets.
-The maintainer selected patch `0.1.15` under the owner's continuing GitHub
+The maintainer selected candidate patch `0.1.16` under the owner's continuing GitHub
 publication instruction: “ดำเนินการ released ขึ้น github เลยทันที”. The owner did
 not explicitly select that exact version. The project license remains
 unselected and no signature claim is made.
 
 `tools/install.py` creates a private venv, installs the wheel offline, verifies
-help and required native readiness, then switches the launcher. Installation never runs target-project code.
+help and required native readiness, then switches the launcher. Explicit setup
+uses a finite cold-runtime preflight; normal readiness/Doctor probes remain
+short and finite. Installation never runs target-project code.
 The launcher internally uses isolated Python with bytecode disabled; users and
 skills invoke `devsift`. User skill installation and plugin import are distinct:
 skills are copied to documented host paths; plugin bundles are staged for explicit

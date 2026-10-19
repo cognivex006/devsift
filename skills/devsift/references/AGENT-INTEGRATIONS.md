@@ -147,7 +147,7 @@ Installer ไม่เพิ่ม marketplace หรือเรียก host 
 Agent อ่าน [USAGE](USAGE.md) เลือก workflow และตรวจ subcommand help
 การใช้ skill ไม่ได้อนุมัติการแก้ source ติดตั้ง dependencies หรือ build target
 
-Source skill ใหม่ (Unreleased) แปลคำขอ project review ทั่วไปเป็น
+Skill ของ candidate 0.1.16 แปลคำขอ project review ทั่วไปเป็น
 `scan --all --legacy-mode recommend --summary --report-language th` เมื่อขอภาษาไทย
 ใช้ changed scope เฉพาะที่ระบุ และเคารพ actual host Plan mode ใน session ที่ execute ได้
 ให้รันจริงต่อจนส่งรายงาน ไม่หยุดเพียงแผน หากมี user registration อยู่ไม่ต้องส่ง native
@@ -157,3 +157,5 @@ flags ซ้ำ ถ้าไม่มีให้รายงาน setup missin
 coverage/findings/incomplete causes/next action ไม่โยนให้ผู้ใช้ค้นหาใน cache folder
 การลงทะเบียน plugin กับ host ไม่เท่ากับการลงทะเบียน native analyzer และการ update
 DevSift ไม่ได้อนุญาตให้แก้ host preferences, เปิด skill สำเนาที่ปิดไว้ หรือสร้างสำเนาซ้ำ
+Candidate ต้องผ่าน platform/release gates ก่อนเผยแพร่ การมี catalog ไม่ได้หมายความว่า
+host ทุกตัวได้โหลดและรัน workflow นี้จริงแล้ว ให้คงข้อจำกัดของแต่ละ host ตามผล validation

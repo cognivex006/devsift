@@ -3,8 +3,9 @@
 ติดตั้งตาม [INSTALL](INSTALL.md) แล้วเปิด terminal/agent ใหม่ให้เห็น `devsift` บน PATH
 ใช้จาก Git root ของโปรเจกต์เป้าหมาย ไม่ต้องมี devsift-specs หรือเปิดกฎพัฒนา DevSift
 
-Workflow setup/registry และภาษา `REPORT.md` ต่อไปนี้เป็น **Unreleased** ตรวจ help
-ของ CLI ก่อนใช้ รุ่น 0.1.15 มี session/pages แต่ยังไม่มี setup หรือ `--report-language`
+Workflow setup/registry และภาษา `REPORT.md` ต่อไปนี้อยู่ใน **candidate 0.1.16**
+ซึ่งยังมี platform/release gates ค้างอยู่ ตรวจ help ก่อนใช้ รุ่น public 0.1.15
+มี session/pages แต่ยังไม่มี setup หรือ `--report-language`
 
 ## ตรวจ readiness ครั้งแรก
 

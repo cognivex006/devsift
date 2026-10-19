@@ -1,8 +1,8 @@
 # เตรียม analyzer ครั้งเดียว แล้วใช้ DevSift lint ได้ตามปกติ
 
-ทะเบียนผู้ใช้และ companion ในหน้านี้เป็น **Unreleased** ตรวจ `devsift setup --help`
+ทะเบียนผู้ใช้และ companion ในหน้านี้เป็น **candidate 0.1.16** ตรวจ `devsift setup --help`
 ของ CLI ที่ติดตั้ง รุ่น 0.1.15 และเก่ากว่ายังใช้ manifest/digest แบบระบุทุกคำสั่ง
-ไม่มีการประกาศ release หรือรับรองว่า assets ใหม่เผยแพร่แล้วจากเอกสารนี้
+Platform/release gates ยังต้องผ่านก่อนเผยแพร่ เอกสารนี้ไม่ได้ยืนยันว่า assets ใหม่ public แล้ว
 
 ## ติดตั้งปกติ
 

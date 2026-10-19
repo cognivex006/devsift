@@ -5,7 +5,7 @@
 private virtual environment พร้อม skill สำหรับ Codex, Claude Code, Gemini CLI,
 Antigravity, Cursor และ Copilot โดยไม่ต้องเปิดสิทธิ์ administrator
 
-## เตรียมให้ lint ได้จริง (Unreleased)
+## เตรียมให้ lint ได้จริง (candidate 0.1.16)
 
 ตัวติดตั้งใหม่ติดตั้ง CLI พร้อม platform analyzer companion ที่ตรวจสอบ version และ
 integrity แล้ว จาก release ที่ผู้ใช้เลือกเชื่อถือ และลงทะเบียน manifest/digest ใน user scope
@@ -15,7 +15,7 @@ Node/npm หรือ Go toolchain เพื่อใช้ binary ที่จ�
 หาก companion ไม่ได้ฝังมา ตัวติดตั้งจะดาวน์โหลดชุดที่ pin ตรงกับรุ่น/platform ระหว่าง
 installation เท่านั้น ตรวจและเตรียม analyzer ก่อนเปลี่ยน CLI launcher หากขั้นนี้ล้มเหลว
 ต้องบอกว่า analysis ยังไม่พร้อมและรักษา CLI เดิมไว้ ไม่สรุป Ready เพียงเพราะ pip สำเร็จ
-สถานะนี้เป็น source workflow ใหม่ ไม่ใช่คำรับรองว่า assets ของ release เก่ามี companion แล้ว
+สถานะนี้เป็น workflow ของ candidate 0.1.16 ไม่ใช่คำรับรองว่า release เก่ามี companion แล้ว
 
 หลังติดตั้ง ตรวจ readiness และ lint จาก Git root:
 
@@ -36,7 +36,9 @@ Doctor overall อาจ incomplete เพราะ Python quality provider ข�
 
 ตัวเลือก `--core-only` สำหรับ operator/testing ข้าม companion ได้ แต่หมายถึง CLI-only
 และ **analysis not ready** ไม่ใช่การติดตั้ง linter พร้อมใช้ ทะเบียน, companion และภาษา
-รายงานยังเป็น Unreleased; ตรวจ help ของตัวติดตั้ง/CLI ก่อนใช้ รุ่น 0.1.15 ยังตั้ง native แยก
+รายงานอยู่ใน candidate 0.1.16; ตรวจ help ก่อนใช้ รุ่น 0.1.15 ยังตั้ง native แยก
+Fresh Windows installation ผ่านการ lint จริงสี่ภาษาแล้ว แต่ final CI และ companion
+platform/architecture gates ยังไม่ครบ จึงไม่ประกาศว่า candidate ใช้ได้ครบทุกระบบหรือ public แล้ว
 
 ## ติดตั้งจาก release
 
@@ -66,7 +68,8 @@ checksum ตรวจความเสียหายของไฟล์ ไ�
 หน้าจอปกติไม่แสดง pip/build logs หลังเสร็จสรุปเฉพาะเวอร์ชัน ตำแหน่ง CLI,
 hosts ที่ติดตั้ง และคำสั่งถัดไป หากล้มเหลวจะบอกขั้นตอนและสาเหตุ ไม่แสดงสถานะ Ready
 
-Installer assets เผยแพร่พร้อม [v0.1.15](https://github.com/orchex006/devsift/releases/tag/v0.1.15)
+Installer assets ปัจจุบันเผยแพร่พร้อม [v0.1.15](https://github.com/orchex006/devsift/releases/tag/v0.1.15)
+การเผยแพร่ 0.1.16 ต้องรอ candidate checks ด้านล่าง; latest ยังไม่ชี้ companion installer ใหม่
 หากดาวน์โหลดไม่ได้ให้ตรวจ network หรือใช้ source installation ด้านล่าง
 
 เปิด terminal ใหม่ แล้วตรวจจาก Git root ของ target:
@@ -110,7 +113,7 @@ python tools/build_installer.py --output dist/installer
 คำสั่งนี้เตรียม bundle ของ CLI, skill และ plugin metadata จาก checkout ปัจจุบัน
 แล้วแตก `dist/installer/devsift-install.zip` ไปยัง directory ชั่วคราว
 Source installer ใหม่ต้องมี companion ตรงรุ่น/platform หรือดาวน์โหลด asset ที่เผยแพร่แล้ว
-ถ้ายังไม่มี asset ของ unreleased checkout ให้ provision verified offline companion
+ถ้ายังไม่มี asset ของ candidate checkout ให้ provision verified offline companion
 ผ่าน `devsift setup --analyzer-bundle ABSOLUTE_ZIP --bundle-digest TRUSTED_SHA256`
 หลังการติดตั้ง CLI แบบ explicit `--core-only` อย่าเรียกขั้น core-only ว่าพร้อมวิเคราะห์แล้ว
 
@@ -151,7 +154,27 @@ devsift --help
 การคัดลอก skill ไม่ได้ลงทะเบียน plugin marketplace ให้ host
 Python wheel อย่างเดียวไม่ bundle native binaries ตัวติดตั้ง release เดิมรวมถึง 0.1.15
 ยังต้องทำ [Native setup](NATIVE-SETUP.md) แยก ส่วน source installer ใหม่ใช้ companion
-ตามหัวข้อ Unreleased ด้านบน การตั้งค่าและ update ไม่เกิดระหว่าง ordinary scan
+ตามหัวข้อ candidate ด้านบน การตั้งค่าและ update ไม่เกิดระหว่าง ordinary scan
+
+## Companion assets และเงื่อนไขก่อนเผยแพร่ 0.1.16
+
+Release plan มี companion หกคู่ แต่ละ ZIP มี `.zip.sha256` ของตัวเอง:
+
+| Platform / architecture | Asset ที่ต้อง build และ validate |
+| --- | --- |
+| Windows x64 | `devsift-analyzers-windows-x64.zip` |
+| Windows arm64 | `devsift-analyzers-windows-arm64.zip` |
+| Linux x64 | `devsift-analyzers-linux-x64.zip` |
+| Linux arm64 | `devsift-analyzers-linux-arm64.zip` |
+| macOS x64 | `devsift-analyzers-macos-x64.zip` |
+| macOS arm64 | `devsift-analyzers-macos-arm64.zip` |
+
+ตารางนี้คือเป้าหมาย release ไม่ใช่รายการที่เผยแพร่หรือผ่าน native execution แล้ว
+ต้องผูกทุกไฟล์กับ source/version/checksum, ตรวจ archive และ runtime/manifest pins,
+และบันทึกผล build/deploy/การรันของแต่ละคู่ตามจริงก่อนประกาศ support
+การ build ข้าม architecture ไม่ใช่หลักฐานว่า analyzer รันสำเร็จบน architecture นั้น
+Full-suite, installed CLI, actual installer/rollback และ platform checks ที่กำหนดต้องผ่าน
+ไม่มีการเลือก companion คนละระบบหรือ fallback เป็น core-only แบบเงียบ ๆ เมื่อ native ไม่พร้อม
 
 ## ถอนการติดตั้ง
 

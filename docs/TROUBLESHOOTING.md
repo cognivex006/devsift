@@ -6,10 +6,10 @@ coverage ไม่ใช่ดูแค่รายการ findings
 
 | อาการ | ความหมาย | วิธีตรวจ/แก้ |
 | --- | --- | --- |
-| ไม่มีทะเบียน analyzer / `setup --status` ยังไม่พร้อม (Unreleased workflow) | CLI มีอยู่แต่ native lint ยังไม่พร้อม ไม่ใช่ scan ที่ตรวจ source แล้ว | ทำ installation/setup ที่ได้รับอนุญาต หรือลงทะเบียน reviewed manifest ครั้งเดียวตาม [NATIVE-SETUP](NATIVE-SETUP.md) ไม่ดาวน์โหลด/build ระหว่าง ordinary scan |
+| ไม่มีทะเบียน analyzer / `setup --status` ยังไม่พร้อม (candidate 0.1.16) | CLI มีอยู่แต่ native lint ยังไม่พร้อม ไม่ใช่ scan ที่ตรวจ source แล้ว | ทำ installation/setup ที่ได้รับอนุญาต หรือลงทะเบียน reviewed manifest ครั้งเดียวตาม [NATIVE-SETUP](NATIVE-SETUP.md) ไม่ดาวน์โหลด/build ระหว่าง ordinary scan |
 | executed เป็น 0 แต่เห็น inventory/targets จำนวนมาก | แค่ enumerate scope ยังไม่ใช่ analyzer execution | บอกจำนวน executed ตามจริง ตรวจ provider/readiness แล้วเสนอขั้นตอน setup ไม่สรุปว่า clean จาก findings ว่าง |
 | ได้เพียง JSON/folder ไม่มีรายงานให้เปิด | ต้องส่งตัวรายงานที่ใช้ทำงานต่อได้ | Source workflow ใหม่คืน `data.report_bundle.report` สำหรับ `REPORT.md` ส่ง direct link พร้อม findings, incomplete causes และ next action อ่านทุก case/page ไม่ส่งเฉพาะ top cases |
-| `setup` หรือ `--report-language` ไม่อยู่ใน help | CLI เก่า เช่น 0.1.15 ยังไม่มี unreleased contract | ใช้ flags ที่รุ่นนั้นรองรับ อัปเดต/ติดตั้ง source เมื่อได้รับอนุญาต อย่าอ้างว่า release เดิมมี registration/companion/report-language แล้ว |
+| `setup` หรือ `--report-language` ไม่อยู่ใน help | CLI เก่า เช่น 0.1.15 ยังไม่มี contract ของ candidate 0.1.16 | ใช้ flags ที่รุ่นนั้นรองรับ อัปเดต/ติดตั้ง candidate เมื่อได้รับอนุญาตและพร้อมใช้งาน อย่าอ้างว่า release เดิมมี registration/companion/report-language แล้ว |
 | `devsift` not found / ไม่รู้จักคำสั่ง | PATH ของ terminal หรือ host ยังไม่เห็น launcher | เปิด terminal และ agent host ใหม่ ตรวจ `~/.local/bin` บน PATH หรือ activate environment ที่ติดตั้ง CLI ดู [INSTALL.md](INSTALL.md) |
 | `REDACTION_FAILED` บน repository ขนาดใหญ่ใน 0.1.13–0.1.14 | ผล inventory ชนเพดานรวมของ redaction; 0.1.14 เพิ่มเพดาน nodes แต่ยังมีเพดานข้อความรวม | การแก้ใน 0.1.15 แยกตรวจทีละ target/finding และไม่นำ inventory ไปนับเป็นขนาด input ของรายงาน ข้อจำกัดของแต่ละรายการยังคงอยู่ ห้ามพิมพ์ข้อมูลที่ยังไม่ผ่าน redaction เพื่อหลบข้อผิดพลาด |
 | Tool host แสดง Failed แต่ stdout มี JSON และ exit code2 | คำสั่งคืนผล incomplete ที่ใช้งานรายงานได้ | Parse JSON แม้ exitไม่เป็น0 อ่าน counts, targets และ reports ก่อนสรุป ไม่ใช้ป้าย Failed ของ shell แทนสถานะภายในผล |
@@ -23,6 +23,7 @@ coverage ไม่ใช่ดูแค่รายการ findings
 | Prompt ขอ `--scan-input` หรือแจ้ง source unresolved | Prompt generation ต้องใช้ scan envelope ที่ระบุเองและ source proof ที่ตรงกับปัจจุบัน | บันทึก JSON scan command envelope นอก source tree ส่ง absolute path ด้วย `--scan-input` และใช้ case ID ที่ตรงกับ envelope อย่าใช้ rendered report เป็นหลักฐาน ความสำเร็จของ review คือ prompt generation ไม่ใช่ analysis |
 | `doctor` จบด้วย `2` | การตรวจ runtime/provider ขาด ไม่ถูกต้อง หรือไม่ครบ Doctor ไม่วิเคราะห์ target source และไม่ติดตั้ง tools | ทำตาม diagnostic action แล้วรัน doctor ซ้ำ Source CLI probe โปรแกรมที่ได้รับ trust จาก registry หรือ explicit pair; readiness ไม่ได้หมายถึง coverage ทุกภาษา ดู [DOCTOR.md](reference/DOCTOR.md) |
 | CLI จบด้วย `3` | คำสั่งหรือ option ไม่ถูกต้อง หรือ argument pair ที่จำเป็นมีรูปแบบผิด | ตรวจ `devsift <command> --help` อีกครั้ง ตัวเลือกเข้มงวด และ manifest/digest ต้องส่งเป็นคู่ |
+| Windows path ยาวแล้ว setup/report ใช้ไม่ได้ในรุ่นเก่า | Candidate เพิ่ม canonical home/namespace containment และ deep owned report paths | ใช้ candidate ที่ผ่าน validation ของระบบนั้น ไม่แก้ global LongPaths policy หรือ source เพื่อหลบข้อผิดพลาด Path รูปแบบใหม่ต้องยังคง outside-source และ symlink/junction guards |
 
 ## รักษาหลักฐานเดิม
 

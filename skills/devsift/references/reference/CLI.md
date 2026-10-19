@@ -3,12 +3,13 @@
 The initial CLI requires Python 3.12 or later and has no runtime dependencies.
 Install locally with `python -m pip install .`, then run `devsift --help`.
 Installation/building can create packaging and interpreter files; installation is
-separate from read-only command execution. The current package version is `0.1.15`.
+separate from read-only command execution. The next release candidate targets
+package/plugin version `0.1.16`; final metadata and checks precede publication.
 Installing the CLI does not imply that optional native analyzers are available.
 
-## Registered lint and human report (Unreleased)
+## Registered lint and human report (0.1.16 candidate)
 
-The source CLI adds `setup` and `--report-language en|th`; check installed help
+The 0.1.16 candidate adds `setup` and `--report-language en|th`; check installed help
 before using them with an older release. A normal authorized installer deploys
 and registers its verified platform analyzer companion. An operator can instead
 register an existing reviewed manifest once:
@@ -37,6 +38,8 @@ severity or gate decisions. Resume uses the same language/configuration.
 An ordinary skill-driven project review chooses `--all --legacy-mode recommend`;
 `--changed` is for an explicit changes request. This is a skill intent policy, not
 a change to the CLI's parser default below. See [getting started](../GETTING-STARTED.md).
+Candidate-wide CI and platform companion gates are still pending. This describes
+the reviewed interface, not a claim that a new release is already available.
 
 For first use, see the [getting-started guide](../GETTING-STARTED.md) and
 [command cookbook](../USAGE.md). The examples below assume the selected `python`
@@ -65,7 +68,7 @@ while reading current working-tree bytes rather than staged blobs; `--all` inven
 target selections, not finding lifecycle classifications. Git/source evidence
 libraries are available to embedded adapters. Native analyzers require trusted
 manifest/digest registration or an explicit pair. Published releases through 0.1.15
-require the explicit pair; source registry resolution is described above. `scan --security`
+require the explicit pair; candidate registry resolution is described above. `scan --security`
 adds the bounded built-in security detector, optionally composed with those tools.
 Scan and CI produce full source-reproved JSON, Markdown and SARIF reports.
 Small runs include them under `data.reports`; complete report indexes cover large runs.
