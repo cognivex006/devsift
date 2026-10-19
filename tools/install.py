@@ -9,7 +9,6 @@ import sys
 import tempfile
 import uuid
 import venv
-import hashlib
 import platform
 import re
 import urllib.request
@@ -62,6 +61,8 @@ def _receive(url, destination, transfer, label, limit):
     request = urllib.request.Request(url, headers={'User-Agent': 'DevSift installer'})
     with urllib.request.urlopen(request, timeout=60) as response, destination.open('xb') as output:
         total = int(response.headers.get('Content-Length') or 0)
+        if total < 0:
+            raise RuntimeError('Invalid analyzer download length.')
         if total > limit:
             raise RuntimeError('Analyzer release asset exceeds the setup size limit.')
         received = 0
@@ -197,9 +198,11 @@ def main():
             else:
                 progress.finish(state=state)
             return 0
-        except (OSError, RuntimeError, subprocess.SubprocessError) as error:
+        except (OSError, RuntimeError, ValueError, subprocess.SubprocessError) as error:
             if isinstance(error, subprocess.CalledProcessError):
                 error = RuntimeError(f'CLI installation check failed (exit {error.returncode}).')
+            elif isinstance(error, ValueError):
+                error = RuntimeError('Invalid analyzer download or installation metadata.')
             progress.fail(error)
             return 1
         except KeyboardInterrupt:

@@ -63,8 +63,9 @@ jobs:
       - name: Verify archive and actual AST analysis without SDK PATH
         shell: python
         run: |
-          import os, unittest
+          import os, sys, unittest
           from pathlib import Path
+          sys.path.insert(0, str(Path.cwd()))
           archive = Path('.devsift/local/analyzer-assets/devsift-analyzers-${{ matrix.platform }}.zip').resolve()
           os.environ['DEVSIFT_TEST_ANALYZER_BUNDLE'] = str(archive)
           os.environ['DEVSIFT_TEST_ANALYZER_BUNDLE_SHA256'] = archive.with_suffix('.zip.sha256').read_text().split()[0]

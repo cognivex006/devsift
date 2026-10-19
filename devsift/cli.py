@@ -175,6 +175,7 @@ def run(args: argparse.Namespace) -> dict:
         from .native_host import probe_tool
         from pathlib import Path
         import zipfile
+        import zlib
         home = None if args.home is None else Path(args.home)
         native = args.native_manifest is not None or args.native_manifest_digest is not None
         bundle = args.analyzer_bundle is not None or args.bundle_digest is not None
@@ -196,7 +197,8 @@ def run(args: argparse.Namespace) -> dict:
             state = (deploy(args.analyzer_bundle, args.bundle_digest, home=home) if bundle else
                      register(args.native_manifest, args.native_manifest_digest, home=home))
             return result('setup', complete=True, data=state)
-        except (OSError, ValueError, TypeError, KeyError, RecursionError, zipfile.BadZipFile):
+        except (OSError, ValueError, TypeError, KeyError, RecursionError,
+                zipfile.BadZipFile, zlib.error, EOFError, NotImplementedError):
             return result('setup', complete=False, errors=[{'code': 'ANALYZER_SETUP_UNAVAILABLE',
                 'message': 'Analyzer setup failed validation or readiness. Previous registration was preserved; run devsift setup --help.'}],
                 data={'analysis_performed': False, 'analysis_ready': False})

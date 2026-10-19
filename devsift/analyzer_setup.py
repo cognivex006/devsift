@@ -139,10 +139,10 @@ def platform_id():
 def _member(name):
     _require(type(name) is str and 0 < len(name) <= 1000 and '\\' not in name
              and ':' not in name and not name.startswith('/')
-             and not any(ord(char) < 32 or ord(char) == 127 for char in name))
+             and not any(unicodedata.category(char).startswith('C') for char in name))
     parts = name.split('/')
     _require(all(part not in ('', '.', '..') and not part.endswith((' ', '.'))
-                 and not re.fullmatch(r'(?:con|prn|aux|nul|com[0-9]|lpt[0-9])(?:\..*)?', part, re.I)
+                 and not re.fullmatch(r'(?:con|prn|aux|nul|com[1-9\u00b9\u00b2\u00b3]|lpt[1-9\u00b9\u00b2\u00b3])(?:\..*)?', part, re.I)
                  for part in parts))
     return PurePosixPath(name)
 
@@ -173,6 +173,7 @@ def deploy(archive, digest, *, home=None):
             mode = entry.external_attr >> 16
             _require(key not in seen and not entry.is_dir() and not entry.flag_bits & 1
                      and (not stat.S_IFMT(mode) or stat.S_ISREG(mode))
+                     and entry.compress_type in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED)
                      and 0 <= entry.file_size <= 200_000_000)
             seen.add(key)
             total += entry.file_size
@@ -207,11 +208,19 @@ def deploy(archive, digest, *, home=None):
         return str(target)
 
     for entry in data['tools']:
+        _require(type(entry) is dict and set(entry) == {'definition', 'dialect'})
         definition = entry['definition']
+        _require(type(definition) is dict and set(definition) == {
+            'tool_id', 'tool_version', 'languages', 'process', 'executable_digest', 'artifacts', 'engine_versions'})
         process = definition['process']
+        _require(type(process) is dict and set(process) == {
+            'executable', 'argv', 'timeout_seconds', 'max_stdout_bytes', 'max_stderr_bytes', 'max_stdin_bytes', 'environment'})
+        _require(type(process['argv']) is list and all(type(value) is str and value.startswith('@ROOT@/')
+                 for value in process['argv']))
+        _require(type(definition['artifacts']) is list and all(type(pair) is list and len(pair) == 2
+                 and all(type(value) is str for value in pair) for pair in definition['artifacts']))
         process['executable'] = rebase(process['executable'])
-        process['argv'] = [rebase(value) if value.startswith('@ROOT@/') else value
-                           for value in process['argv']]
+        process['argv'] = [rebase(value) for value in process['argv']]
         definition['artifacts'] = [[rebase(name), pin] for name, pin in definition['artifacts']]
     manifest = destination / 'native-manifest.json'
     raw = (json.dumps({'schema_version': '1', 'tools': data['tools']}, separators=(',', ':')) + '\n').encode('utf-8')

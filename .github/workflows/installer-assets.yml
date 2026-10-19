@@ -30,7 +30,30 @@ jobs:
       - run: python -m pip install --progress-bar on pyte==0.8.2
       - if: runner.os == 'Windows'
         run: python -m pip install --progress-bar on pywinpty==3.1.0
-      - run: python tools/build_installer.py --output dist/installer
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.205'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.21.3'
+          cache: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build self-contained analyzers for the actual installation test
+        run: python tools/build_analyzer_bundle.py --output .devsift/local/analyzer-assets
+      - name: Embed the verified companion for offline bootstrap verification
+        shell: python
+        run: |
+          import hashlib
+          import sys
+          from pathlib import Path
+          sys.path.insert(0, str(Path.cwd()))
+          from tools.build_installer import build
+          companion, = Path('.devsift/local/analyzer-assets').glob('*.zip')
+          pin = companion.with_suffix('.zip.sha256').read_text().split()[0]
+          assert hashlib.sha256(companion.read_bytes()).hexdigest() == pin
+          build(Path.cwd(), Path('dist/installer'), analyzer_bundle=companion.resolve(), analyzer_bundle_digest=pin)
       - name: Verify actual bundle and live bootstrap feedback
         env:
           DEVSIFT_TEST_INSTALLER_BUNDLE: ${{ github.workspace }}/dist/installer/devsift-install.zip

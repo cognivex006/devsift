@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import struct
 import unittest
 import zipfile
 
@@ -94,13 +95,14 @@ class AnalyzerSetupTests(unittest.TestCase):
         self.assertIn('NO_AVAILABLE_ANALYZER', {x['code'] for x in result['errors']})
         text = Path(result['data']['report_bundle']['report']).read_text(encoding='utf-8')
         self.assertIn('devsift', text)
-        self.assertIn('NO_AVAILABLE_ANALYZER', text)
+        self.assertIn('NO_AVAILABLE_ANALYZER', text.replace('\\_', '_'))
         self.assertIsNone(registered(self.home))
 
     def test_malicious_archives_never_escape_or_activate(self):
         self.configure()
         original = registry_path(self.home).read_bytes()
-        for member in ('../escaped', '/absolute', 'C:/drive', 'nested/CON', 'x/../escaped'):
+        for member in ('../escaped', '/absolute', 'C:/drive', 'nested/CON', 'x/../escaped',
+                       'nested/COM\u00b9', 'nested/LPT\u00b2.txt', 'nested/COM\u00b3'):
             with self.subTest(member=member):
                 archive = self.fixture.directory / 'unsafe.zip'
                 with zipfile.ZipFile(archive, 'w') as bundle:
@@ -117,3 +119,44 @@ class AnalyzerSetupTests(unittest.TestCase):
         with self.assertRaises(SetupError):
             deploy(archive, 'a' * 64, home=self.home)
         self.assertFalse(registry_path(self.home).exists())
+
+    def test_malformed_portable_argv_returns_safe_cli_error_and_keeps_registration(self):
+        self.configure()
+        original = registry_path(self.home).read_bytes()
+        from devsift.analyzer_setup import platform_id
+        for argv in ([None], 'not-a-list', {'key': 'value'}):
+            with self.subTest(argv=argv):
+                definition = json.loads(self.fixture.manifest.read_bytes())['tools'][0]['definition']
+                definition['process']['argv'] = argv
+                data = {'schema_version': '1', 'platform': platform_id(),
+                        'tools': [{'definition': definition, 'dialect': None}] * 4}
+                archive = self.fixture.directory / 'malformed.zip'
+                with zipfile.ZipFile(archive, 'w') as bundle:
+                    bundle.writestr('manifest-template.json', json.dumps(data))
+                digest = hashlib.sha256(archive.read_bytes()).hexdigest()
+                denied = self.invoke('setup', '--analyzer-bundle', str(archive), '--bundle-digest', digest)
+                self.assertEqual(denied['exit_code'], 2)
+                self.assertEqual(denied['errors'][0]['code'], 'ANALYZER_SETUP_UNAVAILABLE')
+                self.assertEqual(registry_path(self.home).read_bytes(), original)
+
+    def test_unsupported_and_corrupt_zip_streams_return_safe_errors(self):
+        self.configure()
+        original = registry_path(self.home).read_bytes()
+        archive = self.fixture.directory / 'unsupported.zip'
+        with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as bundle:
+            bundle.writestr('manifest-template.json', b'{}' * 500)
+        raw = bytearray(archive.read_bytes())
+        central = raw.index(b'PK\x01\x02')
+        unsupported = bytearray(raw)
+        struct.pack_into('<H', unsupported, 8, 99)
+        struct.pack_into('<H', unsupported, central + 10, 99)
+        corrupt = bytearray(raw)
+        start = 30 + struct.unpack_from('<H', raw, 26)[0] + struct.unpack_from('<H', raw, 28)[0]
+        corrupt[start] ^= 0xff
+        for body in (unsupported, corrupt):
+            archive.write_bytes(body)
+            denied = self.invoke('setup', '--analyzer-bundle', str(archive),
+                                 '--bundle-digest', hashlib.sha256(body).hexdigest())
+            self.assertEqual(denied['exit_code'], 2)
+            self.assertEqual(denied['errors'][0]['code'], 'ANALYZER_SETUP_UNAVAILABLE')
+            self.assertEqual(registry_path(self.home).read_bytes(), original)

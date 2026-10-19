@@ -166,6 +166,7 @@
         "schemas/report.schema.json",
         "schemas/suppression.schema.json",
         "tools/build_native.py",
+        "tools/build_analyzer_bundle.py",
         "tools/install_progress.py"
       ],
       "optional": []

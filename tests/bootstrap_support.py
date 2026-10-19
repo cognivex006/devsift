@@ -71,10 +71,14 @@ class BootstrapCases:
                         self.send_header('Content-Length', str(len(body) + (32768 if failure == 'interrupted' and self.path.endswith('.zip') else 0)))
                     self.end_headers()
                     try:
-                        for pos in range(0, len(body), 16384):
-                            self.wfile.write(body[pos:pos + 16384])
+                        # Keep small fixtures slow enough to observe transfer
+                        # frames. Real runtime bundles are much larger and must
+                        # not be artificially throttled for several minutes.
+                        block = 16384 if len(body) < 1_000_000 else 262144
+                        for pos in range(0, len(body), block):
+                            self.wfile.write(body[pos:pos + block])
                             self.wfile.flush()
-                            time.sleep(.03)
+                            time.sleep(.03 if len(body) < 1_000_000 else .002)
                     except (BrokenPipeError, ConnectionResetError):
                         pass
 
