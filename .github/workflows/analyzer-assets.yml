@@ -1,0 +1,68 @@
+name: Portable analyzer companions
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'tools/build_analyzer_bundle.py'
+      - 'native/**'
+      - 'tests/test_analyzer_bundle.py'
+      - '.github/workflows/analyzer-assets.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'tools/build_analyzer_bundle.py'
+      - 'native/**'
+      - 'tests/test_analyzer_bundle.py'
+      - '.github/workflows/analyzer-assets.yml'
+permissions:
+  contents: read
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: windows-latest, platform: windows-x64, go_sdk: x64, architecture: x64}
+          - {os: windows-11-arm, platform: windows-arm64, go_sdk: x64, architecture: arm64}
+          - {os: ubuntu-24.04, platform: linux-x64, go_sdk: x64, architecture: x64}
+          - {os: ubuntu-24.04-arm, platform: linux-arm64, go_sdk: arm64, architecture: arm64}
+          - {os: macos-15-intel, platform: macos-x64, go_sdk: x64, architecture: x64}
+          - {os: macos-15, platform: macos-arm64, go_sdk: arm64, architecture: arm64}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          architecture: ${{ matrix.architecture }}
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.205'
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.21.3'
+          architecture: ${{ matrix.go_sdk }}
+          cache: false
+      - name: Set up Node 24 runtime and trusted authoring npm (download size unknown)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          architecture: ${{ matrix.architecture }}
+      - name: Build DevSift-owned helpers and runtime companion
+        run: python tools/build_analyzer_bundle.py --platform ${{ matrix.platform }} --output .devsift/local/analyzer-assets
+      - name: Verify archive and actual AST analysis without SDK PATH
+        shell: bash
+        run: |
+          export DEVSIFT_TEST_ANALYZER_BUNDLE="$PWD/.devsift/local/analyzer-assets/devsift-analyzers-${{ matrix.platform }}.zip"
+          export DEVSIFT_TEST_ANALYZER_BUNDLE_SHA256="$(python -c "from pathlib import Path; print(Path('$DEVSIFT_TEST_ANALYZER_BUNDLE.sha256').read_text().split()[0])")"
+          python -m unittest discover -s tests -p test_analyzer_bundle.py -v
+      - uses: actions/upload-artifact@v4
+        with:
+          name: devsift-analyzers-${{ matrix.platform }}
+          path: |
+            .devsift/local/analyzer-assets/*.zip
+            .devsift/local/analyzer-assets/*.sha256
+            .devsift/local/analyzer-assets/*.build.log
+          if-no-files-found: error

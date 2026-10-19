@@ -84,6 +84,7 @@ def _run(command, directory, progress, stage, log, *, environment=None):
     progress.update(20, stage)
     with log.open('ab') as stream:
         stream.write(('\nCOMMAND ' + json.dumps(list(map(str, command))) + '\n').encode())
+        stream.flush()
         completed = subprocess.run(list(map(str, command)), cwd=directory,
                                    env=environment, stdout=stream, stderr=subprocess.STDOUT, timeout=1200)
     if completed.returncode:
@@ -200,7 +201,8 @@ def build(output, *, node=None, dependencies=None, npm_cli=None, platform=None, 
         for folder, project in (('dotnet', 'DevSift.Roslyn'), ('sql', 'DevSift.Sql')):
             directory = ROOT / 'native' / folder
             _run([dotnet, 'publish', project + '.csproj', '-c', 'Release', '-r', rid, '--self-contained', 'true',
-                  '-p:UseAppHost=true', '--source', 'https://api.nuget.org/v3/index.json', '--packages', packages,
+                  '-p:UseAppHost=true', '-p:DebugType=None', '-p:DebugSymbols=false',
+                  '-p:NuGetLockFilePath=' + str(packages / (folder + '-' + rid + '.lock.json')), '--source', 'https://api.nuget.org/v3/index.json', '--packages', packages,
                   '-o', stage / folder], directory, progress,
                  'Size unknown | downloading .NET runtime dependencies and building ' + folder, log, environment=environment)
         (stage / 'go').mkdir()
@@ -250,11 +252,13 @@ def build(output, *, node=None, dependencies=None, npm_cli=None, platform=None, 
         _json(stage / 'dependency-inventory.json', {'schema_version': '1', 'project_license': 'NOASSERTION',
             'redistribution_approved': False, 'node_version': node_version,
             'native_engines': {entry.tool.tool_id: dict(entry.tool.engine_versions) for entry in entries},
+            'dotnet_runtime': {folder: json.loads((stage / folder / (project + '.runtimeconfig.json')).read_text())['runtimeOptions'].get('includedFrameworks', [])
+                               for folder, project in (('dotnet', 'DevSift.Roslyn'), ('sql', 'DevSift.Sql'))},
             'frontend_dependencies': dependencies_inventory})
         source_sha = _capture(['git', 'rev-parse', 'HEAD'], ROOT)
         _json(stage / 'build-provenance.json', {'schema_version': '1', 'platform': selected, 'source_commit': source_sha,
             'builder_sha256': file_digest(Path(__file__)), 'runtime_included': True, 'sdks_included': False,
-            'project_code_built': False, 'probe_and_ast_fixtures': verified,
+            'target_project_code_built': False, 'probe_and_ast_fixtures': verified,
             'node_modules_bin_excluded': True, 'redistribution_approved': False})
         members = sorted(path for path in stage.rglob('*') if path.is_file())
         _json(stage / 'inventory.json', {'schema_version': '1', 'platform': selected,
