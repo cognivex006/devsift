@@ -72,6 +72,7 @@ jobs:
           suite = unittest.defaultTestLoader.discover('tests', pattern='test_analyzer_bundle.py')
           raise SystemExit(not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful())
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: devsift-analyzers-${{ matrix.platform }}
           path: |

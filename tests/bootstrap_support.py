@@ -36,6 +36,10 @@ class BootstrapCases:
                     source = (
                         'import json,time\nfrom pathlib import Path\n'
                         '(Path.home()/"bootstrap-reached").touch()\n'
+                        'for received,total in [(0,100),(25,100),(60,None),(120,None)]:\n'
+                        ' print(json.dumps({"type":"progress","percent":0,"stage":"Downloading analyzer companion",'
+                        '"elapsed":0.2,"kind":"transfer","received":received,"total":total}),flush=True)\n'
+                        ' time.sleep(.08)\n'
                         'for n,stage in [(10,"Creating private environment"),(45,"Installing verified wheels"),'
                         '(65,"Checking CLI startup"),(70,"Installing skill: codex"),(72,"Installing skill: claude"),'
                         '(74,"Installing skill: gemini"),(76,"Installing skill: antigravity"),'

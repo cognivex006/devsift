@@ -78,6 +78,8 @@ class AnalyzerSetupTests(unittest.TestCase):
         self.assertEqual(failed['exit_code'], 2)
         self.assertIn('REGISTERED_ANALYZERS_UNAVAILABLE', {x['code'] for x in failed['errors']})
         self.assertNotIn('never-echo-this', json.dumps(failed))
+        human = Path(failed['data']['report_bundle']['report']).read_text(encoding='utf-8')
+        self.assertIn('devsift setup --status', human)
         explicit = self.invoke('scan', '--all', '--summary', '--native-manifest', str(self.fixture.manifest),
                                '--native-manifest-digest', self.fixture.digest)
         self.assertEqual(explicit['data']['counts']['executed'], 1)
@@ -97,6 +99,17 @@ class AnalyzerSetupTests(unittest.TestCase):
         self.assertIn('devsift', text)
         self.assertIn('NO_AVAILABLE_ANALYZER', text.replace('\\_', '_'))
         self.assertIsNone(registered(self.home))
+
+    def test_ci_without_registration_delivers_setup_report_instead_of_argument_misuse(self):
+        result = self.invoke('ci', '--summary')
+        self.assertEqual(result['exit_code'], 2)
+        self.assertIn('ANALYZER_SETUP_REQUIRED', {item['code'] for item in result['errors']})
+        self.assertEqual(result['data']['counts']['executed'], 0)
+        self.assertTrue(result['data']['report_bundle']['reports_complete'])
+        report = Path(result['data']['report_bundle']['report']).read_text(encoding='utf-8')
+        self.assertIn('ANALYZER', report)
+        self.assertIn('devsift setup --status', report)
+        self.assertFalse(registry_path(self.home).exists())
 
     def test_malicious_archives_never_escape_or_activate(self):
         self.configure()

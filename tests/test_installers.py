@@ -64,6 +64,50 @@ class InstallerTests(unittest.TestCase):
             create.assert_not_called()
         self.assertEqual((dest / 'SKILL.md').read_text(), 'personal customization')
 
+    def test_analyzer_readiness_failure_preserves_launcher_and_managed_skill(self):
+        destination = self.home / '.agents/skills/devsift'
+        destination.mkdir(parents=True)
+        (destination / '.devsift-managed').touch()
+        (destination / 'SKILL.md').write_text('previous skill')
+        def create(path, **kwargs):
+            Path(path).mkdir(parents=True)
+        with patch.object(installer.venv, 'create', side_effect=create), \
+                patch.object(installer.subprocess, 'run'), \
+                patch.object(installer, '_analyzers', side_effect=RuntimeError('Analyzer readiness failed')):
+            with self.assertRaisesRegex(RuntimeError, 'readiness'):
+                installer.install(self.bundle, self.home, self.bin, ['codex'], require_analyzers=True)
+        self.assertEqual(self.launcher.read_text(), 'previous working launcher')
+        self.assertEqual((destination / 'SKILL.md').read_text(), 'previous skill')
+        self.assertEqual(list((self.home / '.local/share/devsift/versions').iterdir()), [])
+
+    def test_analyzer_download_feedback_uses_received_bytes_and_honest_unknown_total(self):
+        data = b'owned download fixture' * 10000
+        for total in (str(len(data)), None):
+            with self.subTest(total=total):
+                response = io.BytesIO(data)
+                response.headers = {} if total is None else {'Content-Length': total}
+                events = []
+                output = self.root / ('unknown.zip' if total is None else 'known.zip')
+                with patch.object(installer.urllib.request, 'urlopen', return_value=response):
+                    installer._receive('https://example.invalid/owned.zip', output,
+                        lambda received, expected, stage: events.append((received, expected, stage)), 'analyzers', len(data))
+                self.assertEqual(output.read_bytes(), data)
+                self.assertEqual(events[0], (0, None if total is None else len(data), 'analyzers'))
+                self.assertEqual(events[-1][0], len(data))
+                self.assertGreater(len(events), 2)
+                self.assertTrue(all(a[0] < b[0] for a, b in zip(events, events[1:])))
+                self.assertTrue(all(event[1] == (None if total is None else len(data)) for event in events))
+
+    def test_analyzer_download_refuses_short_or_invalid_or_excessive_lengths(self):
+        for number, header, limit in ((0, '12', 20), (1, '-1', 20), (2, 'bad', 20), (3, None, 2)):
+            with self.subTest(header=header, limit=limit):
+                response = io.BytesIO(b'1234')
+                response.headers = {} if header is None else {'Content-Length': header}
+                with patch.object(installer.urllib.request, 'urlopen', return_value=response):
+                    with self.assertRaises((RuntimeError, ValueError)):
+                        installer._receive('https://example.invalid/owned.zip', self.root / str(number),
+                                           lambda *args: None, 'analyzers', limit)
+
     def test_failed_install_reports_stage_without_dumping_pip_output(self):
         def create(path, **kwargs):
             Path(path).mkdir(parents=True)

@@ -446,7 +446,8 @@ def _write_frontdoor(stored, bundle, language):
                        'ยังไม่มีการเรียก analyzer จริง ผล 0 findings จึงไม่ใช่หลักฐานว่าโค้ดที่วิเคราะห์แล้วผ่าน'))
             missing = codes & {'NO_AVAILABLE_ANALYZER', 'ANALYZER_UNAVAILABLE', 'NATIVE_TOOL_UNAVAILABLE',
                                'NATIVE_MANIFEST_UNAVAILABLE', 'NATIVE_CONFIGURATION_UNAVAILABLE',
-                               'NATIVE_SETUP_REQUIRED', 'REGISTERED_ANALYZER_UNAVAILABLE'}
+                               'NATIVE_SETUP_REQUIRED', 'REGISTERED_ANALYZER_UNAVAILABLE',
+                               'REGISTERED_ANALYZERS_UNAVAILABLE', 'ANALYZER_SETUP_REQUIRED'}
             if missing or any('SETUP' in code or 'NATIVE_CONFIG' in code for code in codes):
                 add(tr('Configured analyzers are missing, untrusted or unavailable. Run `devsift setup --status` and `devsift doctor`; neither command installs tools.',
                        'analyzer ยังไม่ได้ตั้งค่า ไม่ผ่าน trust หรือไม่พร้อมใช้งาน ให้ตรวจ `devsift setup --status` และ `devsift doctor` ซึ่งไม่ติดตั้งเครื่องมือ'))
