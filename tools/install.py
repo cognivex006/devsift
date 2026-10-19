@@ -81,8 +81,9 @@ def _analyzers(python, bundle, home, version, report, transfer):
     name = 'devsift-analyzers-' + _platform() + '.zip'
     report(67, 'Preparing code analyzers')
     with tempfile.TemporaryDirectory(prefix='devsift-analyzer-download-') as temporary:
+        temporary = Path(temporary).resolve()
         local = bundle / 'analyzers' / name
-        archive = local if local.is_file() else Path(temporary) / name
+        archive = local if local.is_file() else temporary / name
         checksum = local.with_suffix('.zip.sha256')
         if local.is_file():
             if local.is_symlink() or local.is_junction() or checksum.is_symlink() or checksum.is_junction():
@@ -94,7 +95,7 @@ def _analyzers(python, bundle, home, version, report, transfer):
             base = 'https://github.com/orchex006/devsift/releases/download/v' + version + '/'
             report(67, 'Downloading platform analyzers')
             _receive(base + name, archive, transfer, name, 512_000_000)
-            checksum = Path(temporary) / (name + '.sha256')
+            checksum = temporary / (name + '.sha256')
             _receive(base + checksum.name, checksum, transfer, checksum.name, 4096)
             raw = checksum.read_text(encoding='ascii')
         match = re.fullmatch(r'([a-f0-9]{64})  ' + re.escape(name) + r'\s*', raw)

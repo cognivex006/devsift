@@ -25,12 +25,8 @@ class ActionableMarkdownTests(unittest.TestCase):
         self.destination = self.base / 'session'
 
     def run_language(self, factory, *, language='th', formats=None, resume=False):
-        actual = build_bundle
-        def localized(stored, **kwargs):
-            return actual(stored, **kwargs, language=language)
-        with patch('devsift.report_bundle.build_bundle', side_effect=localized):
-            return run_streamed(self.root, factory, destination=self.destination,
-                                formats=formats, resume=resume)
+        return run_streamed(self.root, factory, destination=self.destination,
+                            formats=formats, resume=resume, language=language)
 
     def two_cases(self):
         def git(*args):
@@ -88,6 +84,18 @@ class ActionableMarkdownTests(unittest.TestCase):
         self.assertIn('ยังไม่มีการเรียก analyzer จริง', report)
         self.assertIn('devsift setup --status', report)
         self.assertIn('--native-manifest-digest TRUSTED_SHA256', report)
+
+    def test_sensitive_root_is_redacted_before_navigation_urls_are_created(self):
+        self.root.rmdir()
+        self.root = self.base / 'token=syntheticSecretForLink'
+        self.root.mkdir()
+        stored = self.run_language(self.two_cases())
+        self.addCleanup(stored.close)
+        report = Path(stored.bundle['report']).read_text(encoding='utf-8')
+        self.assertNotIn('syntheticSecretForLink', report)
+        self.assertIn('a.py:3', report)
+        self.assertIn('3 | except:', report)
+        self.assertTrue(verify_bundle(stored, stored.bundle))
         self.assertIn('devsift scan --all', report)
         self.assertEqual(stored.exit_code, 2)
         self.assertTrue(stored.bundle['reports_complete'])

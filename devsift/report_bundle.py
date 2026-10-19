@@ -298,12 +298,16 @@ def _source_link(stored, finding):
         return None
     location = source['location']
     path = stored.root / location['path']
+    label = _text(location['path']) + ':' + str(location['region']['start_line'])
+    if Redactor().text(str(path)) != str(path):
+        # Keep the verified relative location; a redacted absolute ancestor
+        # cannot safely become a navigable destination.
+        return label, None
     try:
         href = quote(Path(os.path.relpath(path, stored.directory)).as_posix(), safe='/')
     except ValueError:  # Cross-drive Windows working-copy navigation.
         href = path.as_uri()
-    return (_text(location['path']) + ':' + str(location['region']['start_line']),
-            href + '#L' + str(location['region']['start_line']))
+    return label, href + '#L' + str(location['region']['start_line'])
 
 
 def _copy_human_page(source, output, page_number):
@@ -444,7 +448,8 @@ def _write_frontdoor(stored, bundle, language):
                 else:
                     case_link = _text(finding['case_id'])
                 source = _source_link(stored, finding) if valid else None
-                location = '[' + source[0] + '](' + source[1] + ')' if source else 'SOURCE_UNRESOLVED / UNKNOWN'
+                location = (('[' + source[0] + '](' + source[1] + ')') if source and source[1]
+                            else source[0] if source else 'SOURCE_UNRESOLVED / UNKNOWN')
                 explanation, action = rule_guidance(finding['rule_id'], language)
                 add(f'| {case_link} | {finding["severity"]} / {finding["rule_id"]} | {location} | {_text(explanation)}; {_text(action)} |')
             add()

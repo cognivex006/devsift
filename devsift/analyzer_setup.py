@@ -59,7 +59,10 @@ def _mkdir(path):
 
 def registry_path(home=None):
     _require(home is None or Path(home).is_absolute())
-    return (Path.home() if home is None else Path(home)) / '.local/share/devsift/analyzers.json'
+    # Canonicalize only the operator-selected home (e.g. macOS /var aliases or
+    # Windows short names), then reject links anywhere in DevSift's own subtree.
+    base = (Path.home() if home is None else Path(home)).resolve()
+    return base / '.local/share/devsift/analyzers.json'
 
 
 def registered(home=None):

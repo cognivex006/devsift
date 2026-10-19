@@ -23,6 +23,7 @@ class ReadyInstallationTests(unittest.TestCase):
             root = Path(temporary)
             home, bundle, source = root / 'new user', root / 'bundle', root / 'project'
             home.mkdir(); bundle.mkdir(); source.mkdir()
+            home, bundle, source = home.resolve(), bundle.resolve(), source.resolve()
             with zipfile.ZipFile(archive) as supplied:
                 self.assertTrue(any(name.startswith('analyzers/') and name.endswith('.zip') for name in supplied.namelist()))
                 supplied.extractall(bundle)
@@ -79,6 +80,21 @@ class ReadyInstallationTests(unittest.TestCase):
                         '--report-language', 'th'], source, allowed=(0, 1, 2))
             self.assertEqual(scan.stderr, '')
             result = json.loads(scan.stdout)
+            if 'counts' not in result.get('data', {}):
+                diagnostic = '''import sys,traceback
+from devsift import cli,scan_store
+actual=scan_store.run_streamed
+def diagnosed(*args,**kwargs):
+ try: return actual(*args,**kwargs)
+ except BaseException:
+  traceback.print_exc()
+  raise
+scan_store.run_streamed=diagnosed
+raise SystemExit(cli.main(sys.argv[1:]))
+'''
+                details = run([state['python'], '-I', '-B', '-c', diagnostic,
+                               'scan', '--all', '--summary', '--report-language', 'th'], source, allowed=(0, 1, 2))
+                self.fail('Ordinary scan failed: ' + json.dumps(result) + '\n' + details.stderr[-5000:])
             self.assertEqual(result['data']['counts']['executed'], 4)
             self.assertEqual(result['data']['finding_count'], 4)
             self.assertTrue(result['data']['report_bundle']['reports_complete'])
