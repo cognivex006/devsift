@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import sqlite3
 import uuid
+from urllib.parse import quote
 
 from .output import result
 import stat
@@ -90,7 +91,11 @@ def _unlock(stream):
 def _verify_database(path, owner):
     probe = None
     try:
-        probe = sqlite3.connect(path.as_uri() + '?mode=ro', uri=True, timeout=0)
+        # pathlib serializes the Windows extended-path '?' as a URI authority.
+        # SQLite instead needs that absolute native filename percent-encoded.
+        uri = ('file:' + quote(str(path), safe='/:') if os.name == 'nt'
+               else path.as_uri())
+        probe = sqlite3.connect(uri + '?mode=ro', uri=True, timeout=0)
         row = probe.execute("SELECT value FROM metadata WHERE key='owner'").fetchone()
         _require(row is not None and row[0] == owner)
     except sqlite3.Error:
@@ -110,9 +115,22 @@ def _owned_directory(root, destination, resume, configuration):
     directory = (Path.home() / '.local/share/devsift/scans' / identity / uuid.uuid4().hex
                  if destination is None else Path(destination))
     _require(directory.is_absolute())
+    # Reports add several owned descendants. Use Win32's extended namespace
+    # before any filesystem access when a session could exceed MAX_PATH; this
+    # does not require changing the user's system-wide long-path policy.
+    extended = os.name == 'nt' and len(str(directory)) >= 128
+    def native(path):
+        value = str(path)
+        if value.startswith('\\\\?\\'):
+            return path
+        return Path('\\\\?\\UNC\\' + value[2:] if value.startswith('\\\\')
+                    else '\\\\?\\' + value)
+    if extended:
+        directory = native(directory)
     _safe_path(directory)
     directory = directory.resolve()
-    _require(not directory.is_relative_to(source))
+    _require(not (native(directory).is_relative_to(native(source)) if os.name == 'nt'
+                  else directory.is_relative_to(source)))
     if resume:
         _require(directory.is_dir())
         _safe_path(directory / 'ownership.json')
@@ -208,6 +226,9 @@ class StoredResult:
         if self.bundle is not None:
             record['data']['report_bundle'] = {key: self.bundle[key] for key in
                                               ('index', 'markdown_index', 'page_count', 'case_count', 'reports_complete', 'analysis_complete')}
+            for key in ('report', 'report_sha256'):
+                if key in self.bundle:
+                    record['data']['report_bundle'][key] = self.bundle[key]
             record['data']['report_bundle']['reports_complete'] = bool(valid and self.bundle['reports_complete'])
         return record
 
@@ -254,7 +275,7 @@ class StoredResult:
 
 
 def run_streamed(root, records_factory, *, destination=None, resume=False,
-                 configuration=None, formats=None, policy=None, trusted_lifecycles=False):
+                 configuration=None, formats=None, policy=None, trusted_lifecycles=False, language='en'):
     """Persist per-target safe records transactionally and render complete paged reports.
 
     The factory must call ``should_scan(SourceTarget)`` before each target analysis.
@@ -382,7 +403,7 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
             stored._set('finished', 1)
         from .report_bundle import build_bundle
         stored.bundle = build_bundle(stored, formats=formats, policy=policy,
-                                     trusted_lifecycles=trusted_lifecycles)
+                                     trusted_lifecycles=trusted_lifecycles, language=language)
         success = True
         return stored
     except BaseException:

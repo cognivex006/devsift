@@ -83,8 +83,15 @@ def setup():
                         if (type(event.get('percent')) not in (int, float) or not 0 <= event['percent'] <= 100
                                 or not isinstance(event.get('stage'), str) or len(event['stage']) > 2048):
                             raise RuntimeError('Installer returned an invalid progress event.')
-                        percent = 55 + 39 * max(0, min(100, int(event['percent']))) // 100
-                        progress(percent, event['stage'])
+                        if event.get('kind') == 'transfer':
+                            received, total = event.get('received'), event.get('total')
+                            if (type(received) is not int or received < 0 or
+                                    (total is not None and (type(total) is not int or total <= 0))):
+                                raise RuntimeError('Installer returned an invalid transfer event.')
+                            ui.transfer(received, total, event['stage'])
+                        else:
+                            percent = 55 + 39 * max(0, min(100, int(event['percent']))) // 100
+                            progress(percent, event['stage'])
                     elif event['type'] == 'complete':
                         state = event['state']
                     elif event['type'] == 'error':

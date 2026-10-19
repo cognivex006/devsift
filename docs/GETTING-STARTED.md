@@ -1,76 +1,66 @@
-# เริ่มใช้งาน
+# เริ่ม lint โปรเจกต์และเปิดรายงานฉบับเต็ม
 
-ติดตั้ง DevSift ตาม [INSTALL.md](INSTALL.md) และให้ `devsift` อยู่บน PATH
-ที่ terminal และ agent host เรียกใช้ได้หลังเปลี่ยนไปยัง target repository คำสั่ง DevSift
-ทำงานจาก Git root ของ target ไม่ต้องใช้ checkout ของ devsift-specs
+ติดตั้งตาม [INSTALL](INSTALL.md) แล้วเปิด terminal/agent ใหม่ให้เห็น `devsift` บน PATH
+ใช้จาก Git root ของโปรเจกต์เป้าหมาย ไม่ต้องมี devsift-specs หรือเปิดกฎพัฒนา DevSift
 
-## ตรวจครั้งแรกจาก terminal
+Workflow setup/registry และภาษา `REPORT.md` ต่อไปนี้ใช้ **DevSift 0.1.16 ขึ้นไป**
+ตรวจ help ของ CLI หากใช้รุ่นเก่า; 0.1.15 มี session/pages แต่ยังไม่มี setup หรือ `--report-language`
 
-จาก Git root ของ target ให้ตรวจคำสั่งและ provider ก่อน แล้วจึงสั่ง scan:
+## ตรวจ readiness ครั้งแรก
 
 ```text
 devsift --help
+devsift setup --status
 devsift doctor
-devsift scan --changed
 ```
 
-`--changed` เลือกไฟล์ staged, unstaged และ untracked ใน working tree หากต้องการ
-inventory ทั้ง repository อย่างชัดเจน ให้ใช้:
+ตัวติดตั้งใหม่เตรียม companion และลงทะเบียน user trust ให้ ถ้ามี manifest เดิมที่ทบทวนแล้ว
+ลงทะเบียนครั้งเดียวตาม [Native setup](NATIVE-SETUP.md) ไม่ต้องป้อน native flags ทุกครั้ง
+หากไม่มีทั้ง registration และคู่ explicit trust ที่เลือกไว้ ให้แก้ installation/setup
+ก่อนเรียกผลว่า native lint ที่ทำงานแล้ว คู่ override ที่เชื่อถือได้ใช้ตรง ๆ ได้โดยไม่ต้องสร้าง registry
+Doctor อาจรายงานภาษาที่ไม่ครอบคลุม; ใช้ coverage ของไฟล์ที่ตรวจจริง ไม่อ้างว่าพร้อมทุกภาษา
+หาก native helpers ที่ใช้กับโปรเจกต์ READY แล้ว แต่ Doctor overall เป็น 2 เพราะ Python
+ไม่รองรับ ให้ตรวจ eligible scope ต่อ ไม่หยุดเสมือนยังไม่มี analyzer หรือแต่ง Python coverage
+
+## ตรวจทั้งโปรเจกต์
 
 ```text
-devsift scan --all --legacy-mode recommend
+devsift scan --all --legacy-mode recommend --summary --report-language th
 ```
 
-เรียก `devsift` จาก PATH ที่ติดตั้งไว้ หากหาไม่พบให้เปิด terminal ใหม่แล้วตรวจ
-[การติดตั้ง](INSTALL.md) ก่อน
+คำขอ “ตรวจโปรเจกต์”, “ตรวจสอบโค้ด” หรือ “review project” ให้ใช้ scope ทั้ง repository
+ใช้ `--changed` เฉพาะเมื่อผู้ใช้เลือกงานเปลี่ยนแปลง/staged/working changes อย่างชัดเจน
+ภาษาอังกฤษใช้ `--report-language en` การเลือกภาษาไม่เปลี่ยน rule IDs, path, SHA หรือ proof
 
-## ขอให้ agent host ช่วย
+## เปิดสิ่งที่ใช้ทำงานต่อได้
 
-ใน host ที่ติดตั้ง DevSift skill แล้ว ให้เริ่ม conversation ใหม่ที่
-Git root ของ target แล้วขอ scope ที่ชัดเจน เช่น:
+อ่าน compact JSON แม้ exit 2 แล้วเปิด **ไฟล์ `REPORT.md` จาก `data.report_bundle.report`**
+รายงานสำหรับคนอ่านมีทุก case พร้อม evidence, ข้อจำกัด, ผลกระทบทั้งสองทิศทาง,
+สถานะข้อเสนอ, verification/rollback และ review/proposal prompts
+`data.report_bundle.index` และ `markdown_index` ใช้ตรวจ/เปิดทุก page และ checksum ประกอบ
+ไม่ส่งผู้ใช้เพียง folder path หรือ JSON แล้วให้ค้นหารายงานเอง
 
-> รัน DevSift กับการเปลี่ยนแปลง staged และ unstaged ของฉัน แสดงว่า analysis
-> ครบหรือไม่ provider ใดครอบคลุมไฟล์ที่เลือก และพบอะไรบ้าง อย่าแก้ไฟล์
+เมื่อให้ AI ช่วย ขอได้ตรง ๆ:
 
-สำหรับ codebase เดิม อาจขอว่า:
+> ใช้ DevSift ตรวจโปรเจกต์นี้ทั้ง repository ส่งรายงานฉบับเต็มภาษาไทยพร้อมลิงก์ REPORT.md
+> บอกจำนวนไฟล์ที่ analyzer ตรวจ, findings, สาเหตุที่ยังไม่ครบ และควรทำอะไรต่อ อย่าแก้ source
 
-> ทำ inventory repository นี้ด้วย DevSift legacy recommendations โดยคง origin
-> และ impact ที่ยังไม่ทราบไว้ตามจริง และอย่าแก้ไฟล์
+AI ต้อง execute คำขอ read-only นี้ใน session ที่รันคำสั่งได้ ไม่หยุดที่แผน Actual host Plan
+mode ยังมีผล ไม่มีการอ้างว่าตรวจแล้วเมื่อเพียงอ่านเอกสารหรือเช็ก setup
+ดู [Agent integrations](AGENT-INTEGRATIONS.md) สำหรับวิธีโหลด skill/plugin ของแต่ละ host
 
-ดูตำแหน่ง skill และวิธีเปิดใช้งาน plugin ใน [Agent integrations](AGENT-INTEGRATIONS.md)
+## อ่านสถานะตามจริง
 
-## อ่านสถานะให้ครบก่อนอ่าน findings
-
-ตรวจ command, scope, `complete`, `status`, errors, provider coverage และ findings
-exit code มีความหมายดังนี้:
-
-| Exit code | ความหมาย |
+| ข้อมูล | ความหมาย |
 | --- | --- |
-| `0` | คำสั่งเสร็จตาม scope; help และ prompt generation ไม่นับเป็น scan pass |
-| `1` | Analysis ครบและพบ verified enforced findings |
-| `2` | Analysis ไม่ครบ, capability ขาด, tool ล้มเหลว หรือยังมี review ค้าง |
-| `3` | คำสั่งหรือ arguments ไม่ถูกต้อง |
+| `data.counts.executed` | coverage ที่มีผล analyzer; แยก fresh/reused ด้วย `data.execution` |
+| `data.finding_count` | จำนวน cases ทั้งหมด; summary มี `findings: []` โดยตั้งใจ |
+| `reports_complete` | มีทุก case/format และผ่าน artifact integrity checks |
+| `analysis_complete`, `complete`, errors | การวิเคราะห์/หลักฐานยังขาดส่วนใด |
+| exit 0 / 1 / 2 / 3 | complete-clean / enforced / incomplete / argument misuse |
 
-หากไม่ได้ตั้งค่า native providers อย่างชัดเจน การวิเคราะห์ภาษาเหล่านั้นจะ
-unavailable และ scan อาจจบไม่ครบ (exit `2`) `findings` ว่างเมื่อ
-`complete: false` ไม่ใช่หลักฐานว่าไม่พบปัญหา แม้ analysis ครบแล้ว origin,
-consumer effects และ business impact อาจยังเป็น `UNKNOWN` ไฟล์ที่อยู่ใน changed
-scope ไม่ได้พิสูจน์ว่า finding เกิดจาก change นั้น Critical security review
-ยังแยกจาก quality thresholds ปกติ
-
-Scan และ CI ใส่ JSON, Markdown และ SARIF ที่เลือกไว้ใน `data.reports` แต่ไม่ได้
-บันทึก report ลงไฟล์ให้อัตโนมัติ `prompt --scan-input` รับ scan envelope ที่
-บันทึกไว้โดยชัดแจ้ง แล้วตรวจ source ซ้ำเพื่อสร้าง prompt เท่านั้น ความสำเร็จของ
-prompt ไม่ใช่ scan pass ส่วน persisted `report --latest` และ `explain` storage
-discovery ยัง unavailable ดู [วิธีแก้ปัญหา](TROUBLESHOOTING.md) และ
-[รายละเอียด CLI](reference/CLI.md)
-
-## ใช้ native coverage เมื่อจำเป็น
-
-เมื่อจำเป็นต้องใช้ native coverage ให้ทำ
-[native setup](NATIVE-SETUP.md) จาก DevSift checkout ที่เชื่อถือได้ setup สร้าง
-helper ของ DevSift เอง ทบทวน manifest ที่ได้และใช้ absolute path ของ manifest
-พร้อม digest ที่ตรวจสอบจากแหล่งเชื่อถือได้อย่างอิสระ manifest และ digest ที่
-คำนวณจาก source ที่ยังไม่ได้ตรวจทานชุดเดียวกันไม่ยืนยันความน่าเชื่อถือ อย่าใช้
-manifest จาก target repository เป็น trusted input แม้ parser ทำงานครบก็ไม่ได้
-หมายความว่าการวิเคราะห์ภาษานั้นครอบคลุมทุกกรณี
+ถ้า executed เป็น 0 ให้บอกว่า analyzer ยังไม่ได้วิเคราะห์ source ไม่ตีความ inventory
+หรือ findings ว่างว่า clean ถ้า analysis ไม่ครบให้ระบุ provider/parse/source proof ที่ขาด
+และ next action ที่แก้ปัญหานั้น รายงานครบไม่ได้ทำให้ UNKNOWN กลายเป็น verified
+การสแกนไม่แก้ source, target dependencies หรือ Git configuration และไม่ดาวน์โหลด tools
+ดู [ครบทุก case](COMPLETE-SCANS.md) สำหรับ session/resume และงานขนาดใหญ่

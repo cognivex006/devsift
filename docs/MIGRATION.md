@@ -1,16 +1,26 @@
 # Gradual adoption
 
-Start with the [installation and usage guide](USAGE.md). Use a trusted installed interpreter and `-I -B` from the consumer Git root. Setup and optional native helper builds happen separately. Scans, case prompts and policy inspection do not rewrite consumer source or install missing tools.
+Start with the [installation and usage guide](USAGE.md). Use the trusted installed
+`devsift` command from the consumer Git root. Authorized installation/setup is
+separate from analysis. Scans, case prompts and policy inspection do not rewrite
+consumer source or install missing tools.
 
 ## Establish an honest starting point
 
-Run an explicit all-source inventory in recommend mode:
+For an ordinary project review, run full-repository lint in recommend mode:
 
 ```sh
-devsift scan --all --legacy-mode recommend
+devsift scan --all --legacy-mode recommend --summary --report-language en
 ```
 
 This selects current source and requests the supported legacy mode. It does not prove that findings are legacy. Verify tool coverage, source evidence and lifecycle attribution before using the result. Unconfigured providers, unknown origin and unresolved source remain incomplete. Keep UNKNOWN in the report; do not convert unknown findings into a clean baseline to make a gate green.
+
+Report language and registered user analyzers require DevSift 0.1.16 or later;
+check installed help. The new installer/setup registers trusted analyzers once,
+so ordinary scans do not need repeated native flags. Explicit paired overrides
+remain supported. Open the direct `REPORT.md` from `data.report_bundle.report`
+and read every case page. Zero analyzer-executed coverage is a readiness gap,
+not a successful lint or proof that the repository has no findings.
 
 Review one bounded case at a time. Source verification establishes bytes and location, while candidate consumers, test relationships, regression behavior and business effects may remain unknown. The [report walkthrough](cases/REPORT-WALKTHROUGH.md) demonstrates this distinction with actual CLI output. Findings do not authorize edits, and a recommendation is not a requirement to add missing fields throughout old logging code.
 
@@ -25,7 +35,11 @@ Review one bounded case at a time. Source verification establishes bytes and loc
 
 Critical security review remains independent in every phase, including unchanged legacy. Lower quality thresholds, declared risk, a baseline, waiver, missing tool or a matching case selector cannot establish that security review happened. A gate can be incomplete and still contain a verified Critical observation that needs attention.
 
-Configure [the CI gate](reference/CI-GATE.md) only with explicitly trusted native manifests and independently obtained digests. Its fresh analysis requires committed source and Git provenance. Working-tree `scan --changed` path selection and source location by themselves are insufficient finding-origin proof. Do not broaden legacy enforcement or manufacture accepted history simply to remove warnings.
+Configure [the CI gate](reference/CI-GATE.md) with registered reviewed native trust
+or an explicit independently trusted manifest/digest pair. Its fresh analysis
+requires committed source and Git provenance. Working-tree `scan --changed` path
+selection and source location by themselves are insufficient finding-origin
+proof. Do not broaden legacy enforcement or manufacture accepted history simply to remove warnings.
 
 ## Treat imports and proposals as evidence
 

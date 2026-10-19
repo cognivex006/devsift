@@ -160,7 +160,7 @@ class CiGateTests(unittest.TestCase):
         self.assertEqual(outcome.exit_code, 2)
         self.assertNotIn('privateFixture', json.dumps(outcome.to_dict()))
         self.assertEqual(self.run_gate(base_ref='missing-private-ref').exit_code, 2)
-        for args in [['ci'], ['ci', '--minimum-severity', 'private-value'],
+        for args in [['ci', '--minimum-severity', 'private-value'],
                      ['ci', '--native-manifest', 'relative-private-path', '--native-manifest-digest', '0'*64]]:
             completed = subprocess.run([sys.executable, '-B', '-m', 'devsift', *args], cwd=ROOT,
                                        capture_output=True, text=True)

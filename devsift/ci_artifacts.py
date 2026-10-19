@@ -37,12 +37,13 @@ def annotation_lines(report, *, limit=50):
 
 
 def build_reports(scan_record, *, repo_root, policy=None, trusted_lifecycles=False,
-                  formats=None, repository_urls=(), source_timeout_seconds=10):
+                  formats=None, repository_urls=(), source_timeout_seconds=10, language='en'):
     """Render all requested formats in memory from one source-reproved model."""
     from .markdown_report import render_markdown
     from .report_export import render_json, render_sarif
     from .report_model import assemble_report
     try:
+        _require(language in ('en', 'th'))
         requested = ('json', 'markdown', 'sarif') if formats is None else formats
         _require(type(requested) is tuple and 0 < len(requested) <= 3
                  and all(type(name) is str and name in ('json', 'markdown', 'sarif') for name in requested)
@@ -58,7 +59,7 @@ def build_reports(scan_record, *, repo_root, policy=None, trusted_lifecycles=Fal
         if 'json' in requested:
             documents['json'] = _decode_json(render_json(report))
         if 'markdown' in requested:
-            documents['markdown'] = render_markdown(report)
+            documents['markdown'] = render_markdown(report, language=language)
         if 'sarif' in requested:
             documents['sarif'] = _decode_json(render_sarif(report))
         _require(len(json.dumps(documents, ensure_ascii=True, allow_nan=False).encode()) <= 24_000_000)

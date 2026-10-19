@@ -1,10 +1,20 @@
 # Read-only source inventory and adapter capability interface
 
-These producer interfaces enumerate source and negotiate capabilities. They do
-not run analyzers, classify Git changes, render findings, or connect to the CLI.
-Inventory completeness is never a quality-gate pass. The scan coordinator runs
-explicitly configured trusted adapters; no native analyzer is registered by
-default. See [native protocol](NATIVE-PROTOCOL.md) for execution boundaries.
+Inventory interfaces enumerate source and negotiate capabilities. Enumeration
+alone does not execute analysis or establish findings. Inventory completeness
+is never a quality-gate pass. The scan coordinator runs
+trusted adapters. Library calls require explicit configured adapters; the new
+source CLI resolves already registered user trust by default. Only explicit
+installer/setup actions create that registration; no scan discovers target
+manifests or performs network setup. See [native protocol](NATIVE-PROTOCOL.md)
+for execution boundaries.
+
+Registry resolution and human report language target candidate 0.1.16. Ordinary skill
+project-check intent selects full scope, while changed scope requires an explicit
+changes request. Output must distinguish readiness, actual analyzed coverage and
+human report delivery: zero executed files is not a completed lint. Sessions keep
+all cases; `data.report_bundle.report` names the direct human REPORT.md and
+`reports_complete` does not promote incomplete analysis or unresolved evidence.
 
 Generated scanner output masks each target and finding independently, with a
 separate bounded envelope. Repository cardinality does not consume a cumulative

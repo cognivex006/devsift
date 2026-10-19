@@ -33,9 +33,15 @@ class BootstrapCases:
             if bundle is None:
                 stream = io.BytesIO()
                 with zipfile.ZipFile(stream, 'w') as archive:
+                    transfers = ([(0, None), (25, None), (60, None), (120, None)] if unknown
+                                 else [(0, 100), (25, 100), (60, None), (120, None)])
                     source = (
                         'import json,time\nfrom pathlib import Path\n'
                         '(Path.home()/"bootstrap-reached").touch()\n'
+                        f'for received,total in {transfers!r}:\n'
+                        ' print(json.dumps({"type":"progress","percent":0,"stage":"Downloading analyzer companion",'
+                        '"elapsed":0.2,"kind":"transfer","received":received,"total":total}),flush=True)\n'
+                        ' time.sleep(.08)\n'
                         'for n,stage in [(10,"Creating private environment"),(45,"Installing verified wheels"),'
                         '(65,"Checking CLI startup"),(70,"Installing skill: codex"),(72,"Installing skill: claude"),'
                         '(74,"Installing skill: gemini"),(76,"Installing skill: antigravity"),'
@@ -71,10 +77,14 @@ class BootstrapCases:
                         self.send_header('Content-Length', str(len(body) + (32768 if failure == 'interrupted' and self.path.endswith('.zip') else 0)))
                     self.end_headers()
                     try:
-                        for pos in range(0, len(body), 16384):
-                            self.wfile.write(body[pos:pos + 16384])
+                        # Keep small fixtures slow enough to observe transfer
+                        # frames. Real runtime bundles are much larger and must
+                        # not be artificially throttled for several minutes.
+                        block = 16384 if len(body) < 1_000_000 else 262144
+                        for pos in range(0, len(body), block):
+                            self.wfile.write(body[pos:pos + block])
                             self.wfile.flush()
-                            time.sleep(.03)
+                            time.sleep(.03 if len(body) < 1_000_000 else .002)
                     except (BrokenPipeError, ConnectionResetError):
                         pass
 

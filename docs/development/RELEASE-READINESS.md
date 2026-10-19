@@ -27,7 +27,7 @@ this readiness check does not generate either. Preserve `NOASSERTION` for a
 license value that has not been determined in an SBOM format that supports it.
 That value reports uncertainty and does not constitute approval.
 
-The current package and plugin version is `0.1.15`, selected as the next patch
+The candidate targets package and plugin version `0.1.16`, selected as the next patch
 by the maintainer under the owner's continuing publication instruction
 “ดำเนินการ released ขึ้น github เลยทันที”. This is not a claim that the owner
 explicitly selected the exact patch number.
@@ -37,6 +37,17 @@ files. Publication is explicitly authorized by the owner; the bounded checker
 still reports its predefined missing-input flags and does not represent the
 owner's publication decision. Release notes distinguish unsigned checksums and
 the unselected project license from completed integrity checks.
+
+The 0.1.16 candidate adds self-contained companion ZIPs for the six planned
+Windows/Linux/macOS x64/arm64 targets, user registration and direct language-aware
+human reports. The four-component source-bundle checker below does not certify
+those runtime binaries or their notices. Record final version/source/digests,
+each platform's build/deploy/execution evidence and normal installation/rollback
+separately under [the candidate checklist](RELEASE-CHECKLIST.md).
+The reviewed fresh Windows installation acceptance passed four real native
+analyses and a full Thai report without SDK PATH or scan trust flags. Remaining
+candidate-wide CI/platform/artifact gates are pending, not implicitly passed by
+that run, this document or the owner's continuing publication authorization.
 
 Use identifiers from the official [SPDX License List](https://spdx.org/licenses/)
 only after the owner decision and component evidence support them. Use SPDX

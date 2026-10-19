@@ -1,8 +1,42 @@
 # ติดตั้ง DevSift
 
-ต้องมี Python 3.12 ขึ้นไปและ Git สำหรับตรวจ repository ตัวติดตั้งติดตั้ง CLI ใน
+ต้องมี Python 3.12 ขึ้นไป; การตรวจ immutable Git evidence ต้องมี Git สำหรับ repository
+ตัวติดตั้งติดตั้ง CLI ใน
 private virtual environment พร้อม skill สำหรับ Codex, Claude Code, Gemini CLI,
-Antigravity และ Cursor โดยไม่ต้องเปิดสิทธิ์ administrator
+Antigravity, Cursor และ Copilot โดยไม่ต้องเปิดสิทธิ์ administrator
+
+## ติดตั้ง CLI พร้อม analyzer (0.1.16 ขึ้นไป)
+
+ตัวติดตั้งใหม่ติดตั้ง CLI พร้อม platform analyzer companion ที่ตรวจสอบ version และ
+integrity แล้ว จาก release ที่ผู้ใช้เลือกเชื่อถือ และลงทะเบียน manifest/digest ใน user scope
+นอก target Companion มี runtime ของ helper ที่จำเป็น จึงไม่ต้องติดตั้ง .NET SDK,
+Node/npm หรือ Go toolchain เพื่อใช้ binary ที่จัดเตรียมไว้ การสแกนไม่ build โปรแกรมเป้าหมาย
+
+หาก companion ไม่ได้ฝังมา ตัวติดตั้งจะดาวน์โหลดชุดที่ pin ตรงกับรุ่น/platform ระหว่าง
+installation เท่านั้น ตรวจและเตรียม analyzer ก่อนเปลี่ยน CLI launcher หากขั้นนี้ล้มเหลว
+ต้องบอกว่า analysis ยังไม่พร้อมและรักษา CLI เดิมไว้ ไม่สรุป Ready เพียงเพราะ pip สำเร็จ
+ตัวติดตั้ง 0.1.15 และเก่ากว่ายังไม่มี companion workflow นี้ ให้อัปเดตหากต้องการใช้ค่าเริ่มต้นใหม่
+
+หลังติดตั้ง ตรวจ readiness และ lint จาก Git root:
+
+```text
+devsift setup --status
+devsift doctor
+devsift scan --all --legacy-mode recommend --summary --report-language th
+```
+
+Scan, Doctor และ CI ใช้ทะเบียนผู้ใช้โดยไม่ต้องส่ง native flags ซ้ำ ถ้ามี manifest ที่
+ตรวจทานไว้แล้ว ให้ลงทะเบียนครั้งเดียวตาม [NATIVE-SETUP](NATIVE-SETUP.md)
+หากไม่มีทั้งทะเบียนและ explicit trust override หรือ provider ที่ต้องการยังไม่พร้อม
+ให้แก้ setup/coverage ก่อนอ้างว่ารัน lint ครบแล้ว
+การตรวจ readiness ไม่ใช่การวิเคราะห์ source และ helper สี่ตัวไม่ได้ครอบคลุมทุกภาษา/ทุก rule
+`analysis_ready` ใน setup หมายถึง configured providers พร้อม ไม่ใช่ทุกภาษาได้รับการตรวจ
+Doctor overall อาจ incomplete เพราะ Python quality provider ขาด แม้ helper ที่โปรเจกต์
+ใช้จะ READY แล้ว ให้ตรวจสถานะรายภาษาและสแกน eligible files ต่อโดยคงช่องว่าง coverage
+
+ตัวเลือก `--core-only` สำหรับ operator/testing ข้าม companion ได้ แต่หมายถึง CLI-only
+และ **analysis not ready** ไม่ใช่การติดตั้ง linter พร้อมใช้ ตรวจ help ของตัวติดตั้ง/CLI
+ก่อนใช้ตัวเลือก advanced นี้
 
 ## ติดตั้งจาก release
 
@@ -22,7 +56,7 @@ curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/dow
 checksum ตรวจความเสียหายของไฟล์ ไม่ใช่ลายเซ็นรับรองผู้เผยแพร่
 ต้องเชื่อถือ repository และ release ที่เลือกติดตั้ง
 
-ตัวติดตั้งรุ่น 0.1.15 ใช้พื้นที่สองบรรทัดเดิม: bar พร้อมเปอร์เซ็นต์ด้านบน
+ตัวติดตั้งใช้พื้นที่สองบรรทัดเดิม: bar พร้อมเปอร์เซ็นต์ด้านบน
 และ spinner/ขั้นตอนปัจจุบันด้านล่าง:
 ตรวจ Python → ดาวน์โหลด → ตรวจ checksum → แตก bundle → เตรียม environment →
 ติดตั้ง CLI/skills → ตั้งค่า PATH ดาวน์โหลดแสดงเปอร์เซ็นต์จาก bytes จริง ส่วน
@@ -32,7 +66,7 @@ checksum ตรวจความเสียหายของไฟล์ ไ�
 หน้าจอปกติไม่แสดง pip/build logs หลังเสร็จสรุปเฉพาะเวอร์ชัน ตำแหน่ง CLI,
 hosts ที่ติดตั้ง และคำสั่งถัดไป หากล้มเหลวจะบอกขั้นตอนและสาเหตุ ไม่แสดงสถานะ Ready
 
-Installer assets เผยแพร่พร้อม [v0.1.15](https://github.com/orchex006/devsift/releases/tag/v0.1.15)
+Installer assets เผยแพร่พร้อม [v0.1.16](https://github.com/orchex006/devsift/releases/tag/v0.1.16)
 หากดาวน์โหลดไม่ได้ให้ตรวจ network หรือใช้ source installation ด้านล่าง
 
 เปิด terminal ใหม่ แล้วตรวจจาก Git root ของ target:
@@ -40,7 +74,7 @@ Installer assets เผยแพร่พร้อม [v0.1.15](https://github.c
 ```sh
 devsift --help
 devsift doctor
-devsift scan --changed
+devsift scan --all --legacy-mode recommend --summary
 ```
 
 Windows เพิ่ม `%USERPROFILE%\.local\bin` เข้า user PATH ส่วน macOS/Linux เพิ่ม
@@ -75,6 +109,10 @@ python tools/build_installer.py --output dist/installer
 
 คำสั่งนี้เตรียม bundle ของ CLI, skill และ plugin metadata จาก checkout ปัจจุบัน
 แล้วแตก `dist/installer/devsift-install.zip` ไปยัง directory ชั่วคราว
+Source installer ใหม่ต้องมี companion ตรงรุ่น/platform หรือดาวน์โหลด asset ที่เผยแพร่แล้ว
+หากใช้ custom source checkout ที่ยังไม่มี matching release asset ให้ provision verified offline companion
+ผ่าน `devsift setup --analyzer-bundle ABSOLUTE_ZIP --bundle-digest TRUSTED_SHA256`
+หลังการติดตั้ง CLI แบบ explicit `--core-only` อย่าเรียกขั้น core-only ว่าพร้อมวิเคราะห์แล้ว
 
 PowerShell:
 
@@ -111,8 +149,27 @@ devsift --help
 | skill paths ของ host | skill พร้อมคู่มือออฟไลน์ ดู [integrations](AGENT-INTEGRATIONS.md) |
 
 การคัดลอก skill ไม่ได้ลงทะเบียน plugin marketplace ให้ host
-Python wheel และ installer ไม่ bundle native binaries ให้ตั้งค่าตาม
-[Native setup](NATIVE-SETUP.md) เมื่อต้องการ coverage ของภาษาเหล่านั้น
+Python wheel อย่างเดียวไม่ bundle native binaries ตัวติดตั้ง release เดิมรวมถึง 0.1.15
+ยังต้องทำ [Native setup](NATIVE-SETUP.md) แยก ตัวติดตั้งปกติตั้งแต่ 0.1.16 เตรียม companion ให้
+การตั้งค่าและ update ไม่เกิดระหว่าง ordinary scan
+
+## Platform analyzer companions
+
+ตัวติดตั้งเลือก companion ตามระบบและ architecture แต่ละ ZIP มี `.zip.sha256`:
+
+| Platform / architecture | Companion asset |
+| --- | --- |
+| Windows x64 | `devsift-analyzers-windows-x64.zip` |
+| Windows arm64 | `devsift-analyzers-windows-arm64.zip` |
+| Linux x64 | `devsift-analyzers-linux-x64.zip` |
+| Linux arm64 | `devsift-analyzers-linux-arm64.zip` |
+| macOS x64 | `devsift-analyzers-macos-x64.zip` |
+| macOS arm64 | `devsift-analyzers-macos-arm64.zip` |
+
+Installer ตรวจ checksum และ runtime/manifest pins ก่อนใช้งาน เลือก companion ตรงกับ
+CLI version และ platform ของเครื่อง ไม่ใช้ archive คนละระบบและไม่ fallback เป็น core-only
+แบบเงียบ ๆ เมื่อ native ไม่พร้อม หากดาวน์โหลด/ตรวจ readiness ล้มเหลว ให้แก้ installation
+ตาม diagnostic ที่ระบุ; ไม่แก้ target source เพื่อทดแทน analyzer ที่ขาด
 
 ## ถอนการติดตั้ง
 

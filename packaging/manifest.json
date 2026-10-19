@@ -6,6 +6,7 @@
         "devsift/__init__.py",
         "devsift/__main__.py",
         "devsift/adapters.py",
+        "devsift/analyzer_setup.py",
         "devsift/baseline.py",
         "devsift/case_approval.py",
         "devsift/case_command.py",
@@ -57,6 +58,7 @@
         "devsift/__init__.py",
         "devsift/__main__.py",
         "devsift/adapters.py",
+        "devsift/analyzer_setup.py",
         "devsift/baseline.py",
         "devsift/case_approval.py",
         "devsift/case_command.py",
@@ -163,6 +165,7 @@
         "schemas/native-protocol.schema.json",
         "schemas/report.schema.json",
         "schemas/suppression.schema.json",
+        "tools/build_analyzer_bundle.py",
         "tools/build_native.py",
         "tools/install_progress.py"
       ],

@@ -38,8 +38,8 @@ def parser() -> Parser:
     ci_scope.add_argument('--changed', action='store_true', help='Read staged, unstaged and untracked paths (default).')
     ci_scope.add_argument('--all', action='store_true', help='Analyze all eligible source snapshots.')
     ci_scope.add_argument('--paths', nargs='+', help='Explicit repository-relative paths; scope is reported as paths.')
-    ci.add_argument('--native-manifest', required=True, help='Absolute explicitly trusted executable configuration.')
-    ci.add_argument('--native-manifest-digest', required=True, help='Independently trusted lowercase SHA256.')
+    ci.add_argument('--native-manifest', help='Override the registered analyzer manifest with explicit trust.')
+    ci.add_argument('--native-manifest-digest', help='Independently trusted lowercase SHA256 for the override.')
     ci.add_argument('--base', help='Git base ref for actual source-origin attribution; unresolved history stays incomplete.')
     ci.add_argument('--minimum-severity', choices=['Critical', 'Error'], default='Error')
     ci.add_argument('--security', action='store_true', help='Enable the bounded built-in credential detector alongside native tools.')
@@ -51,6 +51,8 @@ def parser() -> Parser:
         storage.add_argument('--resume', help='Resume an owned session directory after revalidating source and configuration.')
         execution.add_argument('--summary', action='store_true',
                                help='Return compact counts and complete report index; full results remain in the session.')
+        execution.add_argument('--report-language', choices=('en', 'th'), default='en',
+                               help='Language of the complete human-readable REPORT.md (default: en).')
     explain = commands.add_parser('explain', help='Explain a verified case (backend pending).')
     explain.add_argument('case_id', help='Exact case ID in a verified report.')
     report = commands.add_parser('report', help='Read a report (backend pending); writes no files.')
@@ -60,6 +62,13 @@ def parser() -> Parser:
     doctor.add_argument('--native-manifest-digest', help='Independently trusted SHA256 of the exact manifest bytes.')
     doctor.add_argument('--policy', help='Explicit JSON policy to validate read-only; no automatic discovery.')
     doctor.add_argument('--cache-path', help='Explicit cache directory to inspect without creating or changing it.')
+    setup = commands.add_parser('setup', help='Register trusted analyzers once; scans never build or install tools.')
+    setup.add_argument('--status', action='store_true', help='Check the registered analyzers without changing configuration.')
+    setup.add_argument('--native-manifest', help='Explicit absolute operator-approved manifest to register.')
+    setup.add_argument('--native-manifest-digest', help='Independently trusted SHA256 of that manifest.')
+    setup.add_argument('--analyzer-bundle', help='Explicit verified platform analyzer ZIP to deploy and register.')
+    setup.add_argument('--bundle-digest', help='Independently trusted SHA256 of the analyzer ZIP.')
+    setup.add_argument('--home', help='Explicit installation home (defaults to the current user home).')
     prompt = commands.add_parser('prompt', help='Request a case prompt; never executes remediation.')
     prompt.add_argument('case_id')
     prompt.add_argument('--mode', choices=['review', 'implement'], required=True)
@@ -110,6 +119,8 @@ def _stored_execution(args, factory, *, policy=None, trusted_lifecycles=False):
                      'formats': args.report_format, 'policy': policy,
                      'legacy_mode': getattr(args, 'legacy_mode', None),
                      'paths': getattr(args, 'paths', None)}
+    if args.report_language != 'en':
+        configuration['report_language'] = args.report_language
     if getattr(args, 'base', None) is not None:
         try:
             configuration['base'] = _git(root, 'rev-parse', '--verify', '--end-of-options',
@@ -138,7 +149,8 @@ def _stored_execution(args, factory, *, policy=None, trusted_lifecycles=False):
             return run_streamed(root, observed, destination=destination, resume=bool(args.resume),
                                 configuration=configuration, policy=policy,
                                 trusted_lifecycles=trusted_lifecycles,
-                                formats=None if args.report_format is None else tuple(dict.fromkeys(args.report_format)))
+                                formats=None if args.report_format is None else tuple(dict.fromkeys(args.report_format)),
+                                language=args.report_language)
     except KeyboardInterrupt:
         return result(args.command, complete=False, errors=[{
             'code': 'SCAN_INTERRUPTED', 'message': 'Scan interrupted; owned session state is retained for resume.'}],
@@ -157,6 +169,65 @@ def _stored_execution(args, factory, *, policy=None, trusted_lifecycles=False):
 
 
 def run(args: argparse.Namespace) -> dict:
+    if args.command == 'setup':
+        from .analyzer_setup import SetupError, deploy, register, registered, ready
+        from .native_manifest import load_manifest
+        from .native_host import probe_tool
+        from pathlib import Path
+        import zipfile
+        import zlib
+        home = None if args.home is None else Path(args.home)
+        native = args.native_manifest is not None or args.native_manifest_digest is not None
+        bundle = args.analyzer_bundle is not None or args.bundle_digest is not None
+        if ((int(args.status) + int(native) + int(bundle)) != 1 or
+                native and (args.native_manifest is None or args.native_manifest_digest is None) or
+                bundle and (args.analyzer_bundle is None or args.bundle_digest is None)):
+            raise ArgumentError('Use setup --status, a trusted manifest pair, or a trusted analyzer bundle pair.')
+        try:
+            if args.status:
+                saved = registered(home)
+                if saved is None:
+                    raise SetupError('No analyzers registered; reinstall DevSift or register an approved manifest with setup.')
+                entries = load_manifest(*saved)
+                available = all(ready(entry.tool) for entry in entries)
+                return result('setup', complete=available, data={'analysis_performed': False, 'analysis_ready': available,
+                    'registered_tools': [entry.tool.tool_id for entry in entries],
+                    'languages': sorted({language for entry in entries for language in entry.tool.languages})},
+                    errors=[] if available else [{'code': 'NATIVE_TOOL_UNAVAILABLE', 'message': 'Registered tools failed readiness checks; run devsift doctor.'}])
+            state = (deploy(args.analyzer_bundle, args.bundle_digest, home=home) if bundle else
+                     register(args.native_manifest, args.native_manifest_digest, home=home))
+            return result('setup', complete=True, data=state)
+        except SetupError as error:
+            return result('setup', complete=False, errors=[{'code': 'ANALYZER_SETUP_UNAVAILABLE',
+                'message': str(error)}],
+                data={'analysis_performed': False, 'analysis_ready': False, 'probes': error.probes})
+        except (OSError, ValueError, TypeError, KeyError, RecursionError,
+                zipfile.BadZipFile, zlib.error, EOFError, NotImplementedError):
+            return result('setup', complete=False, errors=[{'code': 'ANALYZER_SETUP_UNAVAILABLE',
+                'message': 'Analyzer setup failed validation or readiness. Previous registration was preserved; run devsift setup --help.'}],
+                data={'analysis_performed': False, 'analysis_ready': False})
+    if args.command in ('scan', 'doctor', 'ci'):
+        from .analyzer_setup import SetupError, resolve
+        from pathlib import Path
+        import re
+        if (args.native_manifest is None) != (args.native_manifest_digest is None):
+            raise ArgumentError('Native manifest and digest must be supplied together.')
+        if args.native_manifest is not None and (not Path(args.native_manifest).is_absolute()
+                or re.fullmatch('[0-9a-f]{64}', args.native_manifest_digest) is None):
+            raise ArgumentError('Native manifest requires an absolute path and lowercase SHA256 digest.')
+        try:
+            configured = resolve(args.native_manifest, args.native_manifest_digest)
+        except SetupError:
+            failure = result(args.command, complete=False, errors=[{'code': 'REGISTERED_ANALYZERS_UNAVAILABLE',
+                'message': 'Registered analyzer configuration changed or is unavailable. Run devsift doctor or reinstall DevSift; do not approve project-supplied manifests.'}])
+            return (_stored_execution(args, lambda hook: iter((failure,)))
+                    if args.command in ('scan', 'ci') else failure)
+        if configured is not None:
+            args.native_manifest, args.native_manifest_digest = configured
+        elif args.command == 'ci':
+            failure = result('ci', complete=False, errors=[{'code': 'ANALYZER_SETUP_REQUIRED',
+                'message': 'No analyzers registered. Reinstall DevSift or register an operator-approved manifest with devsift setup.'}])
+            return _stored_execution(args, lambda hook: iter((failure,)))
     if args.command == 'prompt':
         if args.mode == 'implement' and args.approved_case != args.case_id:
             raise ArgumentError('Implement mode requires --approved-case matching the case ID.')

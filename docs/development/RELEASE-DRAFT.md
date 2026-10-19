@@ -1,64 +1,98 @@
-# DevSift 0.1.15 release notes
+# DevSift 0.1.16 candidate release notes
 
-DevSift 0.1.15 processes large scans through resumable private sessions and
-produces every case across complete report pages. All four native helpers
-support private source/diagnostic file transport, so repository inventories and
-case counts do not inherit the old aggregate inline-document limits.
+Candidate 0.1.16 makes ordinary installation and project lint ready to use:
+verified native companions are installed and registered once, ordinary scans use
+that user trust, and every case is delivered in a direct human `REPORT.md`.
+It retains the complete sessions/pages introduced in 0.1.15.
 
-The maintainer selected `0.1.15` as the next patch under the owner's continuing
-instruction “ดำเนินการ released ขึ้น github เลยทันที”. The owner authorized
-publication of the continuing fixes, without selecting this exact patch number.
-The intended tag is `v0.1.15`; package and agent plugin manifests use that version.
-Final candidate review, checks and artifact verification still precede publication.
+The maintainer selected the next patch under the owner's continuing instruction
+“ดำเนินการ released ขึ้น github เลยทันที”. The owner authorized continuing
+publication without selecting this exact patch number. The intended tag is
+`v0.1.16`; metadata/versioning is finalized by the release integration owner.
+This is a candidate, not a publication receipt: final CI, platform companion,
+artifact and release checks must pass before tag/publication.
 
 ## Changes
 
-- Analyze one immutable source snapshot at a time and persist only redacted
-  results outside the target. Resume rechecks source, scope/configuration and
-  current analyzer trust/readiness; changed or incomplete targets run again.
-- Render all cases across adaptive JSON, Markdown and SARIF pages with indexes,
-  checksums and bounded per-page `scan.json` inputs for case prompts. Report
-  integrity/completeness is separate from analyzer/source completeness.
-- Add `--summary`, `--report-dir` and `--resume`; full JSON still streams every
-  target and finding. Summaries disclose fresh versus reused targets.
-- Support all four native helpers with private file transport and explicit
-  wait-until-completion execution. Preserve integrity pins, subprocess cleanup,
-  cancellation and finite standalone Doctor probes.
-- Stream large immutable Git source proof and mask oversized excerpts while
-  retaining exact source identity/regions and every case.
-- Show real scan stages in two in-place stderr rows; restore the console on
-  success, failure and cancellation. Redirected JSON stays free of animation.
-- Preserve independent security-review metadata across cache reuse and remove
-  obsolete metadata when the originating target disappears. Neither scanning
-  nor case-prompt generation grants source-edit permission.
+- Normal installation prepares four verified self-contained native helpers and
+  registers their frozen manifest/digest in the fixed user scope. Scans, Doctor
+  and CI use that registration without repeated native arguments. Explicit
+  paired overrides still validate first; no target manifest is discovered.
+- `devsift setup` registers an existing approved manifest or installs an explicit
+  trusted offline companion; `setup --status` checks readiness without analysis.
+  Registry corruption, changed pins or failed preflight never approve replacement
+  bytes or silently activate a partial native configuration.
+- Companion downloads are pinned to the CLI release version and platform. Their
+  immutable SHA256-verified ZIP bytes undergo bounded path/type/layout validation,
+  strict four-tool rebasing and readiness checks before launcher activation.
+  Prior CLI activation is preserved on native preflight failure. Explicit
+  `--core-only` discloses that code analyzers were not configured.
+- Ordinary skill-driven project reviews choose whole-repository recommend mode;
+  changed scope is reserved for explicit changes requests. The agent executes the
+  authorized scan, reports actual coverage/findings/incomplete causes and next
+  actions, and delivers a direct report link rather than a folder or JSON alone.
+- `--report-language th|en` writes every case into session-root `REPORT.md`, with
+  the path in `data.report_bundle.report`. Machine IDs, source proof and UNKNOWN
+  states do not change with presentation language. Report publication journals
+  ownership before atomic replacement and verifies report/page checksums.
+- Canonical operator-home handling supports accepted macOS and Windows aliases
+  while retaining protections inside DevSift-owned paths. Deep Windows report
+  paths use normalized containment without changing global long-path policy.
 
-## Verification and honest coverage
+## Candidate evidence and pending gates
 
-The real user repository retained all 8,209 inventory targets and 467 native
-calls, with full reports for all 10 returned cases. `reports_complete` was true;
-analysis remained incomplete where parser/source proof was unresolved. The target
-source was unchanged. These counts are evidence for that run, not a claim that
-all source or every rule was verified clean.
+Fresh ordinary Windows installation passed using a real embedded companion:
+no `--core-only`, no SDK toolchains on PATH and no native flags on the subsequent
+scan. All four language samples executed real native helpers, returned four
+source-VERIFIED cases and a full Thai report; target source/Git data stayed
+unchanged. This acceptance run took 89.102 seconds. It proves that tested
+installation/sample set, not universal language or rule coverage.
 
-The four real native helpers were exercised with source larger than 2.1 MB and
-more than 1,000 diagnostics each. The report pipeline rendered all 1,205 fixture
-cases in all requested formats, including case-prompt input pages. Windows
-ConPTY checks covered 40, 48, 80 and 120 columns, resize and cancellation.
-Record final candidate-matched CI, package/install/rollback results and artifact
-hashes in the release receipt; this draft does not turn pending checks into passes.
+The configured helpers cover C#, SQL, Go and TypeScript/JavaScript according to
+their rules. Python quality coverage is not added. Setup `analysis_ready` means
+configured native providers are ready; Doctor may remain overall incomplete for
+an unsupported language while an eligible project can still be analyzed.
 
-## Distribution and limitations
+The release plan contains six companion ZIP/checksum pairs: Windows, Linux and
+macOS, each x64 and arm64. Build, immutable source/version/pin checks, archive
+inspection, installation and applicable execution validation must be recorded for
+each published asset. Cross-building a file is not native execution evidence.
+The final full suite, installed CLI, installer/rollback and platform CI gates are
+pending at preparation time. Do not describe every platform as passed or the
+candidate as published before those receipts exist.
 
-Python 3.12 or newer is required. Native analyzer binaries are not bundled;
-trusted native setup is separate. A parser/process failure or unresolved source
-still means incomplete analysis and exit 2. No target code is built, installed or
-modified. Persisted `report --latest` and `explain` backends remain unavailable;
-read the owned report indexes and use a page's `scan.json` for case prompts.
-Live loading in every AI host has not been verified.
+## Use after installation
 
-The project license remains unselected; no new license is declared and artifact
-inventory records `NOASSERTION`. SHA256 files provide integrity checks without
-claiming cryptographic signatures. Separately installed optional native
-components have their own dependency/setup evidence. Release assets include the
-installer bundle/scripts, wheel, source distribution, consumer/source components
-and source/integrity records.
+```text
+devsift setup --status
+devsift doctor
+devsift scan --all --legacy-mode recommend --summary --report-language th
+```
+
+Open `data.report_bundle.report` for the complete human report. Read every case
+page and preserve `reports_complete` separately from `analysis_complete`.
+Unavailable tools, parser/process failures or unresolved source remain explicit;
+exit 2 is an incomplete result, never a clean lint. Summary `findings: []` omits
+the full array; use `data.finding_count` for the actual total.
+
+## Distribution and boundaries
+
+Installation requires Python 3.12+. Source/Git proof also needs trusted Git.
+Companions provide their .NET/Node runtimes and compiled Go helper; consumers do
+not need those development SDKs. The wheel alone remains CLI-only. The installer
+may download a missing version-pinned companion during authorized setup; ordinary
+scan/Doctor/CI never download, build or install tools or target dependencies.
+
+The standard CLI/skill/source artifacts are accompanied by the six planned
+platform ZIPs and their checksums. Bind the final artifact inventory/SBOM to the
+reviewed source and include runtime/dependency and applicable notice evidence
+for the actual companion payloads. Do not substitute the old core-only inventory
+for an audit of bundled third-party runtimes.
+
+The project license remains unselected (`NOASSERTION`). SHA256 records provide
+integrity without a signature claim. Existing release-checker review/incomplete
+outcomes stay visible; a digest or passing test is not a blanket security or
+license approval. Previous releases/tags remain historical and are not moved.
+`report --latest` and automatic `explain` storage remain pending. Live loading in
+every AI host and native execution on every platform/architecture must not be
+claimed without actual evidence. No scan or report authorizes source remediation.

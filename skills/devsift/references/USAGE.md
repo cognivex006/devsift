@@ -7,14 +7,32 @@
 [เริ่มต้นใช้งาน](GETTING-STARTED.md) ก่อน หากต้องการแก้ปัญหาให้ดู
 [การแก้ปัญหา](TROUBLESHOOTING.md)
 
+ทะเบียน analyzer, `setup` และ combined `REPORT.md` ตามภาษาในหน้านี้ใช้ **0.1.16 ขึ้นไป**
+ตรวจ installed help เมื่อใช้ CLI เก่า; 0.1.15 ยังไม่มี flags เหล่านี้
+
+## พร้อมแล้ว lint ได้ตรง ๆ
+
+หลัง installation/setup ที่ได้รับอนุญาต รันจาก target Git root:
+
+```text
+devsift setup --status
+devsift doctor
+devsift scan --all --legacy-mode recommend --summary --report-language th
+```
+
+Scan/Doctor/CI ใช้ user registration โดยไม่ต้องพิมพ์ native path/digest ซ้ำทุกครั้ง
+ถ้ายังไม่มี setup ให้แก้ readiness ตาม [Native setup](NATIVE-SETUP.md) อย่าเรียก inventory
+ที่ไม่มี analyzer ว่าการ lint สำเร็จ คำขอตรวจไม่ใช่สิทธิ์ดาวน์โหลด/build tools เงียบ ๆ
+
 ## เลือกคำสั่งตามงาน
 
 | งาน | คำสั่ง | ขอบเขตและข้อควรอ่าน |
 | --- | --- | --- |
-| ตรวจการแก้ไขปัจจุบัน | `devsift scan --changed` | เลือก staged, unstaged และ untracked; วิเคราะห์ bytes ปัจจุบัน |
-| ทบทวนโปรเจกต์เดิม | `devsift scan --all --legacy-mode recommend` | ตรวจ scope ทั้งหมดที่รองรับ; legacy เป็นคำแนะนำ ไม่ใช่คำสั่งแก้ไข |
+| ตรวจโปรเจกต์ / review project ทั่วไป | `devsift scan --all --legacy-mode recommend --summary --report-language th` | ค่าเริ่มต้นในการตีความคำขอ; ภาษารายงานอังกฤษใช้ en |
+| ขอตรวจการแก้ไขปัจจุบันอย่างชัดเจน | `devsift scan --changed --summary --report-language th` | staged, unstaged และ untracked; ไม่ใช้แทน whole-project lint |
 | เพิ่มตัวตรวจความปลอดภัยแบบ bounded | เพิ่ม `--security` ให้คำสั่ง scan | ขอบเขต detector มีจำกัด; review ที่จำเป็นยังมีผล |
-| ตรวจ change ที่ commit แล้วใน CI | `ci --base <trusted-base-ref> ...` | ต้องมี manifest/digest สำหรับ native tools; ดู [CI gate](reference/CI-GATE.md) |
+| ตรวจ change ที่ commit แล้วใน CI | `devsift ci --changed --base TRUSTED_BASE_REF --summary` | ใช้ user registration หรือ explicit trust override; ดู [CI gate](reference/CI-GATE.md) |
+| ตรวจการลงทะเบียนครั้งแรก | `devsift setup --status` | readiness metadata; ไม่ใช่ scan |
 | ตรวจเครื่องมือที่พร้อมใช้ | `devsift doctor` | เป็น diagnostics ไม่ได้สแกน source และไม่ติดตั้งเครื่องมือ |
 | ทบทวน finding รายกรณี | `prompt <CASE-ID> --mode review --scan-input <file>` | ใช้ case ID จริงและ scan envelope ที่บันทึกไว้อย่างชัดเจน |
 
@@ -24,8 +42,8 @@
 ## สแกนงานที่กำลังเปลี่ยน
 
 ```sh
-devsift scan --changed
-devsift scan --changed --security
+devsift scan --changed --summary --report-language th
+devsift scan --changed --summary --report-language th --security
 ```
 
 `--changed` เลือกไฟล์ staged, unstaged และ untracked ที่ root ของ repository
@@ -36,33 +54,33 @@ logging/TLS ที่รองรับ
 ## ทบทวน codebase เดิม
 
 ```sh
-devsift scan --all --legacy-mode recommend
-devsift scan --all --legacy-mode recommend --security
+devsift scan --all --legacy-mode recommend --summary --report-language th
+devsift scan --all --legacy-mode recommend --summary --report-language th --security
 ```
 
-โหมดนี้เหมาะสำหรับ inventory และทยอยทบทวนสิ่งที่พบ โดยไม่เปลี่ยน finding เดิมให้เป็น
+โหมดนี้ตรวจทั้ง repository ด้วย analyzer ที่ตั้งค่าไว้ และไม่เปลี่ยน finding เดิมให้เป็น
 ข้อผิดพลาดใหม่เพียงเพราะพบในปัจจุบัน Critical security review ยังแยกจาก quality threshold
 การไม่มี provider หรือ source proof ทำให้ผลไม่สมบูรณ์ได้ แม้รายการ findings ว่าง
 
 ## Native analyzer และขอบเขตที่เชื่อถือได้
 
-native analyzer ต้องได้รับอนุญาตอย่างชัดเจนด้วย absolute manifest path และ SHA256
-ที่ผู้ปฏิบัติงานได้มาจากแหล่งเชื่อถือแยกต่างหาก อย่าคำนวณ digest จาก manifest ที่กำลังตรวจ
-แล้วใช้ digest นั้นอนุมัติตัวเอง:
+Native analyzer ใช้ executable trust ที่ลงทะเบียนโดย installer/setup ครั้งเดียว
+หากมี manifest ที่ทบทวนไว้แล้ว ให้ลงทะเบียน absolute path และ digest ที่เชื่อถือได้:
 
 แทน `/absolute/trusted-tools.json` และ `<independently-trusted-sha256>` ด้วย path และ
 digest จริงก่อนรัน ตัวอย่างเป็น template บรรทัดเดียว จึงนำไปปรับใช้ได้ทั้ง PowerShell
 และ POSIX shell:
 
 ```text
-devsift scan --changed --native-manifest /absolute/trusted-tools.json --native-manifest-digest TRUSTED_SHA256
+devsift setup --native-manifest /absolute/trusted-tools.json --native-manifest-digest TRUSTED_SHA256
 ```
 
-ใช้ flag คู่เดียวกันกับ `ci` เมื่อ workflow ต้องเรียก native tools ตัวอย่างสำหรับ change
-ที่ commit แล้ว โดยแทน `<trusted-base-ref>` ด้วย Git ref ที่เชื่อถือได้ก่อนรัน:
+คำสั่ง scan/doctor/ci ใช้ registry นอก target เป็นค่าเริ่มต้น คู่ explicit flags ยังคงใช้
+override trust สำหรับคำสั่งนั้นได้ อย่าใช้ manifest ที่ค้นพบใน target แล้วคำนวณ digest
+เพื่ออนุมัติตัวเอง ตัวอย่าง CI หลังลงทะเบียน โดยแทน base ด้วย Git ref ที่เชื่อถือได้:
 
 ```text
-devsift ci --changed --base TRUSTED_BASE_REF --security --native-manifest /absolute/trusted-tools.json --native-manifest-digest TRUSTED_SHA256
+devsift ci --changed --base TRUSTED_BASE_REF --security --summary --report-language th
 ```
 
 `ci --base` ใช้ merge-base ถึง HEAD รวมกับการเปลี่ยนแปลงใน working tree ตามขอบเขตที่เลือก
@@ -77,11 +95,12 @@ workflow ตรวจต่อจนจบตั้งแต่รุ่น 0.1.
 ดู [COMPLETE-SCANS](COMPLETE-SCANS.md) สำหรับ session, resume และ native file transport
 
 ```text
-devsift scan --all --summary
+devsift scan --all --summary --report-language th
 ```
 
 อ่าน `data.finding_count`, `data.target_count`, `data.counts` และ `data.execution`
-จาก summary แล้วเปิด `data.report_bundle.markdown_index` หรือ JSON `index` เพื่ออ่านทุกส่วน
+จาก summary แล้วเปิด `data.report_bundle.report` ซึ่งชี้ human `REPORT.md` โดยตรง
+ใช้ `markdown_index` และ JSON `index` ตรวจทุก page/case และ integrity ประกอบ
 summary ไม่ใส่ inventory/findings ยาว ๆ; `findings: []` ในนั้นไม่ได้แปลว่าไม่มี findings
 `reports_complete` กับ `analysis_complete` เป็นคนละสถานะ ต้องตรวจทั้งคู่
 
@@ -89,12 +108,12 @@ summary ไม่ใส่ inventory/findings ยาว ๆ; `findings: []` ใ�
 ผลขนาดใหญ่ไม่ตัด cases เพื่อบีบลงเอกสารก้อนเดียว ใช้ index ของรายงานทุกส่วนแทน
 ทุก page มี `scan.json` สำหรับ case prompts และ SHA-256 สำหรับตรวจความครบถ้วน
 
-ตัวอย่าง PowerShell สำหรับเก็บสถานะและหาดัชนี โดยไม่ dump inventory ทั้งหมด:
+ตัวอย่าง PowerShell สำหรับเก็บสถานะและหาตัวรายงาน โดยไม่ dump inventory ทั้งหมด:
 
 ```powershell
-$result = devsift scan --all --summary | ConvertFrom-Json
+$result = devsift scan --all --summary --report-language th | ConvertFrom-Json
 $scanExitCode = $LASTEXITCODE
-$result.data.report_bundle.markdown_index
+$result.data.report_bundle.report
 ```
 
 CLI ยังคงส่ง JSON envelope สร้าง session/report ของตนเองภายนอก source โดยอัตโนมัติ
@@ -102,6 +121,11 @@ CLI ยังคงส่ง JSON envelope สร้าง session/report ขอ
 `--resume ABSOLUTE_EXISTING_SESSION_DIRECTORY` เพื่อทำต่อด้วย options เดิม
 ห้ามใช้ `data.reports.markdown` ที่ว่างของผลแบบหลายส่วนไปเขียนทับไฟล์รายงานของผู้ใช้
 การบันทึกรายงานครบไม่ได้แปลว่า analysis ผ่านหรือให้สิทธิ์แก้ source
+
+Agent ส่งคำตอบพร้อมลิงก์ไฟล์ `REPORT.md` จริง เริ่มด้วย executed coverage, findings,
+incomplete causes และ next action ไม่ส่งแค่ path ของ folder/JSON ถ้า executed เป็น 0
+ให้บอกว่า analyzer ยังไม่ได้วิเคราะห์ source ไม่สรุปว่าไม่พบปัญหา แยก fresh/reused targets
+และอ่านทุก case page โดยคง UNKNOWN, source unresolved และ proposal ที่ยังไม่มีตามจริง
 
 | Exit code | ความหมาย |
 | --- | --- |
@@ -156,8 +180,8 @@ fingerprint, prompt digest, mode และช่วงเวลาที่ใ�
 
 ตัวอย่างนี้เป็นข้อความสำหรับ host ที่ติดตั้ง DevSift Skill แล้ว ไม่ใช่คำสั่ง terminal:
 
-> ใช้ DevSift ตรวจการเปลี่ยนแปลงใน working tree เพิ่ม security checks แบบ bounded
-> แล้วรายงาน scope, analyzer ที่ขาด, สถานะ complete และ finding ที่ต้องให้คนทบทวน
+> ใช้ DevSift ตรวจโปรเจกต์นี้ทั้ง repository ส่งรายงานฉบับเต็มภาษาไทยพร้อมลิงก์ REPORT.md
+> บอก actual analyzer coverage, findings, สาเหตุที่ยังไม่ครบ และ next action โดยยังไม่แก้ source
 
 Skill ช่วย agent ใช้ CLI และอธิบายผลตามข้อจำกัดที่มี แต่ไม่เพิ่มความสามารถของ host
 ไม่ติดตั้ง CLI ให้อัตโนมัติ และไม่แปลงคำขอตรวจเป็นสิทธิ์แก้ source

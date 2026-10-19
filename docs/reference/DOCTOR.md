@@ -2,7 +2,12 @@
 
 `devsift.doctor.run_doctor` provides read-only provider discovery and optional
 cache/config diagnostics.
-The CLI calls it through `devsift doctor`. Explicit trusted probes use
+The CLI calls it through `devsift doctor`. DevSift 0.1.16 user-registration
+resolution uses explicit flags to override registered trust, otherwise
+the CLI resolves `~/.local/share/devsift/analyzers.json` before calling this library.
+`devsift setup --status` reads that registration's readiness separately from lint;
+it is not source analysis. No trust is discovered in the target. Releases through
+0.1.15 still require explicit native flags. Explicit trusted probes use
 `--native-manifest <absolute-path>` and `--native-manifest-digest <trusted-sha256>`.
 The CLI also accepts `--policy <explicit-json>` and `--cache-path <explicit-directory>`
 for read-only diagnostics. These paths are explicit inputs, not automatically
@@ -37,7 +42,7 @@ records for C#, Go, JavaScript, Python, SQL and TypeScript. `analysis_performed`
 is false, findings are empty and scope is `provider_discovery_only`. These are
 diagnostic facts, not a scan report or proof that every registered rule works.
 
-## Default discovery executes nothing
+## Metadata discovery itself executes nothing
 
 The running Python interpreter's version is read from `sys.version_info`; Python
 3.12 or newer is required. Git, dotnet, Go, Node and npm are checked only through
@@ -45,8 +50,15 @@ bounded PATH **metadata** discovery. A found filename is `discovered_unverified`
 not a trusted/runnable installation, and its version is explicitly null. Missing
 tools are `missing`; unavailable/excessive PATH metadata is `discovery_unavailable`.
 Each record has a fixed explanation and actionable separate-setup guidance.
-No `--version`, package manager, Git/project command, hook or executable from
-PATH is run, even if the current project shadows its name.
+Overall incomplete is not equivalent to zero available analyzers: the standard
+four native helpers can be ready for C#/SQL/Go/TS/JS while Python quality coverage
+is unavailable. Inspect per-provider readiness and continue an eligible project
+scan. Setup `analysis_ready` concerns configured native providers, not all languages.
+Metadata discovery runs no `--version`, package manager, Git/project command,
+hook or executable from PATH, even if the current project shadows its name.
+Separately, the installed CLI may execute its previously registered hash-pinned
+providers for bounded probes. The Python `run_doctor()` metadata-only example
+above has no implicit user-registry resolution; the CLI supplies resolved trust.
 
 `search_path` optionally supplies the metadata search path for an embedding or
 test; it never supplies an executable to launch. The search is nonrecursive and
@@ -63,14 +75,16 @@ invocation verified a working Git runtime. No source provenance is queried here.
 
 ## Explicit native trust and verified versions
 
-Without manifest arguments, all unconfigured providers remain unavailable
-and the result is incomplete, exit 2. At the CLI boundary, a missing partner,
+Without an explicit pair or valid user registration, unconfigured providers
+remain unavailable and the result is incomplete, exit 2. At the CLI boundary, a missing partner,
 relative manifest path or incorrectly formatted digest is misuse, exit 3.
 An unreadable manifest, well-formed but mismatched digest, malformed tool or invalid
 SQL dialect returns incomplete, exit 2, with a static error and starts no native probe. No manifest is auto-discovered
 from project configuration or ignored setup directories.
 
-Supplying the pair explicitly authorizes the configured native programs, just
+Explicit setup registration authorizes repeated use of the reviewed native
+programs; ordinary Doctor does not ask the user to retype their manifest/digest.
+Supplying the pair overrides that registration for this invocation, just
 as described in [NATIVE-SETUP.md](../NATIVE-SETUP.md). The entire bounded manifest
 is validated through `load_manifest` before any probe. Stored expected hashes
 are preserved; doctor does not rebuild tools or replace pins. `probe_tool`
@@ -244,4 +258,4 @@ acceptance runs, and does not itself mark a goal accepted or released.
 
 ## Installed CLI flags
 
-Use `devsift doctor --policy /absolute/policy.json --cache-path /absolute/cache` for explicit config/cache diagnostics. Native probe flags remain paired and independently trusted. The installed CLI additionally advertises the integrated report-generation and case-prompt capabilities; these are not native-provider readiness or source-analysis results.
+Use `devsift doctor --policy /absolute/policy.json --cache-path /absolute/cache` for explicit config/cache diagnostics. Native probes use registered user trust or an explicit independently trusted pair. The installed CLI additionally advertises the integrated report-generation and case-prompt capabilities; these are not native-provider readiness or source-analysis results.

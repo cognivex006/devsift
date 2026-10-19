@@ -1,11 +1,25 @@
 # DevSift report template
 
+Combined human report ตั้งแต่ 0.1.16 อยู่ที่ `REPORT.md`
+ใน session root ตาม `data.report_bundle.report` เลือก `--report-language th` หรือ `en`
+Agent ส่งลิงก์ไฟล์นี้โดยตรง พร้อม actual analyzer coverage, findings, สาเหตุ incomplete
+และ next action ที่มีหลักฐาน ไม่จบที่ storage folder หรือ JSON การมีรายงานไม่แทนการ lint
+หาก executed เป็น 0 และไม่ทำให้ source/impact ที่ไม่ทราบกลายเป็น verified
+
 ใช้ template นี้เมื่อให้ AI จัดรายงานผลสแกน หรือเมื่อต้องการแบบฟอร์ม Markdown
 ที่เปิดอ่านและนำไปใช้ต่อได้ CLI มี renderer ของตนเอง ผลขนาดเล็กมี Markdown ใน
 `data.reports.markdown`; complete runs ตั้งแต่รุ่น 0.1.15 มีทุกส่วนบนดิสก์และดัชนีใน
 `data.report_bundle` การเลือก `--report-format markdown` ยังคงคืน JSON envelope
 ดู [การอ่านรายงานครบทุก case](COMPLETE-SCANS.md) และ [USAGE](USAGE.md#อ่านผลและ-exit-code)
 และดู [ตัวอย่างรายงาน](cases/REPORT-EXAMPLE.md)
+
+อ่านทุก case page ก่อนสรุปผลครบ Human report ต้องมีทุก case ในภาษาที่เลือก แต่คง rule IDs,
+paths, SHA, BEFORE ที่ตรวจยืนยันแล้ว และ machine states ตามจริง ไม่แต่ง AFTER/ผล tests
+เพื่อให้ดู actionable หากหลักฐานยังขาด ให้ next action เป็นการตรวจ proof/consumer ที่ขาด
+
+Human report ตรวจ integrity ร่วมกับ artifact index หากไฟล์ขาด/เปลี่ยนหรือการเขียน
+รายงานถูกขัดจังหวะ ให้แก้สาเหตุและ resume session โดยคงสถานะ incomplete ตามจริง
+ภาษาไม่เปลี่ยน source proof, gate หรือ UNKNOWN states
 
 กรอก `{{...}}` จากผล scan จริงเท่านั้น ข้อมูลที่ไม่มีหลักฐานให้ใช้ `UNKNOWN`,
 `not supplied` หรือ `SOURCE_UNRESOLVED` ตามชนิดข้อมูล ไม่เดา path, SHA, line,

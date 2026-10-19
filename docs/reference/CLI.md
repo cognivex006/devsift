@@ -3,8 +3,41 @@
 The initial CLI requires Python 3.12 or later and has no runtime dependencies.
 Install locally with `python -m pip install .`, then run `devsift --help`.
 Installation/building can create packaging and interpreter files; installation is
-separate from read-only command execution. The current package version is `0.1.15`.
-Installing the CLI does not imply that optional native analyzers are available.
+separate from read-only command execution. The current package/plugin version is `0.1.16`.
+A wheel-only installation provides the CLI; the normal installer additionally
+deploys and registers the verified native companion. See [installation](../INSTALL.md).
+
+## Registered lint and human report (0.1.16+)
+
+DevSift 0.1.16 adds `setup` and `--report-language en|th`; check installed help
+before using them with an older release. A normal authorized installer deploys
+and registers its verified platform analyzer companion. An operator can instead
+register an existing reviewed manifest once:
+
+```text
+devsift setup --native-manifest ABSOLUTE_MANIFEST --native-manifest-digest TRUSTED_SHA256
+devsift setup --status
+devsift doctor
+devsift scan --all --legacy-mode recommend --summary --report-language th
+```
+
+`setup --analyzer-bundle ABSOLUTE_ZIP --bundle-digest TRUSTED_SHA256` installs an
+explicit verified offline companion and registers it. Setup is a write operation;
+`setup --status` reads readiness only. Registration lives in the fixed user scope
+`~/.local/share/devsift/analyzers.json`, never a target-discovered configuration.
+Scan, Doctor and CI resolve that trust by default. Explicit manifest/digest flags
+remain paired, override registration for that invocation and validate first.
+They do not change registration. Invalid explicit trust does not silently fall back.
+
+`--report-language th` or `en` selects the human report language for scan/CI.
+The direct file path is `data.report_bundle.report` (`REPORT.md` in the session
+root); indexes and all case pages remain available for integrity/source evidence.
+The language changes presentation, not identifiers, locations, source proof,
+severity or gate decisions. Resume uses the same language/configuration.
+
+An ordinary skill-driven project review chooses `--all --legacy-mode recommend`;
+`--changed` is for an explicit changes request. This is a skill intent policy, not
+a change to the CLI's parser default below. See [getting started](../GETTING-STARTED.md).
 
 For first use, see the [getting-started guide](../GETTING-STARTED.md) and
 [command cookbook](../USAGE.md). The examples below assume the selected `python`
@@ -31,8 +64,9 @@ The scan command now calls the read-only inventory and execution coordinator.
 `--changed` unions staged, unstaged and untracked paths at the repository root
 while reading current working-tree bytes rather than staged blobs; `--all` inventories the current directory. These are
 target selections, not finding lifecycle classifications. Git/source evidence
-libraries are available to embedded adapters. Native analyzers require an explicit
-trusted manifest and its independently obtained SHA256 digest. `scan --security`
+libraries are available to embedded adapters. Native analyzers require trusted
+manifest/digest registration or an explicit pair. Published releases through 0.1.15
+require the explicit pair; current registry resolution is described above. `scan --security`
 adds the bounded built-in security detector, optionally composed with those tools.
 Scan and CI produce full source-reproved JSON, Markdown and SARIF reports.
 Small runs include them under `data.reports`; complete report indexes cover large runs.
@@ -63,7 +97,8 @@ reads only current working-tree bytes and does not run conversion callbacks.
 Successful help is text on stdout with exit 0. Other valid commands emit exactly
 one JSON object on stdout. Misuse emits one JSON object on stderr, no stdout,
 and exit 3. Argument errors avoid reflecting user input, which may contain secrets.
-No command writes consumer source/configuration or installs dependencies.
+Scan/CI/Doctor/case prompts do not write consumer source/configuration or install dependencies.
+Explicit installer/setup operations may prepare verified DevSift companions and user registration.
 Scan/CI write only their owned session/report directory outside source;
 Doctor and case-prompt commands do not create those sessions.
 Python can write the package initializer's bytecode before its code disables
@@ -98,7 +133,10 @@ Errors contain `code` and `message`; command-specific capability data lives in
 `data`. Misuse has `command: null` because parsing may not establish a command.
 This envelope is a command result, not the full source-aware finding/report schema;
 small full report formats live under `data.reports`; complete paged formats
-live at `data.report_bundle`. Every page contains a bounded `scan.json` for
+live at `data.report_bundle`. In the new human-report workflow, `report` points
+directly to `REPORT.md`; a summary's empty finding array is not zero cases.
+Deliver actual executed coverage, finding count, incomplete causes, next action
+and this direct report link. Every page contains a bounded `scan.json` for
 case prompts. `reports_complete` means every requested case/page artifact is
 present and verified; `analysis_complete` remains independent and may be false.
 `report --latest` and `explain` automatic discovery remain pending. Case prompts
@@ -106,12 +144,16 @@ use explicit scan input; no project report or approval is discovered automatical
 
 ## Doctor provider diagnostics
 
-`devsift doctor` inventories runtime and host-tool metadata without executing PATH programs or project hooks. It does not auto-load a target manifest. To authorize bounded, hash-pinned provider probes, pass `--native-manifest <absolute-path>` and `--native-manifest-digest <independently-trusted-sha256>`. Missing, mismatched or partial provider coverage stays incomplete (exit 2). Discovery is not a code scan. See [doctor behavior](DOCTOR.md).
+`devsift doctor` inventories runtime/host metadata and, in the new source CLI,
+probes providers resolved from explicit paired flags or user registration. It
+does not execute untrusted PATH programs, load target manifests, install tools or
+analyze source. Missing/mismatched/partial coverage stays incomplete (2); ready
+providers do not prove a clean source scan. See [doctor behavior](DOCTOR.md).
 
 
 ## Explicit Doctor config checks
 
-`devsift doctor --policy /absolute/policy.json --cache-path /absolute/cache` validates an explicit bounded JSON policy and cache metadata read-only. Missing cache is informational; invalid config is incomplete and prevents native probes. No directories are created or cleaned. Native trust flags remain explicit and paired.
+`devsift doctor --policy /absolute/policy.json --cache-path /absolute/cache` validates an explicit bounded JSON policy and cache metadata read-only. Missing cache is informational; invalid config is incomplete and prevents native probes. No directories are created or cleaned. Native trust comes from user registration or an explicit paired override.
 
 ## Explicit case commands
 

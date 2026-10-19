@@ -75,7 +75,10 @@ class Progress:
             return
         elapsed = round(time.monotonic() - self.started, 1)
         if self.mode == 'json':
-            self._emit({'type': 'progress', 'percent': self.percent, 'stage': self.stage, 'elapsed': elapsed})
+            event = {'type': 'progress', 'percent': self.percent, 'stage': self.stage, 'elapsed': elapsed}
+            if self.received is not None:
+                event.update(kind='transfer', received=self.received, total=self.total)
+            self._emit(event)
         elif self.interactive:
             try:
                 columns = os.get_terminal_size(self.stream.fileno()).columns
