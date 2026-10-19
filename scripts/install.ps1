@@ -99,7 +99,24 @@ try {
                     $event.stage -isnot [string] -or $event.stage.Length -gt 2048) {
                     throw 'Installer returned an invalid progress event.'
                 }
-                Show-DevSiftProgress (55 + [int](39 * [Math]::Min(100, [Math]::Max(0, $event.percent)) / 100)) $event.stage
+                if ($event.kind -eq 'transfer') {
+                    $script:setupStage = $event.stage
+                    if ($event.received -isnot [ValueType] -or $event.received -is [bool] -or
+                        [double]::IsNaN([double]$event.received) -or [double]::IsInfinity([double]$event.received) -or
+                        [double]$event.received -lt 0 -or [double]$event.received -gt [long]::MaxValue -or
+                        [double]$event.received -ne [Math]::Floor([double]$event.received)) { throw 'Invalid installer transfer byte count.' }
+                    [long]$transferTotal = -1
+                    if ($null -ne $event.total) {
+                        if ($event.total -isnot [ValueType] -or $event.total -is [bool] -or
+                            [double]::IsNaN([double]$event.total) -or [double]::IsInfinity([double]$event.total) -or
+                            [double]$event.total -le 0 -or [double]$event.total -gt [long]::MaxValue -or
+                            [double]$event.total -ne [Math]::Floor([double]$event.total)) { throw 'Invalid installer transfer total.' }
+                        $transferTotal = [long]$event.total
+                    }
+                    $setupDisplay.Transfer([long]$event.received, $transferTotal, $event.stage)
+                } else {
+                    Show-DevSiftProgress (55 + [int](39 * [Math]::Min(100, [Math]::Max(0, $event.percent)) / 100)) $event.stage
+                }
             } elseif ($event.type -eq 'complete') {
                 $installState = $event.state
             } elseif ($event.type -eq 'error') {

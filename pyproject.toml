@@ -19,6 +19,7 @@ include-package-data = false
 py-modules = [
     "devsift.__main__",
     "devsift.adapters",
+    "devsift.analyzer_setup",
     "devsift.baseline",
     "devsift.case_approval",
     "devsift.case_command",

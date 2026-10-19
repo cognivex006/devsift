@@ -208,6 +208,9 @@ class StoredResult:
         if self.bundle is not None:
             record['data']['report_bundle'] = {key: self.bundle[key] for key in
                                               ('index', 'markdown_index', 'page_count', 'case_count', 'reports_complete', 'analysis_complete')}
+            for key in ('report', 'report_sha256'):
+                if key in self.bundle:
+                    record['data']['report_bundle'][key] = self.bundle[key]
             record['data']['report_bundle']['reports_complete'] = bool(valid and self.bundle['reports_complete'])
         return record
 
@@ -254,7 +257,7 @@ class StoredResult:
 
 
 def run_streamed(root, records_factory, *, destination=None, resume=False,
-                 configuration=None, formats=None, policy=None, trusted_lifecycles=False):
+                 configuration=None, formats=None, policy=None, trusted_lifecycles=False, language='en'):
     """Persist per-target safe records transactionally and render complete paged reports.
 
     The factory must call ``should_scan(SourceTarget)`` before each target analysis.
@@ -382,7 +385,7 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
             stored._set('finished', 1)
         from .report_bundle import build_bundle
         stored.bundle = build_bundle(stored, formats=formats, policy=policy,
-                                     trusted_lifecycles=trusted_lifecycles)
+                                     trusted_lifecycles=trusted_lifecycles, language=language)
         success = True
         return stored
     except BaseException:

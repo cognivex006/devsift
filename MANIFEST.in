@@ -4,6 +4,7 @@ include MANIFEST.in
 include devsift/__init__.py
 include devsift/__main__.py
 include devsift/adapters.py
+include devsift/analyzer_setup.py
 include devsift/baseline.py
 include devsift/case_approval.py
 include devsift/case_command.py
