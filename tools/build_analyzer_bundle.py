@@ -18,7 +18,7 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from devsift.native_host import ToolDefinition, analyze_snapshot, file_digest, probe_tool
+from devsift.native_host import ToolDefinition, analyze_snapshot, file_digest, probe_tool, source_offsets
 from devsift.native_manifest import ConfiguredTool, manifest_bytes
 from devsift.inventory import SourceTarget
 from devsift.process_runner import ProcessSpec
@@ -151,19 +151,22 @@ def _tools(stage, suffix):
 
 
 def smoke(entries):
-    fixtures = {'devsift-roslyn': ('a.cs', 'csharp', 'using System; class C { static void Main(){ Console.WriteLine(1); } }'),
-                'devsift-sql': ('a.sql', 'sql', "DECLARE @q nvarchar(max)=N'SELECT * FROM dbo.T WHERE id=' + @input; EXEC(@q);"),
-                'devsift-go': ('a.go', 'go', 'package main\nimport "fmt"\nfunc main(){fmt.Println(1)}'),
-                'devsift-typescript': ('a.js', 'javascript', 'try {} catch {}')}
+    fixtures = {'devsift-roslyn': ('a.cs', 'csharp', 'using System; class C { static void Main(){ Console.WriteLine(1); } }', 'LOG001', 'Console.WriteLine(1)'),
+                'devsift-sql': ('a.sql', 'sql', "DECLARE @q nvarchar(max)=N'SELECT * FROM dbo.T WHERE id=' + @input; EXEC(@q);", 'SEC003', 'EXEC(@q);'),
+                'devsift-go': ('a.go', 'go', 'package main\nimport "fmt"\nfunc main(){fmt.Println(1)}', 'LOG001', 'fmt.Println(1)'),
+                'devsift-typescript': ('a.js', 'javascript', 'try {} catch {}', 'LOG002', 'catch {}')}
     results = []
     for entry in entries:
         probe = probe_tool(entry.tool)
         if not probe.available or 'files' not in probe.transports:
             raise RuntimeError('Bundled runtime probe failed')
-        path, language, source = fixtures[entry.tool.tool_id]
+        path, language, source, rule, expected_span = fixtures[entry.tool.tool_id]
         report = analyze_snapshot(entry.tool, SourceTarget(path, 'ready', language, source.encode(), 'owned-fixture'), dialect=entry.dialect)
-        if not report.complete or len(report.diagnostics) != 1:
+        if not report.complete or len(report.diagnostics) != 1 or report.diagnostics[0].rule_id != rule:
             raise RuntimeError('Bundled runtime AST fixture failed')
+        start, end = source_offsets(source, report.diagnostics[0].region)
+        if source[start:end] != expected_span:
+            raise RuntimeError('Bundled runtime source coordinates failed')
         results.append({'tool_id': entry.tool.tool_id, 'probe': 'READY', 'transport': 'files', 'diagnostics': 1})
     return results
 
