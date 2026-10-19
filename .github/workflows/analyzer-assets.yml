@@ -6,6 +6,10 @@ on:
     paths:
       - 'tools/build_analyzer_bundle.py'
       - 'native/**'
+      - 'devsift/native_host.py'
+      - 'devsift/native_manifest.py'
+      - 'devsift/process_runner.py'
+      - 'tools/install_progress.py'
       - 'tests/test_analyzer_bundle.py'
       - '.github/workflows/analyzer-assets.yml'
   push:
@@ -13,6 +17,10 @@ on:
     paths:
       - 'tools/build_analyzer_bundle.py'
       - 'native/**'
+      - 'devsift/native_host.py'
+      - 'devsift/native_manifest.py'
+      - 'devsift/process_runner.py'
+      - 'tools/install_progress.py'
       - 'tests/test_analyzer_bundle.py'
       - '.github/workflows/analyzer-assets.yml'
 permissions:
@@ -53,11 +61,15 @@ jobs:
       - name: Build DevSift-owned helpers and runtime companion
         run: python tools/build_analyzer_bundle.py --platform ${{ matrix.platform }} --output .devsift/local/analyzer-assets
       - name: Verify archive and actual AST analysis without SDK PATH
-        shell: bash
+        shell: python
         run: |
-          export DEVSIFT_TEST_ANALYZER_BUNDLE="$PWD/.devsift/local/analyzer-assets/devsift-analyzers-${{ matrix.platform }}.zip"
-          export DEVSIFT_TEST_ANALYZER_BUNDLE_SHA256="$(python -c "from pathlib import Path; print(Path('$DEVSIFT_TEST_ANALYZER_BUNDLE.sha256').read_text().split()[0])")"
-          python -m unittest discover -s tests -p test_analyzer_bundle.py -v
+          import os, unittest
+          from pathlib import Path
+          archive = Path('.devsift/local/analyzer-assets/devsift-analyzers-${{ matrix.platform }}.zip').resolve()
+          os.environ['DEVSIFT_TEST_ANALYZER_BUNDLE'] = str(archive)
+          os.environ['DEVSIFT_TEST_ANALYZER_BUNDLE_SHA256'] = archive.with_suffix('.zip.sha256').read_text().split()[0]
+          suite = unittest.defaultTestLoader.discover('tests', pattern='test_analyzer_bundle.py')
+          raise SystemExit(not unittest.TextTestRunner(verbosity=2).run(suite).wasSuccessful())
       - uses: actions/upload-artifact@v4
         with:
           name: devsift-analyzers-${{ matrix.platform }}
