@@ -39,6 +39,63 @@ class AnalyzerBundleTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 builder._template([ConfiguredTool(outside)], stage, 'windows-x64')
 
+    def alias_template(self, stage, alias):
+        executable = stage / 'node.exe'; executable.write_bytes(b'owned fixture')
+        script = stage / 'analyze.cjs'; script.write_bytes(b'owned script')
+        tool = ToolDefinition('fixture', '1', ('typescript',),
+            ProcessSpec(str(alias / executable.name), (str(alias / script.name),)),
+            file_digest(executable), ((str(alias / script.name), file_digest(script)),))
+        template = builder._template([ConfiguredTool(tool)], alias, builder.current_platform())
+        definition = template['tools'][0]['definition']
+        self.assertEqual(definition['process']['executable'], '@ROOT@/node.exe')
+        self.assertEqual(definition['process']['argv'], ['@ROOT@/analyze.cjs'])
+        self.assertEqual(definition['artifacts'], [['@ROOT@/analyze.cjs', file_digest(script)]])
+
+    def test_template_canonicalizes_equivalent_lexical_stage_paths(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            stage = Path(temporary) / 'actual'; stage.mkdir()
+            self.alias_template(stage, stage / '..' / stage.name)
+
+    @unittest.skipIf(os.name == 'nt', 'POSIX temporary-directory aliases')
+    def test_template_canonicalizes_temp_ancestor_alias_like_macos_var(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); stage = root / 'actual'; stage.mkdir()
+            alias = root / 'alias'; alias.symlink_to(stage, target_is_directory=True)
+            self.alias_template(stage, alias)
+
+    @unittest.skipUnless(os.name == 'nt', 'Windows 8.3 temporary-directory aliases')
+    def test_template_canonicalizes_windows_short_temp_alias(self):
+        import ctypes
+        with tempfile.TemporaryDirectory() as temporary:
+            stage = Path(temporary) / 'analyzer stage with long name'; stage.mkdir()
+            buffer = ctypes.create_unicode_buffer(32768)
+            result = ctypes.windll.kernel32.GetShortPathNameW(str(stage), buffer, len(buffer))
+            if not result or buffer.value.casefold() == str(stage).casefold():
+                self.skipTest('8.3 aliases are not enabled on this volume')
+            self.alias_template(stage, Path(buffer.value))
+
+    def test_owned_diagnostics_are_bounded_redacted_and_terminal_safe(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / 'build.log'
+            builder._record(path, 'fixture', status='failed',
+                stderr='token=syntheticSecretValueForDiagnostic\n\x1b[31m' + 'x' * 10_000)
+            raw = path.read_text(encoding='utf-8')
+            self.assertLess(len(raw), 3000)
+            self.assertNotIn('syntheticSecretValueForDiagnostic', raw)
+            self.assertNotIn('\x1b', raw)
+            self.assertEqual(json.loads(raw)['event'], 'fixture')
+
+    def test_diagnostics_never_execute_when_integrity_failed(self):
+        from types import SimpleNamespace
+        entry = SimpleNamespace(tool=SimpleNamespace(tool_id='fixture'))
+        with tempfile.TemporaryDirectory() as temporary, \
+                patch.object(builder, '_integrity', return_value=False), \
+                patch.object(builder, 'run_process') as run:
+            path = Path(temporary) / 'build.log'
+            builder._diagnose_owned_process(entry, path)
+            run.assert_not_called()
+            self.assertEqual(json.loads(path.read_text())['event'], 'diagnostic_execution_refused')
+
     def test_copy_preserves_real_files_and_excludes_npm_command_wrappers(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary); source = root / 'source'; source.mkdir()

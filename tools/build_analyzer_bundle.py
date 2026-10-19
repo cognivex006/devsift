@@ -4,6 +4,7 @@ The output contains runtimes, not SDKs. Publishing/licensing approval is separat
 The installer rebases only @ROOT@ paths after independently verifying archive SHA256.
 """
 import argparse
+from dataclasses import replace
 import hashlib
 import json
 import os
@@ -18,10 +19,11 @@ import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from devsift.native_host import ToolDefinition, analyze_snapshot, file_digest, probe_tool, source_offsets
+from devsift.native_host import ToolDefinition, analyze_snapshot, file_digest, probe_tool, source_offsets, _integrity
 from devsift.native_manifest import ConfiguredTool, manifest_bytes
 from devsift.inventory import SourceTarget
-from devsift.process_runner import ProcessSpec
+from devsift.process_runner import ProcessSpec, run_process
+from devsift.redaction import Redactor, RedactionError
 from tools.install_progress import Progress
 
 PLATFORMS = tuple(system + '-' + arch for system in ('windows', 'linux', 'macos') for arch in ('x64', 'arm64'))
@@ -104,11 +106,15 @@ def _runtime_license(node):
 
 
 def _template(entries, stage, platform):
+    stage = Path(stage).resolve(strict=True)
     data = json.loads(manifest_bytes(tuple(entries)))
     data['platform'] = platform
     def relative(value):
         path = Path(value)
-        if not path.is_absolute() or not path.is_relative_to(stage):
+        if not path.is_absolute():
+            raise ValueError('Companion manifest path must stay inside payload')
+        path = path.resolve(strict=True)
+        if not path.is_relative_to(stage):
             raise ValueError('Companion manifest path must stay inside payload')
         return '@ROOT@/' + path.relative_to(stage).as_posix()
     for entry in data['tools']:
@@ -150,7 +156,45 @@ def _tools(stage, suffix):
     return entries
 
 
-def smoke(entries):
+def _record(log, event, **fields):
+    """Small escaped diagnostics for owned build fixtures, never target source."""
+    if log is None:
+        return
+    def clean(value):
+        if type(value) in (bool, int) or value is None:
+            return value
+        if type(value) in (tuple, list):
+            return [clean(item) for item in value[:8]]
+        text = str(value)
+        try:
+            return Redactor().text(text)[:2048]
+        except RedactionError:
+            return '[UNAVAILABLE]'
+    record = {'event': event, **{key: clean(value) for key, value in fields.items()}}
+    with Path(log).open('a', encoding='utf-8', newline='\n') as stream:
+        stream.write(json.dumps(record, ensure_ascii=True, allow_nan=False) + '\n')
+
+
+def _diagnose_owned_process(entry, log, *, source=None, path=None, language=None):
+    # A failed pin check never authorizes diagnostic execution. This is a fresh
+    # integrity check of the already selected DevSift-owned helper, not discovery.
+    if log is None or not _integrity(entry.tool):
+        _record(log, 'diagnostic_execution_refused', tool_id=entry.tool.tool_id)
+        return
+    mode = '--probe' if source is None else '--analyze'
+    payload = b'' if source is None else json.dumps({'protocol_version': '1', 'path': path,
+        'language': language, 'source': source, 'dialect': entry.dialect}).encode()
+    process = replace(entry.tool.process, argv=entry.tool.process.argv + (mode,),
+        timeout_seconds=min(entry.tool.process.timeout_seconds or 30, 30),
+        max_stdout_bytes=min(entry.tool.process.max_stdout_bytes, 32768),
+        max_stderr_bytes=min(entry.tool.process.max_stderr_bytes, 32768))
+    result = run_process(process, stdin=payload)
+    _record(log, 'owned_process_diagnostic', tool_id=entry.tool.tool_id, mode=mode,
+            status=result.status, exit_code=result.exit_code, reason=result.reason,
+            stdout=result.stdout, stderr=result.stderr)
+
+
+def smoke(entries, *, log=None):
     fixtures = {'devsift-roslyn': ('a.cs', 'csharp', 'using System; class C { static void Main(){ Console.WriteLine(1); } }', 'LOG001', 'Console.WriteLine(1)'),
                 'devsift-sql': ('a.sql', 'sql', "DECLARE @q nvarchar(max)=N'SELECT * FROM dbo.T WHERE id=' + @input; EXEC(@q);", 'SEC003', 'EXEC(@q);'),
                 'devsift-go': ('a.go', 'go', 'package main\nimport "fmt"\nfunc main(){fmt.Println(1)}', 'LOG001', 'fmt.Println(1)'),
@@ -158,15 +202,21 @@ def smoke(entries):
     results = []
     for entry in entries:
         probe = probe_tool(entry.tool)
+        _record(log, 'probe', tool_id=entry.tool.tool_id, available=probe.available, reason=probe.reason, transports=probe.transports)
         if not probe.available or 'files' not in probe.transports:
-            raise RuntimeError('Bundled runtime probe failed')
+            _diagnose_owned_process(entry, log)
+            raise RuntimeError('Bundled runtime probe failed: ' + entry.tool.tool_id + ' / ' + probe.reason)
         path, language, source, rule, expected_span = fixtures[entry.tool.tool_id]
         report = analyze_snapshot(entry.tool, SourceTarget(path, 'ready', language, source.encode(), 'owned-fixture'), dialect=entry.dialect)
+        _record(log, 'owned_ast_fixture', tool_id=entry.tool.tool_id, complete=report.complete, reason=report.reason,
+                diagnostic_count=len(report.diagnostics), rules=[item.rule_id for item in report.diagnostics], expected_rule=rule)
         if not report.complete or len(report.diagnostics) != 1 or report.diagnostics[0].rule_id != rule:
-            raise RuntimeError('Bundled runtime AST fixture failed')
+            _diagnose_owned_process(entry, log, source=source, path=path, language=language)
+            raise RuntimeError('Bundled runtime AST fixture failed: ' + entry.tool.tool_id + ' / ' + report.reason)
         start, end = source_offsets(source, report.diagnostics[0].region)
+        _record(log, 'owned_source_coordinates', tool_id=entry.tool.tool_id, span_matches=source[start:end] == expected_span)
         if source[start:end] != expected_span:
-            raise RuntimeError('Bundled runtime source coordinates failed')
+            raise RuntimeError('Bundled runtime source coordinates failed: ' + entry.tool.tool_id)
         results.append({'tool_id': entry.tool.tool_id, 'probe': 'READY', 'transport': 'files', 'diagnostics': 1})
     return results
 
@@ -200,6 +250,7 @@ def build(output, *, node=None, dependencies=None, npm_cli=None, platform=None, 
     log = output / (archive_name + '.build.log')
     with tempfile.TemporaryDirectory(prefix='devsift-analyzers-') as temporary:
         stage = Path(temporary) / 'payload'; stage.mkdir()
+        stage = stage.resolve(strict=True)
         packages = ROOT / '.devsift/local/analyzer-nuget'
         for folder, project in (('dotnet', 'DevSift.Roslyn'), ('sql', 'DevSift.Sql')):
             directory = ROOT / 'native' / folder
@@ -237,8 +288,13 @@ def build(output, *, node=None, dependencies=None, npm_cli=None, platform=None, 
         copy_file(nuspec, licenses / 'ScriptDOM-package.nuspec')
         entries = _tools(stage, suffix)
         progress.update(80, 'Probing bundled runtimes and analyzing owned AST fixtures')
-        verified = smoke(entries)
-        _json(stage / 'manifest-template.json', _template(entries, stage, selected))
+        try:
+            verified = smoke(entries, log=log)
+            _record(log, 'manifest_template', platform=selected, canonical_stage=stage == stage.resolve(strict=True))
+            _json(stage / 'manifest-template.json', _template(entries, stage, selected))
+        except Exception as error:
+            _record(log, 'verification_failure', exception_type=type(error).__name__, message=str(error))
+            raise
         dependencies_inventory = []
         for path in sorted((stage / 'frontend/node_modules').rglob('package.json')):
             value = json.loads(path.read_text(encoding='utf-8'))
