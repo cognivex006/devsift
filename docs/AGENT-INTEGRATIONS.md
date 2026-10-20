@@ -30,7 +30,7 @@ Catalog ใน repository รองรับ marketplace จาก Git ไม่
 
 ### Codex
 
-    codex plugin marketplace add orchex006/devsift
+    codex plugin marketplace add cognivex006/devsift
     codex plugin marketplace list
     codex plugin add devsift@devsift
 
@@ -41,7 +41,7 @@ Catalog ใน repository รองรับ marketplace จาก Git ไม่
 
 ### Claude Code
 
-    claude plugin marketplace add orchex006/devsift
+    claude plugin marketplace add cognivex006/devsift
     claude plugin install devsift@devsift
     claude plugin list
 
@@ -52,7 +52,7 @@ Catalog ใน repository รองรับ marketplace จาก Git ไม่
 
 ### GitHub Copilot CLI
 
-    copilot plugin marketplace add orchex006/devsift
+    copilot plugin marketplace add cognivex006/devsift
     copilot plugin marketplace browse devsift
     copilot plugin install devsift@devsift
     copilot plugin list
@@ -67,11 +67,11 @@ Copilot ใน VS Code/IDE อื่นให้ตรวจการรอง�
 
 ### Cursor
 
-    agent plugin marketplace add https://github.com/orchex006/devsift.git
+    agent plugin marketplace add https://github.com/cognivex006/devsift.git
     agent plugin marketplace list
 
 จาก Cursor CLI เปิด /plugin เลือก marketplace devsift แล้วติดตั้ง
-รุ่นที่รองรับใช้ /plugin marketplace add https://github.com/orchex006/devsift.git ได้ด้วย
+รุ่นที่รองรับใช้ /plugin marketplace add https://github.com/cognivex006/devsift.git ได้ด้วย
 ดู [Cursor CLI changelog](https://cursor.com/docs/cli/changelog),
 [plugin reference](https://prod.cursor.com/docs/reference/plugins) และ
 [catalog](../.cursor-plugin/marketplace.json)
@@ -80,7 +80,7 @@ Public Cursor Marketplace ต้องส่ง repository ให้ Cursor ต�
 
 ### Gemini CLI
 
-    gemini extensions install https://github.com/orchex006/devsift
+    gemini extensions install https://github.com/cognivex006/devsift
     gemini extensions list
     gemini extensions update devsift
 
@@ -89,7 +89,7 @@ Public Cursor Marketplace ต้องส่ง repository ให้ Cursor ต�
 
 ### Antigravity CLI
 
-    agy plugin install https://github.com/orchex006/devsift
+    agy plugin install https://github.com/cognivex006/devsift
     agy plugin list --json
 
 ดู [Antigravity plugins](https://www.antigravity.google/docs/plugins?tab=cli)

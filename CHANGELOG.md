@@ -34,7 +34,7 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 - Development jobs use ignored `worktrees/<job>` inside the source repository; finished integrated or superseded folders are removed while preserving commit refs and cleanup evidence.
 - Published and independently verified the initial 160-file scaffold; historical planner tests now tolerate execution progress.
-- Documentation, task ownership, paths and prompts now consistently reference `orchex006/devsift` rather than a generic quality-lint repository.
+- Documentation, task ownership, paths and prompts now consistently reference `cognivex006/devsift` rather than a generic quality-lint repository.
 - Brand-independent adapters: integration with AgriMap, Drevqon, Axiom is optional, not mandatory.
 
 ### Added
