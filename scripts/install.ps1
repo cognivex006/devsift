@@ -1,7 +1,7 @@
 $ErrorActionPreference = 'Stop'
 $previousProgressPreference = $ProgressPreference
 $ProgressPreference = 'SilentlyContinue'
-$base = 'https://github.com/orchex006/devsift/releases/latest/download'
+$base = 'https://github.com/cognivex006/devsift/releases/latest/download'
 $devsiftTemp = Join-Path ([IO.Path]::GetTempPath()) ('devsift-' + [guid]::NewGuid())
 $setupStage = 'Checking Python 3.12+'
 $operation = '@DEVSIFT_OPERATION@'

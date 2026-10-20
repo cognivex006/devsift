@@ -27,6 +27,6 @@
 
 ## พัฒนา DevSift
 
-ผู้ดูแลและ agent ที่พัฒนา DevSift เริ่มที่ [เอกสารพัฒนา](https://github.com/orchex006/devsift/blob/main/docs/development/README.md)
+ผู้ดูแลและ agent ที่พัฒนา DevSift เริ่มที่ [เอกสารพัฒนา](https://github.com/cognivex006/devsift/blob/main/docs/development/README.md)
 ซึ่งแยก architecture, test strategy, repository rules และ release engineering
 ออกจากคู่มือผู้ใช้ ผู้ใช้ไม่ต้องอ่านเอกสารพัฒนาเพื่อตรวจโปรเจกต์ของตน
