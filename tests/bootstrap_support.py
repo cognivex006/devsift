@@ -86,7 +86,7 @@ class BootstrapCases:
             worker.start()
             try:
                 base = f'http://127.0.0.1:{server.server_port}'
-                script = script.replace('https://github.com/orchex006/devsift/releases/latest/download', base)
+                script = script.replace('https://github.com/cognivex006/devsift/releases/latest/download', base)
                 bodies['/bootstrap.' + self.suffix] = script.encode()
                 env = {k: v for k, v in os.environ.items() if k.upper() != 'PSMODULEPATH'}
                 env.update(USERPROFILE=str(home), HOME=str(home), TERM='xterm-256color')
