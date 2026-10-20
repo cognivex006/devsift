@@ -48,7 +48,7 @@ def setup():
     progress(0, stage)
     if sys.version_info < (3, 12):
         raise RuntimeError('DevSift requires Python 3.12 or later.')
-    base = 'https://github.com/orchex006/devsift/releases/latest/download/'
+    base = 'https://github.com/cognivex006/devsift/releases/latest/download/'
     with tempfile.TemporaryDirectory(prefix='devsift-') as tmp:
         archive = Path(tmp) / 'devsift-install.zip'
         download(base + archive.name, archive, 8, 40, 'devsift-install.zip')

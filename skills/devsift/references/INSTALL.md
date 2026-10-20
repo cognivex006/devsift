@@ -43,13 +43,13 @@ Doctor overall อาจ incomplete เพราะ Python quality provider ข�
 Windows PowerShell:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/orchex006/devsift/releases/latest/download/install.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/cognivex006/devsift/releases/latest/download/install.ps1 | iex"
 ```
 
 macOS / Linux:
 
 ```sh
-curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/install.sh | sh
+curl --progress-bar -fL https://github.com/cognivex006/devsift/releases/latest/download/install.sh | sh
 ```
 
 ตัวติดตั้งดาวน์โหลด `devsift-install.zip` และตรวจ SHA256 จาก release เดียวกันก่อนติดตั้ง
@@ -66,7 +66,7 @@ checksum ตรวจความเสียหายของไฟล์ ไ�
 หน้าจอปกติไม่แสดง pip/build logs หลังเสร็จสรุปเฉพาะเวอร์ชัน ตำแหน่ง CLI,
 hosts ที่ติดตั้ง และคำสั่งถัดไป หากล้มเหลวจะบอกขั้นตอนและสาเหตุ ไม่แสดงสถานะ Ready
 
-Installer assets เผยแพร่พร้อม [v0.1.16](https://github.com/orchex006/devsift/releases/tag/v0.1.16)
+Installer assets เผยแพร่พร้อม [v0.1.16](https://github.com/cognivex006/devsift/releases/tag/v0.1.16)
 หากดาวน์โหลดไม่ได้ให้ตรวจ network หรือใช้ source installation ด้านล่าง
 
 เปิด terminal ใหม่ แล้วตรวจจาก Git root ของ target:
@@ -84,11 +84,11 @@ Agent host ที่เปิดอยู่แล้วต้อง restart เ
 ## อัปเดต
 
 ```powershell
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/orchex006/devsift/releases/latest/download/update.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/cognivex006/devsift/releases/latest/download/update.ps1 | iex"
 ```
 
 ```sh
-curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/update.sh | sh
+curl --progress-bar -fL https://github.com/cognivex006/devsift/releases/latest/download/update.sh | sh
 ```
 
 อัปเดต CLI และคู่มือ skill พร้อมกัน ใช้ environment ใหม่และตรวจ help ก่อนเปลี่ยน launcher
@@ -101,7 +101,7 @@ Skill directory ที่ไม่ได้ติดตั้งโดย DevSif
 เลือก checkout ที่เชื่อถือได้:
 
 ```sh
-git clone https://github.com/orchex006/devsift.git
+git clone https://github.com/cognivex006/devsift.git
 cd devsift
 python -m pip install setuptools==83.0.0 wheel
 python tools/build_installer.py --output dist/installer
