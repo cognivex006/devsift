@@ -92,7 +92,7 @@ def _analyzers(python, bundle, home, version, report, transfer):
         else:
             if re.fullmatch(r'[0-9]+\.[0-9]+\.[0-9]+', version) is None:
                 raise RuntimeError('Invalid release version for analyzer setup.')
-            base = 'https://github.com/orchex006/devsift/releases/download/v' + version + '/'
+            base = 'https://github.com/cognivex006/devsift/releases/download/v' + version + '/'
             report(67, 'Downloading platform analyzers')
             _receive(base + name, archive, transfer, name, 512_000_000)
             checksum = temporary / (name + '.sha256')

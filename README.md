@@ -31,18 +31,18 @@ Codex, Claude Code, Gemini CLI, Antigravity, Cursor และ Copilot ใน use
 **Windows PowerShell — ติดตั้ง / อัปเดต:**
 
 ```powershell
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/orchex006/devsift/releases/latest/download/install.ps1 | iex"
-powershell -ExecutionPolicy Bypass -c "irm https://github.com/orchex006/devsift/releases/latest/download/update.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/cognivex006/devsift/releases/latest/download/install.ps1 | iex"
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/cognivex006/devsift/releases/latest/download/update.ps1 | iex"
 ```
 
 **macOS / Linux — ติดตั้ง / อัปเดต:**
 
 ```sh
-curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/install.sh | sh
-curl --progress-bar -fL https://github.com/orchex006/devsift/releases/latest/download/update.sh | sh
+curl --progress-bar -fL https://github.com/cognivex006/devsift/releases/latest/download/install.sh | sh
+curl --progress-bar -fL https://github.com/cognivex006/devsift/releases/latest/download/update.sh | sh
 ```
 
-Release ปัจจุบันคือ [v0.1.16](https://github.com/orchex006/devsift/releases/tag/v0.1.16)
+Release ปัจจุบันคือ [v0.1.16](https://github.com/cognivex006/devsift/releases/tag/v0.1.16)
 ดู [วิธีติดตั้งจาก source](docs/INSTALL.md#ติดตั้งจาก-source) หากต้องการ build เอง
 
 เปิด terminal และ agent session ใหม่ จาก Git root ของโปรเจกต์ที่ต้องการตรวจ:

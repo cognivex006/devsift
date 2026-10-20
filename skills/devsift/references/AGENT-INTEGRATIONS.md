@@ -30,29 +30,29 @@ Catalog ใน repository รองรับ marketplace จาก Git ไม่
 
 ### Codex
 
-    codex plugin marketplace add orchex006/devsift
+    codex plugin marketplace add cognivex006/devsift
     codex plugin marketplace list
     codex plugin add devsift@devsift
 
 ถ้าไม่มี plugin add ให้เปิด Plugins เลือก marketplace devsift แล้วติดตั้ง
 ดู [OpenAI plugin packaging](https://developers.openai.com/plugins/build/plugins)
 คำสั่ง plugin add ตรวจจาก help ของ client ในเครื่องด้วย Catalog อยู่ที่
-[.agents/plugins/marketplace.json](https://github.com/orchex006/devsift/blob/main/.agents/plugins/marketplace.json)
+[.agents/plugins/marketplace.json](https://github.com/cognivex006/devsift/blob/main/.agents/plugins/marketplace.json)
 
 ### Claude Code
 
-    claude plugin marketplace add orchex006/devsift
+    claude plugin marketplace add cognivex006/devsift
     claude plugin install devsift@devsift
     claude plugin list
 
 ใน session ใช้ /devsift:devsift แล้วให้ agent ตรวจ devsift --help
 อัปเดตด้วย claude plugin marketplace update devsift แล้ว claude plugin update devsift@devsift
 ดู [Claude marketplaces](https://code.claude.com/docs/en/plugin-marketplaces)
-และ [catalog](https://github.com/orchex006/devsift/blob/main/.claude-plugin/marketplace.json)
+และ [catalog](https://github.com/cognivex006/devsift/blob/main/.claude-plugin/marketplace.json)
 
 ### GitHub Copilot CLI
 
-    copilot plugin marketplace add orchex006/devsift
+    copilot plugin marketplace add cognivex006/devsift
     copilot plugin marketplace browse devsift
     copilot plugin install devsift@devsift
     copilot plugin list
@@ -60,27 +60,27 @@ Catalog ใน repository รองรับ marketplace จาก Git ไม่
 อัปเดต catalog ด้วย copilot plugin marketplace update devsift แล้วตรวจ
 copilot plugin update --help สำหรับรุ่นของ client
 ดู [Copilot plugin reference](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-plugin-reference)
-และ [catalog](https://github.com/orchex006/devsift/blob/main/.github/plugin/marketplace.json)
-Root [plugin.json](https://github.com/orchex006/devsift/blob/main/plugin.json) ใช้ Agent Plugins format และค้น skill ใน skills/
+และ [catalog](https://github.com/cognivex006/devsift/blob/main/.github/plugin/marketplace.json)
+Root [plugin.json](https://github.com/cognivex006/devsift/blob/main/plugin.json) ใช้ Agent Plugins format และค้น skill ใน skills/
 Copilot ใน VS Code/IDE อื่นให้ตรวจการรองรับ Agent Plugins แยกตามรุ่น
 นี่ไม่ใช่ VSIX extension หรือ GitHub App
 
 ### Cursor
 
-    agent plugin marketplace add https://github.com/orchex006/devsift.git
+    agent plugin marketplace add https://github.com/cognivex006/devsift.git
     agent plugin marketplace list
 
 จาก Cursor CLI เปิด /plugin เลือก marketplace devsift แล้วติดตั้ง
-รุ่นที่รองรับใช้ /plugin marketplace add https://github.com/orchex006/devsift.git ได้ด้วย
+รุ่นที่รองรับใช้ /plugin marketplace add https://github.com/cognivex006/devsift.git ได้ด้วย
 ดู [Cursor CLI changelog](https://cursor.com/docs/cli/changelog),
 [plugin reference](https://prod.cursor.com/docs/reference/plugins) และ
-[catalog](https://github.com/orchex006/devsift/blob/main/.cursor-plugin/marketplace.json)
+[catalog](https://github.com/cognivex006/devsift/blob/main/.cursor-plugin/marketplace.json)
 IDE ใช้ team marketplace เมื่อ plan/สิทธิ์รองรับ หรือ standalone skill ด้านล่าง
 Public Cursor Marketplace ต้องส่ง repository ให้ Cursor ตรวจแยกต่างหาก
 
 ### Gemini CLI
 
-    gemini extensions install https://github.com/orchex006/devsift
+    gemini extensions install https://github.com/cognivex006/devsift
     gemini extensions list
     gemini extensions update devsift
 
@@ -89,7 +89,7 @@ Public Cursor Marketplace ต้องส่ง repository ให้ Cursor ต�
 
 ### Antigravity CLI
 
-    agy plugin install https://github.com/orchex006/devsift
+    agy plugin install https://github.com/cognivex006/devsift
     agy plugin list --json
 
 ดู [Antigravity plugins](https://www.antigravity.google/docs/plugins?tab=cli)

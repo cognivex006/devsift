@@ -21,7 +21,7 @@ def expected(root):
             if resolved in files:
                 return match[0]
             repo_path = os.path.relpath(resolved, root).replace('\\', '/')
-            return '[' + match[1] + '](https://github.com/orchex006/devsift/blob/main/' + repo_path + (sep + anchor if sep else '') + ')'
+            return '[' + match[1] + '](https://github.com/cognivex006/devsift/blob/main/' + repo_path + (sep + anchor if sep else '') + ')'
         result[relative] = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', link, text)
     return result
 
