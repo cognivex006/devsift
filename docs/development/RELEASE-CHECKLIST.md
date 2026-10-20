@@ -23,7 +23,7 @@ available.
   establish live-candidate proof. A separate operator receipt and independent
   verification, bound to candidate source SHA and integrity digest, are
   required; current operator evidence is recorded in
-  [maintainer evidence](https://github.com/orchex006/devsift-specs).
+  [maintainer evidence](https://github.com/cognivex006/devsift-specs).
 
 ## Dependencies, SBOM, and license evidence
 

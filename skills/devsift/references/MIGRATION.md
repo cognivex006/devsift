@@ -31,7 +31,7 @@ Configure [the CI gate](reference/CI-GATE.md) only with explicitly trusted nativ
 
 Reassemble imported scan evidence against the selected repository; imported rendered reports or serialized lifecycle labels are not trusted proof. `prompt --scan-input` works on an explicit scan envelope. Review prompt generation is not an analysis pass. Implementation proposal generation can precede the operator record and still requires review; even a matching case-bound record grants no source-write or execution authority. See [the case workflow](reference/CASE-PROMPTS.md).
 
-[Change budgets](https://github.com/orchex006/devsift/blob/main/docs/development/CHANGE-BUDGET.md) and [verification records](https://github.com/orchex006/devsift/blob/main/docs/development/VERIFICATION-EVIDENCE.md) are planning aids. Their declarations, measured counts and proposed rollback target do not execute tests, restore a repository, preserve business behavior or grant a batch refactor. Unknown or broad effects require separate review; plan a small explicitly authorized change before touching consumer source.
+[Change budgets](https://github.com/cognivex006/devsift/blob/main/docs/development/CHANGE-BUDGET.md) and [verification records](https://github.com/cognivex006/devsift/blob/main/docs/development/VERIFICATION-EVIDENCE.md) are planning aids. Their declarations, measured counts and proposed rollback target do not execute tests, restore a repository, preserve business behavior or grant a batch refactor. Unknown or broad effects require separate review; plan a small explicitly authorized change before touching consumer source.
 
 ## Change configuration deliberately
 

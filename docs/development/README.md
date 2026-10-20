@@ -7,7 +7,7 @@
 
 อ่าน [repository instructions](../../AGENTS.md) และ [development setup](../../DEVELOPMENT.md)
 ก่อนแก้ source ใช้ [agent scope](AGENT-SCOPE.md) เพื่อแยกงานพัฒนาระบบจากงานใช้ผลิตภัณฑ์
-ข้อกำหนด แผนงาน และ ledger อยู่ใน [devsift-specs](https://github.com/orchex006/devsift-specs)
+ข้อกำหนด แผนงาน และ ledger อยู่ใน [devsift-specs](https://github.com/cognivex006/devsift-specs)
 ไม่ติดตั้ง governance ของผู้ดูแลเข้าโปรเจกต์ของผู้ใช้
 
 ## โครงสร้างระบบ

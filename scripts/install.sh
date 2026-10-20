@@ -13,7 +13,7 @@ import zipfile
 
 if sys.version_info < (3, 12):
     raise SystemExit('DevSift requires Python 3.12 or later.')
-base = 'https://github.com/orchex006/devsift/releases/latest/download/'
+base = 'https://github.com/cognivex006/devsift/releases/latest/download/'
 with tempfile.TemporaryDirectory(prefix='devsift-') as tmp:
     archive = Path(tmp) / 'devsift-install.zip'
     urllib.request.urlretrieve(base + archive.name, archive)

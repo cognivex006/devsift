@@ -1,6 +1,6 @@
 # Developing DevSift
 
-DevSift is a consumer skill backed by Python and optional native analyzers. Requirements, plans and execution coordination live in [devsift-specs](https://github.com/orchex006/devsift-specs).
+DevSift is a consumer skill backed by Python and optional native analyzers. Requirements, plans and execution coordination live in [devsift-specs](https://github.com/cognivex006/devsift-specs).
 
 Use Python 3.12+. Install with `python -m pip install .`. Run `python -m unittest discover -s tests -v` and `git diff --check`. Installed CLI checks use `DEVSIFT_TEST_INSTALLED=1` with `test_cli_platform.py` after installation. Native tests require [trusted setup](docs/NATIVE-SETUP.md), `python tools/build_native.py` and `DEVSIFT_TEST_NATIVE=1`. Setup builds DevSift helpers, never target-project code.
 

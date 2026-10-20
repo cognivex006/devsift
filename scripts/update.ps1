@@ -1,6 +1,6 @@
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
-$base = 'https://github.com/orchex006/devsift/releases/latest/download'
+$base = 'https://github.com/cognivex006/devsift/releases/latest/download'
 $devsiftTemp = Join-Path ([IO.Path]::GetTempPath()) ('devsift-' + [guid]::NewGuid())
 New-Item -ItemType Directory -Path $devsiftTemp | Out-Null
 try {

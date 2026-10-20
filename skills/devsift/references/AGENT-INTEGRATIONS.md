@@ -31,7 +31,7 @@ Installer เตรียม bundle ที่ `~/.local/share/devsift/plugin/` �
 **Codex:** เพิ่ม local plugin ผ่าน personal marketplace โดยชี้ source ไปยัง bundle
 แล้วเปิดใช้งานจาก Plugins ใน client ตาม [คู่มือ package/import ของ Codex](https://developers.openai.com/plugins/build/plugins)
 หากมี marketplace เดิมอยู่ให้รวม entry เข้าไฟล์เดิม ดูตัวอย่าง JSON ใน repo ที่
-[Codex marketplace](https://github.com/orchex006/devsift/blob/main/.agents/plugins/marketplace.json) แล้วเปลี่ยน path ให้ตรงกับ bundle ในเครื่อง
+[Codex marketplace](https://github.com/cognivex006/devsift/blob/main/.agents/plugins/marketplace.json) แล้วเปลี่ยน path ให้ตรงกับ bundle ในเครื่อง
 
 **Claude Code:** ทดสอบ plugin จาก bundle ได้ด้วย:
 

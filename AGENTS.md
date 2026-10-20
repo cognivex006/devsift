@@ -9,7 +9,7 @@ instructions and the user's authorized scope. See [agent scope](docs/development
 This repo owns the consumer skill, Python CLI, native analyzers, schemas, runtime
 tests, build/CI and usage docs. Specifications, task cards, the single execution
 ledger, maintainer skills, governance templates and review evidence belong to
-https://github.com/orchex006/devsift-specs . Do not copy them here or install them
+https://github.com/cognivex006/devsift-specs . Do not copy them here or install them
 with the consumer skill. Use specs only for explicitly authorized DevSift
 maintenance coordination; consumers need no specs checkout or ledger access.
 
