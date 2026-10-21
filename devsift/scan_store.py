@@ -152,11 +152,14 @@ def _owned_directory(root, destination, resume, configuration):
 
 
 class StoredResult:
-    def __init__(self, root, directory, connection, generation, lock_handle=None):
+    def __init__(self, root, directory, connection, generation, lock_handle=None, *, terms_assessment=None):
         self.root, self.directory, self.connection = root, directory, connection
         self.generation = generation
         self.bundle = None
         self.lock_handle = lock_handle
+        self.terms_assessment = terms_assessment
+        self.report_policy = None
+        self.trusted_lifecycles = False
 
     def _meta(self, key):
         return self.connection.execute('SELECT value FROM metadata WHERE key=?', (key,)).fetchone()[0]
@@ -208,7 +211,7 @@ class StoredResult:
         if self.bundle is not None:
             from .report_bundle import verify_bundle
             valid = verify_bundle(self, self.bundle)
-            complete = complete and valid and self.bundle.get('complete', False)
+            complete = complete and valid and self.bundle.get('source_analysis_complete', self.bundle.get('complete', False))
             if not valid:
                 errors.append({'code': 'REPORT_UNAVAILABLE', 'message': 'A report page is missing or changed.'})
         command = self._meta('command')
@@ -229,7 +232,13 @@ class StoredResult:
             for key in ('report', 'report_sha256'):
                 if key in self.bundle:
                     record['data']['report_bundle'][key] = self.bundle[key]
+            for key in ('terms_case_count', 'total_case_count', 'terms_files', 'source_analysis_complete'):
+                if key in self.bundle:
+                    record['data']['report_bundle'][key] = self.bundle[key]
             record['data']['report_bundle']['reports_complete'] = bool(valid and self.bundle['reports_complete'])
+        if self.terms_assessment is not None:
+            from .terms_gate import apply_terms_gate
+            record = apply_terms_gate(record, self.terms_assessment, include_assessment=True)
         return record
 
     @property
@@ -243,12 +252,28 @@ class StoredResult:
             documents = {}
             row = self.connection.execute('SELECT payload FROM report_pages').fetchone()
             if row:
-                for descriptor in json.loads(row[0])['files']:
+                page = json.loads(row[0])
+                for descriptor in page['files']:
                     path = Path(self.bundle['index']).parent / descriptor['file']
                     name = path.name
                     if name in ('findings.json', 'report.md', 'results.sarif') and descriptor['bytes'] <= 16_000_000:
                         raw = path.read_text('utf-8')
                         documents[{'findings.json': 'json', 'report.md': 'markdown', 'results.sarif': 'sarif'}[name]] = raw if name == 'report.md' else json.loads(raw)
+                if self.terms_assessment is not None:
+                    from .ci_artifacts import build_reports
+                    try:
+                        descriptor = next(item for item in page['files'] if Path(item['file']).name == 'scan.json')
+                        path = Path(self.bundle['index']).parent / descriptor['file']
+                        source = json.loads(path.read_text(encoding='utf-8'))
+                        _, combined = build_reports(source, repo_root=self.root, policy=self.report_policy,
+                            trusted_lifecycles=self.trusted_lifecycles, formats=self.bundle['formats'],
+                            language=self.bundle['language'], terms_assessment=self.terms_assessment)
+                        documents = combined
+                    except (OSError, ValueError, TypeError, KeyError, StopIteration):
+                        # The separately verified source/terms artifacts remain
+                        # complete; do not emit a misleading source-only inline report.
+                        documents = {}
+                        summary['data']['inline_reports_status'] = 'use_verified_bundle'
             summary['data']['reports'] = documents
         else:
             summary['data']['reports'] = {}
@@ -275,13 +300,20 @@ class StoredResult:
 
 
 def run_streamed(root, records_factory, *, destination=None, resume=False,
-                 configuration=None, formats=None, policy=None, trusted_lifecycles=False, language='en'):
+                 configuration=None, formats=None, policy=None, trusted_lifecycles=False, language='en',
+                 terms_assessment=None, terms_recheck=None):
     """Persist per-target safe records transactionally and render complete paged reports.
 
     The factory must call ``should_scan(SourceTarget)`` before each target analysis.
     KeyboardInterrupt/SystemExit propagate after marking the session incomplete;
     resuming the owned destination reuses only complete byte-identical targets.
     """
+    if terms_assessment is not None:
+        from .terms import TermsAssessment
+        _require(type(terms_assessment) is TermsAssessment)
+        configuration = dict(configuration or {})
+        _require(configuration.get('terms_binding', terms_assessment.binding_digest) == terms_assessment.binding_digest)
+        configuration['terms_binding'] = terms_assessment.binding_digest
     source, directory, marker = _owned_directory(root, destination, resume, configuration)
     lock_handle = _lock(directory)
     success = False
@@ -314,7 +346,10 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
             CREATE TABLE IF NOT EXISTS occurrences(identity TEXT PRIMARY KEY,count INTEGER NOT NULL);
         ''')
         generation = uuid.uuid4().hex
-        stored = StoredResult(source, directory, connection, generation, lock_handle)
+        stored = StoredResult(source, directory, connection, generation, lock_handle,
+                              terms_assessment=terms_assessment)
+        stored.report_policy = policy
+        stored.trusted_lifecycles = trusted_lifecycles
         if resume:
             _require(stored._meta('owner') == marker['owner'])
         else:
@@ -358,6 +393,9 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
         for record in iterator:
             _require(type(record) is dict and record.get('command') in ('scan', 'ci')
                      and type(record.get('data')) is dict and type(record.get('findings')) is list)
+            if terms_assessment is not None:
+                from .terms_gate import source_record
+                record = source_record(record, terms_assessment)
             targets = record['data'].get('targets', [])
             _require(type(targets) is list and len(targets) <= 1)
             if pending is None:
@@ -374,7 +412,10 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
                 **record['data'], 'targets': []}})
             header['data']['targets'] = [masker.redact(target) for target in targets]
             header['findings'] = [masker.redact(finding) for finding in record['findings']]
-            public_data = {key: value for key, value in header['data'].items() if key not in ('targets', 'counts', 'reports', 'report_bundle')}
+            public_data = {key: value for key, value in header['data'].items() if key not in (
+                'targets', 'counts', 'reports', 'report_bundle', 'terms_gate', 'terms_compliance',
+                'source_analysis_complete', 'source_enforced_count', 'terms_case_count',
+                'terms_blocked_count', 'total_case_count')}
             if type(public_data.get('quality_gate')) is dict:
                 # Session aggregation must not alter the per-target declaration.
                 public_data['quality_gate'] = dict(public_data['quality_gate'])
@@ -398,6 +439,13 @@ def run_streamed(root, records_factory, *, destination=None, resume=False,
                     connection.execute('INSERT INTO findings(target,case_id,payload) VALUES (?,?,?)',
                                        (identity, finding['case_id'], _json(finding)))
         _require(pending is None)
+        if terms_recheck is not None:
+            _require(terms_assessment is not None and callable(terms_recheck))
+            current = terms_recheck()
+            from .terms import TermsAssessment
+            _require(type(current) is TermsAssessment)
+            if current.binding_digest != terms_assessment.binding_digest:
+                stored.error('TERMS_INPUT_CHANGED')
         with connection:
             connection.execute('DELETE FROM targets WHERE generation<>?', (generation,))
             stored._set('finished', 1)

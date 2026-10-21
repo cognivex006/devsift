@@ -59,7 +59,7 @@ def changed_candidates(root):
                    staged.split(b"\0") + unstaged.split(b"\0") + untracked.split(b"\0") if path})
 
 
-def run_scan(root, *, all_scope=False, legacy_mode="recommend", native_manifest=None, native_manifest_digest=None,
+def _run_source_scan(root, *, all_scope=False, legacy_mode="recommend", native_manifest=None, native_manifest_digest=None,
              security=False, stream=False, should_scan=None):
     """Changed scope unions staged, unstaged and untracked file paths.
 
@@ -133,3 +133,24 @@ def run_scan(root, *, all_scope=False, legacy_mode="recommend", native_manifest=
                 iterator.close()
         return records()
     return decorate(scan(root, candidates, adapters=adapters))
+
+
+def run_scan(root, *, all_scope=False, legacy_mode='recommend', native_manifest=None,
+             native_manifest_digest=None, security=False, stream=False, should_scan=None,
+             terms_assessment=None, terms_catalog=None, terms_catalog_digest=None):
+    """Read-only source analysis plus the independent third-party terms floor."""
+    from .terms_gate import assessment_for, apply_terms_gate, changed_record, gated_records
+    terms = assessment_for(root, terms_assessment, catalog_path=terms_catalog,
+                           catalog_digest=terms_catalog_digest)
+    source = _run_source_scan(root, all_scope=all_scope, legacy_mode=legacy_mode,
+        native_manifest=native_manifest, native_manifest_digest=native_manifest_digest,
+        security=security, stream=stream, should_scan=should_scan)
+    if stream:
+        return gated_records(root, source, terms, catalog_path=terms_catalog,
+                             catalog_digest=terms_catalog_digest)
+    changed = changed_record(root, terms, catalog_path=terms_catalog, catalog_digest=terms_catalog_digest)
+    if changed is not None:
+        source = result('scan', complete=False, enforced_count=source['enforced_count'],
+                        findings=source['findings'], errors=[*source['errors'], *changed['errors']],
+                        data={**source['data'], 'terms_input_changed': True})
+    return apply_terms_gate(source, terms, include_assessment=True)

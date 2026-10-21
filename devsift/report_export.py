@@ -61,6 +61,12 @@ def render_sarif(report: Report) -> str:
             rules.setdefault(case['rule_id'], {'id': case['rule_id'],
                                               'shortDescription': {'text': case['title']},
                                               'defaultConfiguration': {'level': _LEVELS[case['severity']]}})
+        terms = wire.get('terms_compliance')
+        if terms is not None:
+            for case in terms['cases']:
+                key = 'TERMS/' + case['rule_id']
+                rules.setdefault(key, {'id': key, 'shortDescription': {'text': case['title']},
+                                      'defaultConfiguration': {'level': _LEVELS[case['severity']]}})
         ordered = [rules[key] for key in sorted(rules)]
         indices = {rule['id']: index for index, rule in enumerate(ordered)}
         results = []
@@ -86,6 +92,14 @@ def render_sarif(report: Report) -> str:
             if case['fingerprint'] is not None:
                 exported['partialFingerprints'] = {'devsiftRegion/v1': case['fingerprint']}
             results.append(exported)
+        if terms is not None:
+            for case in terms['cases']:
+                key = 'TERMS/' + case['rule_id']
+                results.append({'ruleId': key, 'ruleIndex': indices[key],
+                                'level': _LEVELS[case['severity']],
+                                'kind': 'fail' if case['enforcement'] == 'block' else 'review',
+                                'message': {'text': case['rationale']}, 'properties': case,
+                                'partialFingerprints': {'devsiftTerms/v1': case['fingerprint']}})
         invocation = {'executionSuccessful': wire['complete'], 'exitCode': wire['exit_code'],
                       'properties': {'reportStatus': wire['status'], 'enforcedCount': wire['enforced_count']}}
         if wire['errors']:
@@ -97,6 +111,8 @@ def render_sarif(report: Report) -> str:
              'columnKind': 'unicodeCodePoints', 'invocations': [invocation], 'results': results,
              'properties': {'reportSchemaVersion': wire['schema_version'], 'complete': wire['complete'],
                             'status': wire['status'], 'exitCode': wire['exit_code'], 'enforcedCount': wire['enforced_count']}}]}
+        if terms is not None:
+            sarif['runs'][0]['properties']['terms_compliance'] = terms
         return _encode(sarif)
     except (ValueError, TypeError, KeyError, UnicodeError, RecursionError, OverflowError):
         raise ExportError('Invalid, unsupported or excessive report export') from None

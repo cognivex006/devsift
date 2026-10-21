@@ -12,9 +12,363 @@
     "enforced_count": {"type": "integer", "minimum": 0},
     "cases": {"type": "array", "maxItems": 1000, "items": {"$ref": "#/$defs/case"}},
     "errors": {"type": "array", "maxItems": 1000, "items": {"type": "object", "additionalProperties": false, "required": ["code", "message"], "properties": {"code": {"type": "string"}, "message": {"type": "string"}}}},
-    "contextual_recommendations": {"type": "array", "maxItems": 1000}
+    "contextual_recommendations": {"type": "array", "maxItems": 1000},
+    "terms_compliance": {"$ref": "#/$defs/terms_compliance"}
   },
   "$defs": {
+    "terms_compliance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "policy_version",
+        "repository_id",
+        "status",
+        "complete",
+        "enforced_count",
+        "decision_required",
+        "input_digest",
+        "history_revision",
+        "scope",
+        "inventory",
+        "cases",
+        "errors",
+        "limitations"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "1"
+        },
+        "policy_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "repository_id": {
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "blocked",
+            "incomplete",
+            "clear",
+            "not_applicable"
+          ]
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "enforced_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "decision_required": {
+          "type": "boolean"
+        },
+        "input_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "history_revision": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "object"
+        },
+        "inventory": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "component_id",
+              "ecosystem",
+              "name",
+              "version",
+              "kind",
+              "paths",
+              "relationship"
+            ],
+            "properties": {
+              "component_id": {
+                "type": "string",
+                "pattern": "^TP-[0-9a-f]{24}$"
+              },
+              "ecosystem": {
+                "enum": [
+                  "npm",
+                  "pypi",
+                  "nuget",
+                  "go",
+                  "runtime",
+                  "saas",
+                  "tool"
+                ]
+              },
+              "name": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "kind": {
+                "enum": [
+                  "library",
+                  "build",
+                  "development",
+                  "runtime",
+                  "service",
+                  "tool"
+                ]
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "relationship": {
+                "enum": [
+                  "direct",
+                  "transitive",
+                  "declared"
+                ]
+              }
+            }
+          }
+        },
+        "cases": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "case_id",
+              "fingerprint",
+              "evidence_digest",
+              "component",
+              "rule_id",
+              "status",
+              "severity",
+              "enforcement",
+              "title",
+              "rationale",
+              "recommendation",
+              "evidence",
+              "usage_evidence",
+              "decision",
+              "decision_required",
+              "history",
+              "limitations"
+            ],
+            "properties": {
+              "case_id": {
+                "type": "string"
+              },
+              "fingerprint": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "evidence_digest": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "component": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "component_id",
+                  "ecosystem",
+                  "name",
+                  "version",
+                  "kind",
+                  "paths",
+                  "relationship"
+                ],
+                "properties": {
+                  "component_id": {
+                    "type": "string",
+                    "pattern": "^TP-[0-9a-f]{24}$"
+                  },
+                  "ecosystem": {
+                    "enum": [
+                      "npm",
+                      "pypi",
+                      "nuget",
+                      "go",
+                      "runtime",
+                      "saas",
+                      "tool"
+                    ]
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "enum": [
+                      "library",
+                      "build",
+                      "development",
+                      "runtime",
+                      "service",
+                      "tool"
+                    ]
+                  },
+                  "paths": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "relationship": {
+                    "enum": [
+                      "direct",
+                      "transitive",
+                      "declared"
+                    ]
+                  }
+                }
+              },
+              "rule_id": {
+                "type": "string"
+              },
+              "status": {
+                "enum": [
+                  "confirmed_serious_conflict",
+                  "confirmed_conflict",
+                  "reviewed_compliant",
+                  "reviewed_not_applicable",
+                  "unknown",
+                  "potential_conflict",
+                  "stale"
+                ]
+              },
+              "severity": {
+                "enum": [
+                  "Critical",
+                  "Error",
+                  "Warning",
+                  "Suggestion"
+                ]
+              },
+              "enforcement": {
+                "enum": [
+                  "block",
+                  "incomplete",
+                  "advisory"
+                ]
+              },
+              "title": {
+                "type": "string"
+              },
+              "rationale": {
+                "type": "string"
+              },
+              "recommendation": {
+                "type": "string"
+              },
+              "evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "url",
+                    "title",
+                    "section",
+                    "snapshot",
+                    "sha256",
+                    "excerpt"
+                  ],
+                  "properties": {
+                    "url": {
+                      "type": "string"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "section": {
+                      "type": "string"
+                    },
+                    "snapshot": {
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "excerpt": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "usage_evidence": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "path",
+                    "sha256",
+                    "excerpt"
+                  ],
+                  "properties": {
+                    "path": {
+                      "type": "string"
+                    },
+                    "sha256": {
+                      "type": "string",
+                      "pattern": "^[0-9a-f]{64}$"
+                    },
+                    "excerpt": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "decision": {
+                "type": [
+                  "object",
+                  "null"
+                ]
+              },
+              "decision_required": {
+                "type": "boolean"
+              },
+              "history": {
+                "type": "array",
+                "items": {
+                  "type": "object"
+                }
+              },
+              "limitations": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "assessment": {"type": "object", "additionalProperties": false, "required": ["level", "reason", "evidence"], "properties": {"level": {"enum": ["high", "medium", "low", "unknown"]}, "reason": {"type": "string"}, "evidence": {"type": "array"}}},
     "strings": {"type": "array", "items": {"type": "string"}},
     "case": {

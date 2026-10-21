@@ -177,6 +177,80 @@ def _thai_label(value):
     return value
 
 
+def _render_terms_wire(wire, *, language='en'):
+    """Internal display of engine-redacted terms from a sealed report."""
+    _require(language in ('en', 'th'))
+    parts = []
+    def add(value=''):
+        parts.append(value + '\n')
+    def label(en, th):
+        return th if language == 'th' else en
+    def block(value):
+        add(_code(json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2)))
+    add('## ' + label('Third-party terms governance', 'การกำกับดูแลข้อกำหนดของบุคคลที่สาม'))
+    add()
+    add(label('Scope: bounded offline terms review; source analysis coverage is separate.',
+              'ขอบเขต: ทบทวนข้อกำหนดจากหลักฐานภายในแบบจำกัด แยกจากการวิเคราะห์ source'))
+    add('Status: ' + _text(wire['status']) + '; complete: ' + str(wire['complete']).lower()
+        + '; enforced: ' + str(wire['enforced_count']) + '; decision required: '
+        + str(wire['decision_required']).lower())
+    add(label('A remembered decline never clears a serious block. Unknown evidence is not permission.',
+              'การปฏิเสธแก้ไขที่บันทึกไว้ไม่ปลด block ร้ายแรง หลักฐานที่ยังไม่ทราบไม่ใช่การอนุญาต'))
+    add(label('### Review binding and coverage', '### หลักฐานผูกมัดและความครอบคลุม'))
+    block({key: wire[key] for key in ('schema_version', 'policy_version', 'repository_id',
+           'input_digest', 'history_revision', 'scope', 'errors', 'limitations')})
+    add(label('### Component inventory', '### รายการส่วนประกอบ'))
+    block(wire['inventory'])
+    for case in wire['cases']:
+        add('### ' + label('Terms case ', 'กรณีข้อกำหนด ') + _text(case['case_id']))
+        add()
+        # Every available field, including compact decisions under output limits,
+        # remains safely fenced data rather than document instructions.
+        block(case)
+        add(label('#### Why and proposed action', '#### เหตุผลและแนวทางเสนอ'))
+        add(_text(case['rationale']))
+        add(_text(case['recommendation']))
+        add(label('#### Impact if unchanged', '#### ผลกระทบหากไม่แก้ไข'))
+        add(label('Continuing the evidenced use retains the reported conflict or review gap. '
+                  'Business frequency, contractual consequences and affected consumers remain unmeasured.',
+                  'การใช้ตามหลักฐานต่อไปยังคงข้อขัดแย้งหรือช่องว่างการทบทวน '
+                  'ความถี่ ผลกระทบตามสัญญา และผู้ใช้ที่ได้รับผลยังไม่ได้ตรวจวัด'))
+        add(label('#### Risk if changed', '#### ความเสี่ยงหากแก้ไข'))
+        add(label('Replacement or removal may affect behavior, availability, contracts and deployment. '
+                  'Inspect actual consumers before selecting a bounded change.',
+                  'การเปลี่ยนหรือถอดออกอาจกระทบพฤติกรรม ความพร้อมใช้ สัญญา และ deployment '
+                  'ตรวจผู้ใช้จริงก่อนเลือกการแก้ไขที่มีขอบเขต'))
+        add(label('#### Verification and rollback', '#### การตรวจยืนยันและย้อนกลับ'))
+        add(label('Recheck current official applicability, pinned clause/usage bytes, dependency version, '
+                  'freshness and owner history; verify the proposed compliant behavior with relevant tests. '
+                  'Refresh the assessment after authorized repairs. Define rollback before editing; no change has been applied.',
+                  'ตรวจข้อกำหนดทางการ hash ของข้อกำหนดและการใช้ รุ่น dependency ความสดใหม่ และประวัติ Owner '
+                  'ทดสอบพฤติกรรมที่เสนอและประเมินใหม่หลังแก้ไขที่ได้รับอนุญาต '
+                  'กำหนดวิธีย้อนกลับก่อนแก้ไข รายงานนี้ยังไม่ได้เปลี่ยน source'))
+        add(label('#### Review and implementation guidance', '#### แนวทางทบทวนและดำเนินการ'))
+        block({key: case[key] for key in ('case_id', 'fingerprint', 'evidence_digest', 'decision_required')})
+        add(label('Review read-only first. For a new serious conflict obtain an explicit owner '
+                  'remediate/decline answer bound to the fingerprint and evidence digest. Reuse a matching '
+                  'fresh decision without prompting again. A proposal, remembered decision or resolved label '
+                  'does not authorize edits or prove remediation; no automatic fix or code patch is supplied.',
+                  'ทบทวนแบบอ่านอย่างเดียวก่อน ข้อขัดแย้งร้ายแรงใหม่ต้องได้คำตอบ Owner ว่าจะแก้ไขหรือปฏิเสธ '
+                  'โดยผูกกับ fingerprint และ evidence digest ใช้คำตัดสินเดิมที่ตรงหลักฐานโดยไม่ถามซ้ำ '
+                  'ข้อเสนอ คำตัดสิน หรือ resolved ไม่ใช่สิทธิ์แก้ source หรือหลักฐานว่าแก้สำเร็จ ไม่มี patch อัตโนมัติ'))
+    rendered = ''.join(parts)
+    _require(len(rendered.encode('utf-8')) <= MAX_OUTPUT_BYTES)
+    return rendered
+
+
+def render_terms_markdown(assessment, *, language='en'):
+    """Render every available terms field without I/O or imported authority."""
+    from .terms import TermsAssessment
+    try:
+        _require(type(assessment) is TermsAssessment)
+        return _render_terms_wire(assessment.to_dict(), language=language)
+    except (ValueError, TypeError, KeyError, AttributeError, UnicodeError, OverflowError, RecursionError):
+        raise MarkdownError('Invalid, unsupported or excessive Markdown report') from None
+
+
 def render_markdown(report: Report, *, language='en') -> str:
     """Render every field/case; never truncate, re-mask, execute or discover URLs."""
     _require(type(report) is Report and language in ('en', 'th'))
@@ -212,6 +286,8 @@ def render_markdown(report: Report, *, language='en') -> str:
                 add(_code(json.dumps(values, ensure_ascii=False, sort_keys=True, indent=2)))
 
         add('# DevSift report')
+        if 'terms_compliance' not in wire:
+            add('Scope: source analysis only; this page does not assess third-party terms.')
         add()
         add(f'Report schema: {wire["schema_version"]}; tool: {wire["tool"]}.')
         add(f'Status: {wire["status"]}; complete: {str(wire["complete"]).lower()}; exit code: {wire["exit_code"]}; enforced violations: {wire["enforced_count"]}.')
@@ -341,6 +417,8 @@ def render_markdown(report: Report, *, language='en') -> str:
                 add('### ' + title)
                 add()
                 add(_code(case[key]))
+        if 'terms_compliance' in wire:
+            add(_render_terms_wire(wire['terms_compliance'], language=language))
         add('## Contextual recommendations')
         add()
         add('None supplied by this report model.')

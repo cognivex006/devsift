@@ -114,7 +114,8 @@ def _source(item, root, redactor, source_timeout_seconds=10):
 
 
 def assemble_report(scan_record, *, repo_root, policy=None, redactor=None,
-                    trusted_lifecycles=False, repository_urls=(), source_timeout_seconds=10):
+                    trusted_lifecycles=False, repository_urls=(), source_timeout_seconds=10,
+                    terms_assessment=None):
     """Reprove immutable source and recompute policy; never trust wire assertions.
 
     The caller supplies an actual scan result, not an authenticated certificate.
@@ -130,6 +131,13 @@ def assemble_report(scan_record, *, repo_root, policy=None, redactor=None,
         redactor = redactor or Redactor()
         root = Path(repo_root).resolve(strict=True)
         _require(root.is_dir())
+        terms = None
+        if terms_assessment is not None:
+            from .terms import TermsAssessment
+            from .terms_memory import repository_identity
+            _require(type(terms_assessment) is TermsAssessment
+                     and terms_assessment.repository_id == repository_identity(root))
+            terms = terms_assessment.to_dict()
         _encode(scan_record)
         _fields(scan_record, ('schema_version', 'command', 'status', 'exit_code', 'complete',
                               'enforced_count', 'findings', 'errors', 'data'))
@@ -219,11 +227,16 @@ def assemble_report(scan_record, *, repo_root, policy=None, redactor=None,
             cases.append(ReportCase(identity, item['rule_id'], source, _encode(payload), _seal=_SEAL))
         _require(original_blocks == scan_record['enforced_count'])
         cases.sort(key=lambda case: (case.to_dict()['source']['location']['path'] if case.source.location else '', case.case_id))
+        if terms is not None:
+            complete = complete and terms['complete']
+            enforced += terms['enforced_count']
         exit_code = 2 if not complete else 1 if enforced else 0
         wire = {'schema_version': '1', 'tool': 'devsift', 'complete': complete,
                 'status': {0: 'clean', 1: 'enforced', 2: 'incomplete'}[exit_code],
                 'exit_code': exit_code, 'enforced_count': enforced, 'cases': [case.to_dict() for case in cases],
                 'errors': errors, 'contextual_recommendations': []}
+        if terms is not None:
+            wire['terms_compliance'] = terms
         return Report(tuple(cases), complete, exit_code, _encode(wire), _seal=_SEAL)
     except (OSError, ValueError, TypeError, KeyError, RecursionError, OverflowError):
         raise ReportError('Invalid or unavailable report input') from None

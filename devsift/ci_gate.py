@@ -89,7 +89,7 @@ def _encode(value):
     return json.dumps(value, sort_keys=True, ensure_ascii=True, allow_nan=False)
 
 
-def run_ci(root, *, native_manifest, native_manifest_digest, base_ref=None,
+def _run_source_ci(root, *, native_manifest, native_manifest_digest, base_ref=None,
            all_scope=False, paths=None, security=False, config=None, stream=False, should_scan=None):
     """Execute configured analyzers now, with optional real Git source attribution.
 
@@ -176,3 +176,28 @@ def run_ci(root, *, native_manifest, native_manifest_digest, base_ref=None,
                          'message': 'CI configuration, immutable source or configured analyzers are unavailable.'}])
         public = dict(failure, command='ci')
         return iter((public,)) if stream else CiRun(2, _encode(failure), _encode(public))
+
+
+def run_ci(root, *, native_manifest, native_manifest_digest, base_ref=None,
+           all_scope=False, paths=None, security=False, config=None, stream=False, should_scan=None,
+           terms_assessment=None, terms_catalog=None, terms_catalog_digest=None):
+    """Authoritative source and terms gate; severity/baselines cannot waive terms."""
+    from .terms_gate import assessment_for, apply_terms_gate, changed_record, gated_records
+    terms = assessment_for(root, terms_assessment, catalog_path=terms_catalog,
+                           catalog_digest=terms_catalog_digest)
+    source = _run_source_ci(root, native_manifest=native_manifest,
+        native_manifest_digest=native_manifest_digest, base_ref=base_ref, all_scope=all_scope,
+        paths=paths, security=security, config=config, stream=stream, should_scan=should_scan)
+    if stream:
+        return gated_records(root, source, terms, catalog_path=terms_catalog,
+                             catalog_digest=terms_catalog_digest)
+    scan, public = source.scan_record(), source.to_dict()
+    changed = changed_record(root, terms, catalog_path=terms_catalog, catalog_digest=terms_catalog_digest)
+    if changed is not None:
+        for record in (scan, public):
+            record.update(complete=False, status='incomplete', exit_code=2,
+                          errors=[*record['errors'], *changed['errors']])
+            record['data']['terms_input_changed'] = True
+    gated_scan = apply_terms_gate(scan, terms, include_assessment=True)
+    gated_public = apply_terms_gate(public, terms, include_assessment=True)
+    return CiRun(gated_public['exit_code'], _encode(gated_scan), _encode(gated_public))

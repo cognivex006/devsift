@@ -4,6 +4,15 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+## [0.1.17] - 2026-10-21
+
+### Added
+- Assess bounded dependency/runtime/SaaS terms from explicitly pinned reviewed official clauses and actual usage evidence; keep missing, stale or ambiguous coverage incomplete.
+- Enforce serious confirmed terms conflicts independently of source lifecycle, baselines and CI severity, including empty scans, native setup failure and resume.
+- Persist append-only owner decisions outside report sessions; remember matching declines without repeat prompts, retain the block, and support reconsideration with current evidence bindings.
+- Deliver every available terms case, remedy, owner history and coverage limitation in English/Thai REPORT.md, JSON, SARIF and checksummed session artifacts; keep source coverage separate.
+- Add `terms check`, `terms history`, `terms decide` and catalog trust options; scans remain offline and never accept terms or repair source automatically.
+
 ## [0.1.16] - 2026-10-19
 
 ### Changed

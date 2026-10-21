@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "devsift"
-version = "0.1.16"
+version = "0.1.17"
 description = "Read-only quality analysis CLI with explicitly trusted native analyzers"
 requires-python = ">=3.12"
 dependencies = []
@@ -60,6 +60,10 @@ py-modules = [
     "devsift.security_gate",
     "devsift.sql_adapter",
     "devsift.suppressions",
+    "devsift.terms",
+    "devsift.terms_commands",
+    "devsift.terms_gate",
+    "devsift.terms_memory",
     "devsift.typescript_adapter",
     "devsift.verification_plan",
 ]

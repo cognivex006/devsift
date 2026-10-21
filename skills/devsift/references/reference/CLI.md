@@ -166,3 +166,21 @@ devsift prompt CASE-1 --mode implement --approved-case CASE-1 --scan-input /abso
 Input is a scan command envelope, reassembled against the current Git root. Imported `data.reports` is ignored; serialized cases/approvals never replace source reproof. JSON input is bounded to 4 MB, 64 levels and 100,000 values; approval input is at most 64 KB. Use bounded scan scope and selected report formats for large projects. Duplicate keys, non-finite values, links and invalid inputs fail with constant errors; paths and JSON values are not echoed.
 
 Review returns exit 0 only for a generated prompt with verified immutable source. This is prompt-generation success, not a scan quality pass; UNKNOWN origin/impact remains explicit. Missing proof returns 2 with a lookup plan and no fabricated source location/patch. Implementation proposals return 2/review_required. A matching case selector alone is insufficient: explicit operator approval binds case/SHA/fingerprint/prompt digest and time window, and still permits only manual planning when effects are unknown. Expired/stale/dirty/mismatched approvals are denied. No command applies source edits. Approval-file options are invalid in review mode. See [the full workflow](CASE-PROMPTS.md).
+
+## Third-party terms (0.1.17+)
+
+`scan`, `ci` and `doctor` accept `--terms-catalog ABSOLUTE_JSON` plus
+`--terms-catalog-digest TRUSTED_SHA256`. Both or neither; scan/CI always assess
+terms. No waiver/disable flag. Doctor checks configuration only.
+
+`devsift terms check` assesses terms and writes the complete human report without
+native analyzers; supports the same catalog pair, `--summary`, `--report-dir`,
+`--resume`, `--report-format` and `--report-language th|en`.
+`devsift terms history` reads verified durable decisions.
+`devsift terms decide CASE_ID --choice remediate|decline|reconsider|resolved
+--owner ACTUAL_OWNER --reason EXPLICIT_REASON --fingerprint CURRENT_FINGERPRINT
+--evidence-digest CURRENT_EVIDENCE_DIGEST` takes the same catalog pair.
+`reconsider` requires `--supersedes PRIOR_EVENT_ID`. A successful write does not
+clear the gate; inspect `data.decision_recorded` even when exit is 1 or 2.
+
+See [third-party terms](../THIRD-PARTY-TERMS.md) for schema, scope, trust and memory.

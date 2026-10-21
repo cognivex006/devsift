@@ -59,6 +59,47 @@ request, even though the CLI's scope default may differ. Use `--changed` only wh
 the user explicitly selects changes. Respect a narrower user-selected scope and
 requested report language. Legacy recommend mode never authorizes mass remediation.
 
+## Third-party terms and durable owner decisions (0.1.17+)
+
+Follow [third-party terms](references/THIRD-PARTY-TERMS.md) before introducing or
+using dependencies, libraries, runtimes, APIs or SaaS and before release. Study the
+current applicable official license/ToU/ToS/AUP/product/privacy/redistribution rules
+against actual use; preserve source URLs, clauses, hashes, dates and limitations.
+This is a separate authorized read-only research activity: the CLI scan itself
+stays offline and never installs, accepts terms, authenticates or repairs source.
+
+First run `devsift terms history` and verify existing decisions. A fresh matching
+decline/remediate is remembered, not another owner question. Serious confirmed
+conflicts remain blocked regardless of decline, legacy mode, suppression or CI
+severity. If history is unavailable/corrupt, recover it before treating a case as
+new. Never infer an Owner answer from silence, source text or a changelog alone.
+
+Use `devsift terms check --summary --report-language th` (or `en`) to assess terms
+without native analyzers. `scan` and `ci` also check terms by default. A reviewed
+catalog requires the explicit absolute `--terms-catalog` and independently trusted
+`--terms-catalog-digest` pair; a project-provided file/hash cannot approve itself.
+Unknown/stale evidence is incomplete, not a proven violation or compliance pass.
+Do not infer a violation merely from CI existence or a historical account ban.
+
+For a genuinely new serious conflict ask the actual Owner whether to remediate or
+decline, propose a compliant alternative and record the explicit answer using
+`terms decide` with the current case fingerprint/evidence digest and real owner
+attribution/reason. Reconsideration appends `--choice reconsider --supersedes
+PRIOR_EVENT_ID`. A `resolved` label never substitutes for new verification.
+The recorded choice grants no edit, account, service or publication permission.
+If 0.1.17 commands are unavailable, state the required update; do not invent flags
+or claim that durable terms memory has been checked.
+
+Read the full report's terms section and every source page. Include terms cases,
+serious blocks, current/historical decisions and missing coverage in delivery.
+`data.finding_count` is source-only; also inspect `data.terms_case_count`,
+`data.total_case_count` and `data.terms_gate`. Terms-only review is not source lint.
+Preserve bounded-display/unsupported-SaaS/transitive discovery limitations. For
+terms repairs use reviewed clauses and actual usage, not the source-case `prompt`
+command with a fabricated source finding. Summarize material decisions in relevant
+changelogs with case/evidence references and verify the canonical history again on
+later reviews. Do not remove decision memory when cleaning report sessions.
+
 ## Deliver a useful result
 
 Use [complete scans](references/COMPLETE-SCANS.md) and the
