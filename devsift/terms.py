@@ -603,17 +603,20 @@ def assess_terms(repo_root, *, catalog_path=None, catalog_digest=None, history=N
         wire['scope'].update(abbreviated_case_count=len(cases), omitted_case_count=0,
             omitted_serious_case_count=0, omitted_inventory_count=len(wire['inventory']),
             omitted_evidence_count=sum(len(case['evidence']) + len(case['usage_evidence']) for case in cases),
+            omitted_decision_detail_count=sum(case['decision'] is not None for case in cases),
             omitted_history_event_count=sum(len(case['history']) for case in cases) +
                                         len(wire['scope']['unmatched_decisions']))
         wire['inventory'] = []
         wire['scope']['examined_files'] = []
         wire['scope']['unmatched_decisions'] = []
         for case in cases:
-            case.update(evidence=[], usage_evidence=[], decision=None, history=[],
+            decision = case['decision']
+            summary = ({'choice': decision['choice'], 'event_id': decision['event_id'], 'details_omitted': True}
+                       if decision is not None else None)
+            case.update(evidence=[], usage_evidence=[], decision=summary, history=[],
                         title='Third-party terms (bounded display)',
                         rationale='Full display exceeds output limits.',
                         recommendation='Reduce input scope and reassess.',
-                        decision_required=case['enforcement'] == 'block',
                         limitations=['Display abbreviated; review incomplete.'])
             case['component']['paths'] = []
             for key in ('name', 'version'):

@@ -378,6 +378,16 @@ class TermsTests(unittest.TestCase):
         self.assertEqual(sum(case['enforcement'] == 'block' for case in wire['cases']), 1000)
         self.assertEqual(wire['status'], 'blocked')
         self.assertEqual(len(wire['cases']), 1999)
+        serious = next(case for case in wire['cases'] if case['enforcement'] == 'block')
+        event = self.decide(serious, 'decline')
+        remembered = self.assess().to_dict()
+        self.assertIn('TERMS_OUTPUT_LIMIT', remembered['errors'])
+        self.assertEqual(remembered['enforced_count'], 1000)
+        same_case = next(case for case in remembered['cases'] if case['case_id'] == serious['case_id'])
+        self.assertFalse(same_case['decision_required'])
+        self.assertEqual(same_case['decision'], {'choice': 'decline', 'event_id': event['event_id'],
+                                               'details_omitted': True})
+        self.assertEqual(remembered['scope']['omitted_decision_detail_count'], 1)
 
     def test_default_history_is_always_read_and_forged_history_fails_closed(self):
         from devsift import terms_memory
