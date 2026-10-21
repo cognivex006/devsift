@@ -137,10 +137,40 @@ class TermsTests(unittest.TestCase):
         self.review['component']['version'] = 'enterprise'
         self.write('.devsift/third-party.json', {'schema_version': '1', 'components': [
             {**self.review['component'], 'paths': ['deploy.json']}]})
-        version = self.case(self.assess())
-        self.assertEqual(old['case_id'], version['case_id'])
+        changed_version = self.assess()
+        version = self.case(changed_version)
+        self.assertNotEqual(old['case_id'], version['case_id'])
         self.assertNotEqual(old['fingerprint'], version['fingerprint'])
-        self.assertTrue(version['history'])
+        self.assertTrue(changed_version.to_dict()['scope']['unmatched_decisions'])
+
+    def test_simultaneous_versions_remember_independent_owner_decisions(self):
+        first_component = dict(self.review['component'])
+        second_component = dict(first_component, version='enterprise')
+        self.write('.devsift/third-party.json', {'schema_version': '1', 'components': [
+            {**component, 'paths': ['deploy.json']} for component in (first_component, second_component)]})
+        self.data['reviews'].append(dict(self.review, component=second_component))
+        initial = self.assess().to_dict()
+        cases = initial['cases']
+        self.assertEqual(len({case['case_id'] for case in cases}), 2)
+        for case in cases:
+            self.decide(case, 'decline')
+        remembered = self.assess().to_dict()
+        self.assertEqual(remembered['enforced_count'], 2)
+        self.assertFalse(remembered['decision_required'])
+        self.assertTrue(all(case['decision']['choice'] == 'decline' and len(case['history']) == 1
+                            for case in remembered['cases']))
+        self.assertEqual(remembered['scope']['unmatched_decisions'], [])
+        self.write('.devsift/third-party.json', {'schema_version': '1', 'components': [
+            {**dict(first_component, version='new-plan'), 'paths': ['deploy.json']},
+            {**second_component, 'paths': ['deploy.json']}]})
+        self.review['component'] = dict(first_component, version='new-plan')
+        changed = self.assess().to_dict()
+        new_case = next(case for case in changed['cases'] if case['component']['version'] == 'new-plan')
+        self.assertTrue(new_case['decision_required'])
+        self.assertIsNone(new_case['decision'])
+        self.assertEqual(len(changed['scope']['unmatched_decisions']), 1)
+        self.assertEqual(changed['scope']['unmatched_decisions'][0]['case_id'],
+                         next(case['case_id'] for case in cases if case['component']['version'] == 'business'))
 
     def test_freshness_and_bad_evidence_never_confirm(self):
         for field, value in [('review_due', '2026-10-21T00:00:00Z'),

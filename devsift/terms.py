@@ -527,8 +527,7 @@ def assess_terms(repo_root, *, catalog_path=None, catalog_digest=None, history=N
         matches = [review for review in reviews if review['component'] == identity]
         for review in matches or [None]:
             rule = review['rule_id'] if review else 'terms-review-required'
-            stable_identity = {key: component[key] for key in ('ecosystem', 'name', 'kind')}
-            case_id = 'TERMS-' + _digest([stable_identity, rule])[:24]
+            case_id = 'TERMS-' + _digest([identity, rule])[:24]
             actual = []
             display = {'evidence': [], 'usage_evidence': []}
             status = 'unknown'
