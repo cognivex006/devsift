@@ -164,6 +164,16 @@ class TermsTests(unittest.TestCase):
         self.review['usage_evidence'] = []
         self.assertEqual(self.case(self.assess())['status'], 'potential_conflict')
 
+    def test_expired_matching_decision_is_history_only(self):
+        first = self.case(self.assess())
+        self.decide(first, 'decline')
+        expired = self.case(self.assess(as_of=datetime(2026, 11, 21, tzinfo=timezone.utc)))
+        self.assertEqual(first['fingerprint'], expired['fingerprint'])
+        self.assertEqual(expired['status'], 'stale')
+        self.assertIsNone(expired['decision'])
+        self.assertTrue(expired['history'])
+        self.assertTrue(expired['decision_required'])
+
     def test_compliant_not_applicable_and_ordinary_conflict(self):
         self.review['conclusion'] = 'compliant'
         self.assertEqual(self.case(self.assess())['status'], 'reviewed_compliant')
