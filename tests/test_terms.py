@@ -319,6 +319,36 @@ class TermsTests(unittest.TestCase):
         self.assertEqual({item['version'] for item in entries}, {'1.1.0', '1.2.0'})
         self.assertEqual(next(item for item in entries if item['version'] == '1.2.0')['relationship'], 'transitive')
 
+    def test_direct_lock_provenance_does_not_cross_workspace_transitive_copy(self):
+        self.write('package-lock.json', {'packages': {'': {'dependencies': {'alpha': '1.1.0'}},
+            'node_modules/alpha': {'version': '1.1.0'}}})
+        self.write('sub/package.json', {'dependencies': {'alpha': '^1.0.0'}})
+        self.write('sub/package-lock.json', {'packages': {'': {'dependencies': {'beta': '1.0.0'}},
+            'node_modules/beta': {'version': '1.0.0'},
+            'node_modules/beta/node_modules/alpha': {'version': '1.1.0'}}})
+        wire = self.assess(catalog=False).to_dict()
+        alpha = [item for item in wire['inventory'] if item['name'] == 'alpha']
+        self.assertEqual({item['version'] for item in alpha}, {'1.1.0', '^1.0.0'})
+        declared = next(item for item in alpha if item['version'] == '^1.0.0')
+        self.assertEqual(declared['paths'], ['sub/package.json'])
+
+    def test_output_overflow_keeps_sealed_assessment_and_serious_floor(self):
+        component = dict(self.review['component'], name='provider/' + 'n' * 480, version='v' * 490)
+        components = [{**component, 'name': component['name'] + str(index), 'paths': ['deploy.json']}
+                      for index in range(1000)]
+        self.write('.devsift/third-party.json', {'schema_version': '1', 'components': components})
+        self.data['reviews'] = [dict(self.review, component={key: components[0][key]
+            for key in ('ecosystem', 'name', 'version', 'kind')}, rule_id=f'rule-{index}') for index in range(1000)]
+        assessment = self.assess()
+        self.assertIs(type(assessment), TermsAssessment)
+        wire = assessment.to_dict()
+        self.assertIn('TERMS_OUTPUT_LIMIT', wire['errors'])
+        self.assertFalse(wire['complete'])
+        self.assertEqual(wire['enforced_count'], 1000)
+        self.assertEqual(sum(case['enforcement'] == 'block' for case in wire['cases']), 1000)
+        self.assertEqual(wire['status'], 'blocked')
+        self.assertEqual(len(wire['cases']), 1999)
+
     def test_default_history_is_always_read_and_forged_history_fails_closed(self):
         from devsift import terms_memory
         original = terms_memory.read_history

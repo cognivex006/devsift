@@ -163,6 +163,7 @@ class _Inventory:
         self.observed = {}
         self.errors = []
         self.total = 0
+        self.direct_locks = {}
 
     def add(self, ecosystem, name, version, kind, path, relationship='direct'):
         component = _component(dict(ecosystem=ecosystem, name=name, version=version or 'unknown', kind=kind))
@@ -243,6 +244,10 @@ class _Inventory:
                            ('dependencies', 'devDependencies', 'optionalDependencies')) else 'transitive'
                 self.add('npm', dep, info.get('version', 'unknown'),
                          'development' if info.get('dev') else 'library', path, relation)
+                if relation == 'direct':
+                    identity = (dep, info.get('version', 'unknown'),
+                                'development' if info.get('dev') else 'library')
+                    self.direct_locks.setdefault(identity, set()).add(str(PurePosixPath(path).parent))
             def legacy(deps, depth=0):
                 _require(depth <= 20)
                 for dep, info in deps.items():
@@ -375,8 +380,8 @@ class _Inventory:
                 if not version or candidate['name'] != item['name'] or candidate['kind'] != item['kind'] or \
                         candidate['ecosystem'] != 'npm' or candidate['relationship'] != 'direct':
                     continue
-                if not any(str(PurePosixPath(path).parent) in manifests and PurePosixPath(path).name in
-                           {'package-lock.json', 'npm-shrinkwrap.json'} for path in candidate['paths']):
+                direct_workspaces = self.direct_locks.get((candidate['name'], candidate['version'], candidate['kind']), set())
+                if not manifests or not manifests <= direct_workspaces:
                     continue
                 wanted, actual = tuple(map(int, match.groups()[1:])), tuple(map(int, version.groups()))
                 upper = (wanted[0] + 1, 0, 0) if match[1] == '^' and wanted[0] else \
@@ -596,16 +601,25 @@ def assess_terms(repo_root, *, catalog_path=None, catalog_digest=None, history=N
         wire['complete'] = False
         wire['status'] = 'blocked' if enforced else 'incomplete'
         wire['errors'].append('TERMS_OUTPUT_LIMIT')
+        wire['scope'].update(abbreviated_case_count=len(cases), omitted_case_count=0,
+            omitted_serious_case_count=0, omitted_inventory_count=len(wire['inventory']),
+            omitted_evidence_count=sum(len(case['evidence']) + len(case['usage_evidence']) for case in cases),
+            omitted_history_event_count=sum(len(case['history']) for case in cases) +
+                                        len(wire['scope']['unmatched_decisions']))
         wire['inventory'] = []
         wire['scope']['examined_files'] = []
         wire['scope']['unmatched_decisions'] = []
         for case in cases:
             case.update(evidence=[], usage_evidence=[], decision=None, history=[],
-                        rationale='Display evidence exceeded the bounded output budget.',
-                        recommendation='Reduce reviewed input scope and reassess; retained conflicts remain enforced.',
+                        title='Third-party terms (bounded display)',
+                        rationale='Full display exceeds output limits.',
+                        recommendation='Reduce input scope and reassess.',
                         decision_required=case['enforcement'] == 'block',
-                        limitations=['Display evidence omitted due to output limits; review is incomplete.'])
+                        limitations=['Display abbreviated; review incomplete.'])
             case['component']['paths'] = []
+            for key in ('name', 'version'):
+                case['component'][key] = case['component'][key][:64]
+            case['rule_id'] = case['rule_id'][:64]
         wire['decision_required'] = any(case['decision_required'] for case in cases)
         binding = _digest([binding, 'TERMS_OUTPUT_LIMIT'])
         wire['input_digest'] = binding
