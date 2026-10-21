@@ -20,6 +20,7 @@ class Parser(argparse.ArgumentParser):
 
 
 def parser() -> Parser:
+    from .terms_commands import add_catalog_options, add_terms_command
     root = Parser(prog='devsift', description='Read-only scans with optional explicitly trusted native analyzers.')
     commands = root.add_subparsers(dest='command', required=True)
     scan = commands.add_parser('scan', help='Inventory targets and run explicitly configured native analyzers.')
@@ -62,6 +63,8 @@ def parser() -> Parser:
     doctor.add_argument('--native-manifest-digest', help='Independently trusted SHA256 of the exact manifest bytes.')
     doctor.add_argument('--policy', help='Explicit JSON policy to validate read-only; no automatic discovery.')
     doctor.add_argument('--cache-path', help='Explicit cache directory to inspect without creating or changing it.')
+    for execution in (scan, ci, doctor):
+        add_catalog_options(execution)
     setup = commands.add_parser('setup', help='Register trusted analyzers once; scans never build or install tools.')
     setup.add_argument('--status', action='store_true', help='Check the registered analyzers without changing configuration.')
     setup.add_argument('--native-manifest', help='Explicit absolute operator-approved manifest to register.')
@@ -75,6 +78,7 @@ def parser() -> Parser:
     prompt.add_argument('--approved-case', help='Bind the implementation target case; matching the ID alone grants no authority.')
     prompt.add_argument('--scan-input', help='Explicit scan JSON to reassemble and reprove against this Git root.')
     prompt.add_argument('--approval-file', help='Explicit operator approval JSON; never discovered or treated as a signature.')
+    add_terms_command(commands)
     return root
 
 
@@ -86,6 +90,9 @@ def _execution_reports(public_record, scan_record, **options):
     Never use this helper for imported/untrusted scan documents.
     """
     from .ci_artifacts import attach_reports
+    if options.get('terms_assessment') is not None:
+        from .terms_gate import source_record
+        scan_record = source_record(scan_record, options['terms_assessment'])
     rendered = attach_reports(public_record, scan_record, **options)
     if any(error['code'] == 'REPORT_UNAVAILABLE' for error in rendered['errors']):
         return {**public_record, 'complete': False, 'status': 'incomplete', 'exit_code': 2,
@@ -107,6 +114,11 @@ def _stored_execution(args, factory, *, policy=None, trusted_lifecycles=False):
     from .scan_progress import ScanProgress
     from .scan_store import StoreError, run_streamed
     root = Path.cwd().resolve()
+    from .terms import assess_terms
+    from .terms_gate import apply_terms_gate
+    terms = assess_terms(root, catalog_path=getattr(args, 'terms_catalog', None),
+                         catalog_digest=getattr(args, 'terms_catalog_digest', None))
+    args._terms_assessment = terms
     identity = hashlib.sha256(os.path.normcase(str(root)).encode()).hexdigest()
     destination = (Path(args.resume or args.report_dir) if args.resume or args.report_dir else
                    Path.home() / '.local/share/devsift/scans' / identity / uuid.uuid4().hex)
@@ -119,6 +131,7 @@ def _stored_execution(args, factory, *, policy=None, trusted_lifecycles=False):
                      'formats': args.report_format, 'policy': policy,
                      'legacy_mode': getattr(args, 'legacy_mode', None),
                      'paths': getattr(args, 'paths', None)}
+    configuration['terms_binding'] = terms.binding_digest
     if args.report_language != 'en':
         configuration['report_language'] = args.report_language
     if getattr(args, 'base', None) is not None:
@@ -150,25 +163,39 @@ def _stored_execution(args, factory, *, policy=None, trusted_lifecycles=False):
                                 configuration=configuration, policy=policy,
                                 trusted_lifecycles=trusted_lifecycles,
                                 formats=None if args.report_format is None else tuple(dict.fromkeys(args.report_format)),
-                                language=args.report_language)
+                                language=args.report_language, terms_assessment=terms,
+                                terms_recheck=lambda: assess_terms(root,
+                                    catalog_path=getattr(args, 'terms_catalog', None),
+                                    catalog_digest=getattr(args, 'terms_catalog_digest', None)))
     except KeyboardInterrupt:
-        return result(args.command, complete=False, errors=[{
+        return apply_terms_gate(result(args.command, complete=False, errors=[{
             'code': 'SCAN_INTERRUPTED', 'message': 'Scan interrupted; owned session state is retained for resume.'}],
             data={'scan_directory': Redactor().text(str(destination)), 'resume_available':
-                  destination.is_dir() and (destination / 'ownership.json').is_file()})
+                  destination.is_dir() and (destination / 'ownership.json').is_file()}), terms, include_assessment=True)
     except MemoryError:
-        return result(args.command, complete=False, errors=[{
+        return apply_terms_gate(result(args.command, complete=False, errors=[{
             'code': 'SCAN_RESOURCE_EXHAUSTED',
             'message': 'Scan resource allocation failed; retained session state can be resumed.'}],
-            data={'scan_directory': Redactor().text(str(destination))})
+            data={'scan_directory': Redactor().text(str(destination))}), terms, include_assessment=True)
     except (StoreError, OSError, ValueError, sqlite3.Error):
-        return result(args.command, complete=False, errors=[{
+        return apply_terms_gate(result(args.command, complete=False, errors=[{
             'code': 'SCAN_STORAGE_UNAVAILABLE',
             'message': 'Owned scan/report storage or resume configuration is unavailable.'}],
-            data={'scan_directory': Redactor().text(str(destination))})
+            data={'scan_directory': Redactor().text(str(destination))}), terms, include_assessment=True)
 
 
 def run(args: argparse.Namespace) -> dict:
+    if args.command in ('scan', 'ci', 'doctor', 'terms'):
+        from .terms_commands import validate_catalog_options
+        if not validate_catalog_options(args):
+            raise ArgumentError('Terms catalog requires an absolute path and matching independently trusted SHA256.')
+    if args.command == 'terms':
+        if args.terms_action == 'check':
+            return _stored_execution(args, lambda hook: iter((result('scan', complete=True,
+                data={'targets': [], 'counts': {}, 'scope': 'terms_only',
+                      'analysis_performed': False, 'terms_assessment_performed': True}),)))
+        from .terms_commands import run_owner_command
+        return run_owner_command(args)
     if args.command == 'setup':
         from .analyzer_setup import SetupError, deploy, register, registered, ready
         from .native_manifest import load_manifest
@@ -220,8 +247,11 @@ def run(args: argparse.Namespace) -> dict:
         except SetupError:
             failure = result(args.command, complete=False, errors=[{'code': 'REGISTERED_ANALYZERS_UNAVAILABLE',
                 'message': 'Registered analyzer configuration changed or is unavailable. Run devsift doctor or reinstall DevSift; do not approve project-supplied manifests.'}])
-            return (_stored_execution(args, lambda hook: iter((failure,)))
-                    if args.command in ('scan', 'ci') else failure)
+            if args.command in ('scan', 'ci'):
+                return _stored_execution(args, lambda hook: iter((failure,)))
+            from .terms_gate import attach_readiness
+            return attach_readiness(failure, Path.cwd(), catalog_path=args.terms_catalog,
+                                    catalog_digest=args.terms_catalog_digest)
         if configured is not None:
             args.native_manifest, args.native_manifest_digest = configured
         elif args.command == 'ci':
@@ -255,7 +285,9 @@ def run(args: argparse.Namespace) -> dict:
                                  native_manifest_digest=args.native_manifest_digest,
                                  root=Path.cwd(), policy_path=args.policy, cache_path=args.cache_path)
         diagnostics['data']['capabilities'].update(reports=True, case_prompts=True)
-        return diagnostics
+        from .terms_gate import attach_readiness
+        return attach_readiness(diagnostics, Path.cwd(), catalog_path=args.terms_catalog,
+                                catalog_digest=args.terms_catalog_digest)
     elif args.command == 'ci':
         from pathlib import Path
         import re
@@ -268,7 +300,9 @@ def run(args: argparse.Namespace) -> dict:
             Path.cwd(), native_manifest=args.native_manifest,
             native_manifest_digest=args.native_manifest_digest, base_ref=args.base,
             all_scope=args.all, paths=None if args.paths is None else tuple(args.paths),
-            security=args.security, config=config, stream=True, should_scan=hook),
+            security=args.security, config=config, stream=True, should_scan=hook,
+            terms_assessment=args._terms_assessment, terms_catalog=args.terms_catalog,
+            terms_catalog_digest=args.terms_catalog_digest),
             policy=config.policy(), trusted_lifecycles=True)
     elif args.command == 'scan':
         from pathlib import Path
@@ -282,7 +316,9 @@ def run(args: argparse.Namespace) -> dict:
         return _stored_execution(args, lambda hook: run_scan(
             Path.cwd(), all_scope=args.all, legacy_mode=args.legacy_mode,
             native_manifest=args.native_manifest, native_manifest_digest=args.native_manifest_digest,
-            security=args.security, stream=True, should_scan=hook))
+            security=args.security, stream=True, should_scan=hook,
+            terms_assessment=args._terms_assessment, terms_catalog=args.terms_catalog,
+            terms_catalog_digest=args.terms_catalog_digest))
     return result(args.command, complete=False, data=data,
                   errors=[{'code': 'CAPABILITY_UNAVAILABLE',
                            'message': 'The requested capability is unavailable in this invocation; '

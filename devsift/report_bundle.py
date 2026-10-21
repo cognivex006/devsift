@@ -55,17 +55,23 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False,
     directory = stored.directory / ('reports-' + uuid.uuid4().hex)
     _mkdir_private(directory)
     scan_summary = stored.summary()
+    source_summary = scan_summary
+    terms = getattr(stored, 'terms_assessment', None)
+    if terms is not None:
+        from .terms_gate import source_record
+        source_summary = source_record(scan_summary, terms)
     all_complete = scan_summary['complete']
+    source_complete = source_summary['complete']
     reports_rendered = True
     page_number = 0
     case_count = 0
 
     def render(items):
-        nonlocal page_number, case_count, all_complete, reports_rendered
+        nonlocal page_number, case_count, all_complete, source_complete, reports_rendered
         findings = [json.loads(payload) for _, payload in items]
-        record = result('scan', complete=scan_summary['complete'],
+        record = result('scan', complete=source_summary['complete'],
                         enforced_count=sum(item['enforcement'] == 'block' for item in findings),
-                        findings=findings, errors=scan_summary['errors'])
+                        findings=findings, errors=source_summary['errors'])
         try:
             report, documents = build_reports(record, repo_root=stored.root, formats=requested,
                                              policy=policy, trusted_lifecycles=trusted_lifecycles,
@@ -85,7 +91,7 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False,
                 aligned.append(updated)
             page_record = result('scan', complete=report.complete,
                                  enforced_count=sum(item['enforcement'] == 'block' for item in aligned),
-                                 findings=aligned, errors=scan_summary['errors'])
+                                 findings=aligned, errors=source_summary['errors'])
             if len(_dump(page_record)) > 4_000_000:
                 raise ArtifactError('Report artifacts unavailable')
         except (ValueError, TypeError, OSError):
@@ -95,6 +101,7 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False,
                 render(items[midpoint:])
                 return
             all_complete = False
+            source_complete = False
             reports_rendered = False
             stored.error('REPORT_UNAVAILABLE')
             # A failed case is indexed explicitly and never represented as a rendered report.
@@ -127,6 +134,7 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False,
             files.append(descriptor)
         else:
             all_complete = all_complete and report.complete
+            source_complete = source_complete and report.complete
             # Keep public finding assertions aligned with the re-proved report.
             with connection:
                 for (identity, _), updated in zip(items, aligned):
@@ -160,11 +168,27 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False,
             page = []
     if page or page_number == 0:
         render(page)
+    terms_files = []
+    terms_count = 0
+    if terms is not None:
+        terms_count = len(terms.to_dict()['cases'])
+        try:
+            terms_files = _build_terms(stored, directory, requested, language)
+            if 'TERMS_OUTPUT_LIMIT' in terms.to_dict()['errors']:
+                reports_rendered = False
+        except (ValueError, TypeError, OSError, KeyError):
+            reports_rendered = False
+            all_complete = False
+            stored.error('REPORT_UNAVAILABLE')
     bundle = {'index': str(directory / 'index.json'), 'markdown_index': str(directory / 'README.md'),
               'page_count': page_number, 'case_count': case_count, 'complete': bool(all_complete),
               'reports_complete': reports_rendered, 'analysis_complete': bool(all_complete),
               'formats': requested, 'language': language}
-    pages_valid = _verify_pages(stored, bundle)
+    bundle['source_analysis_complete'] = bool(source_complete)
+    if terms is not None:
+        bundle.update(terms_files=terms_files, terms_case_count=terms_count,
+                      total_case_count=case_count + terms_count, terms_binding=terms.binding_digest)
+    pages_valid = _verify_pages(stored, bundle) and _verify_terms(stored, bundle)
     bundle['reports_complete'] = bool(reports_rendered and pages_valid)
     bundle.update(_write_frontdoor(stored, bundle, language))
     # Index arrays stream directly from the database, independent of case count.
@@ -177,6 +201,11 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False,
                     'execution': scan_summary['data']['execution'],
                     'quality_gate': scan_summary['data'].get('quality_gate', {}),
                     'page_count': page_number, 'formats': requested, 'language': language, 'errors': stored.errors()}
+        if terms is not None:
+            metadata.update(terms_files=terms_files, terms_case_count=terms_count,
+                            total_case_count=case_count + terms_count, terms_binding=terms.binding_digest,
+                            source_analysis_complete=bool(source_complete),
+                            terms_gate=scan_summary['data']['terms_gate'])
         stream.write(_dump(metadata)[:-1] + ',"pages":[')
         separator = ''
         for (payload,) in connection.execute('SELECT payload FROM report_pages ORDER BY id'):
@@ -190,6 +219,10 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False,
                      f'Report artifacts: {"complete" if bundle["reports_complete"] else "incomplete"}. '
                      f'Cases: {case_count}. Pages: {page_number}.\n\n')
         stream.write('[REPORT.md](../REPORT.md)\n\n')
+        if terms is not None:
+            stream.write(('ข้อกำหนดบุคคลที่สาม' if language == 'th' else 'Third-party terms') +
+                         f': {terms_count} cases; ' + ', '.join(
+                             f'[{item["file"]}]({item["file"]})' for item in terms_files) + '\n\n')
         for (payload,) in connection.execute('SELECT payload FROM report_pages ORDER BY id'):
             page = json.loads(payload)
             stream.write(f'- Page {page["page"]}: {page["case_count"]} cases; ')
@@ -201,6 +234,43 @@ def build_bundle(stored, *, formats=None, policy=None, trusted_lifecycles=False,
         bundle['complete'] = False
         bundle['reports_complete'] = False
     return bundle
+
+
+def _build_terms(stored, directory, requested, language):
+    """One independent, complete terms channel, even for zero source findings."""
+    from .markdown_report import render_terms_markdown
+    assessment = stored.terms_assessment
+    record = result('scan', complete=True, data={'scope': 'terms_only'})
+    _, documents = build_reports(record, repo_root=stored.root, formats=requested,
+                                 language=language, terms_assessment=assessment)
+    # The human artifact is a section, suitable for the full REPORT.md front door.
+    documents['markdown'] = render_terms_markdown(assessment, language=language)
+    names = {'json': 'terms.json', 'markdown': 'terms.md', 'sarif': 'terms.sarif'}
+    return [_write(directory, names[name], text if type(text) is str else _dump(text))
+            for name, text in documents.items()]
+
+
+def _verify_terms(stored, bundle):
+    assessment = getattr(stored, 'terms_assessment', None)
+    if assessment is None:
+        return 'terms_files' not in bundle
+    try:
+        if (bundle.get('terms_binding') != assessment.binding_digest or
+                bundle.get('terms_case_count') != len(assessment.to_dict()['cases'])):
+            return False
+        names = {'json': 'terms.json', 'markdown': 'terms.md', 'sarif': 'terms.sarif'}
+        required = {names[name] for name in bundle['formats']} | {'terms.md'}
+        descriptors = bundle['terms_files']
+        if len(descriptors) != len(required) or {item['file'] for item in descriptors} != required:
+            return False
+        for item in descriptors:
+            path = Path(bundle['index']).parent / item['file']
+            _safe_path(path)
+            if path.stat().st_size != item['bytes'] or _digest(path) != item['sha256']:
+                return False
+        return True
+    except (OSError, ValueError, TypeError, KeyError):
+        return False
 
 
 def _verify_pages(stored, bundle):
@@ -262,7 +332,7 @@ def _verify_pages(stored, bundle):
 def verify_bundle(stored, bundle):
     """Coverage, all page files, indexes and the owned human front door must agree."""
     try:
-        if not _verify_pages(stored, bundle):
+        if not _verify_pages(stored, bundle) or not _verify_terms(stored, bundle):
             return False
         if Path(bundle['report']) != stored.directory / 'REPORT.md':
             return False
@@ -428,20 +498,34 @@ def _write_frontdoor(stored, bundle, language):
                 ('reports_complete / analysis_complete',
                  str(bundle['reports_complete']).lower() + ' / ' + str(bundle['analysis_complete']).lower()),
             ]
+            if getattr(stored, 'terms_assessment', None) is not None:
+                gate = data['terms_gate']
+                rows.extend([
+                    (tr('Source / terms / total cases', 'กรณี source / ข้อกำหนด / รวม'),
+                     f"{data['finding_count']} / {data['terms_case_count']} / {data['total_case_count']}"),
+                    (tr('Terms gate / serious blocks', 'Gate ข้อกำหนด / Block ร้ายแรง'),
+                     gate['status'] + ' / ' + str(gate['enforced_count'])),
+                    (tr('Owner decision required', 'ต้องขอการตัดสินใจจาก Owner'),
+                     str(gate['decision_required']).lower()),
+                ])
             for label, value in rows:
                 add(f'| {label} | {value} |')
             add()
             add(tr('## Diagnosis and next actions', '## ผลวินิจฉัยและขั้นตอนถัดไป'))
             add()
             codes = {item['code'] for item in summary['errors']}
-            if data['target_count'] == 0:
+            terms_only = data.get('scope') == 'terms_only'
+            if terms_only:
+                add(tr('This is a terms-only assessment. No source analyzer was requested; code quality is not certified.',
+                       'นี่เป็นการประเมินข้อกำหนดเท่านั้น ไม่ได้ขอเรียก source analyzer จึงไม่รับรองคุณภาพโค้ด'))
+            elif data['target_count'] == 0:
                 if data.get('scope') == 'changed' or data.get('mode') == 'incremental':
                     add(tr('No targets were selected in changed scope. This does not analyze the whole project; use `devsift scan --all` for that scope.',
                            'ขอบเขต changed เลือกได้ 0 ไฟล์ จึงยังไม่ได้ตรวจทั้งโปรเจกต์ หากต้องการตรวจทั้งหมดใช้ `devsift scan --all`'))
                 else:
                     add(tr('Inventory returned no targets. Confirm the repository root and explicit scope; no source analysis can be inferred.',
                            'inventory ไม่พบรายการ ต้องตรวจ repository root และ scope ที่เลือก ยังสรุปว่ามีการวิเคราะห์ source ไม่ได้'))
-            if counts['executed'] == 0:
+            if counts['executed'] == 0 and not terms_only:
                 add(tr('No analyzer executed. Zero findings here is not evidence of analyzed clean code.',
                        'ยังไม่มีการเรียก analyzer จริง ผล 0 findings จึงไม่ใช่หลักฐานว่าโค้ดที่วิเคราะห์แล้วผ่าน'))
             missing = codes & {'NO_AVAILABLE_ANALYZER', 'ANALYZER_UNAVAILABLE', 'NATIVE_TOOL_UNAVAILABLE',
@@ -471,6 +555,18 @@ def _write_frontdoor(stored, bundle, language):
             index_link = quote(os.path.relpath(directory / 'index.json', stored.directory).replace('\\', '/'), safe='/')
             add('[' + tr('Complete page/checksum index', 'ดัชนีทุกหน้าและ checksums') + '](' + index_link + ')')
             add()
+            if getattr(stored, 'terms_assessment', None) is not None:
+                add('<a id="third-party-terms"></a>')
+                if _verify_terms(stored, bundle):
+                    with (directory / 'terms.md').open(encoding='utf-8') as terms_stream:
+                        for line in terms_stream:
+                            output.write(line)
+                    add()
+                else:
+                    add(tr('## Third-party terms report unavailable', '## รายงานข้อกำหนดบุคคลที่สามไม่พร้อมใช้งาน'))
+                    add(tr('The terms gate remains in force; evidence delivery is incomplete. Reassess before acting.',
+                           'Gate ข้อกำหนดยังคงมีผล แต่ส่งหลักฐานไม่ครบ ต้องประเมินใหม่ก่อนดำเนินการ'))
+                    add()
             add(tr('## Problem priority and verified files', '## ลำดับปัญหาและไฟล์ที่ยืนยันแล้ว'))
             add()
             add('| ' + tr('Case | Severity / rule | Verified file | What to inspect / next action',
