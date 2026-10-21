@@ -37,7 +37,7 @@ def annotation_lines(report, *, limit=50):
 
 
 def build_reports(scan_record, *, repo_root, policy=None, trusted_lifecycles=False,
-                  formats=None, repository_urls=(), source_timeout_seconds=10, language='en'):
+                  formats=None, repository_urls=(), source_timeout_seconds=10, language='en', terms_assessment=None):
     """Render all requested formats in memory from one source-reproved model."""
     from .markdown_report import render_markdown
     from .report_export import render_json, render_sarif
@@ -51,10 +51,12 @@ def build_reports(scan_record, *, repo_root, policy=None, trusted_lifecycles=Fal
         # Reports consume findings and outcome gates, not the per-file inventory.
         # Keep the bounded untrusted-report model independent of repository size.
         _require(type(scan_record) is dict and type(scan_record.get('data')) is dict)
-        report_input = {**scan_record, 'data': {}}
+        report_input = {**scan_record, 'data': {key: scan_record['data'][key]
+                       for key in ('source_analysis_complete', 'source_enforced_count')
+                       if terms_assessment is not None and key in scan_record['data']}}
         report = assemble_report(report_input, repo_root=repo_root, policy=policy,
                                  trusted_lifecycles=trusted_lifecycles, repository_urls=repository_urls,
-                                 source_timeout_seconds=source_timeout_seconds)
+                                 source_timeout_seconds=source_timeout_seconds, terms_assessment=terms_assessment)
         documents = {}
         if 'json' in requested:
             documents['json'] = _decode_json(render_json(report))
@@ -69,7 +71,7 @@ def build_reports(scan_record, *, repo_root, policy=None, trusted_lifecycles=Fal
 
 
 def attach_reports(public_record, scan_record, *, repo_root, policy=None,
-                   trusted_lifecycles=False, formats=None):
+                   trusted_lifecycles=False, formats=None, terms_assessment=None):
     """Internal CLI integration; preserve every existing failed/incomplete gate."""
     from .output import result
     try:
@@ -78,7 +80,8 @@ def attach_reports(public_record, scan_record, *, repo_root, policy=None,
         if public.get('complete') is False:
             scan_input.update(complete=False, status='incomplete', exit_code=2)
         report, documents = build_reports(scan_input, repo_root=repo_root, policy=policy,
-                                          trusted_lifecycles=trusted_lifecycles, formats=formats)
+                                          trusted_lifecycles=trusted_lifecycles, formats=formats,
+                                          terms_assessment=terms_assessment)
         cases = {case.case_id: case.to_dict() for case in report.cases}
         for finding in public['findings']:
             case = cases[finding['case_id']]
@@ -90,11 +93,18 @@ def attach_reports(public_record, scan_record, *, repo_root, policy=None,
         else:
             public.update(complete=True, status='enforced' if public['enforced_count'] else 'clean',
                           exit_code=1 if public['enforced_count'] else 0)
+        if terms_assessment is not None:
+            public['data']['terms_compliance'] = report.to_dict()['terms_compliance']
         public['data']['reports'] = documents
         return public
     except (OSError, ValueError, TypeError, KeyError, RecursionError, UnicodeError):
+        from .terms import TermsAssessment
+        terms = terms_assessment.to_dict() if type(terms_assessment) is TermsAssessment else None
         return result(public_record.get('command') if type(public_record) is dict else None,
-                      complete=False, errors=[{'code': 'REPORT_UNAVAILABLE', 'message': 'Full source-reproved reports could not be generated.'}])
+                      complete=False, enforced_count=terms['enforced_count'] if terms else 0,
+                      data={'terms_gate': {key: terms[key] for key in
+                            ('status', 'complete', 'enforced_count', 'decision_required')}} if terms else {},
+                      errors=[{'code': 'REPORT_UNAVAILABLE', 'message': 'Full source-reproved reports could not be generated.'}])
 
 
 def write_report_bundle(report, *, repo_root, destination):
