@@ -300,7 +300,7 @@ class _Inventory:
                 for dep, info in deps.items():
                     self.add('nuget', dep, info.get('resolved', 'unknown'), 'library', path,
                              'direct' if info.get('type') == 'Direct' else 'transitive')
-        elif path == '.devsift/third-party.json':
+        elif path.casefold() == '.devsift/third-party.json':
             data = _load(raw)
             _fields(data, {'schema_version', 'components'})
             _require(data['schema_version'] == '1' and type(data['components']) is list and
@@ -331,10 +331,10 @@ class _Inventory:
                 return
             # Only the explicit root declaration belongs to terms discovery;
             # tool-owned caches/reports may contain unrelated copied manifests.
-            state_folder = Path(folder).relative_to(self.root).as_posix() == '.devsift'
+            state_folder = Path(folder).relative_to(self.root).as_posix().casefold() == '.devsift'
             if state_folder:
                 dirs[:] = []
-                files = [name for name in files if name == 'third-party.json']
+                files = [name for name in files if name.casefold() == 'third-party.json']
             safe = []
             for directory in sorted(dirs):
                 if directory.lower() in _SKIP or (directory.casefold() == '.devsift' and Path(folder) != self.root):
@@ -355,7 +355,7 @@ class _Inventory:
                      'npm-shrinkwrap.json', 'go.mod', 'go.sum', 'packages.lock.json', 'Directory.Packages.props'} or \
                      filename.endswith(('.csproj', '.fsproj', '.vbproj')) or \
                      (filename.startswith('requirements') and filename.endswith('.txt')) or \
-                     path == '.devsift/third-party.json'
+                     path.casefold() == '.devsift/third-party.json'
                 if not supported:
                     continue
                 manifests += 1
@@ -489,6 +489,26 @@ def _prove(review, catalog_root, repo_root, observed, cache):
     return valid, actual, display
 
 
+def _unmatched_usage(review, root, observed, cache):
+    """Reprove only active usage, never invent an undiscovered component/version."""
+    matches = False
+    for entry in review['usage_evidence']:
+        key = (str(root), entry['path'])
+        try:
+            if key not in cache:
+                raw = _read(root, entry['path'])
+                _require(sum(len(value) for value in cache.values()) + len(raw) <= _MAX_TOTAL)
+                cache[key] = raw
+            raw = cache[key]
+        except FileNotFoundError:
+            observed[entry['path']] = 'unavailable'
+            continue
+        observed[entry['path']] = _digest(raw)
+        matches = matches or (observed[entry['path']] == entry['sha256'] and
+                              entry['excerpt'] in raw.decode('utf-8'))
+    return matches
+
+
 def assess_terms(repo_root, *, catalog_path=None, catalog_digest=None, history=None, as_of=None):
     """Assess local evidence without fetching, executing or changing the project."""
     from .terms_memory import DecisionHistory, read_history, repository_identity
@@ -582,6 +602,18 @@ def assess_terms(repo_root, *, catalog_path=None, catalog_digest=None, history=N
                 decision=decision, decision_required=bool(required), history=previous,
                 limitations=['Local evidence only; no legal certification.'] +
                     (['Proof is missing, stale or does not match current bytes.'] if incomplete else [])))
+    unmatched_reviews = []
+    identities = [{key: component[key] for key in ('ecosystem', 'name', 'version', 'kind')}
+                  for component in inventory.items.values()]
+    for review in reviews:
+        if review['component'] in identities:
+            continue
+        try:
+            if _unmatched_usage(review, root, inventory.observed, proof_cache):
+                errors.append('TERMS_REVIEW_SCOPE_MISMATCH')
+                unmatched_reviews.append({'component': review['component'], 'rule_id': review['rule_id']})
+        except (OSError, ValueError):
+            errors.append('TERMS_REVIEW_SCOPE_UNAVAILABLE')
     enforced = sum(case['enforcement'] == 'block' for case in cases)
     complete = not errors and all(case['enforcement'] != 'incomplete' for case in cases)
     binding = _digest(dict(policy=policy, catalog=catalog_binding, observed=inventory.observed,
@@ -596,6 +628,7 @@ def assess_terms(repo_root, *, catalog_path=None, catalog_digest=None, history=N
                            examined_files=sorted(inventory.observed),
                            unmatched_decisions=[event for event in events if event.get('case_id') not in
                                                 {case['case_id'] for case in cases}],
+                           unmatched_reviews=unmatched_reviews,
                            coverage='Bounded local manifest and explicit service declarations only.'),
                 inventory=sorted(inventory.items.values(), key=lambda item: item['component_id']),
                 cases=cases, errors=sorted(set(errors)), limitations=[
@@ -620,6 +653,8 @@ def assess_terms(repo_root, *, catalog_path=None, catalog_digest=None, history=N
         wire['inventory'] = []
         wire['scope']['examined_files'] = []
         wire['scope']['unmatched_decisions'] = []
+        wire['scope']['omitted_unmatched_review_count'] = len(wire['scope']['unmatched_reviews'])
+        wire['scope']['unmatched_reviews'] = []
         for case in cases:
             decision = case['decision']
             summary = ({'choice': decision['choice'], 'event_id': decision['event_id'], 'details_omitted': True}

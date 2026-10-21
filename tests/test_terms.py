@@ -298,6 +298,34 @@ class TermsTests(unittest.TestCase):
         self.assertFalse(wire['complete'])
         self.assertEqual(wire['scope']['unmatched_decisions'][0]['event_id'], event['event_id'])
 
+    def test_removed_declaration_cannot_hide_matching_reviewed_usage(self):
+        serious = self.case(self.assess())
+        event = self.decide(serious, 'decline')
+        (self.root / '.devsift/third-party.json').unlink()
+        wire = self.assess().to_dict()
+        self.assertFalse(wire['complete'])
+        self.assertEqual(wire['status'], 'incomplete')
+        self.assertIn('TERMS_REVIEW_SCOPE_MISMATCH', wire['errors'])
+        self.assertEqual(wire['enforced_count'], 0)
+        self.assertEqual(wire['scope']['unmatched_reviews'], [
+            {'component': self.review['component'], 'rule_id': self.review['rule_id']}])
+        self.assertEqual(wire['scope']['unmatched_decisions'][0]['event_id'], event['event_id'])
+        self.write('deploy.json', {'mode': 'different-project-context'})
+        unrelated = self.assess().to_dict()
+        self.assertNotIn('TERMS_REVIEW_SCOPE_MISMATCH', unrelated['errors'])
+        self.assertEqual(unrelated['scope']['unmatched_reviews'], [])
+        (self.root / 'deploy.json').unlink()
+        absent = self.assess().to_dict()
+        self.assertNotIn('TERMS_REVIEW_SCOPE_MISMATCH', absent['errors'])
+
+    def test_reserved_declaration_case_alias_is_recognized_and_cache_pruned(self):
+        (self.root / '.devsift').rename(self.root / 'temporary-state-name')
+        (self.root / 'temporary-state-name').rename(self.root / '.DEVSIFT')
+        self.write('.DEVSIFT/local/package.json', {'dependencies': {'cached-dependency': '1.2.3'}})
+        wire = self.assess().to_dict()
+        self.assertEqual(wire['enforced_count'], 1)
+        self.assertNotIn('cached-dependency', {item['name'] for item in wire['inventory']})
+
     def test_nested_transitive_manifests_and_explicit_services(self):
         self.write('sub/package.json', {'dependencies': {'alpha': '1.0.0'}, 'devDependencies': {'dev': '2'}})
         self.write('sub/package-lock.json', {'lockfileVersion': 3, 'packages': {
