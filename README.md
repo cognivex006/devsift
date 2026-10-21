@@ -4,6 +4,18 @@ DevSift ช่วยตรวจคุณภาพและความปลอ
 และ AI agent ผลระบุหลักฐาน ขอบเขตที่ตรวจได้ และสิ่งที่ยังยืนยันไม่ได้อย่างชัดเจน
 รองรับ native analyzers สำหรับ .NET, TypeScript, Go และ SQL เมื่อตั้งค่าเครื่องมือที่เชื่อถือได้
 
+## ข้อกำหนด third-party และประวัติ Owner (0.1.17)
+
+`scan` และ `ci` ประเมิน dependencies/runtime/SaaS แยกจาก source
+ใช้หลักฐานข้อกำหนดทางการและการใช้จริงที่ review แล้ว ไม่ fetch/ติดตั้งระหว่าง scan
+ข้อขัดแย้งร้ายแรงที่ยืนยันแล้ว Block ต่อแม้ Owner เลือกไม่แก้ไข
+ระบบจำคำตัดสินที่ตรงหลักฐานและไม่ถามซ้ำ พร้อม reconsider และประวัติเดิม
+ผลที่ยังไม่มีหลักฐานเป็น incomplete ไม่ใช่การรับรองว่าถูกต้องหรือกล่าวหาว่าละเมิด
+
+เริ่มจาก `devsift terms history` และ `devsift terms check --summary --report-language th`
+อ่าน [คู่มือข้อกำหนดและ decision memory](docs/THIRD-PARTY-TERMS.md) และ terms section ใน
+`REPORT.md` ร่วมกับจำนวน source findings/terms cases และ coverage ที่ยังไม่ครบ
+
 ## ติดตั้งแล้ว lint โปรเจกต์ได้ตรง ๆ
 
 ตัวติดตั้งใหม่เตรียม analyzer companion ที่ตรวจสอบแล้วและลงทะเบียนใน user scope
@@ -42,7 +54,7 @@ curl --progress-bar -fL https://github.com/cognivex006/devsift/releases/latest/d
 curl --progress-bar -fL https://github.com/cognivex006/devsift/releases/latest/download/update.sh | sh
 ```
 
-Release ปัจจุบันคือ [v0.1.16](https://github.com/cognivex006/devsift/releases/tag/v0.1.16)
+Release ปัจจุบันคือ [v0.1.17](https://github.com/cognivex006/devsift/releases/tag/v0.1.17)
 ดู [วิธีติดตั้งจาก source](docs/INSTALL.md#ติดตั้งจาก-source) หากต้องการ build เอง
 
 เปิด terminal และ agent session ใหม่ จาก Git root ของโปรเจกต์ที่ต้องการตรวจ:

@@ -4,6 +4,8 @@ All notable user-facing changes to DevSift will be documented here. This follows
 
 ## [Unreleased]
 
+## [0.1.17] - 2026-10-21
+
 ### Added
 - Assess bounded dependency/runtime/SaaS terms from explicitly pinned reviewed official clauses and actual usage evidence; keep missing, stale or ambiguous coverage incomplete.
 - Enforce serious confirmed terms conflicts independently of source lifecycle, baselines and CI severity, including empty scans, native setup failure and resume.

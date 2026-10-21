@@ -66,7 +66,7 @@ checksum ตรวจความเสียหายของไฟล์ ไ�
 หน้าจอปกติไม่แสดง pip/build logs หลังเสร็จสรุปเฉพาะเวอร์ชัน ตำแหน่ง CLI,
 hosts ที่ติดตั้ง และคำสั่งถัดไป หากล้มเหลวจะบอกขั้นตอนและสาเหตุ ไม่แสดงสถานะ Ready
 
-Installer assets เผยแพร่พร้อม [v0.1.16](https://github.com/cognivex006/devsift/releases/tag/v0.1.16)
+Installer assets เผยแพร่พร้อม [v0.1.17](https://github.com/cognivex006/devsift/releases/tag/v0.1.17)
 หากดาวน์โหลดไม่ได้ให้ตรวจ network หรือใช้ source installation ด้านล่าง
 
 เปิด terminal ใหม่ แล้วตรวจจาก Git root ของ target:
