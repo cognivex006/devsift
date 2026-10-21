@@ -415,7 +415,7 @@ def _catalog(path, digest, now):
         _require(review['applicability'] in {'applicable', 'not_applicable', 'unknown'} and
                  review['conclusion'] in {'compliant', 'conflict', 'unknown'} and
                  review['seriousness'] in {'serious', 'ordinary', 'unknown'})
-        identity = (*component.values(), review['rule_id'])
+        identity = (*(component[key] for key in ('ecosystem', 'name', 'version', 'kind')), review['rule_id'])
         _require(identity not in identities)
         identities.add(identity)
         for key in ('evidence', 'usage_evidence'):

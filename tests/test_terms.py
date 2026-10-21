@@ -204,6 +204,18 @@ class TermsTests(unittest.TestCase):
         self.data['reviews'].append(dict(self.review))
         self.assertIn('TERMS_CATALOG_INVALID', self.assess().to_dict()['errors'])
 
+    def test_reordered_component_keys_cannot_bypass_conflicting_duplicate_rejection(self):
+        reversed_component = dict(reversed(list(self.review['component'].items())))
+        self.assertNotEqual(list(reversed_component), list(self.review['component']))
+        duplicate = dict(self.review, component=reversed_component, conclusion='compliant')
+        self.data['reviews'].append(duplicate)
+        wire = self.assess().to_dict()
+        self.assertIn('TERMS_CATALOG_INVALID', wire['errors'])
+        self.assertFalse(wire['complete'])
+        self.assertEqual(wire['enforced_count'], 0)
+        self.assertEqual(len({case['case_id'] for case in wire['cases']}), len(wire['cases']))
+        self.assertTrue(all(case['status'] == 'unknown' for case in wire['cases']))
+
     def test_redaction_uses_full_evidence_context(self):
         secret = 'ghp_' + 'a' * 32
         usage = json.dumps({'mode': 'forbidden-workload', 'token': secret}).encode()
