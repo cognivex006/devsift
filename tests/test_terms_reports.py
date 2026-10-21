@@ -124,12 +124,22 @@ class TermsReportTests(unittest.TestCase):
         self.assertEqual(public['data']['terms_compliance'], assessment.to_dict())
         self.assertIn('source analysis only', render_markdown(assemble_report(result('scan', complete=True), repo_root=self.root)))
 
-    def test_already_floored_internal_record_does_not_double_count(self):
+    def test_imported_source_completeness_cannot_be_overridden_with_valid_clear_seal(self):
+        self.review['conclusion'] = 'compliant'
         assessment = self.assess()
-        record = result('scan', complete=True, enforced_count=1, data={
-            'source_analysis_complete':True, 'source_enforced_count':0})
-        report = assemble_report(record, repo_root=self.root, terms_assessment=assessment)
-        self.assertEqual((report.exit_code, report.to_dict()['enforced_count']), (1, 1))
+        self.assertTrue(assessment.to_dict()['complete'])
+        self.assertEqual(assessment.to_dict()['enforced_count'], 0)
+        forged = result('scan', complete=False, data={
+            'source_analysis_complete': True, 'source_enforced_count': 0,
+            'terms_gate': {'binding_digest': assessment.binding_digest,
+                           'status': 'clear', 'complete': True, 'enforced_count': 0}})
+        report = assemble_report(forged, repo_root=self.root, terms_assessment=assessment)
+        self.assertEqual((report.complete, report.exit_code), (False, 2))
+        report, documents = build_reports(forged, repo_root=self.root, terms_assessment=assessment)
+        self.assertEqual((report.complete, report.exit_code), (False, 2))
+        self.assertFalse(documents['json']['complete'])
+        public = attach_reports(forged, forged, repo_root=self.root, terms_assessment=assessment)
+        self.assertEqual((public['complete'], public['exit_code']), (False, 2))
 
     def test_unmatched_decisions_and_reviews_are_visible(self):
         assessment = self.assess()

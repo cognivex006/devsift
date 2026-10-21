@@ -138,18 +138,6 @@ def assemble_report(scan_record, *, repo_root, policy=None, redactor=None,
             _require(type(terms_assessment) is TermsAssessment
                      and terms_assessment.repository_id == repository_identity(root))
             terms = terms_assessment.to_dict()
-            # Only trusted in-process callers may separate an already applied
-            # terms floor from source outcomes. Imported data grants no trust.
-            _require(type(scan_record) is dict and type(scan_record.get('data')) is dict)
-            data = scan_record['data']
-            if 'source_analysis_complete' in data or 'source_enforced_count' in data:
-                from .output import result
-                _require(type(data.get('source_analysis_complete')) is bool
-                         and type(data.get('source_enforced_count')) is int
-                         and data['source_enforced_count'] >= 0)
-                scan_record = result('scan', complete=data['source_analysis_complete'],
-                                     enforced_count=data['source_enforced_count'],
-                                     findings=scan_record['findings'], errors=scan_record['errors'], data=data)
         _encode(scan_record)
         _fields(scan_record, ('schema_version', 'command', 'status', 'exit_code', 'complete',
                               'enforced_count', 'findings', 'errors', 'data'))

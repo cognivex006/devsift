@@ -51,9 +51,7 @@ def build_reports(scan_record, *, repo_root, policy=None, trusted_lifecycles=Fal
         # Reports consume findings and outcome gates, not the per-file inventory.
         # Keep the bounded untrusted-report model independent of repository size.
         _require(type(scan_record) is dict and type(scan_record.get('data')) is dict)
-        report_input = {**scan_record, 'data': {key: scan_record['data'][key]
-                       for key in ('source_analysis_complete', 'source_enforced_count')
-                       if terms_assessment is not None and key in scan_record['data']}}
+        report_input = {**scan_record, 'data': {}}
         report = assemble_report(report_input, repo_root=repo_root, policy=policy,
                                  trusted_lifecycles=trusted_lifecycles, repository_urls=repository_urls,
                                  source_timeout_seconds=source_timeout_seconds, terms_assessment=terms_assessment)
