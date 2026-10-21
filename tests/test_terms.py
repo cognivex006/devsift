@@ -338,6 +338,33 @@ class TermsTests(unittest.TestCase):
         self.assertIn('TERMS_DISCOVERY_LIMIT', wire['errors'])
         self.assertFalse(wire['complete'])
 
+    def test_large_source_inventory_does_not_hide_late_dependency_manifest(self):
+        self.write('zz/package.json', {'dependencies': {'late-dependency': '1.2.3'}})
+        enumeration = [(str(self.root), [], [f'source-{index:05}.ts' for index in range(17000)]),
+                       (str(self.root / 'zz'), [], ['package.json'])]
+        with patch('devsift.terms.os.walk', return_value=iter(enumeration)):
+            wire = self.assess(catalog=False).to_dict()
+        self.assertNotIn('TERMS_DISCOVERY_LIMIT', wire['errors'])
+        self.assertTrue(any(item['name'] == 'late-dependency' for item in wire['inventory']))
+
+    def test_owned_state_is_pruned_but_explicit_declaration_remains(self):
+        self.write('.devsift/local/package.json', {'dependencies': {'cached-dependency': '1.2.3'}})
+        for folder in ('.worktrees', '.pytest_cache', '.mypy_cache', '.tox'):
+            self.write(folder + '/package.json', {'dependencies': {'generated-dependency': '1.2.3'}})
+        wire = self.assess().to_dict()
+        names = {item['name'] for item in wire['inventory']}
+        self.assertIn('provider/product', names)
+        self.assertNotIn('cached-dependency', names)
+        self.assertNotIn('generated-dependency', names)
+        self.assertEqual(wire['enforced_count'], 1)
+
+    def test_empty_directory_traversal_has_explicit_bound(self):
+        enumeration = ((str(self.root), [], []) for _ in range(100001))
+        with patch('devsift.terms.os.walk', return_value=enumeration):
+            wire = self.assess(catalog=False).to_dict()
+        self.assertIn('TERMS_DISCOVERY_LIMIT', wire['errors'])
+        self.assertFalse(wire['complete'])
+
     def test_manifest_range_reconciles_with_direct_lock_only(self):
         self.write('package.json', {'dependencies': {'alpha': '^1.0.0'}})
         self.write('package-lock.json', {'packages': {'': {'dependencies': {'alpha': '^1.0.0'}},

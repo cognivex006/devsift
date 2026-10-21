@@ -24,6 +24,7 @@ _MAX_TOTAL = 16_000_000
 _MAX_COMPONENTS = 1000
 _SKIP = frozenset({'.git', '.hg', '.svn', '.aws', '.codex', '.agents',
                    'node_modules', '.venv', 'venv', 'worktrees', '__pycache__',
+                   '.worktrees', '.pytest_cache', '.mypy_cache', '.tox',
                    'bin', 'obj', 'dist', 'build'})
 _META = frozenset({'.git', '.hg', '.svn', '.aws', '.codex', '.agents'})
 _ECOSYSTEMS = frozenset({'npm', 'pypi', 'nuget', 'go', 'runtime', 'saas', 'tool'})
@@ -320,13 +321,23 @@ class _Inventory:
                         self.errors.append('TERMS_DECLARED_USAGE_UNAVAILABLE')
 
     def discover(self):
-        count = manifests = 0
+        count = manifests = directories = 0
         def walk_error(_):
             self.errors.append('TERMS_DISCOVERY_UNAVAILABLE')
         for folder, dirs, files in os.walk(self.root, followlinks=False, onerror=walk_error):
+            directories += 1
+            if directories > 100000:
+                self.errors.append('TERMS_DISCOVERY_LIMIT')
+                return
+            # Only the explicit root declaration belongs to terms discovery;
+            # tool-owned caches/reports may contain unrelated copied manifests.
+            state_folder = Path(folder).relative_to(self.root).as_posix() == '.devsift'
+            if state_folder:
+                dirs[:] = []
+                files = [name for name in files if name == 'third-party.json']
             safe = []
             for directory in sorted(dirs):
-                if directory.lower() in _SKIP:
+                if directory.lower() in _SKIP or (directory.casefold() == '.devsift' and Path(folder) != self.root):
                     continue
                 try:
                     _physical(Path(folder) / directory)
@@ -336,7 +347,7 @@ class _Inventory:
             dirs[:] = safe
             for filename in sorted(files):
                 count += 1
-                if count > 10000:
+                if count > 1000000:
                     self.errors.append('TERMS_DISCOVERY_LIMIT')
                     return
                 path = (Path(folder) / filename).relative_to(self.root).as_posix()
