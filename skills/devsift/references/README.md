@@ -33,3 +33,9 @@
 ผู้ดูแลและ agent ที่พัฒนา DevSift เริ่มที่ [เอกสารพัฒนา](https://github.com/cognivex006/devsift/blob/main/docs/development/README.md)
 ซึ่งแยก architecture, test strategy, repository rules และ release engineering
 ออกจากคู่มือผู้ใช้ ผู้ใช้ไม่ต้องอ่านเอกสารพัฒนาเพื่อตรวจโปรเจกต์ของตน
+
+## Third-party governance (0.1.17+)
+
+[THIRD-PARTY-TERMS](THIRD-PARTY-TERMS.md): ศึกษา official ToU/ToS/license/policy
+ประกอบการใช้ dependencies/runtime/SaaS, ส่งหลักฐาน review, อ่าน/บันทึก/กลับมาทบทวน
+การตัดสินใจ Owner และอ่าน Block ที่ยังมีผลในรายงานครบทุกกรณี

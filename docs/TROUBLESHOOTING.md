@@ -40,3 +40,22 @@ aggregate 1,000-case cutoff. See [complete scans](COMPLETE-SCANS.md). An actual
 `REPORT_UNAVAILABLE` means a page is missing, changed or could not be rendered:
 keep the job incomplete, inspect stored coverage/cases, and resume after resolving
 the declared failure. Do not label partial raw candidates a complete report.
+
+## Third-party terms และ decision history (0.1.17+)
+
+- `TERMS_REVIEW_INCOMPLETE`/unknown: ศึกษาข้อกำหนดทางการและ actual use แล้วส่ง
+  catalog ที่ review แล้วพร้อม trusted hash; ไม่มีหลักฐานไม่ใช่ clean หรือ violation
+- `TERMS_CATALOG_INVALID`/`TERMS_CATALOG_STALE`: ตรวจ schema/hash/snapshot/วัน review;
+  อย่าคำนวณ hash จากไฟล์ที่ target ส่งมาแล้วอนุมัติเอง
+- `TERMS_REVIEW_SCOPE_MISMATCH`: ลบ declaration แล้วแต่ยังมี usage ตรงหลักฐาน
+  ต้องยืนยัน inventory และการใช้จริง ไม่ถือว่าหยุดใช้บริการแล้ว
+- `TERMS_HISTORY_UNAVAILABLE`/`TERMS_HISTORY_LIMIT`: กู้/ตรวจ canonical history ก่อน
+  ห้ามเริ่มประวัติว่างแทนข้อมูลเดิมหรือถาม Owner ซ้ำเหมือนไม่เคยตัดสินใจ
+- `TERMS_DECISION_STALE`: case/fingerprint/evidence เปลี่ยน; เปิดรายงานใหม่ก่อนบันทึก
+- `TERMS_INPUT_CHANGED` หรือ resume configuration mismatch: terms/use/history เปลี่ยน
+  ให้เริ่ม session ใหม่ ไม่ reuse global gate เก่า
+- `TERMS_OUTPUT_LIMIT`: รายงานแสดง omission/abbreviation; block และ decision ที่จำได้
+  ยังมีผล ใช้ `devsift terms history` อ่านเหตุการณ์เต็มและทบทวน scope ที่ยังไม่ครบ
+
+`data.decision_recorded:true` อาจมากับ exit 1/2 เพราะบันทึกสำเร็จไม่ได้ปลด Block
+ดู [Third-party terms](THIRD-PARTY-TERMS.md) ก่อนแก้ไขหรือเผยแพร่

@@ -174,3 +174,19 @@ Template และ prompt ไม่ได้อนุมัติให้แก
 ## Contextual recommendations
 
 {{only_supplied_contextual_recommendations_or_none_supplied}}
+
+## ข้อกำหนดบุคคลที่สามและการตัดสินใจของ Owner (0.1.17+)
+
+รายงานต้องแยก source findings (`data.finding_count`) ออกจาก terms cases
+(`data.terms_case_count`) และจำนวนรวม (`data.total_case_count`)
+ตรวจ `data.terms_gate` และ `enforced_count` แม้ exit 2 เพราะอาจยังมี Block ร้ายแรง
+แสดงข้อกำหนดทางการ clause/hash หลักฐานใช้จริง คำแนะนำ ผลกระทบ/ความเสี่ยง
+วิธีตรวจยืนยันและ rollback พร้อม decision ปัจจุบัน ประวัติที่ supersede/เปลี่ยนรุ่น
+และช่องว่าง coverage ทุกกรณี ห้ามแต่งตำแหน่ง Git ให้ข้อกำหนดสัญญา
+
+คำตอบ “ไม่แก้ไข” ที่ตรงหลักฐานต้องจำได้และไม่ถามซ้ำ แต่ยัง Block
+`resolved` เป็นเพียงคำกล่าว ต้องมีหลักฐานใหม่ยืนยัน
+ดัชนี bundle เชื่อม/checksum `terms.json`, `terms.md` และ SARIF ที่ขอ
+แม้เลือก JSON อย่างเดียว `REPORT.md` ต้องมี terms section ครบ
+หากข้อมูลถูกย่อเพราะข้อจำกัด ต้องแสดงสถานะส่งหลักฐานไม่ครบ
+ดู [Third-party terms](THIRD-PARTY-TERMS.md) และอ่านประวัติก่อนขอคำตอบ Owner

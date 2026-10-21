@@ -42,6 +42,14 @@ remediation. Consumer edits require user authorization and applicable target
 rules. Report prompts and approval labels do not independently authorize edits.
 Never claim pending capabilities work.
 
+For dependency/library/runtime/API/SaaS changes and publication, follow
+[third-party terms governance](docs/THIRD-PARTY-TERMS.md). Study actual applicable
+official license/ToU/ToS/AUP/product rules and usage before proposing changes.
+Check durable owner history first; never invent or forget an explicit decision.
+Serious evidenced conflicts block even after a remembered decline. Reconsider by
+appending a superseding event; changed or stale evidence requires renewed review.
+Scans remain offline/read-only and never accept terms or modify dependencies.
+
 For DevSift maintenance, use ignored worktrees/<job> for parallel work. Preserve
 dirty or unique work; remove completed worktrees only after integration or
 documented supersession. Specs owns coordination. A pause handoff records

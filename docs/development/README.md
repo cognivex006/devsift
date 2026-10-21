@@ -32,3 +32,11 @@
 และ repository ข้อกำหนดที่แยกไว้ ใช้ชื่อความสามารถแทนเลข Requirement, task หรือ goal
 ในเอกสารผลิตภัณฑ์ และใช้ `devsift` เป็นคำสั่งสาธารณะทุกตัวอย่าง
 เมื่อแก้คู่มือใช้งานให้รัน `python tools/sync_skill_docs.py` เพื่ออัปเดตคู่มือที่แนบกับ skill
+
+## Third-party terms governance
+
+[Consumer terms workflow](../THIRD-PARTY-TERMS.md) explains explicit catalog trust,
+source/usage reproof, immutable serious gate floor and durable owner decisions.
+Keep its separate sealed report family, resume bindings and offline scan boundary
+when extending analyzers or reports. Study actual artifact distribution inputs
+before release; existing SBOM/license unknowns are not automatic infringement.

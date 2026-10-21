@@ -45,6 +45,10 @@ include devsift/security_context.py
 include devsift/security_gate.py
 include devsift/sql_adapter.py
 include devsift/suppressions.py
+include devsift/terms.py
+include devsift/terms_commands.py
+include devsift/terms_gate.py
+include devsift/terms_memory.py
 include devsift/typescript_adapter.py
 include devsift/verification_plan.py
 include docs/development/PACKAGING.md

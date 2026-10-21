@@ -64,3 +64,14 @@ mode ยังมีผล ไม่มีการอ้างว่าตร�
 และ next action ที่แก้ปัญหานั้น รายงานครบไม่ได้ทำให้ UNKNOWN กลายเป็น verified
 การสแกนไม่แก้ source, target dependencies หรือ Git configuration และไม่ดาวน์โหลด tools
 ดู [ครบทุก case](COMPLETE-SCANS.md) สำหรับ session/resume และงานขนาดใหญ่
+
+## ตรวจข้อกำหนด dependencies และ SaaS (0.1.17+)
+
+`scan` และ `ci` ตรวจ third-party terms แยกจากคุณภาพ source โดยอัตโนมัติ
+หากไม่มีหลักฐาน review สำหรับ component ที่พบ ผลส่วนนี้เป็น incomplete
+เริ่มด้วย `devsift terms history` แล้วศึกษา official license/ToU/ToS/AUP และการใช้จริง
+จากนั้นใช้ `devsift terms check --summary --report-language th`
+หรือส่ง catalog/hash ที่ผู้มีอำนาจตรวจแล้วตาม [คู่มือ](THIRD-PARTY-TERMS.md)
+คำสั่งนี้ไม่ต้องใช้ native analyzer และไม่อ้างว่า lint source แล้ว
+ข้อขัดแย้งร้ายแรงที่ยืนยันแล้ว Block ต่อแม้ Owner เลือกไม่แก้ไข
+คำตัดสินเดิมถูกเก็บถาวรและเรียก reconsider ได้ โดยไม่ลบประวัติ

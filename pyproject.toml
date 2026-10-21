@@ -60,6 +60,10 @@ py-modules = [
     "devsift.security_gate",
     "devsift.sql_adapter",
     "devsift.suppressions",
+    "devsift.terms",
+    "devsift.terms_commands",
+    "devsift.terms_gate",
+    "devsift.terms_memory",
     "devsift.typescript_adapter",
     "devsift.verification_plan",
 ]
